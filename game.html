@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Super Platformer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #1a1a2e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Courier New', monospace;
+      color: #fff;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #f0c040;
+      text-shadow: 2px 2px 8px #f0804080;
+      letter-spacing: 4px;
+    }
+    #ui {
+      display: flex;
+      gap: 40px;
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+    }
+    #ui span { color: #aef; }
+    #ui b { color: #f0c040; }
+    canvas {
+      border: 3px solid #f0c040;
+      border-radius: 6px;
+      box-shadow: 0 0 30px #f0804060;
+      display: block;
+    }
+    #controls {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: #888;
+      text-align: center;
+    }
+    #overlay {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+    }
+    #overlay h2 { font-size: 2.5rem; color: #f0c040; }
+    #overlay p { font-size: 1.1rem; color: #aef; }
+    #overlay button {
+      padding: 12px 36px;
+      font-size: 1.2rem;
+      background: #f0c040;
+      color: #1a1a2e;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      letter-spacing: 2px;
+      transition: background 0.2s;
+    }
+    #overlay button:hover { background: #ffd700; }
+    #wrapper { position: relative; }
+  </style>
+</head>
+<body>
+  <h1>⭐ SUPER PLATFORMER ⭐</h1>
+  <div id="ui">
+    <span>Score: <b id="scoreEl">0</b></span>
+    <span>Vies: <b id="livesEl">3</b></span>
+    <span>Niveau: <b id="levelEl">1</b></span>
+    <span>Pièces: <b id="coinsEl">0</b></span>
+  </div>
+  <div id="wrapper">
+    <canvas id="c" width="900" height="500"></canvas>
+    <div id="overlay">
+      <h2>SUPER PLATFORMER</h2>
+      <p>Collecte toutes les pièces et évite les ennemis !</p>
+      <button id="startBtn">▶ JOUER</button>
+    </div>
+  </div>
+  <div id="controls">
+    ← → : Déplacer &nbsp;|&nbsp; ↑ ou Espace : Sauter &nbsp;|&nbsp; Double saut possible !
+  </div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+// --- State ---
+let state = 'menu'; // menu | playing | dead | win
+let score = 0, lives = 3, level = 1, coins = 0;
+let keys = {};
+let animId;
+
+// --- Player ---
+const GRAVITY = 0.55;
+const JUMP_FORCE = -13;
+const SPEED = 4.5;
+
+function makePlayer() {
+  return {
+    x: 80, y: 300,
+    w: 32, h: 40,
+    vx: 0, vy: 0,
+    onGround: false,
+    jumpsLeft: 2,
+    invincible: 0,
+    frame: 0, frameTimer: 0,
+    facing: 1,
+  };
+}
+let player;
+
+// --- Level definitions ---
+function makeLevels() {
+  return [
+    // Level 1
+    {
+      bg: ['#0f3460', '#16213e'],
+      platforms: [
+        { x: 0,   y: 460, w: 900, h: 40, color: '#4a7c59' }, // ground
+        { x: 150, y: 370, w: 120, h: 16, color: '#6b9e78' },
+        { x: 350, y: 300, w: 140, h: 16, color: '#6b9e78' },
+        { x: 550, y: 220, w: 120, h: 16, color: '#6b9e78' },
+        { x: 720, y: 310, w: 100, h: 16, color: '#6b9e78' },
+        { x: 500, y: 400, w: 100, h: 16, color: '#6b9e78' },
+        { x: 80,  y: 240, w: 100, h: 16, color: '#6b9e78' },
+      ],
+      coins: [
+        {x:180,y:340}, {x:210,y:340}, {x:390,y:270}, {x:420,y:270},
+        {x:590,y:190}, {x:620,y:190}, {x:750,y:280}, {x:530,y:370},
+        {x:100,y:210}, {x:130,y:210},
+      ],
+      enemies: [
+        { x: 360, y: 272, dir: 1, min: 350, max: 470 },
+        { x: 560, y: 192, dir: 1, min: 550, max: 655 },
+        { x: 0,   y: 420, dir: 1, min: 0,   max: 140 },
+      ],
+      exit: { x: 840, y: 280 },
+    },
+    // Level 2
+    {
+      bg: ['#1a0533', '#2d1b5e'],
+      platforms: [
+        { x: 0,   y: 460, w: 900, h: 40, color: '#5a3e7a' },
+        { x: 50,  y: 380, w: 100, h: 16, color: '#7a5e9a' },
+        { x: 230, y: 320, w: 90,  h: 16, color: '#7a5e9a' },
+        { x: 380, y: 250, w: 90,  h: 16, color: '#7a5e9a' },
+        { x: 530, y: 180, w: 90,  h: 16, color: '#7a5e9a' },
+        { x: 680, y: 250, w: 90,  h: 16, color: '#7a5e9a' },
+        { x: 790, y: 340, w: 90,  h: 16, color: '#7a5e9a' },
+        { x: 250, y: 420, w: 80,  h: 16, color: '#7a5e9a' },
+        { x: 600, y: 380, w: 80,  h: 16, color: '#7a5e9a' },
+      ],
+      coins: [
+        {x:70,y:350},{x:100,y:350},{x:250,y:290},{x:275,y:290},
+        {x:400,y:220},{x:425,y:220},{x:550,y:150},{x:575,y:150},
+        {x:700,y:220},{x:725,y:220},{x:270,y:390},{x:620,y:350},
+      ],
+      enemies: [
+        { x: 55,  y: 352, dir: 1, min: 50,  max: 135 },
+        { x: 390, y: 222, dir: 1, min: 380, max: 455 },
+        { x: 540, y: 152, dir: 1, min: 530, max: 605 },
+        { x: 690, y: 222, dir: 1, min: 680, max: 755 },
+        { x: 150, y: 432, dir: 1, min: 0,   max: 250 },
+      ],
+      exit: { x: 840, y: 310 },
+    },
+    // Level 3
+    {
+      bg: ['#0a1628', '#122040'],
+      platforms: [
+        { x: 0,   y: 460, w: 200, h: 40, color: '#3a6e8c' },
+        { x: 300, y: 460, w: 150, h: 40, color: '#3a6e8c' },
+        { x: 550, y: 460, w: 200, h: 40, color: '#3a6e8c' },
+        { x: 800, y: 460, w: 100, h: 40, color: '#3a6e8c' },
+        { x: 100, y: 360, w: 100, h: 16, color: '#4a8eac' },
+        { x: 270, y: 300, w: 100, h: 16, color: '#4a8eac' },
+        { x: 440, y: 240, w: 100, h: 16, color: '#4a8eac' },
+        { x: 620, y: 180, w: 100, h: 16, color: '#4a8eac' },
+        { x: 780, y: 250, w: 100, h: 16, color: '#4a8eac' },
+        { x: 600, y: 340, w: 80,  h: 16, color: '#4a8eac' },
+        { x: 180, y: 220, w: 80,  h: 16, color: '#4a8eac' },
+      ],
+      coins: [
+        {x:120,y:330},{x:150,y:330},{x:290,y:270},{x:315,y:270},
+        {x:460,y:210},{x:490,y:210},{x:640,y:150},{x:665,y:150},
+        {x:800,y:220},{x:825,y:220},{x:200,y:190},{x:225,y:190},
+        {x:615,y:310},{x:640,y:310},
+      ],
+      enemies: [
+        { x: 110, y: 332, dir: 1, min: 100, max: 185 },
+        { x: 280, y: 272, dir: 1, min: 270, max: 355 },
+        { x: 450, y: 212, dir: 1, min: 440, max: 525 },
+        { x: 630, y: 152, dir: 1, min: 620, max: 705 },
+        { x: 0,   y: 432, dir: 1, min: 0,   max: 195 },
+        { x: 555, y: 432, dir: 1, min: 550, max: 745 },
+      ],
+      exit: { x: 850, y: 220 },
+    },
+  ];
+}
+
+let levels, levelData, platforms, coinObjects, enemies, exitObj;
+let particles = [];
+let camX = 0;
+
+// --- Init level ---
+function initLevel(lvl) {
+  levels = makeLevels();
+  levelData = levels[lvl - 1] || levels[levels.length - 1];
+  platforms = levelData.platforms.map(p => ({ ...p, collected: false }));
+  coinObjects = levelData.coins.map(c => ({ x: c.x, y: c.y, r: 10, collected: false, bobT: Math.random() * Math.PI * 2 }));
+  enemies = levelData.enemies.map(e => ({ ...e, w: 36, h: 36, dead: false, vy: 0 }));
+  exitObj = { ...levelData.exit, w: 40, h: 50 };
+  player = makePlayer();
+  particles = [];
+  camX = 0;
+}
+
+// --- Physics helpers ---
+function rectOverlap(a, b) {
+  return a.x < b.x + b.w && a.x + a.w > b.x &&
+         a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+function resolvePlayerPlatform(p, plat) {
+  const overlapX = Math.min(p.x + p.w, plat.x + plat.w) - Math.max(p.x, plat.x);
+  const overlapY = Math.min(p.y + p.h, plat.y + plat.h) - Math.max(p.y, plat.y);
+  if (overlapX <= 0 || overlapY <= 0) return;
+
+  if (overlapX < overlapY) {
+    // Push horizontally
+    if (p.x + p.w / 2 < plat.x + plat.w / 2) p.x = plat.x - p.w;
+    else p.x = plat.x + plat.w;
+    p.vx = 0;
+  } else {
+    // Push vertically
+    if (p.y + p.h / 2 < plat.y + plat.h / 2) {
+      p.y = plat.y - p.h;
+      p.vy = 0;
+      p.onGround = true;
+      p.jumpsLeft = 2;
+    } else {
+      p.y = plat.y + plat.h;
+      p.vy = Math.abs(p.vy) * 0.1;
+    }
+  }
+}
+
+// --- Particles ---
+function spawnParticles(x, y, color, n = 8) {
+  for (let i = 0; i < n; i++) {
+    const angle = (Math.PI * 2 * i) / n + Math.random() * 0.5;
+    const speed = 2 + Math.random() * 3;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 2,
+      life: 40 + Math.random() * 20,
+      maxLife: 60,
+      color, size: 4 + Math.random() * 4,
+    });
+  }
+}
+
+// --- Update ---
+function update() {
+  if (state !== 'playing') return;
+
+  // Player input
+  player.vx = 0;
+  if (keys['ArrowLeft'] || keys['a']) { player.vx = -SPEED; player.facing = -1; }
+  if (keys['ArrowRight'] || keys['d']) { player.vx = SPEED; player.facing = 1; }
+
+  // Gravity
+  player.vy += GRAVITY;
+  player.onGround = false;
+
+  // Move
+  player.x += player.vx;
+  player.y += player.vy;
+
+  // Clamp left
+  if (player.x < 0) { player.x = 0; player.vx = 0; }
+
+  // Platform collisions
+  for (const plat of platforms) {
+    if (rectOverlap(player, plat)) resolvePlayerPlatform(player, plat);
+  }
+
+  // Fall into pit
+  if (player.y > H + 60) { loseLife(); return; }
+
+  // Camera
+  const targetCam = player.x - W / 3;
+  camX += (targetCam - camX) * 0.1;
+  camX = Math.max(0, Math.min(camX, 900));
+
+  // Coins
+  for (const coin of coinObjects) {
+    if (coin.collected) continue;
+    coin.bobT += 0.07;
+    if (rectOverlap(player, { x: coin.x - coin.r, y: coin.y - coin.r + Math.sin(coin.bobT) * 4, w: coin.r * 2, h: coin.r * 2 })) {
+      coin.collected = true;
+      coins++;
+      score += 100;
+      spawnParticles(coin.x, coin.y, '#f0c040', 6);
+      updateUI();
+    }
+  }
+
+  // Enemies
+  for (const en of enemies) {
+    if (en.dead) { en.vy += GRAVITY; en.y += en.vy; continue; }
+    en.x += en.dir * 1.5;
+    if (en.x <= en.min || en.x + en.w >= en.max) en.dir *= -1;
+
+    if (player.invincible > 0) { player.invincible--; continue; }
+
+    if (rectOverlap(player, { x: en.x, y: en.y, w: en.w, h: en.h })) {
+      // Stomp from above?
+      const playerBottom = player.y + player.h;
+      const enTop = en.y;
+      if (player.vy > 0 && playerBottom < enTop + 18) {
+        en.dead = true;
+        en.vy = -8;
+        player.vy = JUMP_FORCE * 0.7;
+        score += 200;
+        spawnParticles(en.x + en.w / 2, en.y, '#ff6b6b', 10);
+        updateUI();
+      } else {
+        loseLife(); return;
+      }
+    }
+  }
+
+  // Exit
+  if (rectOverlap(player, exitObj)) {
+    const totalCoins = coinObjects.length;
+    const collectedCoins = coinObjects.filter(c => c.collected).length;
+    if (collectedCoins === totalCoins) {
+      score += 500 * level;
+      updateUI();
+      if (level < 3) {
+        level++;
+        initLevel(level);
+        updateUI();
+      } else {
+        state = 'win';
+        showOverlay('win');
+      }
+    }
+  }
+
+  // Particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx; p.y += p.vy; p.vy += 0.2;
+    p.life--;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+
+  // Player animation
+  player.frameTimer++;
+  if (player.frameTimer > 8) { player.frame = (player.frame + 1) % 4; player.frameTimer = 0; }
+}
+
+function loseLife() {
+  lives--;
+  spawnParticles(player.x + player.w / 2, player.y + player.h / 2, '#4fc3f7', 14);
+  updateUI();
+  if (lives <= 0) {
+    state = 'dead';
+    showOverlay('dead');
+  } else {
+    player = makePlayer();
+  }
+}
+
+// --- Draw ---
+function drawBg(colors) {
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, colors[0]);
+  grad.addColorStop(1, colors[1]);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Stars
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  const rng = seededRand(level * 42);
+  for (let i = 0; i < 60; i++) {
+    const sx = (rng() * 1800) % W;
+    const sy = rng() * H * 0.7;
+    const ss = rng() * 2.5 + 0.5;
+    ctx.beginPath();
+    ctx.arc(sx, sy, ss, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function seededRand(seed) {
+  let s = seed;
+  return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
+}
+
+function drawPlatform(plat) {
+  const x = plat.x - camX;
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.fillRect(x + 4, plat.y + 6, plat.w, plat.h);
+  // Main
+  ctx.fillStyle = plat.color;
+  ctx.fillRect(x, plat.y, plat.w, plat.h);
+  // Top highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.fillRect(x, plat.y, plat.w, 4);
+  // Grass-like top for wide platforms
+  if (plat.h >= 40) {
+    ctx.fillStyle = '#7abf6a';
+    ctx.fillRect(x, plat.y, plat.w, 8);
+  }
+}
+
+function drawCoin(coin) {
+  if (coin.collected) return;
+  const cx = coin.x - camX;
+  const cy = coin.y + Math.sin(coin.bobT) * 4;
+
+  // Glow
+  const grd = ctx.createRadialGradient(cx, cy, 2, cx, cy, coin.r + 6);
+  grd.addColorStop(0, 'rgba(240,192,64,0.6)');
+  grd.addColorStop(1, 'rgba(240,192,64,0)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, coin.r + 6, 0, Math.PI * 2);
+  ctx.fillStyle = grd;
+  ctx.fill();
+
+  // Coin body
+  ctx.beginPath();
+  ctx.arc(cx, cy, coin.r, 0, Math.PI * 2);
+  ctx.fillStyle = '#f0c040';
+  ctx.fill();
+  ctx.strokeStyle = '#c89000';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // $ symbol
+  ctx.fillStyle = '#c89000';
+  ctx.font = 'bold 11px Courier New';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('★', cx, cy);
+}
+
+function drawEnemy(en) {
+  if (en.y > H + 100) return;
+  const ex = en.x - camX;
+
+  if (en.dead) {
+    ctx.globalAlpha = 0.4;
+    ctx.fillStyle = '#ff6b6b';
+    ctx.beginPath();
+    ctx.ellipse(ex + en.w / 2, en.y + en.h / 2, en.w / 2, en.h / 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    return;
+  }
+
+  // Body
+  ctx.fillStyle = '#e74c3c';
+  ctx.beginPath();
+  ctx.roundRect(ex, en.y, en.w, en.h, 8);
+  ctx.fill();
+
+  // Eyes
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.ellipse(ex + 10, en.y + 12, 6, 7, 0, 0, Math.PI * 2);
+  ctx.ellipse(ex + 26, en.y + 12, 6, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#000';
+  const dir = en.dir;
+  ctx.beginPath();
+  ctx.arc(ex + 10 + dir * 2, en.y + 13, 3, 0, Math.PI * 2);
+  ctx.arc(ex + 26 + dir * 2, en.y + 13, 3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Mouth (angry)
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(ex + 18, en.y + 25, 8, 0.2, Math.PI - 0.2);
+  ctx.stroke();
+
+  // Feet
+  ctx.fillStyle = '#c0392b';
+  ctx.fillRect(ex + 4, en.y + en.h - 8, 10, 8);
+  ctx.fillRect(ex + en.w - 14, en.y + en.h - 8, 10, 8);
+}
+
+function drawPlayer() {
+  const px = player.x - camX;
+  const py = player.y;
+  const blink = player.invincible > 0 && Math.floor(player.invincible / 4) % 2 === 0;
+  if (blink) return;
+
+  ctx.save();
+  if (player.facing === -1) {
+    ctx.translate(px + player.w / 2, 0);
+    ctx.scale(-1, 1);
+    ctx.translate(-(px + player.w / 2), 0);
+  }
+
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.beginPath();
+  ctx.ellipse(px + player.w / 2, py + player.h + 2, 16, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Legs animation
+  const legSwing = player.onGround ? Math.sin(player.frame * Math.PI / 2) * 6 : 0;
+  ctx.fillStyle = '#2980b9';
+  ctx.fillRect(px + 4, py + 26, 10, 14 + legSwing);
+  ctx.fillRect(px + 18, py + 26, 10, 14 - legSwing);
+
+  // Body
+  ctx.fillStyle = '#e74c3c';
+  ctx.beginPath();
+  ctx.roundRect(px + 2, py + 10, player.w - 4, 22, 6);
+  ctx.fill();
+
+  // Belt
+  ctx.fillStyle = '#f39c12';
+  ctx.fillRect(px + 2, py + 25, player.w - 4, 4);
+
+  // Head
+  ctx.fillStyle = '#f5cba7';
+  ctx.beginPath();
+  ctx.roundRect(px + 4, py, 24, 18, 8);
+  ctx.fill();
+
+  // Hat
+  ctx.fillStyle = '#e74c3c';
+  ctx.beginPath();
+  ctx.roundRect(px + 2, py - 10, 28, 12, 4);
+  ctx.fill();
+  ctx.fillRect(px - 2, py + 1, 36, 5);
+
+  // Eyes
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(px + 12, py + 7, 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#2c3e50';
+  ctx.beginPath();
+  ctx.arc(px + 13, py + 7, 2.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Mustache
+  ctx.fillStyle = '#5d4037';
+  ctx.beginPath();
+  ctx.ellipse(px + 10, py + 13, 6, 2.5, -0.3, 0, Math.PI);
+  ctx.ellipse(px + 22, py + 13, 6, 2.5, 0.3, 0, Math.PI);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawExit() {
+  const ex = exitObj.x - camX;
+  const ey = exitObj.y;
+
+  // Check if all coins collected
+  const allCollected = coinObjects.every(c => c.collected);
+
+  // Door frame
+  ctx.fillStyle = allCollected ? '#27ae60' : '#7f8c8d';
+  ctx.fillRect(ex - 4, ey - 4, exitObj.w + 8, exitObj.h + 4);
+
+  // Door
+  ctx.fillStyle = allCollected ? '#2ecc71' : '#95a5a6';
+  ctx.fillRect(ex, ey, exitObj.w, exitObj.h);
+
+  // Door shine
+  if (allCollected) {
+    const t = Date.now() / 400;
+    ctx.fillStyle = `rgba(255,255,255,${0.2 + 0.15 * Math.sin(t)})`;
+    ctx.fillRect(ex + 5, ey + 5, 8, exitObj.h - 10);
+  }
+
+  // Star on door
+  ctx.fillStyle = allCollected ? '#f0c040' : '#bdc3c7';
+  ctx.font = 'bold 24px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🚪', ex + exitObj.w / 2, ey + exitObj.h / 2);
+
+  // Label
+  ctx.fillStyle = allCollected ? '#f0c040' : '#aaa';
+  ctx.font = 'bold 11px Courier New';
+  ctx.textAlign = 'center';
+  ctx.fillText(allCollected ? 'SORTIE!' : 'Collecte tout!', ex + exitObj.w / 2, ey - 14);
+}
+
+function drawParticles() {
+  for (const p of particles) {
+    const alpha = p.life / p.maxLife;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x - camX, p.y, p.size * alpha, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawHUD() {
+  // Coins indicator (minimap of remaining coins)
+  const remaining = coinObjects.filter(c => !c.collected).length;
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(W - 160, 10, 150, 30);
+  ctx.fillStyle = '#f0c040';
+  ctx.font = 'bold 14px Courier New';
+  ctx.textAlign = 'left';
+  ctx.fillText(`★ Restantes: ${remaining}`, W - 152, 30);
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  drawBg(levelData.bg);
+
+  for (const plat of platforms) drawPlatform(plat);
+  for (const coin of coinObjects) drawCoin(coin);
+  drawExit();
+  for (const en of enemies) drawEnemy(en);
+  drawPlayer();
+  drawParticles();
+  drawHUD();
+}
+
+// --- Game loop ---
+function loop() {
+  update();
+  if (state === 'playing') draw();
+  animId = requestAnimationFrame(loop);
+}
+
+// --- UI ---
+function updateUI() {
+  document.getElementById('scoreEl').textContent = score;
+  document.getElementById('livesEl').textContent = lives;
+  document.getElementById('levelEl').textContent = level;
+  document.getElementById('coinsEl').textContent = coins;
+}
+
+function showOverlay(type) {
+  const ov = document.getElementById('overlay');
+  ov.innerHTML = '';
+  if (type === 'dead') {
+    ov.innerHTML = `
+      <h2 style="color:#ff6b6b">GAME OVER</h2>
+      <p>Score final: ${score}</p>
+      <p>Pièces collectées: ${coins}</p>
+      <button id="startBtn">↺ RECOMMENCER</button>
+    `;
+  } else if (type === 'win') {
+    ov.innerHTML = `
+      <h2 style="color:#f0c040">🏆 VICTOIRE! 🏆</h2>
+      <p>Tu as complété tous les niveaux!</p>
+      <p>Score final: <b style="color:#f0c040">${score}</b></p>
+      <p>Pièces collectées: ${coins}</p>
+      <button id="startBtn">↺ REJOUER</button>
+    `;
+  }
+  ov.style.display = 'flex';
+  document.getElementById('startBtn').addEventListener('click', startGame);
+}
+
+function startGame() {
+  score = 0; lives = 3; level = 1; coins = 0;
+  updateUI();
+  initLevel(1);
+  state = 'playing';
+  document.getElementById('overlay').style.display = 'none';
+}
+
+// --- Input ---
+document.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  keys[e.key] = true;
+
+  if ((e.code === 'Space' || e.code === 'ArrowUp' || e.key === 'w') && state === 'playing') {
+    if (player.jumpsLeft > 0) {
+      player.vy = JUMP_FORCE;
+      player.jumpsLeft--;
+      spawnParticles(player.x + player.w / 2, player.y + player.h, '#4fc3f7', 4);
+    }
+    e.preventDefault();
+  }
+});
+document.addEventListener('keyup', e => { keys[e.code] = false; keys[e.key] = false; });
+
+// --- Start ---
+document.getElementById('startBtn').addEventListener('click', startGame);
+initLevel(1);
+loop();
+</script>
+</body>
+</html>
