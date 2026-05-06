@@ -9,29 +9,38 @@ param(
     [switch]$Uninstall
 )
 
-$ScriptPath = $env:RDF_SCRIPT
-$TaskName = "RandomFileDeletion"
+$ScriptPath   = $env:RDF_SCRIPT
+$TaskName     = "RandomFileDeletion"
+$LauncherDir  = Join-Path $env:LOCALAPPDATA "RandomFileDeletion"
+$LauncherPath = Join-Path $LauncherDir "launcher.vbs"
 
 function Install-Task {
+    if (-not (Test-Path -LiteralPath $LauncherDir)) {
+        New-Item -ItemType Directory -Path $LauncherDir -Force | Out-Null
+    }
+
     $psCommand = @"
-`$env:RDF_SCRIPT = '$ScriptPath'
 `$lines = Get-Content -LiteralPath '$ScriptPath' | Where-Object { `$_ -notmatch '^@@' }
 & ([scriptblock]::Create((`$lines -join [Environment]::NewLine))) -Run -Directory '$Directory'
 "@
     $encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($psCommand))
-    $argument = "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -EncodedCommand $encoded"
+    $psCmdLine = "powershell.exe -NoProfile -ExecutionPolicy Bypass -EncodedCommand $encoded"
 
-    $action   = New-ScheduledTaskAction -Execute "powershell.exe" -Argument $argument
+    $vbs = "CreateObject(`"WScript.Shell`").Run `"$psCmdLine`", 0, False"
+    Set-Content -LiteralPath $LauncherPath -Value $vbs -Encoding ASCII
+
+    $action   = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "`"$LauncherPath`""
     $trigger  = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
-    $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
+    $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -Hidden
 
     Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Force | Out-Null
 
     Write-Host ""
-    Write-Host "OK : tache '$TaskName' installee."
+    Write-Host "OK : tache '$TaskName' installee (execution totalement masquee)."
     Write-Host "Cible       : $Directory"
     Write-Host "Declencheur : ouverture de session de $env:USERNAME"
     Write-Host "Source      : $ScriptPath"
+    Write-Host "Lanceur     : $LauncherPath"
     Write-Host ""
     Write-Host "Pour desinstaller, ouvrez cmd et lancez :"
     Write-Host "  `"$ScriptPath`" -Uninstall"
@@ -45,6 +54,10 @@ function Uninstall-Task {
         Write-Host "Tache '$TaskName' desinstallee."
     } else {
         Write-Host "Aucune tache '$TaskName' trouvee."
+    }
+    if (Test-Path -LiteralPath $LauncherDir) {
+        Remove-Item -LiteralPath $LauncherDir -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Host "Lanceur supprime."
     }
     Read-Host "Appuyez sur Entree pour fermer"
 }
