@@ -9,4 +9,4 @@ timeout /t 2 /nobreak >nul
 goto waitdrive
 
 :run
-python "%~dp0delete_random_file.py" "Z:\CAO\Workspace"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0delete_random_file.ps1" "Z:\CAO\Workspace"
