@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+
+    <AssemblyName>InventorLibraryAddin</AssemblyName>
+    <RootNamespace>InventorLibraryAddin</RootNamespace>
+
+    <!-- An Inventor add-in is a COM server: it must be COM-visible and built x64. -->
+    <ComVisible>true</ComVisible>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+
+    <!--
+      Path to the Inventor "Public Assemblies" folder that ships with Inventor.
+      Adjust the version number to match your installation, or override on the
+      command line:  dotnet build -p:InventorPublicAssemblies="C:\...\Public Assemblies"
+    -->
+    <InventorPublicAssemblies Condition="'$(InventorPublicAssemblies)' == ''">C:\Program Files\Autodesk\Inventor 2024\Bin\Public Assemblies</InventorPublicAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      The Inventor interop assembly. It is NOT redistributed (Private=false): the
+      copy installed with Inventor on the target machine is used at run time.
+    -->
+    <Reference Include="Autodesk.Inventor.Interop">
+      <HintPath>$(InventorPublicAssemblies)\Autodesk.Inventor.Interop.dll</HintPath>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Ship the add-in manifest next to the build output for convenience. -->
+  <ItemGroup>
+    <None Include="..\InventorLibraryAddin.addin">
+      <Link>InventorLibraryAddin.addin</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

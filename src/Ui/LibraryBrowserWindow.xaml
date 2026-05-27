@@ -1,0 +1,64 @@
+<Window x:Class="InventorLibraryAddin.Ui.LibraryBrowserWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Library Browser" Height="560" Width="420"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Search box -->
+        <DockPanel Grid.Row="0" LastChildFill="True" Margin="0,0,0,6">
+            <Button DockPanel.Dock="Right" Content="Refresh"
+                    Command="{Binding RefreshLibraryCommand}" Margin="6,0,0,0" Padding="8,2" />
+            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     VerticalContentAlignment="Center" Padding="4,2" />
+        </DockPanel>
+
+        <TextBlock Grid.Row="1" Text="Library" FontWeight="Bold" Margin="0,0,0,2" />
+
+        <!-- Library results -->
+        <ListBox Grid.Row="2"
+                 ItemsSource="{Binding LibraryResults}"
+                 SelectedItem="{Binding SelectedComponent}"
+                 DisplayMemberPath="Name" />
+
+        <Button Grid.Row="3" Content="Place selected component"
+                Command="{Binding PlaceCommand}" Margin="0,6" Padding="8,4" />
+
+        <!-- TraceParts fallback -->
+        <DockPanel Grid.Row="4" LastChildFill="True" Margin="0,4,0,2">
+            <Button DockPanel.Dock="Right" Content="Search TraceParts"
+                    Command="{Binding SearchTracePartsCommand}" Margin="6,0,0,0" Padding="8,2" />
+            <TextBlock Text="TraceParts" FontWeight="Bold" VerticalAlignment="Center" />
+        </DockPanel>
+
+        <ListBox Grid.Row="5" x:Name="TracePartsList"
+                 ItemsSource="{Binding TracePartsResults}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding Supplier}" Margin="8,0,0,0" Foreground="Gray" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <DockPanel Grid.Row="6" LastChildFill="True" Margin="0,6,0,0">
+            <Button DockPanel.Dock="Right" Content="Open in browser"
+                    Command="{Binding OpenTracePartsResultCommand}"
+                    CommandParameter="{Binding SelectedItem, ElementName=TracePartsList}"
+                    Margin="6,0,0,0" Padding="8,2" />
+            <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap"
+                       VerticalAlignment="Center" Foreground="#444" />
+        </DockPanel>
+    </Grid>
+</Window>

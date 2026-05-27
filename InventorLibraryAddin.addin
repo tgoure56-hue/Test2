@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Addin Type="Standard">
+  <!-- ClassId MUST match the [Guid(...)] on StandardAddInServer. -->
+  <ClassId>{7E5D3C1A-4B2F-4E6A-9C8D-1A2B3C4D5E6F}</ClassId>
+  <ClientId>{7E5D3C1A-4B2F-4E6A-9C8D-1A2B3C4D5E6F}</ClientId>
+  <DisplayName>Inventor Library Browser</DisplayName>
+  <Description>Browse and place library components, with a TraceParts fallback when a part is not in the library.</Description>
+  <Assembly>InventorLibraryAddin.dll</Assembly>
+  <LoadOnStartUp>1</LoadOnStartUp>
+  <UserUnloadable>1</UserUnloadable>
+  <Hidden>0</Hidden>
+  <SupportedSoftwareVersionGreaterThan>22..</SupportedSoftwareVersionGreaterThan>
+</Addin>
