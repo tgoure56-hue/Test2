@@ -353,6 +353,7 @@
     <button class="btn-purple" style="width:240px;font-size:17px;padding:14px;" onclick="startSandbox()">🧪 Bac à sable</button>
     <button class="btn-sort" style="width:240px;font-size:17px;padding:14px;" onclick="openBuilder()">🛠️ Constructeur de deck</button>
     <button class="btn-sort" style="width:240px;font-size:17px;padding:14px;" onclick="showSettings()">⚙️ Réglages</button>
+    <button class="btn-red" style="width:240px;font-size:14px;padding:10px;" onclick="fullReset()">🗑️ Réinitialisation complète</button>
   </div>
   <div id="deckChoose" style="display:none;">
     <div class="pickHint">Choisis ta mise (difficulté)</div>
@@ -1369,7 +1370,7 @@ function winBlind(){
   S.discardsUnused+=S.discardsLeft;
   const totalGain=reward+interest+handBonus+greenDisc+goldMoney+jokerMoney;
   S.money+=totalGain-rentalCost;
-  renderSidebar();
+  renderSidebar();renderConsum(); // affiche tout de suite les consommables créés (Sceau Bleu...)
   setBgTheme('shop');coinRain(Math.min(50,12+totalGain));
   showMsg('Blind battue ! 🎉',
     `<b>${S.blind.name}</b> vaincue !<br><br>
@@ -1901,7 +1902,7 @@ function jokerHTML(def,inShop,uid,edition,inst,sticker,isNew){
   return `<div class="joker rar-${def.rarity}${edCls}${inst&&inst.debuffed?' debuff':''}" ${uid?'data-uid="'+uid+'"':''}>${edTag}${stkTag}${newTag}
     <div class="jn" style="color:${RARITY_COL[def.rarity]}">${def.name}</div><div class="jicon">${def.icon}</div>
     <div class="jcost">${inShop?'$'+def.cost:RARITY_NAME[def.rarity]}</div>${xtag}
-    <div class="tooltip"><b>${def.name}</b> <span style="color:${RARITY_COL[def.rarity]}">[${RARITY_NAME[def.rarity]}]</span><br>${def.desc}${edDesc}${stkDesc}${inst&&inst.debuffed?'<br><span style="color:var(--mult)">⚠ Désactivé (périmé)</span>':''}${uid?'<br><span class="small">Clic droit : revendre ($'+sellValue(inst||def)+')</span>':''}</div></div>`;
+    <div class="tooltip"><b>${def.name}</b> <span style="color:${RARITY_COL[def.rarity]}">[${RARITY_NAME[def.rarity]}]</span><br>${def.desc}${descExtras(def.desc)}${edDesc}${stkDesc}${inst&&inst.debuffed?'<br><span style="color:var(--mult)">⚠ Désactivé (périmé)</span>':''}${uid?'<br><span class="small">Clic droit : revendre ($'+sellValue(inst||def)+')</span>':''}</div></div>`;
 }
 function sellValue(x){ // accepte une définition OU une instance de Joker (valeur dynamique : Œuf...)
   if(x&&x.key&&JOKER_DEFS[x.key])return Math.max(1,Math.floor(JOKER_DEFS[x.key].cost/2))+(x.sell||0);
@@ -1917,9 +1918,17 @@ function sellJoker(uid,confirmed){
   if(j.edition==='neg')S.jokerSlots--;
   S.money+=sellValue(j);S.jokers.splice(idx,1);renderAll();
 }
+// décrit les sceaux/éditions mentionnés dans un texte (description imbriquée)
+function descExtras(text){let out='';if(!text)return out;
+  const sealM={'Sceau Rouge':'red','Sceau Bleu':'blue','Sceau Or':'gold','Sceau Violet':'purple'};
+  for(const k in sealM)if(text.indexOf(k)>=0)out+='<br><span style="color:#9cf;font-size:10px">↳ '+SEALS[sealM[k]].name+' : '+SEALS[sealM[k]].desc+'</span>';
+  const edM={'Brillant':'foil','Holographique':'holo','Polychrome':'poly','Négatif':'neg'};
+  for(const k in edM)if(text.indexOf(k)>=0)out+='<br><span style="color:#9cf;font-size:10px">↳ '+EDITIONS[edM[k]].name+' : '+EDITIONS[edM[k]].desc+'</span>';
+  return out;
+}
 function consumHTML(type,def,inShop,extra,isNew){
   const cls=type==='planet'?'consum planet':type==='spectral'?'consum spectral':'consum';
-  const tip=(extra?extra+'<br>':'')+(def.desc||'');
+  const tip=(extra?extra+'<br>':'')+(def.desc||'')+descExtras(def.desc);
   const lbl=type==='planet'?'Planète':type==='spectral'?'Spectrale':'Tarot';
   const newTag=isNew?'<div class="newTag">NOUVEAU</div>':'';
   return `<div class="${cls}">${newTag}<div class="jn">${def.name}</div><div class="jicon">${def.icon}</div><div class="jcost">${inShop?'':lbl}</div>
@@ -2212,7 +2221,9 @@ function showSettings(){
   show('settingsOverlay');
 }
 function toggleReduceAnim(){SETTINGS.reduceAnim=document.getElementById('reduceAnimChk').checked;saveSettings();applySettings();}
-function resetProgress(){showMsg('Réinitialiser ?','Cela efface toute ta progression (déblocages, découvertes, statistiques). Action irréversible.','Tout effacer',()=>{try{localStorage.removeItem(META_KEY);}catch(e){}META={maxStake:1,wins:0,bestAnte:1,runsPlayed:0,totalHands:0,bestHandScore:0,discovered:[],unlockedJokers:[],achievements:[],scores:[]};_knownUnlocked=null;hide('msgOverlay');hide('settingsOverlay');toast('Progression réinitialisée.');},'Annuler',()=>{hide('msgOverlay');});}
+function resetMetaObj(){META={maxStake:1,wins:0,bestAnte:1,runsPlayed:0,totalHands:0,bestHandScore:0,discovered:[],unlockedJokers:[],achievements:[],scores:[]};_knownUnlocked=null;}
+function resetProgress(){showMsg('Réinitialiser ?','Cela efface toute ta progression (déblocages, découvertes, statistiques). Action irréversible.','Tout effacer',()=>{try{localStorage.removeItem(META_KEY);}catch(e){}resetMetaObj();hide('msgOverlay');hide('settingsOverlay');toast('Progression réinitialisée.');},'Annuler',()=>{hide('msgOverlay');});}
+function fullReset(){showMsg('Réinitialisation complète ?','Efface DÉFINITIVEMENT <b>tout</b> : succès, découvertes, déblocages (decks/mises/jokers), statistiques, meilleurs scores, thème, et la sauvegarde de partie en cours.<br><br>Cette action est irréversible.','Tout effacer',()=>{try{localStorage.removeItem(META_KEY);localStorage.removeItem(SAVE_KEY);localStorage.removeItem(SET_KEY);}catch(e){}resetMetaObj();SETTINGS={speed:'normal',reduceAnim:false,theme:'classic'};applySettings();applyTheme();hide('msgOverlay');const cb=document.getElementById('continueBtn');if(cb)cb.style.display='none';toast('Tout a été réinitialisé. 🗑️');},'Annuler',()=>{hide('msgOverlay');});}
 
 /* ===================== DÉMARRAGE ===================== */
 function boot(){
