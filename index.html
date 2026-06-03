@@ -560,7 +560,7 @@ const JOKER_DEFS={
 };
 delete JOKER_DEFS.hanginghikertest;
 delete JOKER_DEFS.evensteven_dummy;
-JOKER_DEFS.evensteven={name:'Steven le Pair',icon:'➕',cost:4,rarity:'u',desc:'+4 Mult par carte paire marquée',perCard:c=>(RANKORDER[c.rank]%2===0&&RANKORDER[c.rank]<=10)?{mult:4}:0};
+JOKER_DEFS.yinyang={name:'Joker Yin-Yang',icon:'☯️',cost:5,rarity:'u',desc:'+20 Chips par carte impaire et +2 Mult par carte paire marquée',perCard:c=>{const v=RANKORDER[c.rank];if(v<=10&&v%2===0)return{mult:2};if(v%2===1||v===14)return{chips:20};return 0;}};
 const RARITY_NAME={c:'Commun',u:'Peu commun',r:'Rare',l:'Légendaire'};
 const RARITY_COL={c:'#5ea0ff',u:'#54d07a',r:'#fe5f55',l:'#f0b132'};
 
@@ -709,20 +709,13 @@ function showBlindSelect(){
 }
 function skipBlind(i){
   S.blindsSkipped++;
-  const b=S.anteBlinds[i];const tag=b.tag;
-  // applique l'effet du tag
-  const t=TAGS[tag];
-  if(t.now){t.now();}
-  else if(t.pack){hide('blindOverlay');openPack(t.pack,'mega',true);return finishSkip(i);}
-  else{S.ownedTags.push(tag);} // shop tag, appliqué à l'ouverture de boutique
-  finishSkip(i);
-}
-function finishSkip(i){
-  S.blindIdx=Math.max(S.blindIdx,i+1);
+  const b=S.anteBlinds[i];const t=TAGS[b.tag];
+  S.blindIdx=Math.max(S.blindIdx,i+1); // on avance d'une blind dans l'ante courant
   renderSidebar();renderJokers();renderConsum();
-  if(S.blindIdx>=2){ // on a passé jusqu'au boss : sélection du boss
-    showBlindSelect();
-  } else showBlindSelect();
+  if(t.now){t.now();}
+  else if(t.pack){hide('blindOverlay');openPack(t.pack,'mega',true);return;} // closePack ramènera à la sélection de blind
+  else{S.ownedTags.push(b.tag);} // tag de boutique : appliqué à l'ouverture de la boutique
+  showBlindSelect();
 }
 function selectBlind(i){
   S.blindIdx=i; // la blind affrontée devient la blind courante
@@ -734,6 +727,7 @@ function selectBlind(i){
   S.discardsLeft=S.discardsMax;
   S.playedRanks=new Set();S.handsThisRound=new Set();
   rotateTargets();S._burntDone=false;
+  S.fullDeck.forEach(c=>{if(c._fishDebuff)delete c._fishDebuff;}); // le debuff Poisson ne persiste pas d'une manche à l'autre
   S.deck=shuffle(S.fullDeck.slice());
   S.deckCount=S.fullDeck.length;
   S.hand=[];S.selected=[];
@@ -955,7 +949,7 @@ function loseGame(){
 }
 
 /* ===================== BOUTIQUE ===================== */
-function randomJokerKey(rarity){const owned=S.jokers.map(j=>j.key);let pool=Object.keys(JOKER_DEFS).filter(k=>!owned.includes(k)&&!JOKER_DEFS[k].hidden);if(rarity)pool=pool.filter(k=>JOKER_DEFS[k].rarity===rarity);if(!pool.length)pool=Object.keys(JOKER_DEFS).filter(k=>!owned.includes(k)&&!JOKER_DEFS[k].hidden&&(!rarity||rarity!=='l'||JOKER_DEFS[k].rarity==='l'));return pool.length?pool[rnd(pool.length)]:null;}
+function randomJokerKey(rarity){const owned=hasJoker('showman')?[]:S.jokers.map(j=>j.key);let pool=Object.keys(JOKER_DEFS).filter(k=>!owned.includes(k)&&!JOKER_DEFS[k].hidden);if(rarity)pool=pool.filter(k=>JOKER_DEFS[k].rarity===rarity);if(!pool.length)pool=Object.keys(JOKER_DEFS).filter(k=>!owned.includes(k)&&!JOKER_DEFS[k].hidden);return pool.length?pool[rnd(pool.length)]:null;}
 function rollEdition(){const r=Math.random()/S.edRate;if(r<0.003)return'neg';if(r<0.015)return'poly';if(r<0.04)return'holo';if(r<0.09)return'foil';return null;}
 function rollRarity(){const r=Math.random();if(r<0.05)return'r';if(r<0.30)return'u';return'c';}
 function openShop(){
@@ -998,6 +992,7 @@ function applyDiscount(c){return Math.max(0,Math.ceil(c*S.discount));}
 function itemCost(it){let c=it.cost;if(it.type==='planet'&&hasJoker('astronomer'))c=0;return applyDiscount(c);}
 function packPrice(p){let c=p.cost;if(p.type==='cele'&&hasJoker('astronomer'))c=0;return applyDiscount(c);}
 function renderShop(){
+  if(!S.shop)return;
   document.getElementById('shopMoney').textContent='$'+S.money;
   document.getElementById('rerollBtn').textContent='🔄 Reroll ($'+(S.rerollFree?0:S.rerollBase)+')';
   const g=document.getElementById('shopGrid');g.innerHTML='';
@@ -1104,12 +1099,14 @@ function openPack(type,size,fromTag){
   if(type==='cele')options=shuffle(Object.keys(PLANETS)).slice(0,n).map(k=>({type:'planet',key:k}));
   else if(type==='arca'){let pool=Object.keys(TAROTS);if(S.omen&&Math.random()<0.3)pool=pool.concat(Object.keys(SPECTRALS).map(k=>'S_'+k));options=shuffle(pool).slice(0,n).map(k=>k.startsWith('S_')?{type:'spectral',key:k.slice(2)}:{type:'tarot',key:k});}
   else if(type==='spec')options=shuffle(Object.keys(SPECTRALS)).slice(0,n).map(k=>({type:'spectral',key:k}));
-  else if(type==='buff')options=shuffle(Object.keys(JOKER_DEFS).filter(k=>!owned.includes(k)&&!JOKER_DEFS[k].hidden&&JOKER_DEFS[k].rarity!=='l')).slice(0,n).map(k=>({type:'joker',key:k,edition:rollEdition()}));
+  else if(type==='buff'){const own=hasJoker('showman')?[]:owned;options=shuffle(Object.keys(JOKER_DEFS).filter(k=>!own.includes(k)&&!JOKER_DEFS[k].hidden&&JOKER_DEFS[k].rarity!=='l')).slice(0,n).map(k=>({type:'joker',key:k,edition:rollEdition()}));}
   else options=genStandardCards(n).map(c=>({type:'card',card:c}));
-  renderPackOptions(options);
+  pendingPack.options=options;
+  renderPackOptions();
   hide('shopOverlay');hide('blindOverlay');show('packOverlay');
 }
-function renderPackOptions(options){
+function renderPackOptions(){
+  const options=pendingPack.options;
   const cont=document.getElementById('packPick');cont.innerHTML='';
   options.forEach((o,i)=>{
     const div=document.createElement('div');div.className='shopItem';
@@ -1120,31 +1117,29 @@ function renderPackOptions(options){
     else if(o.type==='spectral')inner=consumHTML('spectral',SPECTRALS[o.key],false);
     else inner=miniCardHTML(o.card);
     div.innerHTML=inner+`<div class="buyb" onclick="pickFromPack(${i})">Choisir</div>`;
-    div._opt=o;cont.appendChild(div);
+    cont.appendChild(div);
   });
 }
 function pickFromPack(i){
-  const o=document.getElementById('packPick').children[i]._opt;
-  if(o.type==='joker'){if(usedJokerSlots()<S.jokerSlots)acquireJoker(o.key,o.edition);else toast('Pas de place pour ce Joker.');}
+  if(!pendingPack||!pendingPack.options)return;
+  const o=pendingPack.options[i];if(!o)return;
+  if(o.type==='joker'){if(usedJokerSlots()<S.jokerSlots)acquireJoker(o.key,o.edition);else{toast('Pas de place pour ce Joker.');return;}}
   else if(o.type==='planet')applyPlanet(o.key);
-  else if(o.type==='card'){S.deck&&0;addCardToHandOrDeck(o.card);}
-  else{if(S.consumables.length<S.consumSlots)S.consumables.push({type:o.type,key:o.key,uid:Math.random()});else toast('Pas de place pour la carte.');}
+  else if(o.type==='card')addCardToHandOrDeck(o.card);
+  else{if(S.consumables.length<S.consumSlots)S.consumables.push({type:o.type,key:o.key,uid:Math.random()});else{toast('Pas de place pour la carte.');return;}}
+  pendingPack.options.splice(i,1); // retire l'option choisie de la liste
   pendingPack.left--;
-  document.getElementById('packPick').children[i].remove();
   if(pendingPack.left<=0)closePack();
-  else{document.getElementById('packHint').textContent='Encore '+pendingPack.left+' à choisir';renderSidebar();renderConsum();renderJokers();}
+  else{renderPackOptions();document.getElementById('packHint').textContent='Encore '+pendingPack.left+' à choisir';renderSidebar();renderConsum();renderJokers();}
 }
 function skipPack(){S.packsSkipped++;closePack();}
 function closePack(){
   hide('packOverlay');renderAll();
-  if(pendingPack&&pendingPack.fromTag){
-    pendingPack=null;
-    // après un pack de tag : retourne à la sélection de blind ou boutique selon contexte
-    if(S.blind&&S.curScore<S.target&&!scoringInProgress&&S.handsLeft>0&&document.getElementById('shopOverlay').classList.contains('show')===false&&S.round>0&&S.blindIdx<3&&!S.shop){showBlindSelect();}
-    else showBlindSelect();
-    return;
-  }
-  pendingPack=null;show('shopOverlay');renderShop();
+  const fromTag=pendingPack&&pendingPack.fromTag;
+  pendingPack=null;
+  if(fromTag){showBlindSelect();return;} // pack obtenu via un Tag → retour à la sélection de blind
+  if(S.shop){show('shopOverlay');renderShop();} // pack acheté en boutique → retour boutique
+  else showBlindSelect();
 }
 function addCardToHandOrDeck(card){card.id=Math.random();S.hand.push(card);S.fullDeck.push(card);S.deckCount=S.fullDeck.length;}
 function genStandardCards(n){
