@@ -78,27 +78,33 @@
   .multDisp{background:var(--mult);padding:5px 16px;border-radius:8px;color:#fff;box-shadow:0 3px 0 #7a2520,inset 0 0 0 2px #fff3;text-shadow:1px 1px 0 #0006;}
   .times{color:var(--gold);font-size:24px;}
   #handArea{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;min-height:116px;padding:6px;}
-  .card{width:70px;height:100px;border-radius:8px;background:#f7f4ec;color:#222;position:relative;cursor:pointer;border:2px solid #cfcabb;
-    box-shadow:0 4px 0 #00000055;transition:transform .12s;flex-shrink:0;overflow:visible;}
-  .card.sel{transform:translateY(-22px);border-color:var(--gold);box-shadow:0 4px 0 var(--gold);}
-  .card .rank{position:absolute;top:3px;left:5px;font-size:18px;font-weight:bold;line-height:1;z-index:2;}
-  .card .rankb{position:absolute;bottom:3px;right:5px;font-size:18px;font-weight:bold;transform:rotate(180deg);line-height:1;z-index:2;}
-  .card .suit{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:32px;z-index:2;}
-  .card .pips{position:absolute;inset:14px 4px;z-index:2;pointer-events:none;}
-  .card .pip{position:absolute;transform:translate(-50%,-50%);font-size:14px;line-height:1;}
+  .card{width:72px;height:101px;border-radius:9px;background:#faf7f0;color:#222;position:relative;cursor:pointer;border:2px solid #d7d0c0;
+    box-shadow:0 4px 0 #00000055,inset 0 0 0 2px #ffffffb0;transition:transform .12s;flex-shrink:0;overflow:visible;}
+  .card.sel{transform:translateY(-22px);border-color:var(--gold);box-shadow:0 4px 0 var(--gold),inset 0 0 0 2px #fff;}
+  .card .rank{position:absolute;top:3px;left:4px;font-size:15px;font-weight:bold;line-height:.85;z-index:3;display:flex;flex-direction:column;align-items:center;text-shadow:0 1px 0 #fff8;}
+  .card .rankb{position:absolute;bottom:3px;right:4px;font-size:15px;font-weight:bold;line-height:.85;z-index:3;transform:rotate(180deg);display:flex;flex-direction:column;align-items:center;text-shadow:0 1px 0 #fff8;}
+  .card .rank i,.card .rankb i{font-style:normal;font-size:9px;margin-top:1px;}
+  .card .bigc{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:40px;z-index:2;line-height:1;text-shadow:0 1px 1px #0003;}
+  .card .bigc.face{font-size:33px;}
+  .card .pips{position:absolute;top:20px;bottom:20px;left:17px;right:17px;z-index:2;pointer-events:none;}
+  .card .pip{position:absolute;transform:translate(-50%,-50%);font-size:12px;line-height:1;}
   .card.red{color:var(--redsuit);} .card.black{color:var(--blacksuit);}
   .card.debuff{filter:grayscale(1) brightness(.55);}
-  .card.enh-bonus{background:linear-gradient(160deg,#cfe6ff,#a9d2ff);} .card.enh-mult{background:linear-gradient(160deg,#ffd0cb,#ffaea6);}
-  .card.enh-gold{background:linear-gradient(160deg,#ffe9a8,#f4c95d);} .card.enh-steel{background:linear-gradient(160deg,#dfe4ea,#aab4c0);}
-  .card.enh-glass{background:linear-gradient(160deg,#eafcff,#cdeef5);box-shadow:0 4px 0 #8bd,inset 0 0 0 2px #fff8;}
-  .card.enh-stone{background:linear-gradient(160deg,#b9bbb6,#8d8f8a);color:#2a2a2a;} .card.enh-wild{background:linear-gradient(135deg,#ffd2d2,#d2ffe0,#d2e4ff,#f0d2ff);}
-  .card.enh-lucky{background:linear-gradient(160deg,#d6ffd2,#a6f0a0);}
-  .card.ced-foil::before,.card.ced-holo::before,.card.ced-poly::before{content:'';position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;border-radius:6px;}
+  .card.enh-bonus{background:linear-gradient(160deg,#dbecff,#a9d2ff);}
+  .card.enh-mult{background:linear-gradient(160deg,#ffd8d2,#ffaea6);}
+  .card.enh-gold{background:linear-gradient(160deg,#ffeebb,#f4c95d);}
+  .card.enh-steel{background:linear-gradient(160deg,#e6eaef,#aab4c0);}
+  .card.enh-glass{background:linear-gradient(160deg,#f0fdff,#cdeef5);}
+  .card.enh-stone{background:linear-gradient(160deg,#c2c4bf,#8d8f8a);color:#2a2a2a;}
+  .card.enh-wild{background:linear-gradient(135deg,#ffd2d2,#d2ffe0,#d2e4ff,#f0d2ff);}
+  .card.enh-lucky{background:linear-gradient(160deg,#dcffd6,#a6f0a0);}
+  .card.enh-bonus,.card.enh-mult,.card.enh-gold,.card.enh-steel,.card.enh-glass,.card.enh-stone,.card.enh-wild,.card.enh-lucky{border-color:#b8a86a;}
+  .card.ced-foil::before,.card.ced-holo::before,.card.ced-poly::before{content:'';position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;border-radius:7px;}
   .card.ced-foil::before{background:linear-gradient(120deg,#7ad7ff88,#fff4,#7ad7ff88);}
   .card.ced-holo::before{background:linear-gradient(120deg,#ff5f9e88,#5fff9e88,#5f9eff88);}
   .card.ced-poly::before{background:linear-gradient(60deg,#ff000066,#ffea0066,#00ff8866,#0088ff66,#aa00ff66);}
-  .card .enh{position:absolute;top:2px;right:4px;font-size:8px;font-weight:bold;color:#0009;z-index:3;}
-  .card .seal{position:absolute;bottom:3px;left:4px;width:12px;height:12px;border-radius:50%;z-index:3;border:1px solid #0006;}
+  .card .enh{position:absolute;top:2px;left:50%;transform:translateX(-50%);font-size:7.5px;font-weight:bold;color:#fff;background:#000a;border-radius:4px;padding:1px 4px;z-index:4;letter-spacing:.3px;white-space:nowrap;}
+  .card .seal{position:absolute;top:3px;right:4px;width:11px;height:11px;border-radius:50%;z-index:4;border:1px solid #0006;box-shadow:0 0 4px #0005;}
   .seal-red{background:#e23b3b;} .seal-blue{background:#3b7be2;} .seal-gold{background:#f0b132;} .seal-purple{background:#a06bff;}
   .scorefloat{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-weight:bold;font-size:14px;padding:2px 7px;border-radius:6px;
     animation:floatup .85s ease-out forwards;pointer-events:none;white-space:nowrap;z-index:30;box-shadow:0 2px 6px #0008;}
@@ -1552,12 +1558,7 @@ function genStandardCards(n){
   }return out;
 }
 function miniCardHTML(c){
-  const suit=SUITS[c.suit];const isStone=c.enh==='stone';
-  return `<div class="card ${suit.col} ${c.enh?'enh-'+c.enh:''} ${c.cedition?'ced-'+c.cedition:''}" style="cursor:default">
-    <div class="rank">${isStone?'':c.rank}</div>${cardCenterHTML(c)}<div class="rankb">${isStone?'':c.rank}</div>
-    ${c.enh&&c.enh!=='stone'?'<div class="enh">'+ENH[c.enh].name+'</div>':''}
-    ${c.seal?'<div class="seal seal-'+c.seal+'"></div>':''}
-    <div class="tooltip">${cardTooltip(c)}</div></div>`;
+  return '<div class="'+cardClass(c)+'" style="cursor:default">'+buildCardInner(c)+'</div>';
 }
 
 /* ===================== CONSOMMABLES ===================== */
@@ -1612,13 +1613,9 @@ function openTargetSelect(name,desc,min,max,cards,onConfirm){
 function renderTargetCards(){
   const cont=document.getElementById('targetCards');cont.innerHTML='';
   targetState.cards.forEach(c=>{
-    const suit=SUITS[c.suit];const isStone=c.enh==='stone';
     const div=document.createElement('div');
-    div.className='card '+suit.col+(targetState.sel.includes(c.id)?' sel':'')+(c.enh?' enh-'+c.enh:'')+(c.cedition?' ced-'+c.cedition:'');
-    div.innerHTML=`<div class="rank">${isStone?'':c.rank}</div>${cardCenterHTML(c)}<div class="rankb">${isStone?'':c.rank}</div>
-      ${c.enh&&c.enh!=='stone'?'<div class="enh">'+ENH[c.enh].name+'</div>':''}
-      ${c.seal?'<div class="seal seal-'+c.seal+'"></div>':''}
-      <div class="tooltip">${cardTooltip(c)}</div>`;
+    div.className=cardClass(c)+(targetState.sel.includes(c.id)?' sel':'');
+    div.innerHTML=buildCardInner(c);
     div.onclick=()=>toggleTarget(c.id);cont.appendChild(div);
   });
   const T=targetState;
@@ -1670,12 +1667,23 @@ const PIPS={2:[[1,0],[1,4]],3:[[1,0],[1,2],[1,4]],4:[[0,0],[2,0],[0,4],[2,4]],5:
   6:[[0,0],[2,0],[0,2],[2,2],[0,4],[2,4]],7:[[0,0],[2,0],[1,1],[0,2],[2,2],[0,4],[2,4]],
   8:[[0,0],[2,0],[1,1],[0,2],[2,2],[1,3],[0,4],[2,4]],9:[[0,0],[2,0],[0,1.3],[2,1.3],[1,2],[0,2.7],[2,2.7],[0,4],[2,4]],
   10:[[0,0],[2,0],[1,.7],[0,1.3],[2,1.3],[0,2.7],[2,2.7],[1,3.3],[0,4],[2,4]]};
+const FACEICON={J:'🤵',Q:'👸',K:'🤴'};
+const ENHSHORT={bonus:'+30 ©',mult:'+4 Mult',wild:'WILD',glass:'VERRE',steel:'ACIER',gold:'OR',stone:'PIERRE',lucky:'CHANCE'};
 function cardCenterHTML(c){
-  if(c.enh==='stone')return '<div class="suit">🪨</div>';
+  if(c.enh==='stone')return '<div class="bigc">🪨</div>';
   const sym=SUITS[c.suit].sym,v=RANKORDER[c.rank];
-  if(v>=11)return '<div class="suit">'+sym+'</div>'; // J,Q,K,A : grand symbole central
-  const cols=[18,50,82];
+  if(v>=11&&v<=13)return '<div class="bigc face">'+FACEICON[c.rank]+'</div>'; // J,Q,K : illustration
+  if(v===14)return '<div class="bigc">'+sym+'</div>'; // As : grand symbole
+  const cols=[0,50,100];
   return '<div class="pips">'+(PIPS[v]||[]).map(([col,row])=>'<span class="pip" style="left:'+cols[col]+'%;top:'+(row*25)+'%">'+sym+'</span>').join('')+'</div>';
+}
+function cardClass(c){return 'card '+SUITS[c.suit].col+(c.enh?' enh-'+c.enh:'')+(c.cedition?' ced-'+c.cedition:'');}
+function buildCardInner(c){
+  const suit=SUITS[c.suit],isStone=c.enh==='stone';
+  const corner=isStone?'':('<div class="rank">'+c.rank+'<i>'+suit.sym+'</i></div><div class="rankb">'+c.rank+'<i>'+suit.sym+'</i></div>');
+  const enh=(c.enh&&c.enh!=='stone')?('<div class="enh">'+(ENHSHORT[c.enh]||c.enh)+'</div>'):'';
+  const seal=c.seal?('<div class="seal seal-'+c.seal+'" title="'+SEALS[c.seal].name+'"></div>'):'';
+  return corner+cardCenterHTML(c)+enh+seal+'<div class="tooltip">'+cardTooltip(c)+'</div>';
 }
 const RANKNAME={'A':'As','K':'Roi','Q':'Dame','J':'Valet'};
 const SUITNAME={S:'Pique',H:'Cœur',D:'Carreau',C:'Trèfle'};
@@ -1698,16 +1706,12 @@ function renderHand(){
   const area=document.getElementById('handArea');area.innerHTML='';
   let newCount=0;
   S.hand.forEach(c=>{
-    const suit=SUITS[c.suit];const deb=cardDebuffed(c);const isStone=c.enh==='stone';
-    const isNew=!prevHandIds.has(c.id);
+    const deb=cardDebuffed(c);const isNew=!prevHandIds.has(c.id);
     const div=document.createElement('div');
-    div.className='card '+suit.col+(S.selected.includes(c.id)?' sel':'')+(deb?' debuff':'')+(c.enh?' enh-'+c.enh:'')+(c.cedition?' ced-'+c.cedition:'')+(isNew?' dealing':'');
+    div.className=cardClass(c)+(S.selected.includes(c.id)?' sel':'')+(deb?' debuff':'')+(isNew?' dealing':'');
     if(isNew){div.style.animationDelay=(newCount*0.04)+'s';newCount++;}
     div.dataset.id=c.id;
-    div.innerHTML=`<div class="rank">${isStone?'':c.rank}</div>${cardCenterHTML(c)}<div class="rankb">${isStone?'':c.rank}</div>
-      ${c.enh&&c.enh!=='stone'?'<div class="enh">'+ENH[c.enh].name+'</div>':''}
-      ${c.seal?'<div class="seal seal-'+c.seal+'"></div>':''}
-      <div class="tooltip">${cardTooltip(c)}</div>`;
+    div.innerHTML=buildCardInner(c);
     div.onclick=()=>toggleSel(c.id);area.appendChild(div);
   });
   prevHandIds=new Set(S.hand.map(c=>c.id));
