@@ -135,6 +135,8 @@
   .joker.pop{animation:jokerPop .4s cubic-bezier(.2,.9,.3,1.4) backwards;}
   @keyframes shake{0%,100%{transform:translateX(0);}15%{transform:translateX(-8px) rotate(-1deg);}30%{transform:translateX(7px) rotate(1deg);}45%{transform:translateX(-6px);}60%{transform:translateX(5px);}75%{transform:translateX(-3px);}}
   #playArea.shake{animation:shake .5s ease-out;}
+  @keyframes viewIn{0%{opacity:0;transform:translateY(8px) scale(.99);}100%{opacity:1;transform:none;}}
+  #blindView,#shopView,#packView{animation:viewIn .25s ease-out;}
   @keyframes coinfall{0%{transform:translateY(-15vh) rotate(0);}100%{transform:translateY(110vh) rotate(540deg);}}
   .coin{position:fixed;top:0;z-index:200;pointer-events:none;animation:coinfall linear forwards;}
   body.reduce-anim *{animation-duration:.001s!important;}
@@ -232,42 +234,56 @@
       <div class="barTitle"><span>Jokers</span><span id="jokerCount">0/5</span></div>
       <div id="jokerBar"><span class="small">Aucun Joker — achète-en à la boutique !</span></div>
     </div>
-    <div class="panel">
-      <div id="playArea"><div id="handLabel"></div><div id="scorePopup"></div></div>
-    </div>
-    <div class="panel">
-      <div id="handArea"></div>
-      <div style="text-align:center;margin:4px 0;"><span class="small" id="selInfo">Sélectionne jusqu'à 5 cartes</span></div>
-      <div id="controls">
-        <button class="btn-play" id="btnPlay" onclick="playHand()">Jouer la main</button>
-        <button class="btn-disc" id="btnDisc" onclick="discard()">Défausser</button>
-        <button class="btn-sort" onclick="sortHand('rank')">Trier ↕ Rang</button>
-        <button class="btn-sort" onclick="sortHand('suit')">Trier ♠ Couleur</button>
+
+    <!-- VUE JEU -->
+    <div id="playView" style="display:flex;flex-direction:column;gap:12px;">
+      <div class="panel">
+        <div id="playArea"><div id="handLabel"></div><div id="scorePopup"></div></div>
+      </div>
+      <div class="panel">
+        <div id="handArea"></div>
+        <div style="text-align:center;margin:4px 0;"><span class="small" id="selInfo">Sélectionne jusqu'à 5 cartes</span></div>
+        <div id="controls">
+          <button class="btn-play" id="btnPlay" onclick="playHand()">Jouer la main</button>
+          <button class="btn-disc" id="btnDisc" onclick="discard()">Défausser</button>
+          <button class="btn-sort" onclick="sortHand('rank')">Trier ↕ Rang</button>
+          <button class="btn-sort" onclick="sortHand('suit')">Trier ♠ Couleur</button>
+        </div>
       </div>
     </div>
-  </div>
-</div></div>
 
-<div class="overlay" id="blindOverlay"><div class="modal">
-  <h2>Choisis ta Blind — Ante <span id="anteNum">1</span></h2>
-  <div class="blindSelect" id="blindSelect"></div>
-  <div class="small" id="tagsInfo"></div>
-</div></div>
+    <!-- VUE SÉLECTION DE BLIND -->
+    <div id="blindView" class="panel" style="display:none;">
+      <h2 style="color:var(--gold);text-align:center;">Choisis ta Blind — Ante <span id="anteNum">1</span></h2>
+      <div class="blindSelect" id="blindSelect"></div>
+      <div class="small" id="tagsInfo" style="text-align:center;"></div>
+    </div>
 
-<div class="overlay" id="shopOverlay"><div class="modal">
-  <h2>🛒 Boutique</h2>
-  <div class="small">Argent : <span id="shopMoney" style="color:var(--gold);font-weight:bold;"></span></div>
-  <div style="margin-top:10px;color:var(--gold);font-weight:bold;font-size:13px;">Cartes & Jokers</div>
-  <div class="grid" id="shopGrid"></div>
-  <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;">
-    <div><div style="color:var(--gold);font-weight:bold;font-size:13px;">Voucher</div><div class="grid" id="voucherGrid"></div></div>
-    <div><div style="color:var(--gold);font-weight:bold;font-size:13px;">Paquets Booster</div><div class="grid" id="packGrid"></div></div>
-  </div>
-  <div id="shopConsumWrap" style="display:none;"><div style="color:var(--gold);font-weight:bold;font-size:13px;">Tes consommables <span class="small">(clique pour utiliser)</span></div>
-    <div class="grid" id="shopConsum" style="min-height:0;"></div></div>
-  <div id="controls" style="margin-top:8px;">
-    <button class="btn-gold" id="rerollBtn" onclick="reroll()">🔄 Reroll</button>
-    <button class="btn-green" onclick="closeShop()">Continuer ▶</button>
+    <!-- VUE BOUTIQUE -->
+    <div id="shopView" class="panel" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+        <h2 style="color:var(--gold);">🛒 Boutique</h2>
+        <div id="controls" style="margin:0;">
+          <button class="btn-gold" id="rerollBtn" onclick="reroll()">🔄 Reroll</button>
+          <button class="btn-green" onclick="closeShop()">Continuer ▶</button>
+        </div>
+      </div>
+      <div style="color:var(--gold);font-weight:bold;font-size:13px;margin-top:6px;">Cartes & Jokers</div>
+      <div class="grid" id="shopGrid"></div>
+      <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;">
+        <div><div style="color:var(--gold);font-weight:bold;font-size:13px;">Voucher</div><div class="grid" id="voucherGrid"></div></div>
+        <div><div style="color:var(--gold);font-weight:bold;font-size:13px;">Paquets Booster</div><div class="grid" id="packGrid"></div></div>
+      </div>
+      <span id="shopMoney" style="display:none"></span><span id="shopConsumWrap" style="display:none"><span id="shopConsum"></span></span>
+    </div>
+
+    <!-- VUE PAQUET -->
+    <div id="packView" class="panel" style="display:none;text-align:center;">
+      <h2 id="packTitle" style="color:var(--gold);"></h2>
+      <div class="pickHint" id="packHint"></div>
+      <div class="grid" id="packPick"></div>
+      <button class="btn-red" id="packSkipBtn" onclick="skipPack()">Passer</button>
+    </div>
   </div>
 </div></div>
 
@@ -279,13 +295,6 @@
     <button class="btn-green" id="targetConfirm" onclick="confirmTarget()">Valider</button>
     <button class="btn-red" onclick="cancelTarget()">Annuler</button>
   </div>
-</div></div>
-
-<div class="overlay" id="packOverlay"><div class="modal">
-  <h2 id="packTitle"></h2>
-  <div class="pickHint" id="packHint"></div>
-  <div class="grid" id="packPick"></div>
-  <button class="btn-red" id="packSkipBtn" onclick="skipPack()">Passer</button>
 </div></div>
 
 <div class="overlay" id="msgOverlay"><div class="modal">
@@ -1022,7 +1031,7 @@ function showBlindSelect(){
   });
   const ti=document.getElementById('tagsInfo');
   ti.innerHTML=S.ownedTags.length?('Tags en attente : '+S.ownedTags.map(t=>'<span class="tagChip">'+TAGS[t].icon+' '+TAGS[t].name+'</span>').join('')):'';
-  currentScreen='blind';saveLocal();show('blindOverlay');
+  currentScreen='blind';saveLocal();showView('blind');
 }
 function skipBlind(i){
   S.blindsSkipped++;
@@ -1030,7 +1039,7 @@ function skipBlind(i){
   S.blindIdx=Math.max(S.blindIdx,i+1); // on avance d'une blind dans l'ante courant
   renderSidebar();renderJokers();renderConsum();
   if(t.now){t.now();}
-  else if(t.pack){hide('blindOverlay');openPack(t.pack,'mega',true);return;} // closePack ramènera à la sélection de blind
+  else if(t.pack){openPack(t.pack,'mega',true);return;} // closePack ramènera à la sélection de blind
   else{S.ownedTags.push(b.tag);} // tag de boutique : appliqué à l'ouverture de la boutique
   showBlindSelect();
 }
@@ -1057,7 +1066,7 @@ function selectBlind(i){
   // jokers début de manche
   S.jokers.forEach(j=>{const d=JOKER_DEFS[j.key];if(d.onBlind)d.onBlind();});
   setBgTheme(b.type==='boss'?'boss':'fight');
-  hide('blindOverlay');dealToFull();renderAll();
+  showView('play');dealToFull();renderAll();
   setHandLabel(b.effect&&!bossDisabled()?('⚠ '+b.effectText):'');
   document.getElementById('scorePopup').innerHTML='';
   currentScreen='play';saveLocal();
@@ -1316,7 +1325,7 @@ function openShop(){
   S.rerollCost=S.rerollBase; // le coût de reroll repart de la base à chaque nouvelle boutique
   // applique les tags en attente
   S.ownedTags.forEach(t=>{if(TAGS[t].shop)TAGS[t].shop();});S.ownedTags=[];
-  generateShop();renderShop();currentScreen='shop';saveLocal();show('shopOverlay');
+  generateShop();renderShop();currentScreen='shop';saveLocal();showView('shop');
 }
 function generateShop(){
   S.chaosUsed=false;
@@ -1379,7 +1388,7 @@ function renderShop(){
   if(!S.shop.items.length)g.innerHTML='<div class="small">— épuisé —</div>';
   // voucher
   const vg=document.getElementById('voucherGrid');vg.innerHTML='';
-  if(S.shop.voucher){const v=VOUCHERS[S.shop.voucher];const cost=applyDiscount(10);const afford=S.money>=cost;
+  if(S.shop.voucher){const v=VOUCHERS[S.shop.voucher];const cost=applyDiscount(10);const afford=canAfford(cost);
     vg.innerHTML=`<div class="shopItem"><div class="voucher">${S.shop.voucherNew?'<div class="newTag">NOUVEAU</div>':''}<div class="pn">${v.name}</div><div class="pic">${v.icon}</div><div class="jcost">$${cost}</div>
       <div class="tooltip"><b>${v.name}</b><br>${v.desc}</div></div>
       <div class="buyb ${afford?'':'dis'}" onclick="buyVoucher()">Acheter $${cost}</div></div>`;
@@ -1395,9 +1404,6 @@ function renderShop(){
       <div class="buyb ${afford?'':'dis'}" onclick="buyPack(${idx})">${cost===0?'Ouvrir':'$'+cost}</div></div>`;
   });
   if(!S.shop.packs.length)pg.innerHTML='<div class="small">— épuisé —</div>';
-  // consommables possédés (utilisables depuis la boutique)
-  const wrap=document.getElementById('shopConsumWrap');
-  if(S.consumables.length){wrap.style.display='';renderConsumList('shopConsum',false);}else wrap.style.display='none';
 }
 const PACKMETA={cele:{n:'Céleste',ic:'🌌',cl:'pk-cele'},arca:{n:'Arcane',ic:'🔮',cl:'pk-arca'},buff:{n:'Bouffon',ic:'🃏',cl:'pk-buff'},spec:{n:'Spectral',ic:'👻',cl:'pk-spec'},std:{n:'Standard',ic:'🂠',cl:'pk-std'}};
 const PACKDESC={cele:'Contient des cartes Planète qui améliorent le niveau de tes mains de poker.',arca:'Contient des cartes Tarot qui transforment et améliorent tes cartes.',buff:'Contient des Jokers à récupérer gratuitement.',spec:'Contient des cartes Spectrales : effets puissants, parfois risqués.',std:'Contient des cartes à jouer (améliorations, éditions et sceaux possibles).'};
@@ -1425,7 +1431,7 @@ function acquireJoker(key,edition,sticker){
   renderSidebar();
 }
 function buyVoucher(){
-  const k=S.shop.voucher;if(!k)return;const cost=applyDiscount(10);if(S.money<cost)return;
+  const k=S.shop.voucher;if(!k)return;const cost=applyDiscount(10);if(!canAfford(cost))return;
   S.money-=cost;S.vouchers.push(k);VOUCHERS[k].apply();S.shop.voucher=pickVoucher();
   renderShop();renderAll();renderVouchers();
 }
@@ -1442,7 +1448,6 @@ function reroll(){
 }
 function canAfford(cost){return (S.money-cost)>=-(S.debtLimit||0);}
 function closeShop(){
-  hide('shopOverlay');
   // Perkeo : copie négative d'un consommable
   if(hasJoker('perkeo')&&S.consumables.length&&S.consumables.length<S.consumSlots){const c=S.consumables[rnd(S.consumables.length)];S.consumables.push({type:c.type,key:c.key,uid:Math.random(),neg:true});}
   S.blindIdx++; // on avance d'une blind dans l'ante courante
@@ -1464,7 +1469,7 @@ function winGame(){
     'Menu 🏠',()=>{hide('msgOverlay');toStartMenu();},
     '♾️ Mode infini',()=>{hide('msgOverlay');S.endless=true;startAnte();renderSidebar();});
 }
-function toStartMenu(){currentScreen='start';['blindOverlay','shopOverlay','packOverlay','msgOverlay','targetOverlay'].forEach(hide);document.getElementById('deckChoose').style.display='none';document.getElementById('startMain').style.display='';document.getElementById('continueBtn').style.display=hasLocalSave()?'':'none';show('startOverlay');}
+function toStartMenu(){currentScreen='start';['msgOverlay','targetOverlay'].forEach(hide);showView('play');document.getElementById('deckChoose').style.display='none';document.getElementById('startMain').style.display='';document.getElementById('continueBtn').style.display=hasLocalSave()?'':'none';show('startOverlay');}
 
 /* ===================== PAQUETS ===================== */
 let pendingPack=null,packFree=false;
@@ -1493,7 +1498,7 @@ function openPack(type,size,fromTag){
   markDiscovery(options);
   pendingPack.options=options;
   renderPackOptions();
-  hide('shopOverlay');hide('blindOverlay');show('packOverlay');
+  showView('pack');
 }
 function renderPackOptions(){
   const options=pendingPack.options;
@@ -1540,11 +1545,11 @@ function afterPackPick(i){
 }
 function skipPack(){S.packsSkipped++;closePack();}
 function closePack(){
-  hide('packOverlay');renderAll();
+  renderAll();
   const fromTag=pendingPack&&pendingPack.fromTag;
   pendingPack=null;
   if(fromTag){showBlindSelect();return;} // pack obtenu via un Tag → retour à la sélection de blind
-  if(S.shop){show('shopOverlay');renderShop();} // pack acheté en boutique → retour boutique
+  if(currentScreen==='shop'&&S.shop){showView('shop');renderShop();} // pack acheté en boutique → retour boutique
   else showBlindSelect();
 }
 function addCardToHandOrDeck(card){card.id=Math.random();S.hand.push(card);S.fullDeck.push(card);S.deckCount=S.fullDeck.length;}
@@ -1814,7 +1819,9 @@ function sleep(ms){return new Promise(r=>setTimeout(r,skipScoring?0:ms*scoreSpee
 
 /* ===================== OVERLAYS ===================== */
 function show(id){document.getElementById(id).classList.add('show');}
-function hide(id){document.getElementById(id).classList.remove('show');}
+function hide(id){const el=document.getElementById(id);if(el)el.classList.remove('show');}
+// affiche une vue du plateau (jeu / blind / boutique / paquet) ; la sidebar et les Jokers restent visibles
+function showView(name){['play','blind','shop','pack'].forEach(v=>{const el=document.getElementById(v+'View');if(el)el.style.display=(v===name)?(v==='play'?'flex':'block'):'none';});}
 let msgCb=null;
 let msgCb2=null;
 function showMsg(title,body,btn,cb,btn2,cb2){const mt=document.getElementById('msgTitle');mt.style.display=title?'':'none';mt.innerHTML=title;document.getElementById('msgBody').innerHTML=body;document.getElementById('msgBtn').textContent=btn;msgCb=cb;
@@ -1867,12 +1874,12 @@ function loadState(txt){
   ['planetsUsed','tarotsUsed','rerolls','packsSkipped','blindsSkipped','debtLimit'].forEach(k=>{if(typeof S[k]!=='number')S[k]=0;});
   if(typeof S.stake!=='number')S.stake=1;if(typeof S.rerollCost!=='number')S.rerollCost=S.rerollBase||5;
   currentScreen=o.screen||'blind';
-  ['blindOverlay','shopOverlay','packOverlay','msgOverlay','startOverlay','handListOverlay'].forEach(hide);
+  ['msgOverlay','startOverlay','handListOverlay','targetOverlay','settingsOverlay','sandboxOverlay','builderOverlay'].forEach(hide);
   setBgTheme(S.blind&&S.blind.type==='boss'?'boss':(currentScreen==='shop'?'shop':'fight'));
   renderAll();
-  if(currentScreen==='shop'){renderShop();show('shopOverlay');}
+  if(currentScreen==='shop'){renderShop();showView('shop');}
   else if(currentScreen==='blind'){showBlindSelect();}
-  else{ /* play */ }
+  else{showView('play');}
 }
 function saveLocal(){try{localStorage.setItem(SAVE_KEY,serialize());}catch(e){}}
 function hasLocalSave(){try{return !!localStorage.getItem(SAVE_KEY);}catch(e){return false;}}
