@@ -1253,6 +1253,7 @@ async function playHand(){
   }
   if(S.blind.effect==='psychic'&&!bossDisabled()&&S.selected.length<5){toast('Le Psychique : tu dois jouer exactement 5 cartes !');return;}
   scoringInProgress=true;skipScoring=false;
+  try{
   // les cartes jouées sont prises dans l'ordre de la main (gauche → droite), pas dans l'ordre de sélection
   const played=S.hand.filter(c=>S.selected.includes(c.id));
   const heldCards=S.hand.filter(c=>!S.selected.includes(c.id));
@@ -1303,6 +1304,7 @@ async function playHand(){
   }
   // 2) cartes tenues en main (perHeld + acier + Mime retrigger)
   for(const card of heldCards){
+    if(cardDebuffed(card))continue; // une carte désactivée tenue en main ne déclenche rien (Acier, perHeld…)
     let triggers=1+(card.seal==='red'?1:0)+(hasJoker('mime')?1:0);
     for(let t=0;t<triggers;t++){
       if(card.enh==='steel'){mult=r1(mult*1.5);flashCard(card.id,'×1.5','fmult');updateScorePopup(chips,mult);await sleep(90);}
@@ -1349,6 +1351,13 @@ async function playHand(){
     loseGame();return;
   }
   renderAll();saveLocal(); // sauvegarde fine : reprise possible en milieu de manche
+  }catch(err){ // filet de sécurité : une erreur inattendue ne doit jamais figer la partie
+    console.error('Erreur pendant le calcul de la main :',err);
+    scoringInProgress=false;
+    try{const pz=document.getElementById('playZone');if(pz){pz.style.display='none';pz.innerHTML='';}}catch(_){}
+    try{renderAll();}catch(_){}
+    toast('Une erreur est survenue pendant le calcul de la main : '+((err&&err.message)||err)+'. La manche continue — si ça se reproduit, signale-le.');
+  }
 }
 function applyMods(){}
 function fmt(r){return (r.chips?'+'+r.chips+'c ':'')+(r.mult?'+'+r.mult+'M':'')+(r.xmult?'×'+r.xmult:'');}
@@ -1889,7 +1898,7 @@ function estimateHandScore(playedReal){
         for(let ji=0;ji<jc.length;ji++){const j=jc[ji];if(j.debuffed)continue;const inf=eInfo(j,ji);if(inf.def.perCard){const r=inf.def.perCard.call(inf.inst,card,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);}}}
       }
     }
-    for(const card of held){for(let ji=0;ji<jc.length;ji++){const j=jc[ji];if(j.debuffed)continue;const inf=eInfo(j,ji);if(inf.def.perHeld){const r=inf.def.perHeld.call(inf.inst,card,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);}}}if(card.enh==='steel')mult=r1(mult*1.5);}
+    for(const card of held){if(cardDebuffed(card))continue;for(let ji=0;ji<jc.length;ji++){const j=jc[ji];if(j.debuffed)continue;const inf=eInfo(j,ji);if(inf.def.perHeld){const r=inf.def.perHeld.call(inf.inst,card,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);}}}if(card.enh==='steel')mult=r1(mult*1.5);}
     for(let ji=0;ji<jc.length;ji++){const j=jc[ji];if(j.debuffed)continue;const inf=eInfo(j,ji);if(inf.def.eval){const r=inf.def.eval.call(inf.inst,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);}}if(j.edition&&EDITIONS[j.edition]){const e=EDITIONS[j.edition];if(e.chips)chips+=e.chips;if(e.mult)mult+=e.mult;if(e.xmult)mult=r1(mult*e.xmult);}}
     if(S.plasma){const b=Math.floor((chips+mult)/2);chips=b;mult=b;}
     return Math.floor(chips*mult);
