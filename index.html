@@ -84,6 +84,10 @@
   .card{width:74px;height:104px;border-radius:7px;background:linear-gradient(150deg,#fffdf8,#f3eedf);color:#222;position:relative;cursor:pointer;border:1px solid #b9b09a;
     box-shadow:0 4px 0 #00000055,inset 0 0 0 1.5px #fff,inset 0 0 0 3px #00000010;transition:transform .12s;flex-shrink:0;overflow:visible;}
   .card.sel{transform:translateY(-22px);border-color:var(--gold);box-shadow:0 4px 0 var(--gold),inset 0 0 0 1.5px #fff,inset 0 0 0 3px var(--gold);}
+  .card.dragging,.joker.dragging{z-index:999!important;cursor:grabbing;transition:none!important;box-shadow:0 18px 32px #000b,inset 0 0 0 1.5px #fff;filter:brightness(1.07);}
+  .joker.dragging{box-shadow:0 18px 32px #000b;}
+  body.dragging-active{cursor:grabbing;user-select:none;-webkit-user-select:none;}
+  .card:active{cursor:grabbing;} .joker{cursor:grab;} .joker:active{cursor:grabbing;}
   .card .rank{position:absolute;top:3px;left:5px;font-size:15px;font-weight:900;line-height:.78;z-index:3;display:flex;flex-direction:column;align-items:center;text-shadow:0 1px 0 #fff9;}
   .card .rankb{position:absolute;bottom:3px;right:5px;font-size:15px;font-weight:900;line-height:.78;z-index:3;transform:rotate(180deg);display:flex;flex-direction:column;align-items:center;text-shadow:0 1px 0 #fff9;}
   .card .rank i,.card .rankb i{font-style:normal;font-size:11px;margin-top:1px;}
@@ -1822,7 +1826,9 @@ function renderHand(){
     if(isNew){div.style.animationDelay=(newCount*0.06)+'s';newCount++;}
     div.dataset.id=c.id;
     div.innerHTML=buildCardInner(c);
-    div.onclick=()=>toggleSel(c.id);area.appendChild(div);
+    div.title='Glisser pour réorganiser · Cliquer pour sélectionner';
+    enableReorder(div,area,(from,to)=>{const[m]=S.hand.splice(from,1);S.hand.splice(to,0,m);renderHand();},()=>toggleSel(c.id));
+    area.appendChild(div);
   });
   prevHandIds=new Set(S.hand.map(c=>c.id));
   renderPiles();
@@ -1897,15 +1903,48 @@ function renderJokers(){
   S.jokers.forEach((j,index)=>{const w=document.createElement('div');w.innerHTML=jokerHTML(JOKER_DEFS[j.key],false,j.uid,j.edition,j);const el=w.firstElementChild;
     if(!prevJokerUids.has(j.uid))el.classList.add('pop'); // nouveau Joker : apparition animée
     el.oncontextmenu=(e)=>{e.preventDefault();sellJoker(j.uid);};el.title='Glisser pour réorganiser · Clic droit : revendre';
-    el.draggable=true;
-    el.ondragstart=(e)=>{dragJokerIdx=index;if(e.dataTransfer){e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text','');}el.style.opacity='.5';};
-    el.ondragend=()=>{el.style.opacity='';};
-    el.ondragover=(e)=>{e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect='move';};
-    el.ondrop=(e)=>{e.preventDefault();if(dragJokerIdx!=null&&dragJokerIdx!==index){const[m]=S.jokers.splice(dragJokerIdx,1);S.jokers.splice(index,0,m);renderJokers();}dragJokerIdx=null;};
+    enableReorder(el,bar,(from,to)=>{const[m]=S.jokers.splice(from,1);S.jokers.splice(to,0,m);renderJokers();});
     bar.appendChild(el);});
   prevJokerUids=new Set(S.jokers.map(j=>j.uid));
 }
-let dragJokerIdx=null;
+/* Déplacement « prise en main » réelle (pas un clone fantôme HTML5) :
+   on soulève l'élément avec le doigt/la souris et les voisins s'écartent. */
+function enableReorder(el,area,commit,onTap){
+  el.style.touchAction='none';
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return; // clic gauche seulement
+    if(scoringInProgress)return;
+    const startX=e.clientX,startY=e.clientY;
+    let dragging=false,sibs=null,base=null,slot=0,fromIdx=0,to=0;
+    try{el.setPointerCapture(e.pointerId);}catch(_){}
+    const setup=()=>{
+      sibs=[...area.children];fromIdx=sibs.indexOf(el);
+      const rects=sibs.map(s=>s.getBoundingClientRect());
+      base=rects.map(r=>r.left+r.width/2);
+      slot=rects.length>1?Math.abs(rects[1].left-rects[0].left):(rects[0].width+8);
+      el.classList.add('dragging');document.body.classList.add('dragging-active');
+      sibs.forEach(s=>{if(s!==el)s.style.transition='transform .13s ease';});
+    };
+    const shifts=()=>{sibs.forEach((s,k)=>{if(s===el)return;const jj=(k<fromIdx)?k:k-1;const fs=(jj<to)?jj:jj+1;const ty=s.classList.contains('sel')?' translateY(-22px)':'';s.style.transform='translateX('+((fs-k)*slot)+'px)'+ty;});};
+    const move=(ev)=>{
+      const dx=ev.clientX-startX,dy=ev.clientY-startY;
+      if(!dragging){if(Math.abs(dx)<6&&Math.abs(dy)<6)return;dragging=true;setup();}
+      el.style.transform='translate('+dx+'px,'+dy+'px) scale(1.07) rotate(2deg)';
+      let t=0;for(let k=0;k<base.length;k++){if(k===fromIdx)continue;if(ev.clientX>base[k])t++;}
+      to=t;shifts();
+    };
+    const up=()=>{
+      el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);
+      try{el.releasePointerCapture(e.pointerId);}catch(_){}
+      document.body.classList.remove('dragging-active');
+      if(!dragging){if(onTap)onTap();return;}
+      el.classList.remove('dragging');
+      if(to!==fromIdx){commit(fromIdx,to);} // re-render : reconstruit le DOM (efface les transforms)
+      else{el.style.transform='';sibs.forEach(s=>{s.style.transform='';s.style.transition='';});}
+    };
+    el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+  });
+}
 /* ===== Icônes vectorielles maison (SVG) — remplacent les emojis ===== */
 function txtGlyph(t,sz){return '<text x="20" y="21.5" font-size="'+(sz||22)+'" font-weight="900" text-anchor="middle" dominant-baseline="central" style="font-family:Georgia,\'Times New Roman\',serif">'+t+'</text>';}
 const GLY={
