@@ -269,15 +269,20 @@
   </div>
 </div></div>
 
-<div class="overlay" id="startOverlay"><div class="modal" style="max-width:480px;">
+<div class="overlay" id="startOverlay"><div class="modal" style="max-width:520px;">
   <h1 style="font-size:42px;margin-bottom:6px;">JOKERATRO</h1>
   <div class="small" style="margin-bottom:18px;">un roguelike de poker maison</div>
-  <div style="display:flex;flex-direction:column;gap:10px;align-items:center;">
+  <div id="startMain" style="display:flex;flex-direction:column;gap:10px;align-items:center;">
     <button class="btn-green" style="width:240px;font-size:17px;padding:14px;" onclick="startNew()">🎮 Nouvelle partie</button>
     <button class="btn-gold" id="continueBtn" style="width:240px;font-size:17px;padding:14px;display:none;" onclick="continueLocal()">▶️ Continuer (auto-save)</button>
     <button class="btn-sort" style="width:240px;font-size:17px;padding:14px;" onclick="loadFromFile()">📂 Charger une sauvegarde</button>
   </div>
-  <div class="small" style="margin-top:16px;">Astuce : « 💾 Sauver » te laisse choisir où enregistrer ton fichier de sauvegarde.</div>
+  <div id="deckChoose" style="display:none;">
+    <div class="pickHint">Choisis ton deck de départ</div>
+    <div class="grid" id="deckGrid"></div>
+    <button class="btn-red" onclick="backToMenu()">← Retour</button>
+  </div>
+  <div class="small" style="margin-top:16px;">Astuce : « 💾 Sauver » te laisse choisir où enregistrer ta partie.</div>
 </div></div>
 
 <div class="overlay" id="handListOverlay"><div class="modal">
@@ -368,14 +373,15 @@ const NEXTRANK={'2':'3','3':'4','4':'5','5':'6','6':'7','7':'8','8':'9','9':'10'
 function isFace(c){return (RANKORDER[c.rank]>=11&&RANKORDER[c.rank]<=13)||(typeof S!=='undefined'&&S.jokers&&hasJoker('pareidolia'));}
 function prob(p){return (typeof S!=='undefined'&&S.jokers&&hasJoker('oops'))?Math.min(1,p*2):p;}
 
-const HANDS={'Quinte Flush':[100,8],'Carré':[60,7],'Full':[40,4],'Couleur':[35,4],'Suite':[30,4],'Brelan':[30,3],'Double Paire':[20,2],'Paire':[10,2],'Carte Haute':[5,1]};
-const HANDDESC={'Quinte Flush':'5 qui se suivent, même couleur','Carré':'4 de même rang','Full':'brelan + paire','Couleur':'5 de même symbole','Suite':'5 qui se suivent','Brelan':'3 de même rang','Double Paire':'2 paires','Paire':'2 de même rang','Carte Haute':'rien de mieux'};
+const HANDS={'Flush Five':[160,16],'Flush House':[140,14],'Cinq Cartes Identiques':[120,12],'Quinte Flush':[100,8],'Carré':[60,7],'Full':[40,4],'Couleur':[35,4],'Suite':[30,4],'Brelan':[30,3],'Double Paire':[20,2],'Paire':[10,2],'Carte Haute':[5,1]};
+const HANDDESC={'Flush Five':'5 cartes identiques de même couleur','Flush House':'un Full entièrement de même couleur','Cinq Cartes Identiques':'5 cartes du même rang','Quinte Flush':'5 qui se suivent, même couleur','Carré':'4 de même rang','Full':'brelan + paire','Couleur':'5 de même symbole','Suite':'5 qui se suivent','Brelan':'3 de même rang','Double Paire':'2 paires','Paire':'2 de même rang','Carte Haute':'rien de mieux'};
 
 const PLANETS={
   pluton:{name:'Pluton',icon:'🪐',hand:'Carte Haute'},mercure:{name:'Mercure',icon:'☿',hand:'Paire'},
   uranus:{name:'Uranus',icon:'♅',hand:'Double Paire'},venus:{name:'Vénus',icon:'♀',hand:'Brelan'},
   saturne:{name:'Saturne',icon:'🪐',hand:'Suite'},jupiter:{name:'Jupiter',icon:'♃',hand:'Couleur'},
-  terre:{name:'Terre',icon:'🌍',hand:'Full'},mars:{name:'Mars',icon:'♂',hand:'Carré'},neptune:{name:'Neptune',icon:'♆',hand:'Quinte Flush'}};
+  terre:{name:'Terre',icon:'🌍',hand:'Full'},mars:{name:'Mars',icon:'♂',hand:'Carré'},neptune:{name:'Neptune',icon:'♆',hand:'Quinte Flush'},
+  planetx:{name:'Planète X',icon:'🛸',hand:'Cinq Cartes Identiques'},ceres:{name:'Cérès',icon:'⚳',hand:'Flush House'},eris:{name:'Éris',icon:'🌑',hand:'Flush Five'}};
 
 const ENH={bonus:{name:'Bonus',desc:'+30 Chips'},mult:{name:'Mult',desc:'+4 Mult'},wild:{name:'Wild',desc:'Toutes couleurs'},
   glass:{name:'Verre',desc:'×2 Mult, 1/4 se brise'},steel:{name:'Acier',desc:'×1.5 Mult tenue en main'},
@@ -405,6 +411,9 @@ const TAROTS={
   jugement:{name:'Le Jugement',icon:'📯',need:[0,0],desc:'Crée un Joker aléatoire',use:()=>{const k=randomJokerKey();if(k&&usedJokerSlots()<S.jokerSlots)acquireJoker(k);else toast('Pas de place pour un Joker.');}},
   hermite:{name:'L\'Hermite',icon:'🏮',need:[0,0],desc:'Double ton argent (max +$20)',use:()=>{S.money+=Math.min(20,S.money);}},
   pendule:{name:'La Roue Lunaire',icon:'🌗',need:[1,1],desc:'Ajoute un Sceau Rouge à 1 carte',use:cs=>cs.forEach(c=>c.seal='red')},
+  mat:{name:'Le Mat',icon:'🎏',need:[0,0],desc:'Crée une copie du dernier Tarot ou Planète utilisé',use:()=>{const l=S.lastConsumableUsed;if(l&&S.consumables.length<S.consumSlots)S.consumables.push({type:l.type,key:l.key,uid:Math.random()});else if(!l)toast('Aucun consommable utilisé récemment.');else toast('Pas de place.');}},
+  mort:{name:'La Mort',icon:'💀',need:[2,2],desc:'Sélectionne 2 cartes : la 1ʳᵉ devient une copie de la 2ᵉ',use:cs=>{if(cs.length>=2){const src=cs[1],dst=cs[0];dst.rank=src.rank;dst.suit=src.suit;dst.enh=src.enh;dst.seal=src.seal;dst.cedition=src.cedition;}}},
+  temperance:{name:'Tempérance',icon:'⏳',need:[0,0],desc:'Donne la valeur de revente totale de tes Jokers (max $50)',use:()=>{let v=0;S.jokers.forEach(j=>v+=sellValue(JOKER_DEFS[j.key]));S.money+=Math.min(50,v);}},
 };
 
 const SPECTRALS={
@@ -657,7 +666,18 @@ const TAGS={
 let S={};
 let currentScreen='start';
 function rnd(n){return Math.floor(Math.random()*n);}
-function newRun(){
+const DECKS={
+  standard:{name:'Deck Standard',icon:'🂠',desc:'Aucun bonus particulier.',apply(){}},
+  rouge:{name:'Deck Rouge',icon:'🟥',desc:'+1 défausse par manche.',apply(){S.discardsMax++;}},
+  bleu:{name:'Deck Bleu',icon:'🟦',desc:'+1 main par manche.',apply(){S.handsMax++;}},
+  jaune:{name:'Deck Jaune',icon:'🟨',desc:'Commence avec +$10.',apply(){S.money+=10;}},
+  noir:{name:'Deck Noir',icon:'⬛',desc:'+1 emplacement de Joker, mais -1 main par manche.',apply(){S.jokerSlots++;S.handsMax=Math.max(1,S.handsMax-1);}},
+  vert:{name:'Deck Vert',icon:'🟩',desc:'Pas d’intérêts, mais +$2/main et +$1/défausse restante en fin de manche.',apply(){S.greenDeck=true;}},
+  abandonne:{name:'Deck Abandonné',icon:'🚷',desc:'Aucune figure (J, Q, K) dans le deck.',apply(){}},
+  damier:{name:'Deck Damier',icon:'🏁',desc:'Uniquement des ♠ et des ♥ (26 chacun).',apply(){}},
+};
+function newRun(deckKey){
+  const dk=DECKS[deckKey]?deckKey:'standard';
   S={deck:[],hand:[],selected:[],jokers:[],consumables:[],vouchers:[],money:4,ante:1,round:0,
      handsMax:4,discardsMax:3,handsLeft:4,discardsLeft:3,handSize:8,jokerSlots:5,consumSlots:2,
      curScore:0,target:0,blind:null,blindIdx:0,anteBlinds:null,handLevels:{},shop:null,
@@ -665,15 +685,27 @@ function newRun(){
      shopSlots:2,discount:1,edRate:1,rerollBase:5,rerollCost:5,interestCap:5,tarotRate:1,planetRate:1,
      bossReroll:0,observatory:false,omen:false,lastHandType:null,tempHandSize:0,
      freeJoker:null,freeEdition:null,extraVoucher:false,couponShop:false,freeReroll:false,
-     pendingTags:[],ownedTags:[],
-     planetsUsed:0,tarotsUsed:0,rerolls:0,packsSkipped:0,blindsSkipped:0,debtLimit:0,endless:false,
+     pendingTags:[],ownedTags:[],greenDeck:false,deckType:dk,
+     planetsUsed:0,tarotsUsed:0,rerolls:0,packsSkipped:0,blindsSkipped:0,debtLimit:0,endless:false,lastConsumableUsed:null,
      ancientSuit:'S',idolRank:'A',idolSuit:'S',todoTarget:'Brelan',mailTarget:'7',castleSuit:'S'};
   for(let k in HANDS)S.handLevels[k]=1;
+  DECKS[dk].apply();
   S.fullDeck=makeDeck();S.deckCount=S.fullDeck.length;
   document.getElementById('voucherPanel').style.display='none';
   startAnte();
 }
-function makeDeck(){const d=[];for(let s in SUITS)for(let r of RANKS)d.push({rank:r,suit:s,enh:null,seal:null,cedition:null,id:Math.random()});return d;}
+function makeDeck(){
+  const d=[];const dt=S.deckType;
+  const mk=(r,s)=>({rank:r,suit:s,enh:null,seal:null,cedition:null,id:Math.random()});
+  if(dt==='damier'){ // 26 ♠ + 26 ♥ (2 copies de chaque rang par couleur)
+    for(const s of['S','H'])for(const r of RANKS){d.push(mk(r,s));d.push(mk(r,s));}
+    return d;
+  }
+  let ranks=RANKS;
+  if(dt==='abandonne')ranks=RANKS.filter(r=>!['J','Q','K'].includes(r)); // sans figures
+  for(let s in SUITS)for(let r of ranks)d.push(mk(r,s));
+  return d;
+}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
 function usedJokerSlots(){return S.jokers.filter(j=>j.edition!=='neg').length;}
 function hasJoker(k){return S.jokers.some(j=>j.key===k);}
@@ -699,6 +731,12 @@ const BOSS_BLINDS=[
   {name:'L\'Œil',effect:'Aucune main ne peut être rejouée',key:'eye'},
   {name:'La Manacle',effect:'-1 taille de main',key:'manacle'},
   {name:'Le Poisson',effect:'Cartes piochées débuffées au hasard',key:'fish'},
+  {name:'Le Goad',effect:'Toutes les ♠ Pique désactivées',key:'goad'},
+  {name:'La Fenêtre',effect:'Toutes les ♦ Carreau désactivées',key:'window'},
+  {name:'Le Silex',effect:'Chips et Mult de base divisés par 2',key:'flint'},
+  {name:'Le Psychique',effect:'Tu dois jouer exactement 5 cartes',key:'psychic'},
+  {name:'Le Bras',effect:'-1 niveau pour la main jouée',key:'arm'},
+  {name:'La Dent',effect:'-$1 par carte jouée',key:'tooth'},
 ];
 function rollTag(){const ks=Object.keys(TAGS);return ks[rnd(ks.length)];}
 function startAnte(){
@@ -791,6 +829,8 @@ function cardDebuffed(card){
   const e=S.blind.effect;
   if(e==='club'&&card.suit==='C')return true;
   if(e==='heart'&&card.suit==='H')return true;
+  if(e==='goad'&&card.suit==='S')return true;
+  if(e==='window'&&card.suit==='D')return true;
   if(e==='head'&&isFace(card))return true;
   if(e==='pillar'&&S.playedRanks&&S.playedRanks.has(card.id))return true;
   return false;
@@ -831,7 +871,10 @@ function evaluateHand(cards){
   }
   const groups=Object.values(byRank).sort((a,b)=>b.length-a.length);
   let type='Carte Haute',scoring=[];
-  if(isStraight&&isFlush){type='Quinte Flush';scoring=[...real];}
+  if(maxOfKind===5&&isFlush){type='Flush Five';scoring=[...real];}
+  else if(maxOfKind===3&&pairs>=2&&isFlush){type='Flush House';scoring=[...real];}
+  else if(maxOfKind===5){type='Cinq Cartes Identiques';scoring=groups[0];}
+  else if(isStraight&&isFlush){type='Quinte Flush';scoring=[...real];}
   else if(maxOfKind===4){type='Carré';scoring=groups[0];}
   else if(maxOfKind===3&&pairs>=2){type='Full';scoring=[...real];}
   else if(isFlush){type='Couleur';scoring=flushCards?[...flushCards]:[...real];}
@@ -858,6 +901,7 @@ async function playHand(){
     const ev0=evaluateHand(S.selected.map(id=>S.hand.find(c=>c.id===id)));
     if(S.handsThisRound.has(ev0.type)){toast('L\'Œil : cette main a déjà été jouée cette manche !');return;}
   }
+  if(S.blind.effect==='psychic'&&!bossDisabled()&&S.selected.length<5){toast('Le Psychique : tu dois jouer exactement 5 cartes !');return;}
   scoringInProgress=true;
   // les cartes jouées sont prises dans l'ordre de la main (gauche → droite), pas dans l'ordre de sélection
   const played=S.hand.filter(c=>S.selected.includes(c.id));
@@ -868,9 +912,13 @@ async function playHand(){
   ev.scoringCards=played.filter(c=>scoringSet.has(c));
   S.handPlays[ev.type]=(S.handPlays[ev.type]||0)+1;
   S.handsThisRound.add(ev.type);S.handsPlayedTotal++;S.lastHandType=ev.type;
-  const lvl=S.handLevels[ev.type]||1;const base=HANDS[ev.type]||[5,1];
+  const bossOn=S.blind.effect&&!bossDisabled();
+  let lvl=S.handLevels[ev.type]||1;
+  if(bossOn&&S.blind.effect==='arm')lvl=Math.max(1,lvl-1); // Le Bras : -1 niveau
+  const base=HANDS[ev.type]||[5,1];
   let chips=base[0]+(lvl-1)*scaleChips(ev.type);
   let mult=base[1]+(lvl-1)*scaleMult(ev.type);
+  if(bossOn&&S.blind.effect==='flint'){chips=Math.ceil(chips/2);mult=Math.ceil(mult/2);} // Le Silex : base ÷2
   setHandLabel(ev.type+(lvl>1?(' Niv.'+lvl):''));updateScorePopup(chips,mult);await sleep(250);
   // observatoire : planètes en main
   if(S.observatory){const planetsHeld=S.consumables.filter(c=>c.type==='planet'&&PLANETS[c.key].hand===ev.type).length;if(planetsHeld){mult=r1(mult*Math.pow(1.5,planetsHeld));updateScorePopup(chips,mult);await sleep(150);}}
@@ -920,6 +968,7 @@ async function playHand(){
   document.getElementById('scorePopup').innerHTML=`<span class="chipDisp">${chips}</span><span class="times">×</span><span class="multDisp">${mult}</span><span style="margin-left:8px">= <b class="gainNum" style="color:var(--gold)">${gained.toLocaleString()}</b></span>`;
   const rs=document.getElementById('curScore');rs.textContent=S.curScore.toLocaleString();rs.classList.remove('bump');void rs.offsetWidth;rs.classList.add('bump');
   if(S.blind.effect==='pillar')played.forEach(c=>S.playedRanks.add(c.id));
+  if(bossOn&&S.blind.effect==='tooth'){S.money=Math.max(0,S.money-played.length);renderSidebar();} // La Dent : -$1 par carte jouée
   // onPlay hooks
   S.jokers.forEach(j=>{const d=JOKER_DEFS[j.key];if(d.onPlay)d.onPlay.call(j,ctx);});
   S.hand=S.hand.filter(c=>!S.selected.includes(c.id)&&!brokenGlass.includes(c.id));
@@ -941,8 +990,8 @@ async function playHand(){
 function applyMods(){}
 function fmt(r){return (r.chips?'+'+r.chips+'c ':'')+(r.mult?'+'+r.mult+'M':'')+(r.xmult?'×'+r.xmult:'');}
 function r1(x){return Math.round(x*100)/100;}
-function scaleChips(t){return({'Quinte Flush':40,'Carré':50,'Full':35,'Couleur':40,'Suite':30,'Brelan':20,'Double Paire':20,'Paire':15,'Carte Haute':10})[t]||10;}
-function scaleMult(t){return({'Quinte Flush':4,'Carré':3,'Full':4,'Couleur':2,'Suite':3,'Brelan':2,'Double Paire':1,'Paire':1,'Carte Haute':1})[t]||1;}
+function scaleChips(t){return({'Flush Five':50,'Flush House':40,'Cinq Cartes Identiques':35,'Quinte Flush':40,'Carré':50,'Full':35,'Couleur':40,'Suite':30,'Brelan':20,'Double Paire':20,'Paire':15,'Carte Haute':10})[t]||10;}
+function scaleMult(t){return({'Flush Five':3,'Flush House':4,'Cinq Cartes Identiques':3,'Quinte Flush':4,'Carré':3,'Full':4,'Couleur':2,'Suite':3,'Brelan':2,'Double Paire':1,'Paire':1,'Carte Haute':1})[t]||1;}
 
 function discard(){
   if(scoringInProgress||S.discardsLeft<=0||S.selected.length===0)return;
@@ -961,24 +1010,25 @@ function winBlind(){
   let bluePlanets=0;
   S.hand.forEach(c=>{if(c.seal==='blue'){const pk=Object.keys(PLANETS).find(k=>PLANETS[k].hand===S.lastHandType);if(pk&&S.consumables.length<S.consumSlots){S.consumables.push({type:'planet',key:pk,uid:Math.random()});bluePlanets++;}}});
   let reward=S.blind.reward;
-  const interest=Math.min(S.interestCap,Math.floor(S.money/5))*(hasJoker('tothemoon')?2:1);
-  const handBonus=S.handsLeft;
+  const interest=S.greenDeck?0:Math.min(S.interestCap,Math.floor(S.money/5))*(hasJoker('tothemoon')?2:1);
+  const handBonus=S.greenDeck?S.handsLeft*2:S.handsLeft; // Deck Vert : $2 par main restante
+  const greenDisc=S.greenDeck?S.discardsLeft:0;          // Deck Vert : $1 par défausse restante
   const goldCards=S.hand.filter(c=>c.enh==='gold').length;const goldMoney=goldCards*3;
   let jokerMoney=0;
   S.jokers.forEach(j=>{const d=JOKER_DEFS[j.key];if(d.onRound){const m=d.onRound.call(j);if(typeof m==='number')jokerMoney+=m;}if(j.key==='rocket'&&S.blind.type==='boss'){j.x=(j.x||1)+1;}});
   S.jokers=S.jokers.filter(j=>!j._dead);
-  // delayed grat / egg etc déjà gérés via onRound/passive
   S.discardsUnused+=S.discardsLeft;
-  S.money+=reward+interest+handBonus+goldMoney+jokerMoney;
+  S.money+=reward+interest+handBonus+greenDisc+goldMoney+jokerMoney;
   setBgTheme('shop');
   showMsg('Blind battue ! 🎉',
     `<b>${S.blind.name}</b> vaincue !<br><br>
      Récompense : <span style="color:var(--gold)">$${reward}</span><br>
      Mains restantes : <span style="color:var(--gold)">+$${handBonus}</span><br>
+     ${greenDisc?'Défausses restantes : <span style="color:var(--gold)">+$'+greenDisc+'</span><br>':''}
      ${goldMoney?'Cartes Or : <span style="color:var(--gold)">+$'+goldMoney+'</span><br>':''}
      ${jokerMoney?'Jokers : <span style="color:var(--gold)">+$'+jokerMoney+'</span><br>':''}
      ${bluePlanets?'Sceaux Bleus : +'+bluePlanets+' Planète<br>':''}
-     Intérêts : <span style="color:var(--gold)">+$${interest}</span><br><br>
+     ${S.greenDeck?'':'Intérêts : <span style="color:var(--gold)">+$'+interest+'</span><br>'}<br>
      Total : <b style="color:var(--gold)">$${S.money}</b>`,
     'Boutique 🛒',()=>{hide('msgOverlay');openShop();});
 }
@@ -1185,13 +1235,13 @@ function pickFromPack(i){
     if(need[1]>0){
       const pool=targetPool();
       if(pool.length){
-        openTargetSelect(def.name,def.desc,need[0],need[1],pool,(cards)=>{def.use(cards);if(o.type==='tarot')S.tarotsUsed++;afterPackPick(i);});
+        openTargetSelect(def.name,def.desc,need[0],need[1],pool,(cards)=>{def.use(cards);if(o.type==='tarot'){S.tarotsUsed++;if(o.key!=='mat')S.lastConsumableUsed={type:'tarot',key:o.key};}afterPackPick(i);});
         return; // on attend la sélection des cartes
       }else{ // aucune carte à cibler : on range la carte dans l'inventaire
         if(S.consumables.length<S.consumSlots)S.consumables.push({type:o.type,key:o.key,uid:Math.random()});
         else{toast('Pas de place pour la carte.');return;}
       }
-    }else{def.use();if(o.type==='tarot')S.tarotsUsed++;}
+    }else{def.use();if(o.type==='tarot'){S.tarotsUsed++;if(o.key!=='mat')S.lastConsumableUsed={type:'tarot',key:o.key};}}
   }
   afterPackPick(i);
 }
@@ -1230,7 +1280,7 @@ function miniCardHTML(c){
 }
 
 /* ===================== CONSOMMABLES ===================== */
-function applyPlanet(key){const h=PLANETS[key].hand;S.handLevels[h]=(S.handLevels[h]||1)+1;S.planetsUsed++;toast(`${PLANETS[key].name} : ${h} → niveau ${S.handLevels[h]} !`);}
+function applyPlanet(key){const h=PLANETS[key].hand;S.handLevels[h]=(S.handLevels[h]||1)+1;S.planetsUsed++;S.lastConsumableUsed={type:'planet',key};toast(`${PLANETS[key].name} : ${h} → niveau ${S.handLevels[h]} !`);}
 function addRandomConsumables(type,n){const src=type==='planet'?PLANETS:TAROTS;for(let i=0;i<n;i++){if(S.consumables.length>=S.consumSlots)break;S.consumables.push({type,key:randKey(src),uid:Math.random()});}renderConsum();renderSidebar();}
 function destroyRandom(n){for(let i=0;i<n&&S.hand.length>0;i++){const c=S.hand.splice(rnd(S.hand.length),1)[0];S.fullDeck=S.fullDeck.filter(x=>x.id!==c.id);}S.deckCount=S.fullDeck.length;}
 function addRandomCards(n,kind,enhanced){
@@ -1262,7 +1312,7 @@ function useConsumable(uid){
   }else{ def.use();finishUse(idx,c); }
 }
 function finishUse(idx,c){
-  if(c.type==='tarot')S.tarotsUsed++;
+  if(c.type==='tarot'){S.tarotsUsed++;if(c.key!=='mat')S.lastConsumableUsed={type:'tarot',key:c.key};}
   S.selected=[];
   // retire le consommable (sauf copie Négative de Perkeo qui ne se consomme pas)
   const i=S.consumables.indexOf(c);if(i>=0)S.consumables.splice(i,1);
@@ -1515,7 +1565,20 @@ async function loadFromFile(){
   }
 }
 function applyLoad(txt){try{loadState(txt);hide('startOverlay');toast('Partie chargée ! 📂');}catch(e){toast('Fichier de sauvegarde invalide.');}}
-function startNew(){hide('startOverlay');newRun();}
+function startNew(){ // affiche le choix du deck
+  document.getElementById('startMain').style.display='none';
+  const g=document.getElementById('deckGrid');g.innerHTML='';
+  Object.keys(DECKS).forEach(k=>{const d=DECKS[k];
+    const div=document.createElement('div');div.className='shopItem';
+    div.innerHTML=`<div class="pack" style="background:linear-gradient(160deg,#3c6064,#264140)"><div class="pn">${d.name}</div><div class="pic">${d.icon}</div>
+      <div class="tooltip"><b>${d.name}</b><br>${d.desc}</div></div>
+      <div class="buyb" onclick="chooseDeck('${k}')">Jouer</div>`;
+    g.appendChild(div);
+  });
+  document.getElementById('deckChoose').style.display='';
+}
+function chooseDeck(k){document.getElementById('deckChoose').style.display='none';document.getElementById('startMain').style.display='';hide('startOverlay');newRun(k);}
+function backToMenu(){document.getElementById('deckChoose').style.display='none';document.getElementById('startMain').style.display='';}
 function confirmMenu(){showMsg('Retour au menu ?','Ta progression est auto-sauvegardée (tu pourras « Continuer »). Quitter vers le menu ?','Retour au menu',()=>{hide('msgOverlay');currentScreen='start';['blindOverlay','shopOverlay','packOverlay'].forEach(hide);show('startOverlay');document.getElementById('continueBtn').style.display=hasLocalSave()?'':'none';});}
 
 /* ===================== DÉMARRAGE ===================== */
