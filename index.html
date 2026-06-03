@@ -43,16 +43,18 @@
   .barTitle{font-size:11px;color:var(--gold);font-weight:bold;display:flex;justify-content:space-between;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;}
   #jokerBar{min-height:104px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
   #consumBar{min-height:70px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
-  .joker,.consum{width:70px;height:94px;border-radius:9px;position:relative;cursor:pointer;border:2px solid var(--panelEdge);
-    box-shadow:0 4px 0 var(--panelEdge);display:flex;flex-direction:column;justify-content:space-between;padding:5px;
-    transition:transform .1s;background:linear-gradient(165deg,#3c6064,#264140);overflow:visible;}
-  .consum{background:linear-gradient(165deg,#4b3a73,#241b40);}
-  .consum.planet{background:linear-gradient(165deg,#2e4a86,#16223f);}
-  .consum.spectral{background:linear-gradient(165deg,#16384a,#06181f);}
+  .joker,.consum{width:73px;height:97px;border-radius:8px;position:relative;cursor:pointer;border:2px solid #0c1413;
+    box-shadow:0 4px 0 #0a0f0f,inset 0 0 0 1px #ffffff22;display:flex;flex-direction:column;justify-content:space-between;padding:0;
+    transition:transform .1s;background:linear-gradient(165deg,#48737a,#223b3c);overflow:visible;}
+  .consum{background:linear-gradient(165deg,#5a4488,#241b40);}
+  .consum.planet{background:linear-gradient(165deg,#36589e,#16223f);}
+  .consum.spectral{background:linear-gradient(165deg,#1c8aa0,#06222b);}
+  .joker.rar-u{border-color:#2f8f4f;} .joker.rar-r{border-color:#c0344d;}
+  .joker.rar-l{border-color:#f0b132;box-shadow:0 4px 0 #0a0f0f,0 0 11px #f0b13299,inset 0 0 0 1px #ffffff33;}
   .joker:hover,.consum:hover{transform:translateY(-5px);z-index:8;}
-  .joker .jn,.consum .jn{font-size:9.5px;font-weight:bold;line-height:1.05;text-shadow:1px 1px 0 #0008;position:relative;z-index:2;}
-  .joker .jcost,.consum .jcost{font-size:10px;color:var(--gold);align-self:flex-end;z-index:2;position:relative;}
-  .joker .jicon,.consum .jicon{font-size:24px;text-align:center;z-index:2;position:relative;filter:drop-shadow(1px 1px 0 #0008);}
+  .joker .jn,.consum .jn{font-size:8.5px;font-weight:bold;line-height:1.02;text-shadow:1px 1px 0 #0009;position:relative;z-index:2;background:#0007;border-radius:6px 6px 0 0;padding:2px 2px;text-align:center;min-height:21px;display:flex;align-items:center;justify-content:center;}
+  .joker .jcost,.consum .jcost{font-size:8.5px;color:var(--gold);text-align:center;z-index:2;position:relative;background:#0007;border-radius:0 0 6px 6px;padding:1px;}
+  .joker .jicon,.consum .jicon{font-size:27px;text-align:center;z-index:2;position:relative;filter:drop-shadow(1px 1px 0 #0008);flex:1;display:flex;align-items:center;justify-content:center;}
   .jx{position:absolute;left:4px;bottom:4px;font-size:10px;color:#fff;background:#0007;border-radius:4px;padding:0 3px;z-index:3;}
   .ed-foil::after,.ed-holo::after,.ed-poly::after{content:'';position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;border-radius:7px;}
   .ed-foil::after{background:linear-gradient(120deg,#7ad7ff66,#ffffff22,#7ad7ff66);animation:shine 3s linear infinite;background-size:200% 200%;}
@@ -142,6 +144,29 @@
   #blindView,#shopView,#packView{animation:viewIn .25s ease-out;}
   @keyframes coinfall{0%{transform:translateY(-15vh) rotate(0);}100%{transform:translateY(110vh) rotate(540deg);}}
   .coin{position:fixed;top:0;z-index:200;pointer-events:none;animation:coinfall linear forwards;}
+  /* argent flottant */
+  .infoStat .cell{position:relative;overflow:visible;}
+  @keyframes moneyfloat{0%{opacity:0;transform:translate(-50%,4px);}20%{opacity:1;}100%{opacity:0;transform:translate(-50%,-24px);}}
+  .moneyFloat{position:absolute;left:50%;top:-4px;transform:translateX(-50%);font-weight:bold;font-size:14px;z-index:30;pointer-events:none;animation:moneyfloat 1s ease-out forwards;white-space:nowrap;text-shadow:0 1px 2px #000;}
+  /* banniere de boss */
+  #bossBanner{background:linear-gradient(90deg,#3a0f14,#7a1f2a,#3a0f14);border:2px solid var(--mult);border-radius:10px;padding:6px 10px;text-align:center;color:#ffd9d9;font-weight:bold;font-size:13px;box-shadow:0 4px 0 var(--panelEdge);}
+  #bossBanner b{color:var(--gold);}
+  /* zone de cartes jouees */
+  #playZone{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;min-height:0;margin-top:8px;}
+  #playZone .card{animation:playIn .25s cubic-bezier(.2,.9,.3,1.3) backwards;}
+  @keyframes playIn{0%{opacity:0;transform:translateY(34px) scale(.85);}100%{opacity:1;transform:none;}}
+  /* main + piles */
+  #handRow{display:flex;align-items:center;gap:10px;justify-content:center;}
+  #handArea{flex:1;}
+  #pileBar{display:flex;flex-direction:column;gap:8px;align-items:center;}
+  .pile{position:relative;width:42px;height:58px;}
+  .pile .pback{position:absolute;width:38px;height:54px;border-radius:6px;border:1.5px solid #0c1413;}
+  .pile .pcount{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px;color:#fff;text-shadow:0 1px 2px #000;z-index:5;}
+  .pile .plabel{position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--muted);white-space:nowrap;}
+  .pback.deck{background:repeating-linear-gradient(45deg,#2a5b8a,#2a5b8a 4px,#1f4570 4px,#1f4570 8px);}
+  .pback.disc{background:repeating-linear-gradient(45deg,#6a2330,#6a2330 4px,#511a26 4px,#511a26 8px);}
+  /* paquet : revele en cascade */
+  #packPick .shopItem{animation:playIn .3s cubic-bezier(.2,.9,.3,1.3) backwards;}
   body.reduce-anim *{animation-duration:.001s!important;}
   #playArea{cursor:pointer;}
   .progWrap{height:9px;background:#0006;border-radius:6px;margin-top:6px;overflow:hidden;border:1px solid var(--panelEdge);}
@@ -241,11 +266,16 @@
 
     <!-- VUE JEU -->
     <div id="playView" style="display:flex;flex-direction:column;gap:12px;">
+      <div id="bossBanner" style="display:none;"></div>
       <div class="panel">
         <div id="playArea"><div id="handLabel"></div><div id="scorePopup"></div></div>
+        <div id="playZone" style="display:none;"></div>
       </div>
       <div class="panel">
-        <div id="handArea"></div>
+        <div id="handRow">
+          <div id="handArea"></div>
+          <div id="pileBar"></div>
+        </div>
         <div style="text-align:center;margin:4px 0;"><span class="small" id="selInfo">Sélectionne jusqu'à 5 cartes</span></div>
         <div id="controls">
           <button class="btn-play" id="btnPlay" onclick="playHand()">Jouer la main</button>
@@ -1184,6 +1214,7 @@ async function playHand(){
   // on marque les cartes dans l'ordre gauche → droite de la main jouée
   const scoringSet=new Set(ev.scoringCards);
   ev.scoringCards=played.filter(c=>scoringSet.has(c));
+  renderScoringLayout(played,heldCards); // monte les cartes jouées dans la zone de jeu
   S.handPlays[ev.type]=(S.handPlays[ev.type]||0)+1;
   S.handsThisRound.add(ev.type);S.handsPlayedTotal++;S.lastHandType=ev.type;META.totalHands++;
   if(ev.type==='Flush Five')unlockAch('flushfive');
@@ -1245,6 +1276,7 @@ async function playHand(){
   document.getElementById('scorePopup').innerHTML=`<span class="chipDisp">${chips}</span><span class="times">×</span><span class="multDisp">${mult}</span><span style="margin-left:8px">= <b class="gainNum" style="color:var(--gold)">${gained.toLocaleString()}</b></span>`;
   const rs=document.getElementById('curScore');rs.textContent=S.curScore.toLocaleString();rs.classList.remove('bump');void rs.offsetWidth;rs.classList.add('bump');
   if(S.target>0&&gained>=S.target*0.5){const pa=document.getElementById('playArea');pa.classList.remove('shake');void pa.offsetWidth;pa.classList.add('shake');setTimeout(()=>pa.classList.remove('shake'),520);} // secousse sur gros score
+  if(gained>(S._runBest||0))S._runBest=gained;
   if(gained>(META.bestHandScore||0)){META.bestHandScore=gained;saveMeta();}
   if(S.blind.effect==='pillar')played.forEach(c=>S.playedRanks.add(c.id));
   if(bossOn&&S.blind.effect==='tooth'){S.money=Math.max(0,S.money-played.length);renderSidebar();} // La Dent : -$1 par carte jouée
@@ -1255,6 +1287,7 @@ async function playHand(){
   if(brokenGlass.length){S.fullDeck=S.fullDeck.filter(c=>!brokenGlass.includes(c.id));S.deckCount=S.fullDeck.length;S.jokers.forEach(j=>{if(j.key==='glassjoker')j.x=(j.x||1)+0.75;});}
   S.selected=[];S.handsLeft--;
   await sleep(450);
+  const pz=document.getElementById('playZone');if(pz){pz.style.display='none';pz.innerHTML='';} // on vide la zone de jeu
   if(S.blind.effect==='hook'&&!bossDisabled()&&S.hand.length>0){shuffle(S.hand);S.hand.splice(0,Math.min(2,S.hand.length));}
   dealToFull();scoringInProgress=false;
   if(S.curScore>=S.target){winBlind();return;}
@@ -1321,10 +1354,22 @@ function winBlind(){
      Total : <b style="color:var(--gold)">$${S.money}</b>`,
     'Boutique 🛒',()=>{hide('msgOverlay');openShop();});
 }
+function runRecap(){
+  const top=Object.entries(S.handPlays||{}).sort((a,b)=>b[1]-a[1])[0];
+  const jk=(S.jokers||[]).map(j=>JOKER_DEFS[j.key].icon).join(' ')||'aucun';
+  return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #ffffff22;font-size:13px;line-height:1.7;text-align:left;display:inline-block;">
+    <b style="color:var(--gold)">📊 Récapitulatif</b><br>
+    Ante atteint : <b>${S.ante}</b>${S.endless?' ♾️':'/8'} · Manche ${S.round}<br>
+    Mains jouées : <b>${S.handsPlayedTotal||0}</b> · Argent max : <b style="color:var(--gold)">$${S.runMaxMoney||S.money}</b><br>
+    Meilleure main (cette partie) : <b style="color:var(--gold)">${(S._runBest||0).toLocaleString()}</b> pts<br>
+    ${top?('Main préférée : <b>'+top[0]+'</b> ('+top[1]+'×)<br>'):''}
+    Jokers : ${jk}<br>
+    ${S.seed?('Seed : <b>'+S.seed+'</b>'):''}</div>`;
+}
 function loseGame(){
   recordScore();
   try{localStorage.removeItem(SAVE_KEY);}catch(e){} // la run est finie : on efface l'auto-save
-  showMsg('Game Over 💀',`Tu n'as pas atteint <b>${S.target.toLocaleString()}</b>.<br>Score : <b style="color:var(--chip)">${S.curScore.toLocaleString()}</b><br>Ante <b>${S.ante}</b>.`,
+  showMsg('Game Over 💀',`Tu n'as pas atteint <b>${S.target.toLocaleString()}</b> (score : <b style="color:var(--chip)">${S.curScore.toLocaleString()}</b>).${runRecap()}`,
     'Menu 🏠',()=>{hide('msgOverlay');toStartMenu();});
 }
 
@@ -1477,8 +1522,7 @@ function winGame(){
   if(!S.endless){recordWin();recordScore();} // victoire comptée une seule fois
   const unlockedStake=(S.stake<8&&META.maxStake>S.stake)?('<br><span style="color:var(--gold)">🔓 '+STAKES[S.stake+1].name+' débloquée !</span>'):'';
   showMsg('VICTOIRE ! 🏆',
-    `Tu as battu les 8 Antes ! 👑<br>Argent final : <b style="color:var(--gold)">$${S.money}</b>${unlockedStake}<br><br>
-     Tu peux continuer en <b>mode infini</b> : les blinds deviennent de plus en plus colossales.<br>Jusqu'où iras-tu ?`,
+    `Tu as battu les 8 Antes ! 👑${unlockedStake}<br>Tu peux continuer en <b>mode infini</b> (blinds de plus en plus colossales).${runRecap()}`,
     'Menu 🏠',()=>{hide('msgOverlay');toStartMenu();},
     '♾️ Mode infini',()=>{hide('msgOverlay');S.endless=true;startAnte();renderSidebar();});
 }
@@ -1525,6 +1569,7 @@ function renderPackOptions(){
     else if(o.type==='spectral')inner=consumHTML('spectral',SPECTRALS[o.key],false,'',o._new);
     else inner=miniCardHTML(o.card);
     div.innerHTML=inner+`<div class="buyb" onclick="pickFromPack(${i})">Choisir</div>`;
+    div.style.animationDelay=(i*0.08)+'s'; // révélation en cascade
     cont.appendChild(div);
   });
 }
@@ -1640,6 +1685,12 @@ function removeConsum(idx,c){
 
 /* ===================== RENDU ===================== */
 function renderAll(){renderSidebar();renderHand();renderJokers();renderConsum();renderVouchers();}
+function moneyFloat(d){if(!d)return;const cell=document.getElementById('statMoney').parentElement;if(!cell||!cell.appendChild)return;const f=document.createElement('div');f.className='moneyFloat';f.style.color=d>0?'var(--green)':'var(--mult)';f.textContent=(d>0?'+$':'-$')+Math.abs(d);cell.appendChild(f);setTimeout(()=>f.remove&&f.remove(),1000);}
+function renderBossBanner(){
+  const el=document.getElementById('bossBanner');if(!el)return;
+  if(currentScreen==='play'&&S.blind&&S.blind.type==='boss'&&S.blind.effect&&!bossDisabled()){el.style.display='';el.innerHTML='👹 <b>'+S.blind.name+'</b> — '+S.blind.effectText;}
+  else el.style.display='none';
+}
 function renderSidebar(){
   const b=S.blind;
   document.getElementById('blindName').textContent=b?b.name:'—';
@@ -1655,8 +1706,9 @@ function renderSidebar(){
   document.getElementById('statHands').textContent=S.handsLeft;
   document.getElementById('statDisc').textContent=S.discardsLeft;
   const moneyEl=document.getElementById('statMoney');moneyEl.textContent='$'+S.money;
-  if(prevMoney!==null&&S.money!==prevMoney){moneyEl.classList.remove('bump');void moneyEl.offsetWidth;moneyEl.classList.add('bump');}
+  if(prevMoney!==null&&S.money!==prevMoney){moneyEl.classList.remove('bump');void moneyEl.offsetWidth;moneyEl.classList.add('bump');moneyFloat(S.money-prevMoney);}
   prevMoney=S.money;
+  renderBossBanner();
   document.getElementById('statAnte').textContent=S.ante+(S.endless?' ♾️':'/8');
   document.getElementById('statRound').textContent=S.round;
   document.getElementById('consumCount').textContent=S.consumables.length+'/'+S.consumSlots;
@@ -1723,7 +1775,22 @@ function renderHand(){
     div.onclick=()=>toggleSel(c.id);area.appendChild(div);
   });
   prevHandIds=new Set(S.hand.map(c=>c.id));
+  renderPiles();
   updateSelInfo();
+}
+function renderScoringLayout(played,held){
+  const pz=document.getElementById('playZone');
+  if(pz){pz.style.display='flex';pz.innerHTML='';
+    played.forEach(c=>{const d=document.createElement('div');d.className=cardClass(c)+(cardDebuffed(c)?' debuff':'');d.dataset.id=c.id;d.innerHTML=buildCardInner(c);pz.appendChild(d);});}
+  const ha=document.getElementById('handArea');if(ha){ha.innerHTML='';
+    held.forEach(c=>{const d=document.createElement('div');d.className=cardClass(c)+(cardDebuffed(c)?' debuff':'');d.dataset.id=c.id;d.innerHTML=buildCardInner(c);ha.appendChild(d);});}
+  renderPiles();
+}
+function renderPiles(){
+  const pb=document.getElementById('pileBar');if(!pb)return;
+  const draw=(S.deck||[]).length, disc=(S.discardedIds?S.discardedIds.size:0)+(S.playedIds?S.playedIds.size:0);
+  pb.innerHTML='<div class="pile"><div class="pback deck"></div><div class="pcount">'+draw+'</div><div class="plabel">Pioche</div></div>'
+    +'<div class="pile"><div class="pback disc"></div><div class="pcount">'+disc+'</div><div class="plabel">Jouées</div></div>';
 }
 function updateSelInfo(){
   const info=document.getElementById('selInfo');
@@ -1759,7 +1826,7 @@ function jokerHTML(def,inShop,uid,edition,inst,sticker,isNew){
   const stkDesc=stk?('<br><span style="color:#fc9">'+STICKERS[stk].lbl+' : '+STICKERS[stk].desc+'</span>'):'';
   let xtag='';
   if(inst&&typeof inst.x==='number'&&inst.x)xtag='<div class="jx">+'+r1(inst.x)+'</div>';
-  return `<div class="joker${edCls}${inst&&inst.debuffed?' debuff':''}" ${uid?'data-uid="'+uid+'"':''}>${edTag}${stkTag}${newTag}
+  return `<div class="joker rar-${def.rarity}${edCls}${inst&&inst.debuffed?' debuff':''}" ${uid?'data-uid="'+uid+'"':''}>${edTag}${stkTag}${newTag}
     <div class="jn" style="color:${RARITY_COL[def.rarity]}">${def.name}</div><div class="jicon">${def.icon}</div>
     <div class="jcost">${inShop?'$'+def.cost:RARITY_NAME[def.rarity]}</div>${xtag}
     <div class="tooltip"><b>${def.name}</b> <span style="color:${RARITY_COL[def.rarity]}">[${RARITY_NAME[def.rarity]}]</span><br>${def.desc}${edDesc}${stkDesc}${inst&&inst.debuffed?'<br><span style="color:var(--mult)">⚠ Désactivé (périmé)</span>':''}${uid?'<br><span class="small">Clic droit : revendre ($'+sellValue(inst||def)+')</span>':''}</div></div>`;
