@@ -1342,14 +1342,13 @@ function generateShop(){
   S.chaosUsed=false;
   const items=[];const owned=S.jokers.map(j=>j.key);
   for(let i=0;i<S.shopSlots;i++){
-    // type pondéré : joker / tarot / planete / spectral / carte
-    const rTarot=4*S.tarotRate,rPlanet=4*S.planetRate;
-    const roll=Math.random()*(20+rTarot+rPlanet);
-    if(roll<14&&!S.noJokerShop){const rar=rollRarity();let k=randomJokerKey(rar)||randomJokerKey();if(k)items.push({type:'joker',key:k,cost:JOKER_DEFS[k].cost,edition:rollEdition(),sticker:rollSticker()});}
-    else if(roll<14){items.push(Math.random()<0.5?{type:'tarot',key:randKey(TAROTS),cost:3}:{type:'planet',key:randKey(PLANETS),cost:3});}
-    else if(roll<14+rTarot){items.push({type:'tarot',key:randKey(TAROTS),cost:3});}
-    else if(roll<14+rTarot+rPlanet){items.push({type:'planet',key:randKey(PLANETS),cost:3});}
-    else{items.push({type:'spectral',key:randKey(SPECTRALS),cost:4});}
+    // type pondéré : Joker (~71%) / Tarot (~14%) / Planète (~14%).
+    // (les Spectrales n'apparaissent PAS en boutique : seulement via Packs Spectraux / deck Fantôme, comme dans le vrai jeu)
+    const wJ=S.noJokerShop?0:20,wT=4*S.tarotRate,wP=4*S.planetRate;
+    const roll=Math.random()*(wJ+wT+wP);
+    if(roll<wJ){const rar=rollRarity();let k=randomJokerKey(rar)||randomJokerKey();if(k)items.push({type:'joker',key:k,cost:JOKER_DEFS[k].cost,edition:rollEdition(),sticker:rollSticker()});}
+    else if(roll<wJ+wT){items.push({type:'tarot',key:randKey(TAROTS),cost:3});}
+    else{items.push({type:'planet',key:randKey(PLANETS),cost:3});}
   }
   // tag joker gratuit
   if(S.freeJoker){const k=randomJokerKey(S.freeJoker);if(k){items.unshift({type:'joker',key:k,cost:0,edition:S.freeEdition||null,free:true});S.freeJoker=null;S.freeEdition=null;}}
@@ -1530,21 +1529,10 @@ function pickFromPack(i){
   if(!pendingPack||!pendingPack.options)return;
   const o=pendingPack.options[i];if(!o)return;
   if(o.type==='joker'){if(usedJokerSlots()<S.jokerSlots)acquireJoker(o.key,o.edition);else{toast('Pas de place pour ce Joker.');return;}}
-  else if(o.type==='planet')applyPlanet(o.key);
   else if(o.type==='card')addCardToHandOrDeck(o.card);
-  else{ // Tarot ou Spectrale : utilisée immédiatement (comme dans le vrai jeu)
-    const def=o.type==='spectral'?SPECTRALS[o.key]:TAROTS[o.key];
-    const need=o.type==='spectral'?(def.need?[1,1]:[0,0]):def.need;
-    if(need[1]>0){
-      const pool=targetPool();
-      if(pool.length){
-        openTargetSelect(def.name,def.desc,need[0],need[1],pool,(cards)=>{def.use(cards);if(o.type==='tarot'){S.tarotsUsed++;if(o.key!=='mat')S.lastConsumableUsed={type:'tarot',key:o.key};}afterPackPick(i);});
-        return; // on attend la sélection des cartes
-      }else{ // aucune carte à cibler : on range la carte dans l'inventaire
-        if(S.consumables.length<S.consumSlots)S.consumables.push({type:o.type,key:o.key,uid:Math.random()});
-        else{toast('Pas de place pour la carte.');return;}
-      }
-    }else{def.use();if(o.type==='tarot'){S.tarotsUsed++;if(o.key!=='mat')S.lastConsumableUsed={type:'tarot',key:o.key};}}
+  else{ // Planète / Tarot / Spectrale : rangée dans les consommables (utilisable plus tard)
+    if(S.consumables.length<S.consumSlots){S.consumables.push({type:o.type,key:o.key,uid:Math.random()});discover(o.type+':'+o.key);}
+    else{toast('Emplacements de consommables pleins !');return;}
   }
   afterPackPick(i);
 }
