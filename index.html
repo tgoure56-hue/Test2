@@ -129,6 +129,10 @@
   #playArea.shake{animation:shake .5s ease-out;}
   body.reduce-anim *{animation-duration:.001s!important;}
   #playArea{cursor:pointer;}
+  .progWrap{height:9px;background:#0006;border-radius:6px;margin-top:6px;overflow:hidden;border:1px solid var(--panelEdge);}
+  .progFill{height:100%;width:0;background:linear-gradient(90deg,var(--mult),var(--gold));border-radius:6px;transition:width .35s ease-out;}
+  .progFill.done{background:linear-gradient(90deg,var(--green),#9f7);}
+  .seedTxt{cursor:pointer;text-decoration:underline dotted;}
   #controls{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;}
   button{font-family:inherit;font-weight:bold;border:2px solid var(--panelEdge);border-radius:10px;padding:9px 16px;font-size:14px;cursor:pointer;
     color:#fff;box-shadow:0 4px 0 var(--panelEdge);transition:transform .05s;text-shadow:1px 1px 0 #0006;}
@@ -182,6 +186,7 @@
       </div>
       <div class="scoreBox" style="background:#0e1817;">
         <div class="lab">Score de la manche</div><div class="roundScore" id="curScore">0</div>
+        <div class="progWrap"><div class="progFill" id="progFill"></div></div>
       </div>
       <div class="twoStat">
         <div class="bigStat bs-hands"><div class="n" id="statHands">4</div><div class="small">Mains</div></div>
@@ -295,6 +300,11 @@
     <div class="pickHint">Choisis ta mise (difficulté)</div>
     <div id="stakeRow" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:4px;"></div>
     <div class="small" id="stakeDesc" style="margin-bottom:10px;color:var(--gold);"></div>
+    <div class="pickHint">Défi (optionnel)</div>
+    <div id="challengeRow" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:4px;"></div>
+    <div class="small" id="challengeDesc" style="margin-bottom:10px;color:var(--mult);"></div>
+    <div class="pickHint">Seed (optionnel)</div>
+    <input id="seedInput" placeholder="laisser vide = aléatoire" maxlength="20" style="font-family:inherit;text-transform:uppercase;text-align:center;padding:6px;border-radius:8px;border:2px solid var(--panelEdge);background:var(--panel2);color:var(--txt);margin-bottom:10px;width:240px;">
     <div class="pickHint">Choisis ton deck de départ</div>
     <div class="grid" id="deckGrid"></div>
     <button class="btn-red" onclick="backToMenu()">← Retour</button>
@@ -315,6 +325,10 @@
     <div id="speedRow" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
     <div class="small" style="margin-top:6px;">Astuce : pendant le décompte, clique la zone de jeu pour l'accélérer.</div>
     <div style="margin-top:14px;"><label style="cursor:pointer;"><input type="checkbox" id="reduceAnimChk" onchange="toggleReduceAnim()"> Réduire les animations</label></div>
+  </div>
+  <div id="controls" style="margin-top:8px;">
+    <button class="btn-gold" onclick="exportProgress()">📤 Exporter</button>
+    <button class="btn-gold" onclick="importProgress()">📥 Importer</button>
   </div>
   <div id="controls" style="margin-top:8px;">
     <button class="btn-red" onclick="resetProgress()">🗑️ Réinitialiser la progression</button>
@@ -706,6 +720,11 @@ const TAGS={
 let S={};
 let currentScreen='start';
 function rnd(n){return Math.floor(Math.random()*n);}
+/* ----- Seeds (RNG reproductible) ----- */
+function hashSeed(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19;}return (h>>>0);}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function randomSeedStr(){let s='';const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';for(let i=0;i<8;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
+function setSeed(seed){S.seed=seed;Math.random=mulberry32(hashSeed(String(seed)));}
 
 /* ===================== RÉGLAGES ===================== */
 const SET_KEY='jokeratro_settings';
@@ -716,8 +735,8 @@ function applySettings(){scoreSpeed=SETTINGS.speed==='fast'?0.4:(SETTINGS.speed=
 
 /* ===================== PROGRESSION (META, persistante) ===================== */
 const META_KEY='jokeratro_meta_v1';
-let META={maxStake:1,wins:0,bestAnte:1,runsPlayed:0,totalHands:0,bestHandScore:0,discovered:[],unlockedJokers:[]};
-function loadMeta(){try{const m=JSON.parse(localStorage.getItem(META_KEY));if(m&&typeof m==='object')META=Object.assign(META,m);}catch(e){}if(!Array.isArray(META.discovered))META.discovered=[];if(!Array.isArray(META.unlockedJokers))META.unlockedJokers=[];}
+let META={maxStake:1,wins:0,bestAnte:1,runsPlayed:0,totalHands:0,bestHandScore:0,discovered:[],unlockedJokers:[],achievements:[],scores:[]};
+function loadMeta(){try{const m=JSON.parse(localStorage.getItem(META_KEY));if(m&&typeof m==='object')META=Object.assign(META,m);}catch(e){}['discovered','unlockedJokers','achievements','scores'].forEach(k=>{if(!Array.isArray(META[k]))META[k]=[];});}
 function saveMeta(){try{localStorage.setItem(META_KEY,JSON.stringify(META));}catch(e){}}
 function isDisc(id){return META.discovered.indexOf(id)>=0;}
 function discover(id){if(META.discovered.indexOf(id)<0){META.discovered.push(id);saveMeta();return true;}return false;}
@@ -744,8 +763,46 @@ function checkJokerUnlocks(){
   for(const k in LOCKED_JOKERS){if(META.unlockedJokers.indexOf(k)<0&&LOCKED_JOKERS[k]()[0]){META.unlockedJokers.push(k);fresh.push(JOKER_DEFS[k].name);}}
   if(fresh.length){saveMeta();if(currentScreen!=='start')toast('🔓 Joker débloqué : '+fresh.join(', '));}
 }
-function recordAnte(){if(S.ante>META.bestAnte){const prev=META.bestAnte;META.bestAnte=S.ante;saveMeta();checkDeckUnlocks(prev);checkJokerUnlocks();}}
-function recordWin(){META.wins++;if(S.stake>=META.maxStake&&S.stake<8)META.maxStake=S.stake+1;saveMeta();checkDeckUnlocks(0);checkJokerUnlocks();}
+function recordAnte(){if(S.ante>META.bestAnte){const prev=META.bestAnte;META.bestAnte=S.ante;saveMeta();checkDeckUnlocks(prev);checkJokerUnlocks();}checkAchievements();}
+function recordWin(){META.wins++;if(S.stake>=META.maxStake&&S.stake<8)META.maxStake=S.stake+1;saveMeta();checkDeckUnlocks(0);checkJokerUnlocks();checkAchievements();}
+// Succès
+const ACHIEVEMENTS={
+  firstwin:{name:'Première Victoire',desc:'Gagner une partie (battre l\'Ante 8).'},
+  ante16:{name:'Au-delà de l\'infini',desc:'Atteindre l\'Ante 16.'},
+  millionaire:{name:'Millionnaire',desc:'Marquer 1 000 000 en une seule main.'},
+  nojoker:{name:'Puriste',desc:'Battre une Boss Blind sans aucun Joker.'},
+  rich:{name:'Plein aux as',desc:'Posséder $100 ou plus.'},
+  collector:{name:'Collectionneur',desc:'Découvrir 60 Jokers.'},
+  flushfive:{name:'Quinté Parfait',desc:'Jouer une Flush Five.'},
+  grinder:{name:'Acharné',desc:'Jouer 200 mains au total.'},
+  alldecks:{name:'Maître des Decks',desc:'Débloquer tous les decks.'},
+  highstake:{name:'Joueur d\'Élite',desc:'Débloquer la Mise Or.'},
+};
+function achGet(id){return (META.achievements||[]).indexOf(id)>=0;}
+function unlockAch(id){if(!META.achievements)META.achievements=[];if(META.achievements.indexOf(id)<0&&ACHIEVEMENTS[id]){META.achievements.push(id);saveMeta();if(currentScreen!=='start')toast('🏆 Succès débloqué : '+ACHIEVEMENTS[id].name);}}
+function checkAchievements(){
+  if(META.wins>=1)unlockAch('firstwin');
+  if(META.bestAnte>=16)unlockAch('ante16');
+  if((META.bestHandScore||0)>=1000000)unlockAch('millionaire');
+  if(META.discovered.filter(d=>d.indexOf('joker:')===0).length>=60)unlockAch('collector');
+  if(META.totalHands>=200)unlockAch('grinder');
+  if(Object.keys(DECKS).every(deckUnlocked))unlockAch('alldecks');
+  if(META.maxStake>=8)unlockAch('highstake');
+}
+// Tableau des scores (meilleures runs)
+function recordScore(){
+  if(!META.scores)META.scores=[];
+  META.scores.push({ante:S.ante,deck:S.deckType,stake:S.stake,money:S.money,seed:S.seed,date:Date.now()});
+  META.scores.sort((a,b)=>b.ante-a.ante||b.money-a.money);
+  META.scores=META.scores.slice(0,15);saveMeta();
+}
+// Export / import de la progression
+function exportProgress(){const data=JSON.stringify(META);const b=new Blob([data],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='jokeratro-progression.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);toast('Progression exportée.');}
+async function importProgress(){
+  const apply=txt=>{try{const m=JSON.parse(txt);if(!m||typeof m!=='object')throw 0;META=Object.assign({maxStake:1,wins:0,bestAnte:1,runsPlayed:0,totalHands:0,bestHandScore:0,discovered:[],unlockedJokers:[]},m);saveMeta();_knownUnlocked=null;toast('Progression importée ! 📥');}catch(e){toast('Fichier de progression invalide.');}};
+  if(window.showOpenFilePicker){try{const[h]=await window.showOpenFilePicker({types:[{description:'Progression',accept:{'application/json':['.json']}}]});apply(await (await h.getFile()).text());}catch(e){}}
+  else{const inp=document.createElement('input');inp.type='file';inp.accept='.json,application/json';inp.onchange=async()=>{if(inp.files[0])apply(await inp.files[0].text());};inp.click();}
+}
 let _knownUnlocked=null;
 function checkDeckUnlocks(){ // notifie les nouveaux decks débloqués
   if(currentScreen==='start')return;
@@ -785,7 +842,16 @@ const DECKS={
   erratique:{name:'Deck Erratique',icon:'🎲',desc:'Les 52 cartes ont rang et couleur aléatoires.',apply(){},u:()=>META.wins>=4,ut:'Gagner 4 parties'},
 };
 function deckUnlocked(k){try{return DECKS[k].u();}catch(e){return true;}}
-function newRun(deckKey,stake){
+// Défis : modificateurs imposés pour la run
+const CHALLENGES={
+  poverty:{name:'Misère',icon:'🪙',desc:'Commence à $0, aucun intérêt.',apply(){S.money=0;S.interestCap=0;}},
+  onehand:{name:'Coup Unique',icon:'🎯',desc:'1 seule main par manche.',apply(){S.handsMax=1;}},
+  smallhand:{name:'Main Réduite',icon:'✋',desc:'Taille de main de 5 cartes.',apply(){S.handSize=5;}},
+  nojokershop:{name:'Sans Bouffon',icon:'🚫',desc:'Aucun Joker en boutique (cartes & paquets seulement).',apply(){S.noJokerShop=true;}},
+  greedy:{name:'Avarice',icon:'💸',desc:'Tout coûte 1$ de plus en boutique.',apply(){S.priceUp=1;}},
+  bigblinds:{name:'Colosses',icon:'🏔️',desc:'Tous les scores requis sont doublés.',apply(){S.challengeBlindMult=2;}},
+};
+function newRun(deckKey,stake,seed,challenge){
   const dk=DECKS[deckKey]?deckKey:'standard';
   const st=(stake>=1&&stake<=8)?stake:1;
   S={deck:[],hand:[],selected:[],jokers:[],consumables:[],vouchers:[],money:4,ante:1,round:0,stake:st,
@@ -797,10 +863,13 @@ function newRun(deckKey,stake){
      freeJoker:null,freeEdition:null,extraVoucher:false,couponShop:false,freeReroll:false,
      pendingTags:[],ownedTags:[],greenDeck:false,deckType:dk,
      planetsUsed:0,tarotsUsed:0,rerolls:0,packsSkipped:0,blindsSkipped:0,debtLimit:0,endless:false,lastConsumableUsed:null,
-     anaglyph:false,plasma:false,
+     anaglyph:false,plasma:false,seed:null,challenge:challenge||null,
+     runMoneyEarned:0,runMaxMoney:4,runJokerTriggers:0,runZeroJoker:false,
      ancientSuit:'S',idolRank:'A',idolSuit:'S',todoTarget:'Brelan',mailTarget:'7',castleSuit:'S'};
+  setSeed(seed&&String(seed).trim()?String(seed).trim().toUpperCase():randomSeedStr()); // RNG reproductible
   for(let k in HANDS)S.handLevels[k]=1;
   DECKS[dk].apply();
+  if(challenge&&CHALLENGES[challenge])CHALLENGES[challenge].apply(); // modificateurs de défi
   if(S.stake>=5)S.discardsMax=Math.max(0,S.discardsMax-1); // Mise Bleue : -1 défausse
   // cartes de départ de certains decks
   for(let i=0;i<(S._startTarots||0);i++)if(S.consumables.length<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});
@@ -890,7 +959,7 @@ function showBlindSelect(){
   const base=anteBase(S.ante);const cont=document.getElementById('blindSelect');cont.innerHTML='';
   S.anteBlinds.forEach((b,i)=>{
     let mult=b.mult;if(b.effect==='wall')mult=4;if(b.effect==='violet')mult=6;
-    const tgt=Math.floor(base*mult*stakeTargetMult()*(S.plasma?2:1));const done=i<S.blindIdx;
+    const tgt=Math.floor(base*mult*stakeTargetMult()*(S.plasma?2:1)*(S.challengeBlindMult||1));const done=i<S.blindIdx;
     const div=document.createElement('div');div.className='blindCard'+(b.type==='boss'?' boss':'');
     let html=`<div class="tokenCircle tk-${b.type}" style="margin:0 auto 8px"></div>
       <div class="bn">${b.name}</div>
@@ -922,7 +991,7 @@ function selectBlind(i){
   S.blindIdx=i; // la blind affrontée devient la blind courante
   const b=S.anteBlinds[i];S.blind=b;
   let mult=b.mult;if(b.effect==='wall')mult=4;if(b.effect==='violet')mult=6;
-  S.target=Math.floor(anteBase(S.ante)*mult*stakeTargetMult()*(S.plasma?2:1));
+  S.target=Math.floor(anteBase(S.ante)*mult*stakeTargetMult()*(S.plasma?2:1)*(S.challengeBlindMult||1));
   S.round++;S.curScore=0;recordAnte();
   S.handsLeft=(b.effect==='needle'&&!bossDisabled())?1:S.handsMax;
   S.discardsLeft=S.discardsMax;
@@ -1050,6 +1119,7 @@ async function playHand(){
   ev.scoringCards=played.filter(c=>scoringSet.has(c));
   S.handPlays[ev.type]=(S.handPlays[ev.type]||0)+1;
   S.handsThisRound.add(ev.type);S.handsPlayedTotal++;S.lastHandType=ev.type;META.totalHands++;
+  if(ev.type==='Flush Five')unlockAch('flushfive');
   const bossOn=S.blind.effect&&!bossDisabled();
   const crimsonOff=(bossOn&&S.blind.effect==='crimson'&&S.jokers.length)?rnd(S.jokers.length):-1; // Cœur Cramoisi
   let lvl=S.handLevels[ev.type]||1;
@@ -1127,7 +1197,7 @@ async function playHand(){
     }
     loseGame();return;
   }
-  renderAll();
+  renderAll();saveLocal(); // sauvegarde fine : reprise possible en milieu de manche
 }
 function applyMods(){}
 function fmt(r){return (r.chips?'+'+r.chips+'c ':'')+(r.mult?'+'+r.mult+'M':'')+(r.xmult?'×'+r.xmult:'');}
@@ -1148,6 +1218,7 @@ function discard(){
 
 /* ===================== FIN DE MANCHE ===================== */
 function winBlind(){
+  if(S.blind.type==='boss'&&S.jokers.length===0)unlockAch('nojoker'); // Puriste
   // sceau bleu : planète de la dernière main
   let bluePlanets=0;
   S.hand.forEach(c=>{if(c.seal==='blue'){const pk=Object.keys(PLANETS).find(k=>PLANETS[k].hand===S.lastHandType);if(pk&&S.consumables.length<S.consumSlots){S.consumables.push({type:'planet',key:pk,uid:Math.random()});bluePlanets++;}}});
@@ -1180,6 +1251,8 @@ function winBlind(){
     'Boutique 🛒',()=>{hide('msgOverlay');openShop();});
 }
 function loseGame(){
+  recordScore();
+  try{localStorage.removeItem(SAVE_KEY);}catch(e){} // la run est finie : on efface l'auto-save
   showMsg('Game Over 💀',`Tu n'as pas atteint <b>${S.target.toLocaleString()}</b>.<br>Score : <b style="color:var(--chip)">${S.curScore.toLocaleString()}</b><br>Ante <b>${S.ante}</b>.`,
     'Menu 🏠',()=>{hide('msgOverlay');toStartMenu();});
 }
@@ -1203,7 +1276,8 @@ function generateShop(){
     // type pondéré : joker / tarot / planete / spectral / carte
     const rTarot=4*S.tarotRate,rPlanet=4*S.planetRate;
     const roll=Math.random()*(20+rTarot+rPlanet);
-    if(roll<14){const rar=rollRarity();let k=randomJokerKey(rar)||randomJokerKey();if(k)items.push({type:'joker',key:k,cost:JOKER_DEFS[k].cost,edition:rollEdition(),sticker:rollSticker()});}
+    if(roll<14&&!S.noJokerShop){const rar=rollRarity();let k=randomJokerKey(rar)||randomJokerKey();if(k)items.push({type:'joker',key:k,cost:JOKER_DEFS[k].cost,edition:rollEdition(),sticker:rollSticker()});}
+    else if(roll<14){items.push(Math.random()<0.5?{type:'tarot',key:randKey(TAROTS),cost:3}:{type:'planet',key:randKey(PLANETS),cost:3});}
     else if(roll<14+rTarot){items.push({type:'tarot',key:randKey(TAROTS),cost:3});}
     else if(roll<14+rTarot+rPlanet){items.push({type:'planet',key:randKey(PLANETS),cost:3});}
     else{items.push({type:'spectral',key:randKey(SPECTRALS),cost:4});}
@@ -1234,8 +1308,8 @@ function pickVoucher(){
   return avail.length?avail[rnd(avail.length)]:null;
 }
 function applyDiscount(c){return Math.max(0,Math.ceil(c*S.discount));}
-function itemCost(it){let c=it.cost;if(it.type==='planet'&&hasJoker('astronomer'))c=0;return applyDiscount(c);}
-function packPrice(p){let c=p.cost;if(p.type==='cele'&&hasJoker('astronomer'))c=0;return applyDiscount(c);}
+function itemCost(it){let c=it.cost+(S.priceUp||0);if(it.type==='planet'&&hasJoker('astronomer'))c=0;return applyDiscount(c);}
+function packPrice(p){let c=p.cost+(S.priceUp||0);if(p.type==='cele'&&hasJoker('astronomer'))c=0;return applyDiscount(c);}
 function renderShop(){
   if(!S.shop)return;
   document.getElementById('shopMoney').textContent='$'+S.money;
@@ -1333,7 +1407,7 @@ function closeShop(){
 }
 function winGame(){
   setBgTheme('win');
-  if(!S.endless)recordWin(); // victoire comptée une seule fois
+  if(!S.endless){recordWin();recordScore();} // victoire comptée une seule fois
   const unlockedStake=(S.stake<8&&META.maxStake>S.stake)?('<br><span style="color:var(--gold)">🔓 '+STAKES[S.stake+1].name+' débloquée !</span>'):'';
   showMsg('VICTOIRE ! 🏆',
     `Tu as battu les 8 Antes ! 👑<br>Argent final : <b style="color:var(--gold)">$${S.money}</b>${unlockedStake}<br><br>
@@ -1527,6 +1601,9 @@ function renderSidebar(){
   document.getElementById('targetScore').textContent=S.target.toLocaleString();
   document.getElementById('blindReward').textContent=b?('Récompense $'+b.reward):'';
   document.getElementById('curScore').textContent=S.curScore.toLocaleString();
+  const pf=document.getElementById('progFill');if(pf&&S.target>0){const pct=Math.min(100,S.curScore/S.target*100);pf.style.width=pct+'%';if(pct>=100)pf.classList.add('done');else pf.classList.remove('done');}
+  S.runMaxMoney=Math.max(S.runMaxMoney||0,S.money);
+  if(S.money>=100)unlockAch('rich');
   document.getElementById('statHands').textContent=S.handsLeft;
   document.getElementById('statDisc').textContent=S.discardsLeft;
   const moneyEl=document.getElementById('statMoney');moneyEl.textContent='$'+S.money;
@@ -1535,7 +1612,9 @@ function renderSidebar(){
   document.getElementById('statAnte').textContent=S.ante+(S.endless?' ♾️':'/8');
   document.getElementById('statRound').textContent=S.round;
   document.getElementById('consumCount').textContent=S.consumables.length+'/'+S.consumSlots;
-  document.getElementById('runinfo').innerHTML='Deck : '+S.deckCount+' cartes'+(S.stake?(' • <span style="color:'+STAKES[S.stake].col+'">'+STAKES[S.stake].name.replace('Mise ','Mise ')+'</span>'):'');
+  document.getElementById('runinfo').innerHTML='Deck : '+S.deckCount+' cartes'+(S.stake?(' • <span style="color:'+STAKES[S.stake].col+'">'+STAKES[S.stake].name+'</span>'):'')
+    +(S.challenge&&CHALLENGES[S.challenge]?(' • <span style="color:var(--mult)">Défi : '+CHALLENGES[S.challenge].name+'</span>'):'')
+    +(S.seed?(' • <span class="seedTxt" title="Cliquer pour copier" onclick="copySeed()">Seed : '+S.seed+'</span>'):'');
 }
 function renderVouchers(){
   const p=document.getElementById('voucherPanel'),row=document.getElementById('voucherRow');
@@ -1621,9 +1700,10 @@ function sellValue(x){ // accepte une définition OU une instance de Joker (vale
   if(x&&x.key&&JOKER_DEFS[x.key])return Math.max(1,Math.floor(JOKER_DEFS[x.key].cost/2))+(x.sell||0);
   return Math.max(1,Math.floor((x.cost||0)/2));
 }
-function sellJoker(uid){
+function sellJoker(uid,confirmed){
   const idx=S.jokers.findIndex(j=>j.uid===uid);if(idx<0)return;const j=S.jokers[idx];const def=JOKER_DEFS[j.key];
   if(j.sticker==='eternal'){toast('Joker Éternel : invendable.');return;}
+  if(!confirmed&&sellValue(j)>=4){showMsg('Revendre ce Joker ?','Revendre <b>'+def.name+'</b> pour <span style="color:var(--gold)">$'+sellValue(j)+'</span> ?','Revendre',()=>{hide('msgOverlay');sellJoker(uid,true);},'Annuler',()=>hide('msgOverlay'));return;}
   if(j.key==='luchador'&&S.blind&&S.blind.type==='boss'){S.blind.effect=null;toast('Boss Blind désactivée !');}
   if(S.verdantActive){S.verdantActive=false;toast('Feuille Verdoyante levée !');} // vendre un Joker réactive les cartes
   if(def.onSell)def.onSell.call(j);
@@ -1657,6 +1737,7 @@ function toggleSel(id){if(scoringInProgress)return;if(id===S.forcedCardId){flash
 function sortHand(by){if(by==='rank')S.hand.sort((a,b)=>RANKORDER[b.rank]-RANKORDER[a.rank]);else S.hand.sort((a,b)=>a.suit.localeCompare(b.suit)||RANKORDER[b.rank]-RANKORDER[a.rank]);renderHand();}
 function flashSel(){const el=document.getElementById('selInfo');el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');}
 function randKey(obj){const k=Object.keys(obj);return k[rnd(k.length)];}
+function copySeed(){if(!S.seed)return;try{navigator.clipboard.writeText(S.seed);toast('Seed copié : '+S.seed);}catch(e){toast('Seed : '+S.seed);}}
 
 /* ===================== POPUP / ANIM ===================== */
 function setHandLabel(t){const el=document.getElementById('handLabel');el.textContent=t;if(t){el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');}}
@@ -1666,7 +1747,7 @@ function flashCard(id,text,cls){const el=document.querySelector(`.card[data-id="
   el.style.setProperty('--glow',GLOWCOL[cls]||'var(--gold)');
   el.classList.remove('scorepop');void el.offsetWidth;el.classList.add('scorepop');
   const f=document.createElement('div');f.className='scorefloat '+cls;f.textContent=text;el.appendChild(f);setTimeout(()=>f.remove(),850);}
-function flashJoker(uid){const el=document.querySelector(`.joker[data-uid="${uid}"]`);if(el){el.classList.remove('trigger');void el.offsetWidth;el.classList.add('trigger');setTimeout(()=>el.classList.remove('trigger'),340);}}
+function flashJoker(uid){if(typeof S.runJokerTriggers==='number')S.runJokerTriggers++;const el=document.querySelector(`.joker[data-uid="${uid}"]`);if(el){el.classList.remove('trigger');void el.offsetWidth;el.classList.add('trigger');setTimeout(()=>el.classList.remove('trigger'),340);}}
 let scoreSpeed=1,skipScoring=false;
 function sleep(ms){return new Promise(r=>setTimeout(r,skipScoring?0:ms*scoreSpeed));}
 
@@ -1682,7 +1763,18 @@ function msgAction(){if(msgCb)msgCb();}
 function msgAction2(){if(msgCb2)msgCb2();}
 function toast(t){showMsg('',t,'OK',()=>hide('msgOverlay'));}
 function showHandList(){
-  let html='<table>';
+  let html='';
+  if(S.blind){ // infos de la run en cours
+    const top=Object.entries(S.handPlays||{}).sort((a,b)=>b[1]-a[1])[0];
+    html+='<div style="color:var(--gold);font-weight:bold">📊 Run en cours</div><div class="small" style="margin-bottom:8px">'
+      +'Ante '+S.ante+(S.endless?' ♾️':'/8')+' · Manche '+S.round
+      +' · Argent max $'+(S.runMaxMoney||S.money)
+      +' · Mains jouées '+(S.handsPlayedTotal||0)
+      +' · Déclenchements de Jokers '+(S.runJokerTriggers||0)
+      +(top?(' · Main préférée : '+top[0]+' ('+top[1]+'×)'):'')
+      +(S.seed?(' · Seed '+S.seed):'')+'</div>';
+  }
+  html+='<table>';
   for(let h in HANDS){const lvl=S.handLevels?(S.handLevels[h]||1):1;const chips=HANDS[h][0]+(lvl-1)*scaleChips(h),mult=HANDS[h][1]+(lvl-1)*scaleMult(h);
     html+=`<tr><td><b>${h}</b> ${lvl>1?'<span class="badge">Niv '+lvl+'</span>':''}</td><td style="color:var(--muted)">${HANDDESC[h]||''}</td><td><span style="color:var(--chip)">${chips}</span> × <span style="color:var(--mult)">${mult}</span></td></tr>`;}
   html+='</table>';
@@ -1762,9 +1854,20 @@ function renderStakeRow(){
   if(!stakeUnlocked(selectedStake))selectedStake=1;
   document.getElementById('stakeDesc').textContent=STAKES[selectedStake].desc;
 }
+let selectedChallenge=null;
+function renderChallengeRow(){
+  const r=document.getElementById('challengeRow');r.innerHTML='';
+  const none=document.createElement('button');none.className=selectedChallenge?'btn-sort':'btn-green';none.textContent='Aucun';none.style.cssText='padding:5px 8px;font-size:11px;';
+  none.onclick=()=>{selectedChallenge=null;renderChallengeRow();document.getElementById('challengeDesc').textContent='';};r.appendChild(none);
+  Object.keys(CHALLENGES).forEach(k=>{const ch=CHALLENGES[k];
+    const b=document.createElement('button');b.className=selectedChallenge===k?'btn-green':'btn-sort';b.style.cssText='padding:5px 8px;font-size:11px;';b.textContent=ch.icon+' '+ch.name;b.title=ch.desc;
+    b.onclick=()=>{selectedChallenge=k;renderChallengeRow();document.getElementById('challengeDesc').textContent=ch.desc;};r.appendChild(b);
+  });
+  document.getElementById('challengeDesc').textContent=selectedChallenge?CHALLENGES[selectedChallenge].desc:'';
+}
 function startNew(){ // affiche le choix du deck + de la mise
   document.getElementById('startMain').style.display='none';
-  renderStakeRow();
+  renderStakeRow();renderChallengeRow();
   const g=document.getElementById('deckGrid');g.innerHTML='';
   Object.keys(DECKS).forEach(k=>{const d=DECKS[k];const unlocked=deckUnlocked(k);
     const div=document.createElement('div');div.className='shopItem';
@@ -1775,7 +1878,7 @@ function startNew(){ // affiche le choix du deck + de la mise
   });
   document.getElementById('deckChoose').style.display='';
 }
-function chooseDeck(k){if(!deckUnlocked(k))return;document.getElementById('deckChoose').style.display='none';document.getElementById('startMain').style.display='';hide('startOverlay');newRun(k,selectedStake);}
+function chooseDeck(k){if(!deckUnlocked(k))return;const seed=(document.getElementById('seedInput').value||'').trim();document.getElementById('deckChoose').style.display='none';document.getElementById('startMain').style.display='';hide('startOverlay');newRun(k,selectedStake,seed,selectedChallenge);}
 function backToMenu(){document.getElementById('deckChoose').style.display='none';document.getElementById('startMain').style.display='';}
 function confirmMenu(){showMsg('Retour au menu ?','Ta progression est auto-sauvegardée (tu pourras « Continuer »). Quitter vers le menu ?','Retour au menu',()=>{hide('msgOverlay');toStartMenu();});}
 
@@ -1794,6 +1897,15 @@ function showCollection(){
   });
   html+='<div style="margin-top:12px;color:var(--gold);font-weight:bold">Decks débloqués</div><div class="small">'+Object.keys(DECKS).map(k=>deckUnlocked(k)?DECKS[k].name:('🔒 '+DECKS[k].name+' ('+DECKS[k].ut+')')).join(' · ')+'</div>';
   html+='<div style="margin-top:10px;color:var(--gold);font-weight:bold">Statistiques</div><div class="small">Parties jouées : '+META.runsPlayed+' · Victoires : '+META.wins+' · Meilleur Ante : '+META.bestAnte+' · Mains jouées : '+META.totalHands+' · Meilleur score (1 main) : '+(META.bestHandScore||0).toLocaleString()+' · Mise max : '+(STAKES[META.maxStake]?STAKES[META.maxStake].name:'—')+'</div>';
+  // Succès
+  const achKeys=Object.keys(ACHIEVEMENTS);const achDone=achKeys.filter(achGet);
+  html+='<div style="margin-top:10px;color:var(--gold);font-weight:bold">🏆 Succès — '+achDone.length+'/'+achKeys.length+'</div><div class="small" style="line-height:1.7">'
+    +achKeys.map(k=>achGet(k)?('<span style="color:var(--gold)">🏆 '+ACHIEVEMENTS[k].name+'</span> <span style="color:var(--muted)">('+ACHIEVEMENTS[k].desc+')</span>'):('<span style="color:#667">🔒 '+ACHIEVEMENTS[k].name+' <span style="color:#556">('+ACHIEVEMENTS[k].desc+')</span></span>')).join('<br>')+'</div>';
+  // Meilleures runs
+  if(META.scores&&META.scores.length){
+    html+='<div style="margin-top:10px;color:var(--gold);font-weight:bold">🏅 Meilleures runs</div><div class="small">'
+      +META.scores.slice(0,10).map((s,i)=>(i+1)+'. Ante '+s.ante+' — '+(DECKS[s.deck]?DECKS[s.deck].name:s.deck)+' / '+(STAKES[s.stake]?STAKES[s.stake].name:('Mise '+s.stake))+' — $'+s.money+(s.seed?(' — '+s.seed):'')).join('<br>')+'</div>';
+  }
   document.getElementById('handListBody').innerHTML=html;
   document.querySelector('#handListOverlay h2').textContent='Collection & Progression';
   show('handListOverlay');
