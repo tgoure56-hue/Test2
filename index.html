@@ -64,7 +64,7 @@
   .edTag{position:absolute;top:3px;right:3px;font-size:8px;background:#000a;border-radius:4px;padding:1px 3px;z-index:3;color:#fff;}
   .tooltip{position:absolute;bottom:104%;left:50%;transform:translateX(-50%);width:184px;background:#0c1413;border:2px solid var(--gold);
     border-radius:8px;padding:8px;font-size:11px;z-index:60;display:none;color:var(--txt);box-shadow:0 6px 16px #000c;line-height:1.4;text-align:left;}
-  .joker:hover .tooltip,.consum:hover .tooltip,.card:hover .tooltip{display:block;}
+  .joker:hover .tooltip,.consum:hover .tooltip,.card:hover .tooltip,.voucher:hover .tooltip,.pack:hover .tooltip{display:block;}
   .card .tooltip{width:170px;}
   .tooltip b{color:var(--gold);}
   #playArea{min-height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
@@ -725,6 +725,7 @@ function finishSkip(i){
   } else showBlindSelect();
 }
 function selectBlind(i){
+  S.blindIdx=i; // la blind affrontée devient la blind courante
   const b=S.anteBlinds[i];S.blind=b;
   let mult=b.mult;if(b.effect==='wall')mult=4;
   S.target=Math.floor(anteBase(S.ante)*mult);
@@ -1023,13 +1024,16 @@ function renderShop(){
   const pg=document.getElementById('packGrid');pg.innerHTML='';
   S.shop.packs.forEach((p,idx)=>{
     const cost=packPrice(p);const afford=canAfford(cost);
-    const meta=PACKMETA[p.type];
-    pg.innerHTML+=`<div class="shopItem"><div class="pack ${meta.cl}"><div class="pn">${meta.n}${p.size==='jumbo'?' Jumbo':''}</div><div class="pic">${meta.ic}</div><div class="jcost">$${cost}</div></div>
+    const meta=PACKMETA[p.type];const sz=packSizes(p.type,p.size);
+    const sizeLbl=p.size==='jumbo'?' Jumbo':p.size==='mega'?' Méga':'';
+    pg.innerHTML+=`<div class="shopItem"><div class="pack ${meta.cl}"><div class="pn">${meta.n}${sizeLbl}</div><div class="pic">${meta.ic}</div><div class="jcost">$${cost}</div>
+      <div class="tooltip"><b>Pack ${meta.n}${sizeLbl}</b><br>${PACKDESC[p.type]}<br><span style="color:var(--gold)">Choisis ${sz[1]} carte${sz[1]>1?'s':''} parmi ${sz[0]}.</span></div></div>
       <div class="buyb ${afford?'':'dis'}" onclick="buyPack(${idx})">${cost===0?'Ouvrir':'$'+cost}</div></div>`;
   });
   if(!S.shop.packs.length)pg.innerHTML='<div class="small">— épuisé —</div>';
 }
 const PACKMETA={cele:{n:'Céleste',ic:'🌌',cl:'pk-cele'},arca:{n:'Arcane',ic:'🔮',cl:'pk-arca'},buff:{n:'Bouffon',ic:'🃏',cl:'pk-buff'},spec:{n:'Spectral',ic:'👻',cl:'pk-spec'},std:{n:'Standard',ic:'🂠',cl:'pk-std'}};
+const PACKDESC={cele:'Contient des cartes Planète qui améliorent le niveau de tes mains de poker.',arca:'Contient des cartes Tarot qui transforment et améliorent tes cartes.',buff:'Contient des Jokers à récupérer gratuitement.',spec:'Contient des cartes Spectrales : effets puissants, parfois risqués.',std:'Contient des cartes à jouer (améliorations, éditions et sceaux possibles).'};
 function buyItem(idx){
   const it=S.shop.items[idx];if(!it)return;const cost=itemCost(it);if(!canAfford(cost))return;
   if(it.type==='joker'){
@@ -1067,9 +1071,14 @@ function closeShop(){
   hide('shopOverlay');
   // Perkeo : copie négative d'un consommable
   if(hasJoker('perkeo')&&S.consumables.length&&S.consumables.length<S.consumSlots){const c=S.consumables[rnd(S.consumables.length)];S.consumables.push({type:c.type,key:c.key,uid:Math.random(),neg:true});}
-  S.blindIdx=Math.max(S.blindIdx,3);
-  S.ante++;if(S.ante>8){winGame();return;}
-  S.blindIdx=0;startAnte();renderSidebar();
+  S.blindIdx++; // on avance d'une blind dans l'ante courante
+  if(S.blindIdx>=3){ // le Boss vient d'être battu → ante suivante
+    S.ante++;if(S.ante>8){winGame();return;}
+    startAnte();
+  }else{ // encore la Grosse Blind ou le Boss à affronter
+    setBgTheme('fight');showBlindSelect();
+  }
+  renderSidebar();
 }
 function winGame(){setBgTheme('win');showMsg('VICTOIRE ! 🏆',`Tu as battu les 8 Antes ! 👑<br>Argent final : <b style="color:var(--gold)">$${S.money}</b>`,'Nouvelle partie 🔄',()=>{hide('msgOverlay');newRun();});}
 
