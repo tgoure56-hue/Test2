@@ -81,15 +81,16 @@
   .card{width:74px;height:104px;border-radius:7px;background:linear-gradient(150deg,#fffdf8,#f3eedf);color:#222;position:relative;cursor:pointer;border:1px solid #b9b09a;
     box-shadow:0 4px 0 #00000055,inset 0 0 0 1.5px #fff,inset 0 0 0 3px #00000010;transition:transform .12s;flex-shrink:0;overflow:visible;}
   .card.sel{transform:translateY(-22px);border-color:var(--gold);box-shadow:0 4px 0 var(--gold),inset 0 0 0 1.5px #fff,inset 0 0 0 3px var(--gold);}
-  .card .rank{position:absolute;top:4px;left:5px;font-size:14px;font-weight:bold;line-height:.8;z-index:3;display:flex;flex-direction:column;align-items:center;text-shadow:0 1px 0 #fff9;}
-  .card .rankb{position:absolute;bottom:4px;right:5px;font-size:14px;font-weight:bold;line-height:.8;z-index:3;transform:rotate(180deg);display:flex;flex-direction:column;align-items:center;text-shadow:0 1px 0 #fff9;}
-  .card .rank i,.card .rankb i{font-style:normal;font-size:10px;margin-top:1px;}
-  .card .bigc{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:38px;z-index:2;line-height:1;text-shadow:0 1px 1px #0003;}
-  .card .court{position:absolute;inset:15px 12px;border:1.5px solid currentColor;border-radius:5px;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:#ffffff30;}
-  .card .court .cl{font-size:26px;font-weight:bold;line-height:.9;}
-  .card .court .cs{font-size:17px;line-height:1;}
+  .card .rank{position:absolute;top:3px;left:5px;font-size:15px;font-weight:900;line-height:.78;z-index:3;display:flex;flex-direction:column;align-items:center;text-shadow:0 1px 0 #fff9;}
+  .card .rankb{position:absolute;bottom:3px;right:5px;font-size:15px;font-weight:900;line-height:.78;z-index:3;transform:rotate(180deg);display:flex;flex-direction:column;align-items:center;text-shadow:0 1px 0 #fff9;}
+  .card .rank i,.card .rankb i{font-style:normal;font-size:11px;margin-top:1px;}
+  .card .bigc{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:40px;z-index:2;line-height:1;text-shadow:0 1px 1px #0003;}
+  .card .court{position:absolute;inset:14px 11px;border:1.5px solid currentColor;border-radius:5px;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:3px 0;background:linear-gradient(160deg,#ffffff55,#ffffff14);}
+  .card .court .cl{font-size:25px;font-weight:900;line-height:1;}
+  .card .court .cs{font-size:12px;line-height:1;}
+  .card .court .cb{transform:rotate(180deg);}
   .card .pips{position:absolute;top:21px;bottom:21px;left:18px;right:18px;z-index:2;pointer-events:none;}
-  .card .pip{position:absolute;transform:translate(-50%,-50%);font-size:12px;line-height:1;}
+  .card .pip{position:absolute;transform:translate(-50%,-50%);font-size:12.5px;line-height:1;}
   .card.red{color:var(--redsuit);} .card.black{color:var(--blacksuit);}
   .card.debuff{filter:grayscale(1) brightness(.55);}
   .card.enh-bonus{background:linear-gradient(150deg,#e4f1ff,#a9d2ff);}
@@ -1676,10 +1677,11 @@ const ENHSHORT={bonus:'+30 ©',mult:'+4 Mult',wild:'WILD',glass:'VERRE',steel:'A
 function cardCenterHTML(c){
   if(c.enh==='stone')return '<div class="bigc">🪨</div>';
   const sym=SUITS[c.suit].sym,v=RANKORDER[c.rank];
-  if(v>=11&&v<=13)return '<div class="court"><span class="cl">'+c.rank+'</span><span class="cs">'+sym+'</span></div>'; // J,Q,K : carte de cour
+  if(v>=11&&v<=13)return '<div class="court"><span class="cs ct">'+sym+'</span><span class="cl">'+c.rank+'</span><span class="cs cb">'+sym+'</span></div>'; // J,Q,K : carte de cour
   if(v===14)return '<div class="bigc">'+sym+'</div>'; // As : grand symbole central
   const cols=[0,50,100];
-  return '<div class="pips">'+(PIPS[v]||[]).map(([col,row])=>'<span class="pip" style="left:'+cols[col]+'%;top:'+(row*25)+'%">'+sym+'</span>').join('')+'</div>';
+  // pips disposés comme une vraie carte : ceux du bas (sous le centre) sont retournés à 180°
+  return '<div class="pips">'+(PIPS[v]||[]).map(([col,row])=>'<span class="pip" style="left:'+cols[col]+'%;top:'+(row*25)+'%;transform:translate(-50%,-50%)'+(row>2?' rotate(180deg)':'')+'">'+sym+'</span>').join('')+'</div>';
 }
 function cardClass(c){return 'card '+SUITS[c.suit].col+(c.enh?' enh-'+c.enh:'')+(c.cedition?' ced-'+c.cedition:'');}
 function buildCardInner(c){
