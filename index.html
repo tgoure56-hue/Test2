@@ -45,7 +45,7 @@
   #consumBar{min-height:70px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
   .joker,.consum{width:70px;height:94px;border-radius:9px;position:relative;cursor:pointer;border:2px solid var(--panelEdge);
     box-shadow:0 4px 0 var(--panelEdge);display:flex;flex-direction:column;justify-content:space-between;padding:5px;
-    transition:transform .1s;background:linear-gradient(165deg,#3c6064,#264140);overflow:hidden;}
+    transition:transform .1s;background:linear-gradient(165deg,#3c6064,#264140);overflow:visible;}
   .consum{background:linear-gradient(165deg,#4b3a73,#241b40);}
   .consum.planet{background:linear-gradient(165deg,#2e4a86,#16223f);}
   .consum.spectral{background:linear-gradient(165deg,#16384a,#06181f);}
@@ -54,7 +54,7 @@
   .joker .jcost,.consum .jcost{font-size:10px;color:var(--gold);align-self:flex-end;z-index:2;position:relative;}
   .joker .jicon,.consum .jicon{font-size:24px;text-align:center;z-index:2;position:relative;filter:drop-shadow(1px 1px 0 #0008);}
   .jx{position:absolute;left:4px;bottom:4px;font-size:10px;color:#fff;background:#0007;border-radius:4px;padding:0 3px;z-index:3;}
-  .ed-foil::after,.ed-holo::after,.ed-poly::after{content:'';position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;}
+  .ed-foil::after,.ed-holo::after,.ed-poly::after{content:'';position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;border-radius:7px;}
   .ed-foil::after{background:linear-gradient(120deg,#7ad7ff66,#ffffff22,#7ad7ff66);animation:shine 3s linear infinite;background-size:200% 200%;}
   .ed-holo::after{background:linear-gradient(120deg,#ff5f9e88,#5fff9e88,#5f9eff88,#ff5f9e88);animation:shine 2.5s linear infinite;background-size:300% 300%;}
   .ed-poly::after{background:linear-gradient(60deg,#ff000055,#ffea0055,#00ff8855,#0088ff55,#aa00ff55);animation:shine 4s linear infinite;background-size:400% 400%;}
@@ -64,7 +64,8 @@
   .edTag{position:absolute;top:3px;right:3px;font-size:8px;background:#000a;border-radius:4px;padding:1px 3px;z-index:3;color:#fff;}
   .tooltip{position:absolute;bottom:104%;left:50%;transform:translateX(-50%);width:184px;background:#0c1413;border:2px solid var(--gold);
     border-radius:8px;padding:8px;font-size:11px;z-index:60;display:none;color:var(--txt);box-shadow:0 6px 16px #000c;line-height:1.4;text-align:left;}
-  .joker:hover .tooltip,.consum:hover .tooltip{display:block;}
+  .joker:hover .tooltip,.consum:hover .tooltip,.card:hover .tooltip{display:block;}
+  .card .tooltip{width:170px;}
   .tooltip b{color:var(--gold);}
   #playArea{min-height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
   #handLabel{font-size:18px;color:var(--gold);height:24px;font-weight:bold;text-shadow:1px 1px 0 #000;}
@@ -74,7 +75,7 @@
   .times{color:var(--gold);font-size:24px;}
   #handArea{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;min-height:116px;padding:6px;}
   .card{width:70px;height:100px;border-radius:8px;background:#f7f4ec;color:#222;position:relative;cursor:pointer;border:2px solid #cfcabb;
-    box-shadow:0 4px 0 #00000055;transition:transform .12s;flex-shrink:0;overflow:hidden;}
+    box-shadow:0 4px 0 #00000055;transition:transform .12s;flex-shrink:0;overflow:visible;}
   .card.sel{transform:translateY(-22px);border-color:var(--gold);box-shadow:0 4px 0 var(--gold);}
   .card .rank{position:absolute;top:3px;left:5px;font-size:18px;font-weight:bold;line-height:1;z-index:2;}
   .card .rankb{position:absolute;bottom:3px;right:5px;font-size:18px;font-weight:bold;transform:rotate(180deg);line-height:1;z-index:2;}
@@ -86,7 +87,7 @@
   .card.enh-glass{background:linear-gradient(160deg,#eafcff,#cdeef5);box-shadow:0 4px 0 #8bd,inset 0 0 0 2px #fff8;}
   .card.enh-stone{background:linear-gradient(160deg,#b9bbb6,#8d8f8a);color:#2a2a2a;} .card.enh-wild{background:linear-gradient(135deg,#ffd2d2,#d2ffe0,#d2e4ff,#f0d2ff);}
   .card.enh-lucky{background:linear-gradient(160deg,#d6ffd2,#a6f0a0);}
-  .card.ced-foil::before,.card.ced-holo::before,.card.ced-poly::before{content:'';position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;}
+  .card.ced-foil::before,.card.ced-holo::before,.card.ced-poly::before{content:'';position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;border-radius:6px;}
   .card.ced-foil::before{background:linear-gradient(120deg,#7ad7ff88,#fff4,#7ad7ff88);}
   .card.ced-holo::before{background:linear-gradient(120deg,#ff5f9e88,#5fff9e88,#5f9eff88);}
   .card.ced-poly::before{background:linear-gradient(60deg,#ff000066,#ffea0066,#00ff8866,#0088ff66,#aa00ff66);}
@@ -1151,7 +1152,8 @@ function miniCardHTML(c){
   return `<div class="card ${suit.col} ${c.enh?'enh-'+c.enh:''} ${c.cedition?'ced-'+c.cedition:''}" style="cursor:default">
     <div class="rank">${isStone?'':c.rank}</div><div class="suit">${isStone?'🪨':suit.sym}</div><div class="rankb">${isStone?'':c.rank}</div>
     ${c.enh&&c.enh!=='stone'?'<div class="enh">'+ENH[c.enh].name+'</div>':''}
-    ${c.seal?'<div class="seal seal-'+c.seal+'"></div>':''}</div>`;
+    ${c.seal?'<div class="seal seal-'+c.seal+'"></div>':''}
+    <div class="tooltip">${cardTooltip(c)}</div></div>`;
 }
 
 /* ===================== CONSOMMABLES ===================== */
@@ -1211,6 +1213,20 @@ function renderVouchers(){
   if(!S.vouchers.length){p.style.display='none';return;}
   p.style.display='';row.innerHTML=S.vouchers.map(k=>'<span class="tagChip">'+VOUCHERS[k].icon+' '+VOUCHERS[k].name+'</span>').join('');
 }
+const RANKNAME={'A':'As','K':'Roi','Q':'Dame','J':'Valet'};
+const SUITNAME={S:'Pique',H:'Cœur',D:'Carreau',C:'Trèfle'};
+function cardName(c){return (RANKNAME[c.rank]||c.rank)+' de '+SUITNAME[c.suit];}
+function cardTooltip(c){
+  if(c.enh==='stone')return '<b>Carte Pierre</b><br>+50 Chips quand marquée. Marque toujours, sans rang ni couleur.';
+  const chips=RANKVAL[c.rank]+(c.enh==='bonus'?30:0)+(c.chipBonus||0);
+  let h='<b>'+cardName(c)+'</b><br>Donne <span style="color:var(--chip)">+'+chips+' Chips</span> si elle est marquée.';
+  if(c.enh==='bonus')h+='<br><b style="color:var(--gold)">Bonus</b> : +30 Chips (déjà comptés)';
+  else if(c.enh)h+='<br><b style="color:var(--gold)">'+ENH[c.enh].name+'</b> : '+ENH[c.enh].desc;
+  if(c.cedition)h+='<br><b style="color:#9cf">'+EDITIONS[c.cedition].name+'</b> : '+EDITIONS[c.cedition].desc;
+  if(c.seal)h+='<br><b style="color:var(--gold)">'+SEALS[c.seal].name+'</b> : '+SEALS[c.seal].desc;
+  if(cardDebuffed(c))h+='<br><span style="color:var(--mult)">⚠ Désactivée par la Blind : ne marque pas.</span>';
+  return h;
+}
 function renderHand(){
   const area=document.getElementById('handArea');area.innerHTML='';
   S.hand.forEach(c=>{
@@ -1220,7 +1236,8 @@ function renderHand(){
     div.dataset.id=c.id;
     div.innerHTML=`<div class="rank">${isStone?'':c.rank}</div><div class="suit">${isStone?'🪨':suit.sym}</div><div class="rankb">${isStone?'':c.rank}</div>
       ${c.enh&&c.enh!=='stone'?'<div class="enh">'+ENH[c.enh].name+'</div>':''}
-      ${c.seal?'<div class="seal seal-'+c.seal+'" title="'+SEALS[c.seal].name+'"></div>':''}`;
+      ${c.seal?'<div class="seal seal-'+c.seal+'"></div>':''}
+      <div class="tooltip">${cardTooltip(c)}</div>`;
     div.onclick=()=>toggleSel(c.id);area.appendChild(div);
   });
   updateSelInfo();
