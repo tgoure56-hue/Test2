@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jokeratro — un roguelike de poker</title>
+<style>
+  :root{
+    --bg:#1c2b2b; --panel:#22383a; --panel2:#2c4548;
+    --accent:#ff6b5e; --gold:#f4c95d; --blue:#5ea0ff; --green:#4fd07a;
+    --red:#e85d6c; --txt:#e8f0ee; --muted:#9fb3b0;
+    --chip:#3b82f6; --mult:#ef4444;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Trebuchet MS','Segoe UI',sans-serif;}
+  body{background:radial-gradient(circle at 50% -10%,#2a4244,#13201f 70%);color:var(--txt);
+    min-height:100vh;display:flex;justify-content:center;padding:10px;user-select:none;}
+  #game{width:100%;max-width:1180px;display:grid;grid-template-columns:240px 1fr;gap:12px;}
+  .panel{background:var(--panel);border-radius:14px;padding:12px;border:2px solid #0e1a1a;
+    box-shadow:0 6px 0 #0e1a1a,inset 0 0 0 1px #ffffff10;}
+  h1{font-size:22px;color:var(--gold);text-shadow:2px 2px 0 #0008;letter-spacing:1px;}
+  .small{font-size:12px;color:var(--muted);}
+  /* Left column */
+  #sidebar{display:flex;flex-direction:column;gap:12px;}
+  .blind-box{text-align:center;border-radius:12px;padding:14px;background:var(--panel2);
+    border:2px solid #0e1a1a;}
+  .blind-name{font-size:18px;font-weight:bold;}
+  .target{font-size:30px;color:var(--accent);font-weight:bold;margin-top:4px;}
+  .reward{font-size:13px;color:var(--gold);}
+  .scoreRow{display:flex;justify-content:space-between;align-items:center;margin:8px 0;}
+  .scoreVal{font-size:26px;font-weight:bold;color:var(--blue);}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+  .stat{background:var(--panel2);border-radius:8px;padding:8px;text-align:center;border:1px solid #0e1a1a;}
+  .stat .label{font-size:11px;color:var(--muted);text-transform:uppercase;}
+  .stat .num{font-size:20px;font-weight:bold;}
+  .num.hands{color:var(--blue);} .num.disc{color:var(--red);} .num.money{color:var(--gold);}
+  .num.ante{color:var(--txt);} .num.round{color:var(--txt);}
+  /* Main */
+  #main{display:flex;flex-direction:column;gap:12px;}
+  #jokerBar{min-height:96px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 12px;}
+  #consumBar{min-height:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .joker{width:78px;height:100px;border-radius:10px;background:linear-gradient(160deg,#3a5d61,#26403f);
+    border:2px solid #0e1a1a;box-shadow:0 4px 0 #0e1a1a;display:flex;flex-direction:column;
+    justify-content:space-between;padding:6px;cursor:pointer;position:relative;transition:transform .1s;}
+  .joker:hover{transform:translateY(-4px);z-index:5;}
+  .joker .jn{font-size:11px;font-weight:bold;line-height:1.1;}
+  .joker .jcost{font-size:11px;color:var(--gold);align-self:flex-end;}
+  .joker .jicon{font-size:26px;text-align:center;}
+  .tooltip{position:absolute;bottom:104%;left:50%;transform:translateX(-50%);width:170px;
+    background:#0e1a1a;border:1px solid var(--gold);border-radius:8px;padding:8px;font-size:12px;
+    z-index:50;display:none;color:var(--txt);box-shadow:0 4px 12px #000a;}
+  .joker:hover .tooltip{display:block;}
+  .tooltip b{color:var(--gold);}
+  /* Play area */
+  #playArea{min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;}
+  #handLabel{font-size:18px;color:var(--gold);height:26px;font-weight:bold;}
+  #scorePopup{display:flex;gap:6px;align-items:center;font-size:30px;font-weight:bold;height:44px;}
+  .chipDisp{background:var(--chip);padding:4px 14px;border-radius:8px;}
+  .multDisp{background:var(--mult);padding:4px 14px;border-radius:8px;}
+  .times{color:var(--gold);}
+  /* Cards */
+  #handArea{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;min-height:140px;padding:8px;}
+  .card{width:78px;height:112px;border-radius:9px;background:#fafafa;color:#222;position:relative;
+    cursor:pointer;border:2px solid #ddd;box-shadow:0 4px 0 #0006;transition:transform .12s;
+    flex-shrink:0;}
+  .card.sel{transform:translateY(-22px);border-color:var(--gold);box-shadow:0 4px 0 var(--gold);}
+  .card .rank{position:absolute;top:4px;left:6px;font-size:20px;font-weight:bold;line-height:1;}
+  .card .rankb{position:absolute;bottom:4px;right:6px;font-size:20px;font-weight:bold;
+    transform:rotate(180deg);line-height:1;}
+  .card .suit{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:36px;}
+  .card.red{color:#d11e34;} .card.black{color:#1a1a1a;}
+  .card.debuff{filter:grayscale(1) brightness(.6);}
+  .card .enh{position:absolute;top:4px;right:6px;font-size:11px;}
+  .scorefloat{position:absolute;top:-26px;left:50%;transform:translateX(-50%);font-weight:bold;
+    font-size:16px;padding:2px 8px;border-radius:6px;animation:floatup .8s ease-out forwards;
+    pointer-events:none;white-space:nowrap;}
+  @keyframes floatup{0%{opacity:0;transform:translate(-50%,6px);}20%{opacity:1;}
+    100%{opacity:0;transform:translate(-50%,-30px);}}
+  .fchip{background:var(--chip);color:#fff;} .fmult{background:var(--mult);color:#fff;}
+  /* Buttons */
+  #controls{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;}
+  button{font-family:inherit;font-weight:bold;border:2px solid #0e1a1a;border-radius:10px;
+    padding:10px 18px;font-size:15px;cursor:pointer;color:#fff;box-shadow:0 4px 0 #0e1a1a;
+    transition:transform .05s;}
+  button:active{transform:translateY(3px);box-shadow:0 1px 0 #0e1a1a;}
+  button:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-play{background:var(--blue);} .btn-disc{background:var(--red);}
+  .btn-sort{background:var(--panel2);} .btn-gold{background:var(--gold);color:#3a2c00;}
+  .btn-green{background:var(--green);color:#04240f;}
+  #sortRow{display:flex;gap:8px;justify-content:center;}
+  /* Overlays */
+  .overlay{position:fixed;inset:0;background:#0a1414e6;display:none;align-items:center;
+    justify-content:center;z-index:100;padding:16px;}
+  .overlay.show{display:flex;}
+  .modal{background:var(--panel);border-radius:16px;padding:24px;max-width:760px;width:100%;
+    border:2px solid #0e1a1a;box-shadow:0 10px 0 #0e1a1a;text-align:center;}
+  .modal h2{color:var(--gold);margin-bottom:12px;}
+  .shopGrid{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:16px 0;min-height:120px;}
+  .shopItem{display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .shopItem .buyb{background:var(--gold);color:#3a2c00;padding:4px 14px;border-radius:8px;
+    font-size:13px;cursor:pointer;font-weight:bold;border:2px solid #0e1a1a;}
+  .blindSelect{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:16px 0;}
+  .blindCard{width:200px;background:var(--panel2);border-radius:14px;padding:16px;border:2px solid #0e1a1a;}
+  .blindCard.boss{border-color:var(--accent);}
+  .blindCard .bn{font-size:18px;font-weight:bold;}
+  .blindCard .bt{font-size:24px;color:var(--accent);font-weight:bold;margin:8px 0;}
+  .handinfo{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6;text-align:left;
+    max-height:200px;overflow:auto;}
+  .handinfo table{width:100%;font-size:12px;border-collapse:collapse;}
+  .handinfo td{padding:2px 6px;}
+  .flash{animation:flash .4s;}
+  @keyframes flash{0%{background:var(--gold);}100%{background:transparent;}}
+  #runinfo{font-size:11px;color:var(--muted);text-align:center;margin-top:4px;}
+  .badge{display:inline-block;background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;
+    border-radius:6px;margin-left:6px;}
+</style>
+</head>
+<body>
+<div id="game">
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div class="panel">
+      <h1>JOKERATRO</h1>
+      <div class="small">un roguelike de poker maison</div>
+    </div>
+    <div class="panel">
+      <div class="blind-box">
+        <div class="blind-name" id="blindName">—</div>
+        <div class="small" id="blindEffect"></div>
+        <div class="small">Score à atteindre</div>
+        <div class="target" id="targetScore">0</div>
+        <div class="reward" id="blindReward"></div>
+      </div>
+      <div class="scoreRow">
+        <span>Score actuel</span>
+        <span class="scoreVal" id="curScore">0</span>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="label">Mains</div><div class="num hands" id="statHands">4</div></div>
+        <div class="stat"><div class="label">Défausses</div><div class="num disc" id="statDisc">3</div></div>
+        <div class="stat"><div class="label">Argent</div><div class="num money" id="statMoney">$4</div></div>
+        <div class="stat"><div class="label">Ante</div><div class="num ante" id="statAnte">1/8</div></div>
+      </div>
+      <div id="runinfo"></div>
+    </div>
+    <div class="panel">
+      <div class="small" style="margin-bottom:6px;color:var(--gold);font-weight:bold;">Cartes Consommables</div>
+      <div id="consumBar"><span class="small" id="consumEmpty">aucune</span></div>
+    </div>
+    <div class="panel">
+      <button class="btn-sort" style="width:100%" onclick="showHandList()">📖 Mains de poker</button>
+    </div>
+  </div>
+
+  <!-- Main area -->
+  <div id="main">
+    <div class="panel">
+      <div class="small" style="margin-bottom:6px;color:var(--gold);font-weight:bold;">
+        Jokers <span id="jokerCount">(0/5)</span></div>
+      <div id="jokerBar"><span class="small" id="jokerEmpty">Aucun Joker — achète-en à la boutique !</span></div>
+    </div>
+    <div class="panel">
+      <div id="playArea">
+        <div id="handLabel"></div>
+        <div id="scorePopup"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div id="handArea"></div>
+      <div id="sortRow">
+        <span class="small" id="selInfo">Sélectionne jusqu'à 5 cartes</span>
+      </div>
+      <div style="height:8px"></div>
+      <div id="controls">
+        <button class="btn-play" id="btnPlay" onclick="playHand()">Jouer la main</button>
+        <button class="btn-disc" id="btnDisc" onclick="discard()">Défausser</button>
+        <button class="btn-sort" onclick="sortHand('rank')">Trier ↕ Rang</button>
+        <button class="btn-sort" onclick="sortHand('suit')">Trier ♠ Couleur</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlays -->
+<div class="overlay" id="blindOverlay">
+  <div class="modal">
+    <h2>Choisis ta Blind — Ante <span id="anteNum">1</span></h2>
+    <div class="blindSelect" id="blindSelect"></div>
+  </div>
+</div>
+
+<div class="overlay" id="shopOverlay">
+  <div class="modal">
+    <h2>🛒 Boutique</h2>
+    <div class="small">Argent : <span id="shopMoney" style="color:var(--gold);font-weight:bold;"></span></div>
+    <div class="shopGrid" id="shopGrid"></div>
+    <div id="controls">
+      <button class="btn-gold" id="rerollBtn" onclick="reroll()">🔄 Reroll ($5)</button>
+      <button class="btn-green" onclick="closeShop()">Suivant ▶</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="msgOverlay">
+  <div class="modal">
+    <h2 id="msgTitle"></h2>
+    <div id="msgBody" style="font-size:16px;margin:12px 0;line-height:1.6;"></div>
+    <button class="btn-green" id="msgBtn" onclick="msgAction()">Continuer</button>
+  </div>
+</div>
+
+<div class="overlay" id="handListOverlay">
+  <div class="modal">
+    <h2>Mains de poker</h2>
+    <div class="handinfo" id="handListBody"></div>
+    <button class="btn-green" onclick="hide('handListOverlay')">Fermer</button>
+  </div>
+</div>
+
+<script>
+/* ============================ DONNÉES ============================ */
+const SUITS = {S:{sym:'♠',col:'black'},H:{sym:'♥',col:'red'},D:{sym:'♦',col:'red'},C:{sym:'♣',col:'black'}};
+const RANKS = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+const RANKVAL = {'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':10,'Q':10,'K':10,'A':11};
+const RANKORDER = {'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
+
+// Mains : [chips de base, mult de base] niveau 1
+const HANDS = {
+  'Quinte Flush Royale':[100,8],'Quinte Flush':[100,8],'Carré':[60,7],'Full':[40,4],
+  'Couleur':[35,4],'Suite':[30,4],'Brelan':[30,3],'Double Paire':[20,2],'Paire':[10,2],'Carte Haute':[5,1]
+};
+const HANDDESC = {
+  'Quinte Flush':'5 cartes qui se suivent, même couleur','Carré':'4 cartes de même rang',
+  'Full':'Un brelan + une paire','Couleur':'5 cartes de même couleur (symbole)',
+  'Suite':'5 cartes qui se suivent','Brelan':'3 cartes de même rang',
+  'Double Paire':'2 paires différentes','Paire':'2 cartes de même rang','Carte Haute':'rien de mieux'
+};
+
+// Définition des Jokers. eval(ctx) renvoie des modifs {chips,mult,xmult,money,msg}
+const JOKER_DEFS = {
+  joker:{name:'Joker',icon:'🃏',cost:2,rarity:'c',desc:'+4 Mult',
+    eval:c=>({mult:4})},
+  greedy:{name:'Joker Cupide',icon:'♦️',cost:5,rarity:'c',desc:'+3 Mult par ♦ Carreau marqué',
+    perCard:(card)=>card.suit==='D'?{mult:3}:null},
+  lusty:{name:'Joker Lascif',icon:'♥️',cost:5,rarity:'c',desc:'+3 Mult par ♥ Cœur marqué',
+    perCard:(card)=>card.suit==='H'?{mult:3}:null},
+  wrathful:{name:'Joker Furieux',icon:'♠️',cost:5,rarity:'c',desc:'+3 Mult par ♠ Pique marqué',
+    perCard:(card)=>card.suit==='S'?{mult:3}:null},
+  glutton:{name:'Joker Glouton',icon:'♣️',cost:5,rarity:'c',desc:'+3 Mult par ♣ Trèfle marqué',
+    perCard:(card)=>card.suit==='C'?{mult:3}:null},
+  jolly:{name:'Joker Jovial',icon:'😄',cost:3,rarity:'c',desc:'+8 Mult si la main contient une Paire',
+    eval:c=>c.handCounts.maxOfKind>=2?{mult:8}:null},
+  zany:{name:'Joker Loufoque',icon:'🤪',cost:4,rarity:'c',desc:'+12 Mult si la main contient un Brelan',
+    eval:c=>c.handCounts.maxOfKind>=3?{mult:12}:null},
+  mad:{name:'Joker Fou',icon:'😡',cost:4,rarity:'c',desc:'+10 Mult si la main contient une Double Paire',
+    eval:c=>c.handCounts.pairs>=2?{mult:10}:null},
+  half:{name:'Demi-Joker',icon:'➗',cost:4,rarity:'c',desc:'+20 Mult si la main joue 3 cartes ou moins',
+    eval:c=>c.playedCount<=3?{mult:20}:null},
+  steven:{name:'Steven le Pair',icon:'2️⃣',cost:4,rarity:'u',desc:'+4 Mult par carte paire marquée (2,4,6,8,10)',
+    perCard:(card)=>(RANKORDER[card.rank]%2===0&&RANKORDER[card.rank]<=10)?{mult:4}:null},
+  todd:{name:'Todd l\'Impair',icon:'1️⃣',cost:4,rarity:'u',desc:'+31 Chips par carte impaire marquée (A,3,5,7,9)',
+    perCard:(card)=>{const v=RANKORDER[card.rank];return (v%2===1||v===14)?{chips:31}:null;}},
+  scary:{name:'Face Effrayante',icon:'😱',cost:4,rarity:'c',desc:'+30 Chips par figure marquée (J,Q,K)',
+    perCard:(card)=>RANKORDER[card.rank]>=11&&RANKORDER[card.rank]<=13?{chips:30}:null},
+  fibonacci:{name:'Fibonacci',icon:'🐚',cost:8,rarity:'r',desc:'+8 Mult par A,2,3,5,8 marqué',
+    perCard:(card)=>[14,2,3,5,8].includes(RANKORDER[card.rank])?{mult:8}:null},
+  bull:{name:'Taureau',icon:'🐂',cost:6,rarity:'u',desc:'+2 Chips par dollar possédé',
+    eval:c=>({chips:2*Math.max(0,c.money)})},
+  bann:{name:'Bannière',icon:'🚩',cost:5,rarity:'c',desc:'+30 Chips par défausse restante',
+    eval:c=>({chips:30*c.discardsLeft})},
+  abstract:{name:'Joker Abstrait',icon:'🎨',cost:4,rarity:'c',desc:'+3 Mult par Joker possédé',
+    eval:c=>({mult:3*c.jokerCount})},
+  scholar:{name:'Érudit',icon:'📚',cost:4,rarity:'c',desc:'Les As marqués donnent +20 Chips et +4 Mult',
+    perCard:(card)=>card.rank==='A'?{chips:20,mult:4}:null},
+  walkie:{name:'Talkie-Walkie',icon:'📻',cost:4,rarity:'c',desc:'Les 10 et 4 marqués donnent +10 Chips et +4 Mult',
+    perCard:(card)=>(card.rank==='10'||card.rank==='4')?{chips:10,mult:4}:null},
+  crafty:{name:'Joker Habile',icon:'🛠️',cost:4,rarity:'c',desc:'+80 Chips si la main contient une Couleur',
+    eval:c=>c.isFlush?{chips:80}:null},
+  devious:{name:'Joker Sournois',icon:'🎯',cost:4,rarity:'c',desc:'+100 Chips si la main contient une Suite',
+    eval:c=>c.isStraight?{chips:100}:null},
+  clever:{name:'Joker Malin',icon:'🧠',cost:4,rarity:'c',desc:'+150 Chips si la main contient un Full',
+    eval:c=>c.handType==='Full'?{chips:150}:null},
+  joyous:{name:'Joker Multiplicateur',icon:'✖️',cost:8,rarity:'r',desc:'×2 Mult si la main joue exactement 1 carte... non : ×1.5 Mult si Paire',
+    eval:c=>c.handCounts.maxOfKind>=2?{xmult:1.5}:null},
+  steel:{name:'Joker d\'Acier',icon:'⚙️',cost:7,rarity:'r',desc:'×1.5 Mult si la main est une Couleur ou mieux',
+    eval:c=>c.isFlush?{xmult:1.5}:null},
+  ride:{name:'Roule ou Crève',icon:'🏍️',cost:6,rarity:'u',desc:'Gagne +1 Mult permanent à chaque défausse',
+    state:0,eval:function(c){return {mult:this.state}}},
+  square:{name:'Joker Carré',icon:'⬛',cost:4,rarity:'c',desc:'+4 Chips. Gagne +4 Chips si la main joue exactement 4 cartes',
+    state:0,eval:function(c){if(c.playedCount===4)this.state+=4;return {chips:this.state}}},
+};
+const RARITY_NAME={c:'Commun',u:'Peu commun',r:'Rare'};
+const RARITY_COL={c:'#5ea0ff',u:'#4fd07a',r:'#ff6b5e'};
+
+/* ============================ ÉTAT ============================ */
+let S = {};
+function newRun(){
+  S = {
+    deck:[], hand:[], selected:[],
+    jokers:[], consumables:[],
+    money:4, ante:1, round:0,
+    handsMax:4, discardsMax:3, handsLeft:4, discardsLeft:3,
+    handSize:8, jokerSlots:5,
+    curScore:0, target:0,
+    blind:null, blindIdx:0, // 0=small 1=big 2=boss
+    anteBlinds:null,
+    handLevels:{}, // level per hand type
+    shop:null,
+  };
+  for(let k in HANDS) S.handLevels[k]=1;
+  // reset stateful jokers handled at acquire
+  startAnte();
+}
+
+function makeDeck(){
+  const d=[];
+  for(let s in SUITS) for(let r of RANKS) d.push({rank:r,suit:s,enh:null,id:Math.random()});
+  return d;
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ============================ ANTE / BLINDS ============================ */
+const ANTE_BASE=[0,300,800,2000,5000,11000,20000,35000,50000];
+function anteBase(a){ return a<=8?ANTE_BASE[a]:Math.floor(ANTE_BASE[8]*Math.pow(1.6,a-8)); }
+
+const BOSS_BLINDS=[
+  {name:'Le Crochet',effect:'Défausse 2 cartes après chaque main jouée',key:'hook'},
+  {name:'Le Mur',effect:'Score requis très élevé',key:'wall'},
+  {name:'Le Club',effect:'Toutes les cartes ♣ Trèfle sont désactivées',key:'club'},
+  {name:'La Tête',effect:'Toutes les figures (J,Q,K) sont désactivées',key:'head'},
+  {name:'L\'Aiguille',effect:'1 seule main pour battre cette blind',key:'needle'},
+  {name:'Le Pilier',effect:'Cartes déjà jouées cette manche désactivées',key:'pillar'},
+  {name:'Le Poisson',effect:'Cartes piochées face cachée (info masquée)',key:'fish'},
+  {name:'L\'Œil Bleu',effect:'Score requis élevé',key:'wall'},
+];
+function startAnte(){
+  const boss = BOSS_BLINDS[Math.floor(Math.random()*BOSS_BLINDS.length)];
+  S.anteBlinds = [
+    {type:'small',name:'Petite Blind',mult:1,reward:3,effect:null},
+    {type:'big',name:'Grosse Blind',mult:1.5,reward:4,effect:null},
+    {type:'boss',name:boss.name,mult:2,reward:5,effect:boss.key,effectText:boss.effect},
+  ];
+  S.blindIdx=0;
+  showBlindSelect();
+}
+
+function showBlindSelect(){
+  document.getElementById('anteNum').textContent=S.ante;
+  const base=anteBase(S.ante);
+  const cont=document.getElementById('blindSelect');
+  cont.innerHTML='';
+  S.anteBlinds.forEach((b,i)=>{
+    let mult=b.mult; if(b.effect==='wall')mult=4;
+    const tgt=Math.floor(base*mult);
+    const done = i<S.blindIdx;
+    const div=document.createElement('div');
+    div.className='blindCard'+(b.type==='boss'?' boss':'');
+    div.innerHTML=`<div class="bn">${b.name}</div>
+      <div class="small">${b.effect?('<span style="color:var(--accent)">'+b.effectText+'</span>'):'Aucun effet'}</div>
+      <div class="bt">${tgt}</div>
+      <div class="reward">Récompense : $${b.reward}</div>
+      ${done?'<div class="badge">Battue ✓</div>':
+        (i===S.blindIdx?'<button class="btn-green" style="margin-top:10px;width:100%" onclick="selectBlind('+i+')">Affronter</button>':
+         '<div class="small" style="margin-top:10px">Verrouillée</div>')}`;
+    cont.appendChild(div);
+  });
+  show('blindOverlay');
+}
+
+function selectBlind(i){
+  const b=S.anteBlinds[i];
+  S.blind=b;
+  let mult=b.mult; if(b.effect==='wall')mult=4;
+  S.target=Math.floor(anteBase(S.ante)*mult);
+  S.round++;
+  S.curScore=0;
+  S.handsLeft = b.effect==='needle'?1:S.handsMax;
+  S.discardsLeft=S.discardsMax;
+  S.playedRanks=new Set(); // pour le Pilier
+  // construit & mélange le deck
+  S.deck=shuffle(makeDeck());
+  S.hand=[];
+  S.selected=[];
+  hide('blindOverlay');
+  dealToFull();
+  renderAll();
+  setHandLabel(b.effect?('⚠ '+b.effectText):'');
+}
+
+/* ============================ DISTRIBUTION ============================ */
+function dealToFull(){
+  while(S.hand.length<S.handSize && S.deck.length>0){
+    S.hand.push(S.deck.pop());
+  }
+}
+
+function cardDebuffed(card){
+  if(!S.blind||!S.blind.effect) return false;
+  if(S.blind.effect==='club' && card.suit==='C') return true;
+  if(S.blind.effect==='head' && RANKORDER[card.rank]>=11 && RANKORDER[card.rank]<=13) return true;
+  if(S.blind.effect==='pillar' && S.playedRanks && S.playedRanks.has(card.rank+card.suit)) return true;
+  return false;
+}
+
+/* ============================ ÉVALUATION DES MAINS ============================ */
+function evaluateHand(cards){
+  // renvoie {type, scoringCards:[...], counts}
+  const n=cards.length;
+  const byRank={}, bySuit={};
+  cards.forEach(c=>{byRank[c.rank]=(byRank[c.rank]||[]); byRank[c.rank].push(c);
+                    bySuit[c.suit]=(bySuit[c.suit]||[]); bySuit[c.suit].push(c);});
+  const counts=Object.values(byRank).map(a=>a.length).sort((a,b)=>b-a);
+  const maxOfKind=counts[0]||0;
+  const pairs=counts.filter(x=>x>=2).length;
+  const isFlush = n===5 && Object.keys(bySuit).length===1;
+  // suite
+  let isStraight=false, straightCards=null;
+  if(n===5){
+    const ords=[...new Set(cards.map(c=>RANKORDER[c.rank]))].sort((a,b)=>a-b);
+    if(ords.length===5){
+      if(ords[4]-ords[0]===4) isStraight=true;
+      // A-2-3-4-5
+      if(JSON.stringify(ords)===JSON.stringify([2,3,4,5,14])) isStraight=true;
+    }
+  }
+  let type='Carte Haute', scoring=[];
+  const allRankGroups=Object.values(byRank).sort((a,b)=>b.length-a.length);
+  if(isStraight&&isFlush){type='Quinte Flush';scoring=[...cards];}
+  else if(maxOfKind===4){type='Carré';scoring=allRankGroups[0];}
+  else if(maxOfKind===3&&pairs>=2){type='Full';scoring=[...cards];}
+  else if(isFlush){type='Couleur';scoring=[...cards];}
+  else if(isStraight){type='Suite';scoring=[...cards];}
+  else if(maxOfKind===3){type='Brelan';scoring=allRankGroups[0];}
+  else if(pairs>=2){type='Double Paire';scoring=allRankGroups.filter(g=>g.length>=2).slice(0,2).flat();}
+  else if(maxOfKind===2){type='Paire';scoring=allRankGroups[0];}
+  else {type='Carte Haute';
+    // highest card
+    let hi=cards[0]; cards.forEach(c=>{if(RANKORDER[c.rank]>RANKORDER[hi.rank])hi=c;}); scoring=[hi];}
+  return {type, scoringCards:scoring, counts:{maxOfKind,pairs}, isFlush, isStraight};
+}
+
+/* ============================ JOUER UNE MAIN ============================ */
+let scoringInProgress=false;
+async function playHand(){
+  if(scoringInProgress) return;
+  if(S.selected.length===0||S.selected.length>5){flashSel();return;}
+  if(S.handsLeft<=0) return;
+  scoringInProgress=true;
+  const played = S.selected.map(id=>S.hand.find(c=>c.id===id));
+  const ev = evaluateHand(played);
+  const lvl = S.handLevels[ev.type]||1;
+  const base = HANDS[ev.type];
+  let chips = base[0] + (lvl-1)*scaleChips(ev.type);
+  let mult = base[1] + (lvl-1)*scaleMult(ev.type);
+
+  setHandLabel(ev.type+(lvl>1?(' Niv.'+lvl):''));
+  updateScorePopup(chips,mult);
+
+  // contexte de scoring
+  const ctx = {
+    handType:ev.type, handCounts:ev.counts, isFlush:ev.isFlush, isStraight:ev.isStraight,
+    playedCount:played.length, money:S.money, jokerCount:S.jokers.length,
+    discardsLeft:S.discardsLeft,
+  };
+
+  // 1) cartes marquées : chips de chaque carte + effets per-card des jokers
+  for(const card of ev.scoringCards){
+    if(cardDebuffed(card)) continue;
+    let cv = RANKVAL[card.rank];
+    if(card.enh==='bonus') cv+=30;
+    chips += cv;
+    flashCard(card.id,'+'+cv+' chips','fchip');
+    updateScorePopup(chips,mult);
+    await sleep(140);
+    // jokers per-card
+    for(const j of S.jokers){
+      const def=JOKER_DEFS[j.key];
+      if(def.perCard){
+        const r=def.perCard(card,ctx);
+        if(r){ if(r.chips)chips+=r.chips; if(r.mult)mult+=r.mult;
+          flashCard(card.id,(r.chips?'+'+r.chips+'c ':'')+(r.mult?'+'+r.mult+' mult':''),r.mult?'fmult':'fchip');
+          updateScorePopup(chips,mult); await sleep(120);}
+      }
+      if(card.enh==='mult'){ } // placeholder
+    }
+  }
+
+  // 2) jokers globaux (eval)
+  for(const j of S.jokers){
+    const def=JOKER_DEFS[j.key];
+    if(def.eval){
+      const r=def.eval.call(j,ctx);
+      if(r){
+        if(r.chips){chips+=r.chips;}
+        if(r.mult){mult+=r.mult;}
+        if(r.xmult){mult=Math.round(mult*r.xmult*10)/10;}
+        flashJoker(j.uid);
+        updateScorePopup(chips,mult);
+        await sleep(180);
+      }
+    }
+  }
+
+  const gained = Math.floor(chips*mult);
+  S.curScore += gained;
+  document.getElementById('scorePopup').innerHTML =
+    `<span class="chipDisp">${chips}</span><span class="times">×</span><span class="multDisp">${mult}</span>
+     <span style="margin-left:10px">= <b style="color:var(--gold)">${gained}</b></span>`;
+  // pilier : marque ces cartes
+  if(S.blind.effect==='pillar') played.forEach(c=>S.playedRanks.add(c.rank+c.suit));
+
+  // retire les cartes jouées de la main
+  S.hand = S.hand.filter(c=>!S.selected.includes(c.id));
+  S.selected=[];
+  S.handsLeft--;
+  await sleep(400);
+
+  // crochet : défausse 2 cartes au hasard
+  if(S.blind.effect==='hook' && S.hand.length>0){
+    shuffle(S.hand);
+    S.hand.splice(0,Math.min(2,S.hand.length));
+  }
+  dealToFull();
+  scoringInProgress=false;
+
+  // victoire / défaite ?
+  if(S.curScore>=S.target){ winBlind(); return; }
+  if(S.handsLeft<=0){ loseGame(); return; }
+  renderAll();
+}
+
+function scaleChips(t){const m={'Quinte Flush':40,'Carré':50,'Full':35,'Couleur':40,'Suite':30,'Brelan':20,'Double Paire':20,'Paire':15,'Carte Haute':10};return m[t]||10;}
+function scaleMult(t){const m={'Quinte Flush':4,'Carré':3,'Full':4,'Couleur':2,'Suite':3,'Brelan':2,'Double Paire':1,'Paire':1,'Carte Haute':1};return m[t]||1;}
+
+function discard(){
+  if(scoringInProgress)return;
+  if(S.discardsLeft<=0||S.selected.length===0)return;
+  // jokers "ride"
+  S.jokers.forEach(j=>{if(j.key==='ride')j.state=(j.state||0)+1;});
+  S.hand=S.hand.filter(c=>!S.selected.includes(c.id));
+  S.selected=[];
+  S.discardsLeft--;
+  dealToFull();
+  renderAll();
+}
+
+/* ============================ FIN DE BLIND ============================ */
+function winBlind(){
+  // récompenses
+  let reward = S.blind.reward;
+  const interest = Math.min(5,Math.floor(S.money/5));
+  const handBonus = S.handsLeft; // $1 par main restante
+  S.money += reward + interest + handBonus;
+  showMsg('Blind battue ! 🎉',
+    `<b>${S.blind.name}</b> vaincue !<br><br>
+     Récompense : <span style="color:var(--gold)">$${reward}</span><br>
+     Mains restantes : <span style="color:var(--gold)">+$${handBonus}</span><br>
+     Intérêts ($1 / $5) : <span style="color:var(--gold)">+$${interest}</span><br><br>
+     Total argent : <b style="color:var(--gold)">$${S.money}</b>`,
+    'Aller à la boutique 🛒', ()=>{hide('msgOverlay');openShop();});
+}
+
+function loseGame(){
+  showMsg('Game Over 💀',
+    `Tu n'as pas atteint <b>${S.target}</b> points.<br>
+     Score final : <b style="color:var(--blue)">${S.curScore}</b><br>
+     Tu as atteint l'<b>Ante ${S.ante}</b>.`,
+    'Rejouer 🔄', ()=>{hide('msgOverlay');newRun();});
+}
+
+/* ============================ BOUTIQUE ============================ */
+function openShop(){
+  generateShop();
+  renderShop();
+  show('shopOverlay');
+}
+function generateShop(){
+  const owned=S.jokers.map(j=>j.key);
+  const pool=Object.keys(JOKER_DEFS).filter(k=>!owned.includes(k));
+  const items=[];
+  // 2 jokers
+  shuffle(pool);
+  for(let i=0;i<Math.min(2,pool.length);i++){
+    items.push({type:'joker',key:pool[i],cost:JOKER_DEFS[pool[i]].cost});
+  }
+  // 1 booster planète (améliore une main jouée)
+  items.push({type:'planet',cost:3});
+  S.shop={items};
+}
+function renderShop(){
+  document.getElementById('shopMoney').textContent='$'+S.money;
+  const g=document.getElementById('shopGrid');
+  g.innerHTML='';
+  if(!S.shop.items.length){g.innerHTML='<div class="small">Boutique vide — clique Suivant.</div>';return;}
+  S.shop.items.forEach((it,idx)=>{
+    const div=document.createElement('div');
+    div.className='shopItem';
+    if(it.type==='joker'){
+      const def=JOKER_DEFS[it.key];
+      div.innerHTML=jokerHTML(def,true)+
+        `<div class="buyb" onclick="buyJoker(${idx})">Acheter $${it.cost}</div>`;
+    } else if(it.type==='planet'){
+      div.innerHTML=`<div class="joker" style="background:linear-gradient(160deg,#3a3a6d,#1f1f40)">
+        <div class="jn">Pack Planète</div><div class="jicon">🪐</div>
+        <div class="jcost">$${it.cost}</div>
+        <div class="tooltip"><b>Pack Planète</b><br>Améliore le niveau d'un type de main (+chips & +mult permanents).</div></div>
+        <div class="buyb" onclick="buyPlanet(${idx})">Acheter $${it.cost}</div>`;
+    }
+    g.appendChild(div);
+  });
+}
+function buyJoker(idx){
+  const it=S.shop.items[idx];
+  if(!it||S.money<it.cost)return;
+  if(S.jokers.length>=S.jokerSlots){toast('Slots de Jokers pleins (5) !');return;}
+  S.money-=it.cost;
+  acquireJoker(it.key);
+  S.shop.items.splice(idx,1);
+  renderShop(); renderSidebar(); renderJokers();
+}
+function acquireJoker(key){
+  const j={key,uid:Math.random()};
+  // copie l'état pour les jokers à état
+  const def=JOKER_DEFS[key];
+  if('state' in def) j.state=def.state;
+  // crée une fonction eval liée à l'instance si besoin (state per-instance)
+  S.jokers.push(j);
+}
+function buyPlanet(idx){
+  const it=S.shop.items[idx];
+  if(!it||S.money<it.cost)return;
+  S.money-=it.cost;
+  // choisit une main aléatoire à améliorer (hors royale)
+  const keys=Object.keys(HANDS).filter(k=>k!=='Quinte Flush Royale');
+  const k=keys[Math.floor(Math.random()*keys.length)];
+  S.handLevels[k]=(S.handLevels[k]||1)+1;
+  S.shop.items.splice(idx,1);
+  toast(`${k} amélioré au niveau ${S.handLevels[k]} !`);
+  renderShop(); renderSidebar();
+}
+function reroll(){
+  if(S.money<5)return;
+  S.money-=5;
+  generateShop(); renderShop();
+}
+function closeShop(){
+  hide('shopOverlay');
+  // avance la blind / ante
+  S.blindIdx++;
+  if(S.blindIdx>=3){
+    S.ante++;
+    if(S.ante>8){ winGame(); return; }
+    startAnte();
+  } else {
+    showBlindSelect();
+  }
+  renderSidebar();
+}
+function winGame(){
+  showMsg('VICTOIRE ! 🏆',
+    `Tu as battu les 8 Antes !<br>Tu es un véritable maître du poker roguelike.<br><br>
+     Argent final : <b style="color:var(--gold)">$${S.money}</b>`,
+    'Nouvelle partie 🔄',()=>{hide('msgOverlay');newRun();});
+}
+
+/* ============================ RENDU ============================ */
+function renderAll(){renderSidebar();renderHand();renderJokers();renderConsum();}
+function renderSidebar(){
+  document.getElementById('blindName').textContent=S.blind?S.blind.name:'—';
+  document.getElementById('blindEffect').innerHTML=
+    S.blind&&S.blind.effect?('<span style="color:var(--accent)">'+S.blind.effectText+'</span>'):'';
+  document.getElementById('targetScore').textContent=S.target;
+  document.getElementById('blindReward').textContent=S.blind?('Récompense $'+S.blind.reward):'';
+  document.getElementById('curScore').textContent=S.curScore;
+  document.getElementById('statHands').textContent=S.handsLeft;
+  document.getElementById('statDisc').textContent=S.discardsLeft;
+  document.getElementById('statMoney').textContent='$'+S.money;
+  document.getElementById('statAnte').textContent=S.ante+'/8';
+  document.getElementById('runinfo').textContent='Manche '+S.round+' • Deck : '+S.deck.length+' cartes restantes';
+}
+function renderHand(){
+  const area=document.getElementById('handArea');
+  area.innerHTML='';
+  S.hand.forEach(c=>{
+    const div=document.createElement('div');
+    const suit=SUITS[c.suit];
+    const deb=cardDebuffed(c);
+    div.className='card '+suit.col+(S.selected.includes(c.id)?' sel':'')+(deb?' debuff':'');
+    div.dataset.id=c.id;
+    div.innerHTML=`<div class="rank">${c.rank}</div>
+      <div class="suit">${suit.sym}</div>
+      <div class="rankb">${c.rank}</div>
+      ${c.enh==='bonus'?'<div class="enh">+30c</div>':''}`;
+    div.onclick=()=>toggleSel(c.id);
+    area.appendChild(div);
+  });
+  updateSelInfo();
+}
+function updateSelInfo(){
+  const info=document.getElementById('selInfo');
+  if(S.selected.length===0){info.textContent='Sélectionne jusqu\'à 5 cartes';return;}
+  const played=S.selected.map(id=>S.hand.find(c=>c.id===id)).filter(Boolean);
+  if(played.length>=1){
+    const ev=evaluateHand(played);
+    const lvl=S.handLevels[ev.type]||1;
+    const base=HANDS[ev.type];
+    const chips=base[0]+(lvl-1)*scaleChips(ev.type);
+    const mult=base[1]+(lvl-1)*scaleMult(ev.type);
+    info.innerHTML=`<b style="color:var(--gold)">${ev.type}</b> —
+      <span style="color:var(--blue)">${chips}</span> ×
+      <span style="color:var(--red)">${mult}</span>
+      (${S.selected.length} carte${S.selected.length>1?'s':''})`;
+  }
+}
+function renderJokers(){
+  const bar=document.getElementById('jokerBar');
+  bar.innerHTML='';
+  document.getElementById('jokerCount').textContent=`(${S.jokers.length}/${S.jokerSlots})`;
+  if(S.jokers.length===0){bar.innerHTML='<span class="small" id="jokerEmpty">Aucun Joker — achète-en à la boutique !</span>';return;}
+  S.jokers.forEach(j=>{
+    const def=JOKER_DEFS[j.key];
+    const div=document.createElement('div');
+    div.innerHTML=jokerHTML(def,false,j.uid);
+    bar.appendChild(div.firstElementChild);
+  });
+}
+function jokerHTML(def,inShop,uid){
+  return `<div class="joker" ${uid?('data-uid="'+uid+'"'):''}>
+    <div class="jn" style="color:${RARITY_COL[def.rarity]}">${def.name}</div>
+    <div class="jicon">${def.icon}</div>
+    <div class="jcost">${inShop?('$'+def.cost):RARITY_NAME[def.rarity]}</div>
+    <div class="tooltip"><b>${def.name}</b> <span style="color:${RARITY_COL[def.rarity]}">[${RARITY_NAME[def.rarity]}]</span><br>${def.desc}</div>
+  </div>`;
+}
+function renderConsum(){
+  const bar=document.getElementById('consumBar');
+  if(S.consumables.length===0){bar.innerHTML='<span class="small">aucune</span>';return;}
+  bar.innerHTML=S.consumables.map(c=>'<div class="joker">'+c+'</div>').join('');
+}
+
+/* ============================ INTERACTIONS ============================ */
+function toggleSel(id){
+  if(scoringInProgress)return;
+  const i=S.selected.indexOf(id);
+  if(i>=0)S.selected.splice(i,1);
+  else{ if(S.selected.length>=5){flashSel();return;} S.selected.push(id); }
+  renderHand();
+}
+function sortHand(by){
+  if(by==='rank') S.hand.sort((a,b)=>RANKORDER[b.rank]-RANKORDER[a.rank]);
+  else S.hand.sort((a,b)=>a.suit.localeCompare(b.suit)||RANKORDER[b.rank]-RANKORDER[a.rank]);
+  renderHand();
+}
+function flashSel(){const el=document.getElementById('selInfo');el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');}
+
+/* ============================ POPUP / ANIM ============================ */
+function setHandLabel(t){document.getElementById('handLabel').textContent=t;}
+function updateScorePopup(chips,mult){
+  document.getElementById('scorePopup').innerHTML=
+    `<span class="chipDisp">${chips}</span><span class="times">×</span><span class="multDisp">${mult}</span>`;
+}
+function flashCard(id,text,cls){
+  const el=document.querySelector(`.card[data-id="${id}"]`);
+  if(!el)return;
+  el.classList.add('sel');
+  const f=document.createElement('div');
+  f.className='scorefloat '+cls;f.textContent=text;
+  el.appendChild(f);
+  setTimeout(()=>f.remove(),800);
+}
+function flashJoker(uid){
+  const el=document.querySelector(`.joker[data-uid="${uid}"]`);
+  if(el){el.style.transform='translateY(-8px) scale(1.08)';setTimeout(()=>el.style.transform='',200);}
+}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+/* ============================ OVERLAYS / MSG ============================ */
+function show(id){document.getElementById(id).classList.add('show');}
+function hide(id){document.getElementById(id).classList.remove('show');}
+let msgCb=null;
+function showMsg(title,body,btn,cb){
+  document.getElementById('msgTitle').innerHTML=title;
+  document.getElementById('msgBody').innerHTML=body;
+  document.getElementById('msgBtn').textContent=btn;
+  msgCb=cb; show('msgOverlay');
+}
+function msgAction(){if(msgCb)msgCb();}
+function toast(t){
+  const el=document.getElementById('shopMoney');
+  showMsg('',t,'OK',()=>hide('msgOverlay'));
+  document.getElementById('msgTitle').style.display='none';
+  setTimeout(()=>document.getElementById('msgTitle').style.display='',10);
+}
+function showHandList(){
+  const body=document.getElementById('handListBody');
+  let html='<table>';
+  for(let h in HANDS){
+    if(h==='Quinte Flush Royale')continue;
+    const lvl=S.handLevels?(S.handLevels[h]||1):1;
+    const chips=HANDS[h][0]+(lvl-1)*scaleChips(h);
+    const mult=HANDS[h][1]+(lvl-1)*scaleMult(h);
+    html+=`<tr><td><b>${h}</b> ${lvl>1?'<span class="badge">Niv '+lvl+'</span>':''}</td>
+      <td style="color:var(--muted)">${HANDDESC[h]||''}</td>
+      <td><span style="color:var(--blue)">${chips}</span> × <span style="color:var(--red)">${mult}</span></td></tr>`;
+  }
+  html+='</table>';
+  body.innerHTML=html;
+  show('handListOverlay');
+}
+
+/* ============================ DÉMARRAGE ============================ */
+newRun();
+</script>
+</body>
+</html>
