@@ -68,10 +68,10 @@
   .newTag{position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:bold;background:var(--gold);color:#3a2c00;border-radius:5px;padding:1px 5px;z-index:5;box-shadow:0 2px 4px #0008;animation:newpulse 1s infinite;}
   @keyframes newpulse{0%,100%{transform:translateX(-50%) scale(1);}50%{transform:translateX(-50%) scale(1.12);}}
   .joker.debuff{filter:grayscale(1) brightness(.55);}
-  .tooltip{position:absolute;bottom:104%;left:50%;transform:translateX(-50%);width:184px;background:#0c1413;border:2px solid var(--gold);
-    border-radius:8px;padding:8px;font-size:11px;z-index:60;display:none;color:var(--txt);box-shadow:0 6px 16px #000c;line-height:1.4;text-align:left;}
+  .tooltip{position:absolute;top:106%;left:50%;transform:translateX(-50%);width:190px;max-width:46vw;background:#0c1413;border:2px solid var(--gold);
+    border-radius:8px;padding:8px;font-size:11px;z-index:60;display:none;color:var(--txt);box-shadow:0 6px 16px #000c;line-height:1.4;text-align:left;white-space:normal;}
   .joker:hover .tooltip,.consum:hover .tooltip,.card:hover .tooltip,.voucher:hover .tooltip,.pack:hover .tooltip{display:block;}
-  .card .tooltip{width:170px;}
+  .card .tooltip,.pile .tooltip{top:auto;bottom:106%;width:172px;}
   .tooltip b{color:var(--gold);}
   #playArea{min-height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
   #handLabel{font-size:18px;color:var(--gold);height:24px;font-weight:bold;text-shadow:1px 1px 0 #000;}
@@ -1803,7 +1803,47 @@ function updateSelInfo(){
   const played=S.selected.map(id=>S.hand.find(c=>c.id===id)).filter(Boolean);
   if(played.length>=1){const ev=evaluateHand(played);const lvl=S.handLevels[ev.type]||1;const base=HANDS[ev.type]||[5,1];
     const chips=base[0]+(lvl-1)*scaleChips(ev.type),mult=base[1]+(lvl-1)*scaleMult(ev.type);
-    info.innerHTML=`<b style="color:var(--gold)">${ev.type}</b> ${lvl>1?'<span class="badge">Niv '+lvl+'</span>':''} — <span style="color:var(--chip)">${chips}</span> × <span style="color:var(--mult)">${mult}</span>`;}
+    const est=estimateHandScore(played);
+    const ok=S.target>0&&est>=S.target;
+    info.innerHTML=`<b style="color:var(--gold)">${ev.type}</b> ${lvl>1?'<span class="badge">Niv '+lvl+'</span>':''} — <span style="color:var(--chip)">${chips}</span> × <span style="color:var(--mult)">${mult}</span>`
+      +` &nbsp;≈ <b style="color:${ok?'var(--green)':'var(--gold)'}">${est.toLocaleString()}</b> pts`+(ok?' ✓':'');}
+}
+// Estimation du score d'une main (avec Jokers), SANS modifier l'état ni consommer le RNG
+function estimateHandScore(playedReal){
+  if(!playedReal||!playedReal.length)return 0;
+  const realRnd=Math.random,m0=S.money,cl0=S.consumables.length;
+  Math.random=()=>0.5; // déterministe, ne consomme pas le seed
+  try{
+    const played=playedReal.map(c=>({...c}));
+    const ev=evaluateHand(played);
+    const set=new Set(ev.scoringCards);const ordered=played.filter(c=>set.has(c));
+    const bossOn=S.blind&&S.blind.effect&&!bossDisabled();
+    let lvl=S.handLevels[ev.type]||1;if(bossOn&&S.blind.effect==='arm')lvl=Math.max(1,lvl-1);
+    const base=HANDS[ev.type]||[5,1];
+    let chips=base[0]+(lvl-1)*scaleChips(ev.type),mult=base[1]+(lvl-1)*scaleMult(ev.type);
+    if(bossOn&&S.blind.effect==='flint'){chips=Math.ceil(chips/2);mult=Math.ceil(mult/2);}
+    const jc=S.jokers.map(j=>({...j}));
+    let lo=99,lowId=null;const held=S.hand.filter(c=>!S.selected.includes(c.id));
+    held.forEach(c=>{if(RANKVAL[c.rank]<lo){lo=RANKVAL[c.rank];lowId=c.id;}});
+    const ctx={handType:ev.type,counts:ev.counts,isFlush:ev.isFlush,isStraight:ev.isStraight,playedCount:played.length,money:S.money,jokerCount:S.jokers.length,discardsLeft:S.discardsLeft,isFinalHand:S.handsLeft===1,played,scoringCards:ordered,lowestHeldId:lowId};
+    const eInfo=(j,idx)=>{if(j.key==='blueprint'){const t=jc[idx+1];if(t&&t.key!=='blueprint'&&t.key!=='brainstorm'&&!t.debuffed)return{def:JOKER_DEFS[t.key],inst:t};return{def:JOKER_DEFS.blueprint,inst:j};}if(j.key==='brainstorm'){const t=jc[0];if(t&&t!==j&&t.key!=='blueprint'&&t.key!=='brainstorm'&&!t.debuffed)return{def:JOKER_DEFS[t.key],inst:t};return{def:JOKER_DEFS.brainstorm,inst:j};}return{def:JOKER_DEFS[j.key],inst:j};};
+    if(S.observatory){const ph=S.consumables.filter(c=>c.type==='planet'&&PLANETS[c.key].hand===ev.type).length;if(ph)mult=r1(mult*Math.pow(1.5,ph));}
+    for(const card of ordered){ if(cardDebuffed(card))continue;
+      let trig=1+(card.seal==='red'?1:0);
+      jc.forEach((j,ji)=>{if(j.debuffed)return;const inf=eInfo(j,ji);if(inf.def.retrig)trig+=(inf.def.retrig.call(inf.inst,card,ctx,false,0)||0);});
+      for(let t=0;t<trig;t++){
+        chips+=card.enh==='stone'?50:(RANKVAL[card.rank]+(card.enh==='bonus'?30:0)+(card.chipBonus||0));
+        if(card.cedition==='foil')chips+=50;if(card.cedition==='holo')mult+=10;if(card.enh==='mult')mult+=4;
+        if(card.enh==='glass')mult=r1(mult*2);if(card.cedition==='poly')mult=r1(mult*1.5);
+        for(let ji=0;ji<jc.length;ji++){const j=jc[ji];if(j.debuffed)continue;const inf=eInfo(j,ji);if(inf.def.perCard){const r=inf.def.perCard.call(inf.inst,card,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);}}}
+      }
+    }
+    for(const card of held){for(let ji=0;ji<jc.length;ji++){const j=jc[ji];if(j.debuffed)continue;const inf=eInfo(j,ji);if(inf.def.perHeld){const r=inf.def.perHeld.call(inf.inst,card,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);}}}if(card.enh==='steel')mult=r1(mult*1.5);}
+    for(let ji=0;ji<jc.length;ji++){const j=jc[ji];if(j.debuffed)continue;const inf=eInfo(j,ji);if(inf.def.eval){const r=inf.def.eval.call(inf.inst,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);}}if(j.edition&&EDITIONS[j.edition]){const e=EDITIONS[j.edition];if(e.chips)chips+=e.chips;if(e.mult)mult+=e.mult;if(e.xmult)mult=r1(mult*e.xmult);}}
+    if(S.plasma){const b=Math.floor((chips+mult)/2);chips=b;mult=b;}
+    return Math.floor(chips*mult);
+  }catch(e){return 0;}
+  finally{Math.random=realRnd;S.money=m0;if(S.consumables.length>cl0)S.consumables.length=cl0;} // annule les effets de bord
 }
 function renderJokers(){
   const bar=document.getElementById('jokerBar');bar.innerHTML='';
