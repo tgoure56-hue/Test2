@@ -1306,6 +1306,7 @@ function winBlind(){
   S.discardsUnused+=S.discardsLeft;
   const totalGain=reward+interest+handBonus+greenDisc+goldMoney+jokerMoney;
   S.money+=totalGain-rentalCost;
+  renderSidebar();
   setBgTheme('shop');coinRain(Math.min(50,12+totalGain));
   showMsg('Blind battue ! 🎉',
     `<b>${S.blind.name}</b> vaincue !<br><br>
@@ -1415,6 +1416,7 @@ function renderShop(){
       <div class="buyb ${afford?'':'dis'}" onclick="buyPack(${idx})">${cost===0?'Ouvrir':'$'+cost}</div></div>`;
   });
   if(!S.shop.packs.length)pg.innerHTML='<div class="small">— épuisé —</div>';
+  renderSidebar(); // resynchronise l'argent et les stats de la barre latérale
 }
 const PACKMETA={cele:{n:'Céleste',ic:'🌌',cl:'pk-cele'},arca:{n:'Arcane',ic:'🔮',cl:'pk-arca'},buff:{n:'Bouffon',ic:'🃏',cl:'pk-buff'},spec:{n:'Spectral',ic:'👻',cl:'pk-spec'},std:{n:'Standard',ic:'🂠',cl:'pk-std'}};
 const PACKDESC={cele:'Contient des cartes Planète qui améliorent le niveau de tes mains de poker.',arca:'Contient des cartes Tarot qui transforment et améliorent tes cartes.',buff:'Contient des Jokers à récupérer gratuitement.',spec:'Contient des cartes Spectrales : effets puissants, parfois risqués.',std:'Contient des cartes à jouer (améliorations, éditions et sceaux possibles).'};
@@ -1484,7 +1486,7 @@ function toStartMenu(){currentScreen='start';['msgOverlay','targetOverlay'].forE
 
 /* ===================== PAQUETS ===================== */
 let pendingPack=null,packFree=false;
-function buyPack(idx){const p=S.shop.packs[idx];if(!p)return;const cost=packPrice(p);if(!canAfford(cost))return;S.money-=cost;S.shop.packs.splice(idx,1);openPack(p.type,p.size);}
+function buyPack(idx){const p=S.shop.packs[idx];if(!p)return;const cost=packPrice(p);if(!canAfford(cost))return;S.money-=cost;S.shop.packs.splice(idx,1);renderSidebar();openPack(p.type,p.size);}
 function packSizes(type,size){
   // [nbChoix, picks]
   let n=3,pick=1;
