@@ -235,9 +235,21 @@
     <div><div style="color:var(--gold);font-weight:bold;font-size:13px;">Voucher</div><div class="grid" id="voucherGrid"></div></div>
     <div><div style="color:var(--gold);font-weight:bold;font-size:13px;">Paquets Booster</div><div class="grid" id="packGrid"></div></div>
   </div>
+  <div id="shopConsumWrap" style="display:none;"><div style="color:var(--gold);font-weight:bold;font-size:13px;">Tes consommables <span class="small">(clique pour utiliser)</span></div>
+    <div class="grid" id="shopConsum" style="min-height:0;"></div></div>
   <div id="controls" style="margin-top:8px;">
     <button class="btn-gold" id="rerollBtn" onclick="reroll()">🔄 Reroll</button>
     <button class="btn-green" onclick="closeShop()">Continuer ▶</button>
+  </div>
+</div></div>
+
+<div class="overlay" id="targetOverlay" style="z-index:110;"><div class="modal">
+  <h2 id="targetTitle"></h2>
+  <div class="pickHint" id="targetHint"></div>
+  <div class="grid" id="targetCards"></div>
+  <div id="controls">
+    <button class="btn-green" id="targetConfirm" onclick="confirmTarget()">Valider</button>
+    <button class="btn-red" onclick="cancelTarget()">Annuler</button>
   </div>
 </div></div>
 
@@ -1049,6 +1061,9 @@ function renderShop(){
       <div class="buyb ${afford?'':'dis'}" onclick="buyPack(${idx})">${cost===0?'Ouvrir':'$'+cost}</div></div>`;
   });
   if(!S.shop.packs.length)pg.innerHTML='<div class="small">— épuisé —</div>';
+  // consommables possédés (utilisables depuis la boutique)
+  const wrap=document.getElementById('shopConsumWrap');
+  if(S.consumables.length){wrap.style.display='';renderConsumList('shopConsum',false);}else wrap.style.display='none';
 }
 const PACKMETA={cele:{n:'Céleste',ic:'🌌',cl:'pk-cele'},arca:{n:'Arcane',ic:'🔮',cl:'pk-arca'},buff:{n:'Bouffon',ic:'🃏',cl:'pk-buff'},spec:{n:'Spectral',ic:'👻',cl:'pk-spec'},std:{n:'Standard',ic:'🂠',cl:'pk-std'}};
 const PACKDESC={cele:'Contient des cartes Planète qui améliorent le niveau de tes mains de poker.',arca:'Contient des cartes Tarot qui transforment et améliorent tes cartes.',buff:'Contient des Jokers à récupérer gratuitement.',spec:'Contient des cartes Spectrales : effets puissants, parfois risqués.',std:'Contient des cartes à jouer (améliorations, éditions et sceaux possibles).'};
@@ -1156,8 +1171,24 @@ function pickFromPack(i){
   if(o.type==='joker'){if(usedJokerSlots()<S.jokerSlots)acquireJoker(o.key,o.edition);else{toast('Pas de place pour ce Joker.');return;}}
   else if(o.type==='planet')applyPlanet(o.key);
   else if(o.type==='card')addCardToHandOrDeck(o.card);
-  else{if(S.consumables.length<S.consumSlots)S.consumables.push({type:o.type,key:o.key,uid:Math.random()});else{toast('Pas de place pour la carte.');return;}}
-  pendingPack.options.splice(i,1); // retire l'option choisie de la liste
+  else{ // Tarot ou Spectrale : utilisée immédiatement (comme dans le vrai jeu)
+    const def=o.type==='spectral'?SPECTRALS[o.key]:TAROTS[o.key];
+    const need=o.type==='spectral'?(def.need?[1,1]:[0,0]):def.need;
+    if(need[1]>0){
+      const pool=targetPool();
+      if(pool.length){
+        openTargetSelect(def.name,def.desc,need[0],need[1],pool,(cards)=>{def.use(cards);if(o.type==='tarot')S.tarotsUsed++;afterPackPick(i);});
+        return; // on attend la sélection des cartes
+      }else{ // aucune carte à cibler : on range la carte dans l'inventaire
+        if(S.consumables.length<S.consumSlots)S.consumables.push({type:o.type,key:o.key,uid:Math.random()});
+        else{toast('Pas de place pour la carte.');return;}
+      }
+    }else{def.use();if(o.type==='tarot')S.tarotsUsed++;}
+  }
+  afterPackPick(i);
+}
+function afterPackPick(i){
+  pendingPack.options.splice(i,1); // retire l'option choisie
   pendingPack.left--;
   if(pendingPack.left<=0)closePack();
   else{renderPackOptions();document.getElementById('packHint').textContent='Encore '+pendingPack.left+' à choisir';renderSidebar();renderConsum();renderJokers();}
@@ -1208,16 +1239,55 @@ function useConsumable(uid){
   if(scoringInProgress)return;
   const idx=S.consumables.findIndex(c=>c.uid===uid);if(idx<0)return;
   const c=S.consumables[idx];
-  if(!S.blind||S.curScore>=S.target){ /* utilisable hors manche aussi */ }
-  if(c.type==='planet'){applyPlanet(c.key);removeConsum(idx,c);return;}
+  if(c.type==='planet'){applyPlanet(c.key);finishUse(idx,c);return;}
   const def=c.type==='spectral'?SPECTRALS[c.key]:TAROTS[c.key];
   const need=c.type==='spectral'?(def.need?[1,1]:[0,0]):def.need;
-  const sel=S.selected.map(id=>S.hand.find(x=>x.id===id)).filter(Boolean);
-  if(need[1]>0){if(sel.length<need[0]){toast(`Sélectionne ${need[0]}${need[1]>need[0]?'-'+need[1]:''} carte(s) d'abord.`);return;}def.use(sel.slice(0,need[1]));}
-  else def.use();
-  if(c.type==='tarot')S.tarotsUsed++;
-  S.selected=[];removeConsum(idx,c);
+  if(need[1]>0){
+    const sel=S.selected.map(id=>S.hand.find(x=>x.id===id)).filter(Boolean);
+    if(sel.length>=need[0]){ // cartes déjà sélectionnées dans la main (en manche)
+      def.use(sel.slice(0,need[1]));finishUse(idx,c);
+    }else{ // sinon (boutique, ou aucune sélection) : on affiche un sélecteur de cartes
+      const pool=targetPool();
+      if(!pool.length){toast('Aucune carte à cibler pour le moment.');return;}
+      openTargetSelect(def.name,def.desc,need[0],need[1],pool,(cards)=>{def.use(cards);finishUse(idx,c);});
+    }
+  }else{ def.use();finishUse(idx,c); }
 }
+function finishUse(idx,c){
+  if(c.type==='tarot')S.tarotsUsed++;
+  S.selected=[];
+  // retire le consommable (sauf copie Négative de Perkeo qui ne se consomme pas)
+  const i=S.consumables.indexOf(c);if(i>=0)S.consumables.splice(i,1);
+  renderAll();renderShop();
+}
+// pool de cartes ciblables : la main si dispo, sinon un échantillon du deck
+function targetPool(){return S.hand&&S.hand.length?S.hand:shuffle(S.fullDeck.slice()).slice(0,Math.min(8,S.fullDeck.length));}
+/* ----- sélecteur de cartes cibles (boutique / packs) ----- */
+let targetState=null;
+function openTargetSelect(name,desc,min,max,cards,onConfirm){
+  targetState={min,max,cards,sel:[],onConfirm};
+  document.getElementById('targetTitle').textContent=name;
+  renderTargetCards();show('targetOverlay');
+}
+function renderTargetCards(){
+  const cont=document.getElementById('targetCards');cont.innerHTML='';
+  targetState.cards.forEach(c=>{
+    const suit=SUITS[c.suit];const isStone=c.enh==='stone';
+    const div=document.createElement('div');
+    div.className='card '+suit.col+(targetState.sel.includes(c.id)?' sel':'')+(c.enh?' enh-'+c.enh:'')+(c.cedition?' ced-'+c.cedition:'');
+    div.innerHTML=`<div class="rank">${isStone?'':c.rank}</div><div class="suit">${isStone?'🪨':suit.sym}</div><div class="rankb">${isStone?'':c.rank}</div>
+      ${c.enh&&c.enh!=='stone'?'<div class="enh">'+ENH[c.enh].name+'</div>':''}
+      ${c.seal?'<div class="seal seal-'+c.seal+'"></div>':''}
+      <div class="tooltip">${cardTooltip(c)}</div>`;
+    div.onclick=()=>toggleTarget(c.id);cont.appendChild(div);
+  });
+  const T=targetState;
+  document.getElementById('targetHint').textContent=`${T.cards===S.hand?'Choisis':'Choisis'} ${T.min}${T.max>T.min?(' à '+T.max):''} carte(s) — ${T.sel.length} sélectionnée(s)`;
+  document.getElementById('targetConfirm').disabled=T.sel.length<T.min;
+}
+function toggleTarget(id){const T=targetState;const i=T.sel.indexOf(id);if(i>=0)T.sel.splice(i,1);else{if(T.sel.length>=T.max)return;T.sel.push(id);}renderTargetCards();}
+function confirmTarget(){const T=targetState;if(!T||T.sel.length<T.min)return;const cards=T.sel.map(id=>T.cards.find(c=>c.id===id)).filter(Boolean);hide('targetOverlay');const cb=T.onConfirm;targetState=null;cb(cards);}
+function cancelTarget(){hide('targetOverlay');targetState=null;}
 function removeConsum(idx,c){
   if(c.neg){ // copie négative : ne se consomme pas
   }
@@ -1321,9 +1391,10 @@ function consumHTML(type,def,inShop,extra){
   return `<div class="${cls}"><div class="jn">${def.name}</div><div class="jicon">${def.icon}</div><div class="jcost">${inShop?'':lbl}</div>
     <div class="tooltip"><b>${def.name}</b> <span class="small">[${lbl}]</span><br>${tip}</div></div>`;
 }
-function renderConsum(){
-  const bar=document.getElementById('consumBar');
-  if(S.consumables.length===0){bar.innerHTML='<span class="small">aucune</span>';return;}
+function renderConsum(){renderConsumList('consumBar',true);}
+function renderConsumList(barId,emptyMsg){
+  const bar=document.getElementById(barId);if(!bar)return;
+  if(S.consumables.length===0){bar.innerHTML=emptyMsg?'<span class="small">aucune</span>':'';return;}
   bar.innerHTML='';
   S.consumables.forEach(c=>{
     const def=c.type==='planet'?PLANETS[c.key]:c.type==='spectral'?SPECTRALS[c.key]:TAROTS[c.key];
