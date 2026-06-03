@@ -96,8 +96,27 @@
   .seal-red{background:#e23b3b;} .seal-blue{background:#3b7be2;} .seal-gold{background:#f0b132;} .seal-purple{background:#a06bff;}
   .scorefloat{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-weight:bold;font-size:14px;padding:2px 7px;border-radius:6px;
     animation:floatup .85s ease-out forwards;pointer-events:none;white-space:nowrap;z-index:30;box-shadow:0 2px 6px #0008;}
-  @keyframes floatup{0%{opacity:0;transform:translate(-50%,8px) scale(.8);}25%{opacity:1;transform:translate(-50%,0) scale(1.1);}100%{opacity:0;transform:translate(-50%,-30px) scale(1);}}
+  @keyframes floatup{0%{opacity:0;transform:translate(-50%,8px) scale(.8);}25%{opacity:1;transform:translate(-50%,0) scale(1.15);}100%{opacity:0;transform:translate(-50%,-34px) scale(1);}}
   .fchip{background:var(--chip);color:#fff;} .fmult{background:var(--mult);color:#fff;} .fgold{background:var(--gold);color:#3a2c00;}
+  /* ---- juice / animations ---- */
+  @keyframes dealIn{0%{opacity:0;transform:translateY(46px) rotate(-8deg) scale(.78);}100%{opacity:1;transform:translateY(0) rotate(0) scale(1);}}
+  .card.dealing{animation:dealIn .34s cubic-bezier(.2,.85,.3,1.25) backwards;}
+  @keyframes cardScore{0%{box-shadow:0 4px 0 #00000055;}45%{box-shadow:0 0 16px 5px var(--glow,var(--gold));}100%{box-shadow:0 4px 0 #00000055;}}
+  .card.scorepop{animation:cardScore .3s ease-out;z-index:26;}
+  @keyframes pillpop{0%{transform:scale(1);}45%{transform:scale(1.16);}100%{transform:scale(1);}}
+  .chipDisp,.multDisp{animation:pillpop .16s ease-out;}
+  @keyframes jokerwiggle{0%{transform:translateY(0) rotate(0) scale(1);}30%{transform:translateY(-11px) rotate(-6deg) scale(1.14);}60%{transform:translateY(-6px) rotate(5deg) scale(1.08);}100%{transform:translateY(0) rotate(0) scale(1);}}
+  .joker.trigger{animation:jokerwiggle .34s ease-out;z-index:9;}
+  @keyframes gainPop{0%{opacity:0;transform:scale(.4);}55%{opacity:1;transform:scale(1.35);}100%{transform:scale(1);}}
+  .gainNum{display:inline-block;animation:gainPop .45s cubic-bezier(.2,.9,.3,1.3) backwards;}
+  @keyframes scoreBump{0%{transform:scale(1);}40%{transform:scale(1.22);color:var(--gold);}100%{transform:scale(1);}}
+  .roundScore.bump{animation:scoreBump .35s ease-out;}
+  @keyframes tokenPulse{0%,100%{box-shadow:inset -3px -3px 0 #00000044,inset 3px 3px 0 #ffffff44;}50%{box-shadow:inset -3px -3px 0 #00000044,inset 3px 3px 0 #ffffff44,0 0 14px 3px var(--gold);}}
+  .blindCard button.btn-green:hover{animation:tokenPulse 1s infinite;}
+  @keyframes overlayIn{0%{opacity:0;transform:scale(.92) translateY(10px);}100%{opacity:1;transform:scale(1) translateY(0);}}
+  .overlay.show .modal{animation:overlayIn .25s ease-out;}
+  @keyframes handLabelIn{0%{opacity:0;transform:translateY(8px) scale(.85);}100%{opacity:1;transform:none;}}
+  #handLabel.pulse{animation:handLabelIn .3s ease-out;}
   #controls{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;}
   button{font-family:inherit;font-weight:bold;border:2px solid var(--panelEdge);border-radius:10px;padding:9px 16px;font-size:14px;cursor:pointer;
     color:#fff;box-shadow:0 4px 0 var(--panelEdge);transition:transform .05s;text-shadow:1px 1px 0 #0006;}
@@ -232,7 +251,10 @@
 <div class="overlay" id="msgOverlay"><div class="modal">
   <h2 id="msgTitle"></h2>
   <div id="msgBody" style="font-size:16px;margin:12px 0;line-height:1.7;"></div>
-  <button class="btn-green" id="msgBtn" onclick="msgAction()">Continuer</button>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+    <button class="btn-green" id="msgBtn" onclick="msgAction()">Continuer</button>
+    <button class="btn-gold" id="msgBtn2" onclick="msgAction2()" style="display:none;">Continuer</button>
+  </div>
 </div></div>
 
 <div class="overlay" id="startOverlay"><div class="modal" style="max-width:480px;">
@@ -632,7 +654,7 @@ function newRun(){
      bossReroll:0,observatory:false,omen:false,lastHandType:null,tempHandSize:0,
      freeJoker:null,freeEdition:null,extraVoucher:false,couponShop:false,freeReroll:false,
      pendingTags:[],ownedTags:[],
-     planetsUsed:0,tarotsUsed:0,rerolls:0,packsSkipped:0,blindsSkipped:0,debtLimit:0,
+     planetsUsed:0,tarotsUsed:0,rerolls:0,packsSkipped:0,blindsSkipped:0,debtLimit:0,endless:false,
      ancientSuit:'S',idolRank:'A',idolSuit:'S',todoTarget:'Brelan',mailTarget:'7',castleSuit:'S'};
   for(let k in HANDS)S.handLevels[k]=1;
   S.fullDeck=makeDeck();S.deckCount=S.fullDeck.length;
@@ -879,7 +901,8 @@ async function playHand(){
     if(acted){flashJoker(j.uid);updateScorePopup(chips,mult);await sleep(150);}
   }
   const gained=Math.floor(chips*mult);S.curScore+=gained;
-  document.getElementById('scorePopup').innerHTML=`<span class="chipDisp">${chips}</span><span class="times">×</span><span class="multDisp">${mult}</span><span style="margin-left:8px">= <b style="color:var(--gold)">${gained.toLocaleString()}</b></span>`;
+  document.getElementById('scorePopup').innerHTML=`<span class="chipDisp">${chips}</span><span class="times">×</span><span class="multDisp">${mult}</span><span style="margin-left:8px">= <b class="gainNum" style="color:var(--gold)">${gained.toLocaleString()}</b></span>`;
+  const rs=document.getElementById('curScore');rs.textContent=S.curScore.toLocaleString();rs.classList.remove('bump');void rs.offsetWidth;rs.classList.add('bump');
   if(S.blind.effect==='pillar')played.forEach(c=>S.playedRanks.add(c.id));
   // onPlay hooks
   S.jokers.forEach(j=>{const d=JOKER_DEFS[j.key];if(d.onPlay)d.onPlay.call(j,ctx);});
@@ -1068,14 +1091,21 @@ function closeShop(){
   if(hasJoker('perkeo')&&S.consumables.length&&S.consumables.length<S.consumSlots){const c=S.consumables[rnd(S.consumables.length)];S.consumables.push({type:c.type,key:c.key,uid:Math.random(),neg:true});}
   S.blindIdx++; // on avance d'une blind dans l'ante courante
   if(S.blindIdx>=3){ // le Boss vient d'être battu → ante suivante
-    S.ante++;if(S.ante>8){winGame();return;}
+    S.ante++;if(S.ante>8&&!S.endless){winGame();return;} // victoire à l'Ante 8 (sauf mode infini)
     startAnte();
   }else{ // encore la Grosse Blind ou le Boss à affronter
     setBgTheme('fight');showBlindSelect();
   }
   renderSidebar();
 }
-function winGame(){setBgTheme('win');showMsg('VICTOIRE ! 🏆',`Tu as battu les 8 Antes ! 👑<br>Argent final : <b style="color:var(--gold)">$${S.money}</b>`,'Nouvelle partie 🔄',()=>{hide('msgOverlay');newRun();});}
+function winGame(){
+  setBgTheme('win');
+  showMsg('VICTOIRE ! 🏆',
+    `Tu as battu les 8 Antes ! 👑<br>Argent final : <b style="color:var(--gold)">$${S.money}</b><br><br>
+     Tu peux continuer en <b>mode infini</b> : les blinds deviennent de plus en plus colossales.<br>Jusqu'où iras-tu ?`,
+    'Nouvelle partie 🔄',()=>{hide('msgOverlay');newRun();},
+    '♾️ Mode infini',()=>{hide('msgOverlay');S.endless=true;startAnte();renderSidebar();});
+}
 
 /* ===================== PAQUETS ===================== */
 let pendingPack=null,packFree=false;
@@ -1207,7 +1237,7 @@ function renderSidebar(){
   document.getElementById('statHands').textContent=S.handsLeft;
   document.getElementById('statDisc').textContent=S.discardsLeft;
   document.getElementById('statMoney').textContent='$'+S.money;
-  document.getElementById('statAnte').textContent=S.ante+'/8';
+  document.getElementById('statAnte').textContent=S.ante+(S.endless?' ♾️':'/8');
   document.getElementById('statRound').textContent=S.round;
   document.getElementById('consumCount').textContent=S.consumables.length+'/'+S.consumSlots;
   document.getElementById('runinfo').textContent='Deck : '+S.deckCount+' cartes';
@@ -1231,12 +1261,16 @@ function cardTooltip(c){
   if(cardDebuffed(c))h+='<br><span style="color:var(--mult)">⚠ Désactivée par la Blind : ne marque pas.</span>';
   return h;
 }
+let prevHandIds=new Set();
 function renderHand(){
   const area=document.getElementById('handArea');area.innerHTML='';
+  let newCount=0;
   S.hand.forEach(c=>{
     const suit=SUITS[c.suit];const deb=cardDebuffed(c);const isStone=c.enh==='stone';
+    const isNew=!prevHandIds.has(c.id);
     const div=document.createElement('div');
-    div.className='card '+suit.col+(S.selected.includes(c.id)?' sel':'')+(deb?' debuff':'')+(c.enh?' enh-'+c.enh:'')+(c.cedition?' ced-'+c.cedition:'');
+    div.className='card '+suit.col+(S.selected.includes(c.id)?' sel':'')+(deb?' debuff':'')+(c.enh?' enh-'+c.enh:'')+(c.cedition?' ced-'+c.cedition:'')+(isNew?' dealing':'');
+    if(isNew){div.style.animationDelay=(newCount*0.04)+'s';newCount++;}
     div.dataset.id=c.id;
     div.innerHTML=`<div class="rank">${isStone?'':c.rank}</div><div class="suit">${isStone?'🪨':suit.sym}</div><div class="rankb">${isStone?'':c.rank}</div>
       ${c.enh&&c.enh!=='stone'?'<div class="enh">'+ENH[c.enh].name+'</div>':''}
@@ -1244,6 +1278,7 @@ function renderHand(){
       <div class="tooltip">${cardTooltip(c)}</div>`;
     div.onclick=()=>toggleSel(c.id);area.appendChild(div);
   });
+  prevHandIds=new Set(S.hand.map(c=>c.id));
   updateSelInfo();
 }
 function updateSelInfo(){
@@ -1306,18 +1341,26 @@ function flashSel(){const el=document.getElementById('selInfo');el.classList.rem
 function randKey(obj){const k=Object.keys(obj);return k[rnd(k.length)];}
 
 /* ===================== POPUP / ANIM ===================== */
-function setHandLabel(t){document.getElementById('handLabel').textContent=t;}
+function setHandLabel(t){const el=document.getElementById('handLabel');el.textContent=t;if(t){el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');}}
 function updateScorePopup(chips,mult){document.getElementById('scorePopup').innerHTML=`<span class="chipDisp">${chips}</span><span class="times">×</span><span class="multDisp">${mult}</span>`;}
-function flashCard(id,text,cls){const el=document.querySelector(`.card[data-id="${id}"]`);if(!el)return;el.classList.add('sel');const f=document.createElement('div');f.className='scorefloat '+cls;f.textContent=text;el.appendChild(f);setTimeout(()=>f.remove(),850);}
-function flashJoker(uid){const el=document.querySelector(`.joker[data-uid="${uid}"]`);if(el){el.style.transform='translateY(-9px) scale(1.1)';setTimeout(()=>el.style.transform='',200);}}
+const GLOWCOL={fchip:'var(--chip)',fmult:'var(--mult)',fgold:'var(--gold)'};
+function flashCard(id,text,cls){const el=document.querySelector(`.card[data-id="${id}"]`);if(!el)return;
+  el.style.setProperty('--glow',GLOWCOL[cls]||'var(--gold)');
+  el.classList.remove('scorepop');void el.offsetWidth;el.classList.add('scorepop');
+  const f=document.createElement('div');f.className='scorefloat '+cls;f.textContent=text;el.appendChild(f);setTimeout(()=>f.remove(),850);}
+function flashJoker(uid){const el=document.querySelector(`.joker[data-uid="${uid}"]`);if(el){el.classList.remove('trigger');void el.offsetWidth;el.classList.add('trigger');setTimeout(()=>el.classList.remove('trigger'),340);}}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
 /* ===================== OVERLAYS ===================== */
 function show(id){document.getElementById(id).classList.add('show');}
 function hide(id){document.getElementById(id).classList.remove('show');}
 let msgCb=null;
-function showMsg(title,body,btn,cb){const mt=document.getElementById('msgTitle');mt.style.display=title?'':'none';mt.innerHTML=title;document.getElementById('msgBody').innerHTML=body;document.getElementById('msgBtn').textContent=btn;msgCb=cb;show('msgOverlay');}
+let msgCb2=null;
+function showMsg(title,body,btn,cb,btn2,cb2){const mt=document.getElementById('msgTitle');mt.style.display=title?'':'none';mt.innerHTML=title;document.getElementById('msgBody').innerHTML=body;document.getElementById('msgBtn').textContent=btn;msgCb=cb;
+  const b2=document.getElementById('msgBtn2');if(btn2){b2.textContent=btn2;b2.style.display='';msgCb2=cb2;}else{b2.style.display='none';msgCb2=null;}
+  show('msgOverlay');}
 function msgAction(){if(msgCb)msgCb();}
+function msgAction2(){if(msgCb2)msgCb2();}
 function toast(t){showMsg('',t,'OK',()=>hide('msgOverlay'));}
 function showHandList(){
   let html='<table>';
