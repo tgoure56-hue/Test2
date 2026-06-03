@@ -84,6 +84,8 @@
   .card .rank{position:absolute;top:3px;left:5px;font-size:18px;font-weight:bold;line-height:1;z-index:2;}
   .card .rankb{position:absolute;bottom:3px;right:5px;font-size:18px;font-weight:bold;transform:rotate(180deg);line-height:1;z-index:2;}
   .card .suit{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:32px;z-index:2;}
+  .card .pips{position:absolute;inset:14px 4px;z-index:2;pointer-events:none;}
+  .card .pip{position:absolute;transform:translate(-50%,-50%);font-size:14px;line-height:1;}
   .card.red{color:var(--redsuit);} .card.black{color:var(--blacksuit);}
   .card.debuff{filter:grayscale(1) brightness(.55);}
   .card.enh-bonus{background:linear-gradient(160deg,#cfe6ff,#a9d2ff);} .card.enh-mult{background:linear-gradient(160deg,#ffd0cb,#ffaea6);}
@@ -127,6 +129,8 @@
   .joker.pop{animation:jokerPop .4s cubic-bezier(.2,.9,.3,1.4) backwards;}
   @keyframes shake{0%,100%{transform:translateX(0);}15%{transform:translateX(-8px) rotate(-1deg);}30%{transform:translateX(7px) rotate(1deg);}45%{transform:translateX(-6px);}60%{transform:translateX(5px);}75%{transform:translateX(-3px);}}
   #playArea.shake{animation:shake .5s ease-out;}
+  @keyframes coinfall{0%{transform:translateY(-15vh) rotate(0);}100%{transform:translateY(110vh) rotate(540deg);}}
+  .coin{position:fixed;top:0;z-index:200;pointer-events:none;animation:coinfall linear forwards;}
   body.reduce-anim *{animation-duration:.001s!important;}
   #playArea{cursor:pointer;}
   .progWrap{height:9px;background:#0006;border-radius:6px;margin-top:6px;overflow:hidden;border:1px solid var(--panelEdge);}
@@ -209,6 +213,7 @@
     </div>
     <div class="panel" style="display:flex;flex-direction:column;gap:6px;">
       <button class="btn-sort" style="width:100%" onclick="showHandList()">📖 Mains & infos</button>
+      <button class="btn-purple" id="sandboxBtn" style="width:100%;display:none;" onclick="openSandbox()">🧪 Sandbox</button>
       <div style="display:flex;gap:6px;">
         <button class="btn-green" style="flex:1" onclick="saveToFile()">💾 Sauver</button>
         <button class="btn-gold" style="flex:1" onclick="loadFromFile()">📂 Charger</button>
@@ -294,6 +299,7 @@
     <button class="btn-gold" id="continueBtn" style="width:240px;font-size:17px;padding:14px;display:none;" onclick="continueLocal()">▶️ Continuer (auto-save)</button>
     <button class="btn-sort" style="width:240px;font-size:17px;padding:14px;" onclick="loadFromFile()">📂 Charger une sauvegarde</button>
     <button class="btn-sort" style="width:240px;font-size:17px;padding:14px;" onclick="showCollection()">📚 Collection</button>
+    <button class="btn-purple" style="width:240px;font-size:17px;padding:14px;" onclick="startSandbox()">🧪 Bac à sable</button>
     <button class="btn-sort" style="width:240px;font-size:17px;padding:14px;" onclick="showSettings()">⚙️ Réglages</button>
   </div>
   <div id="deckChoose" style="display:none;">
@@ -316,6 +322,18 @@
   <h2>Codex</h2>
   <div class="handinfo" id="handListBody"></div>
   <button class="btn-green" onclick="hide('handListOverlay')">Fermer</button>
+</div></div>
+
+<div class="overlay" id="sandboxOverlay"><div class="modal">
+  <h2>🧪 Bac à sable</h2>
+  <div class="pickHint">Ajoute ce que tu veux (gratuit). Clique pour ajouter.</div>
+  <div id="controls" style="margin-bottom:8px;">
+    <button class="btn-gold" onclick="S.money+=50;renderAll();">+$50</button>
+    <button class="btn-sort" onclick="S.jokerSlots++;renderAll();">+1 slot Joker</button>
+    <button class="btn-sort" onclick="S.consumSlots++;renderAll();">+1 slot Conso</button>
+    <button class="btn-green" onclick="hide('sandboxOverlay')">Fermer</button>
+  </div>
+  <div class="handinfo" id="sandboxBody"></div>
 </div></div>
 
 <div class="overlay" id="settingsOverlay"><div class="modal" style="max-width:440px;">
@@ -756,7 +774,7 @@ const LOCKED_JOKERS={
   brainstorm:()=>[META.wins>=2,'Gagner 2 parties'],
   driverlicense:()=>[META.wins>=2,'Gagner 2 parties'],
 };
-function jokerUnlocked(k){return !LOCKED_JOKERS[k]||(META.unlockedJokers||[]).indexOf(k)>=0;}
+function jokerUnlocked(k){if(S.sandbox)return true;return !LOCKED_JOKERS[k]||(META.unlockedJokers||[]).indexOf(k)>=0;}
 function checkJokerUnlocks(){
   if(!META.unlockedJokers)META.unlockedJokers=[];
   const fresh=[];
@@ -1049,10 +1067,11 @@ function cardSuits(c){
   if(hasJoker('smeared')){if(c.suit==='H'||c.suit==='D')return['H','D'];return['S','C'];}
   return [c.suit];
 }
-function effDef(j,idx){
-  if(j.key==='blueprint'){const t=S.jokers[idx+1];if(t&&t.key!=='blueprint'&&t.key!=='brainstorm')return JOKER_DEFS[t.key];return JOKER_DEFS.blueprint;}
-  if(j.key==='brainstorm'){const t=S.jokers[0];if(t&&t!==j&&t.key!=='blueprint'&&t.key!=='brainstorm')return JOKER_DEFS[t.key];return JOKER_DEFS.brainstorm;}
-  return JOKER_DEFS[j.key];
+// Renvoie la définition ET l'instance source (pour copier l'état exact d'un voisin : Plan Directeur / Remue-Méninges)
+function effInfo(j,idx){
+  if(j.key==='blueprint'){const t=S.jokers[idx+1];if(t&&t.key!=='blueprint'&&t.key!=='brainstorm'&&!t.debuffed)return{def:JOKER_DEFS[t.key],inst:t};return{def:JOKER_DEFS.blueprint,inst:j};}
+  if(j.key==='brainstorm'){const t=S.jokers[0];if(t&&t!==j&&t.key!=='blueprint'&&t.key!=='brainstorm'&&!t.debuffed)return{def:JOKER_DEFS[t.key],inst:t};return{def:JOKER_DEFS.brainstorm,inst:j};}
+  return{def:JOKER_DEFS[j.key],inst:j};
 }
 function evaluateHand(cards){
   const fourf=hasJoker('fourfingers');const flushN=fourf?4:5;const straightN=fourf?4:5;
@@ -1143,7 +1162,7 @@ async function playHand(){
     const card=ev.scoringCards[idx];
     if(cardDebuffed(card))continue;
     let triggers=1+(card.seal==='red'?1:0);
-    S.jokers.forEach((j,ji)=>{if(j.debuffed||ji===crimsonOff)return;const d=effDef(j,ji);if(d.retrig)triggers+=(d.retrig.call(j,card,ctx,false,idx)||0);});
+    S.jokers.forEach((j,ji)=>{if(j.debuffed||ji===crimsonOff)return;const {def:d,inst:src}=effInfo(j,ji);if(d.retrig)triggers+=(d.retrig.call(src,card,ctx,false,idx)||0);});
     for(let t=0;t<triggers;t++){
       let cv=card.enh==='stone'?50:(RANKVAL[card.rank]+(card.enh==='bonus'?30:0)+(card.chipBonus||0));
       chips+=cv;flashCard(card.id,'+'+cv,'fchip');updateScorePopup(chips,mult);await sleep(110);
@@ -1154,7 +1173,7 @@ async function playHand(){
       if(card.enh==='lucky'){if(Math.random()<prob(0.2)){mult+=20;flashCard(card.id,'+20 M','fmult');S.jokers.forEach(j=>{if(j.key==='luckycat')j.x=(j.x||1)+0.25;});updateScorePopup(chips,mult);await sleep(110);}if(Math.random()<prob(1/15)){S.money+=4;flashCard(card.id,'+$4','fgold');renderSidebar();await sleep(110);}}
       if(card.cedition==='poly'){mult=r1(mult*1.5);flashCard(card.id,'×1.5','fmult');updateScorePopup(chips,mult);await sleep(90);}
       if(card.seal==='gold'){S.money+=3;flashCard(card.id,'+$3','fgold');renderSidebar();await sleep(90);}
-      for(let ji=0;ji<S.jokers.length;ji++){const j=S.jokers[ji];if(j.debuffed||ji===crimsonOff)continue;const d=effDef(j,ji);if(d.perCard){const r=d.perCard.call(j,card,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);flashCard(card.id,fmt(r),r.xmult||r.mult?'fmult':'fchip');flashJoker(j.uid);updateScorePopup(chips,mult);await sleep(100);}}}
+      for(let ji=0;ji<S.jokers.length;ji++){const j=S.jokers[ji];if(j.debuffed||ji===crimsonOff)continue;const {def:d,inst:src}=effInfo(j,ji);if(d.perCard){const r=d.perCard.call(src,card,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);flashCard(card.id,fmt(r),r.xmult||r.mult?'fmult':'fchip');flashJoker(j.uid);updateScorePopup(chips,mult);await sleep(100);}}}
     }
   }
   // 2) cartes tenues en main (perHeld + acier + Mime retrigger)
@@ -1162,14 +1181,14 @@ async function playHand(){
     let triggers=1+(card.seal==='red'?1:0)+(hasJoker('mime')?1:0);
     for(let t=0;t<triggers;t++){
       if(card.enh==='steel'){mult=r1(mult*1.5);flashCard(card.id,'×1.5','fmult');updateScorePopup(chips,mult);await sleep(90);}
-      for(let ji=0;ji<S.jokers.length;ji++){const j=S.jokers[ji];if(j.debuffed||ji===crimsonOff)continue;const d=effDef(j,ji);if(d.perHeld){const r=d.perHeld.call(j,card,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);flashCard(card.id,fmt(r),r.xmult||r.mult?'fmult':'fchip');flashJoker(j.uid);updateScorePopup(chips,mult);await sleep(100);}}}
+      for(let ji=0;ji<S.jokers.length;ji++){const j=S.jokers[ji];if(j.debuffed||ji===crimsonOff)continue;const {def:d,inst:src}=effInfo(j,ji);if(d.perHeld){const r=d.perHeld.call(src,card,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);flashCard(card.id,fmt(r),r.xmult||r.mult?'fmult':'fchip');flashJoker(j.uid);updateScorePopup(chips,mult);await sleep(100);}}}
       if(!hasJoker('mime')&&card.seal!=='red')break;
     }
   }
   // 3) jokers globaux + éditions de joker
   for(let ji=0;ji<S.jokers.length;ji++){
-    const j=S.jokers[ji];if(j.debuffed||ji===crimsonOff)continue;const d=effDef(j,ji);let acted=false;
-    if(d.eval){const r=d.eval.call(j,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);acted=true;}}
+    const j=S.jokers[ji];if(j.debuffed||ji===crimsonOff)continue;const {def:d,inst:src}=effInfo(j,ji);let acted=false;
+    if(d.eval){const r=d.eval.call(src,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);acted=true;}}
     if(j.edition&&EDITIONS[j.edition]){const e=EDITIONS[j.edition];if(e.chips){chips+=e.chips;acted=true;}if(e.mult){mult+=e.mult;acted=true;}if(e.xmult){mult=r1(mult*e.xmult);acted=true;}}
     if(acted){flashJoker(j.uid);updateScorePopup(chips,mult);await sleep(150);}
   }
@@ -1235,8 +1254,9 @@ function winBlind(){
   S.jokers=S.jokers.filter(j=>!j._dead);
   if(S.anaglyph&&S.blind.type==='boss')S.ownedTags.push(randomSafeTag()); // Deck Anaglyphe
   S.discardsUnused+=S.discardsLeft;
-  S.money+=reward+interest+handBonus+greenDisc+goldMoney+jokerMoney-rentalCost;
-  setBgTheme('shop');
+  const totalGain=reward+interest+handBonus+greenDisc+goldMoney+jokerMoney;
+  S.money+=totalGain-rentalCost;
+  setBgTheme('shop');coinRain(Math.min(50,12+totalGain));
   showMsg('Blind battue ! 🎉',
     `<b>${S.blind.name}</b> vaincue !<br><br>
      Récompense : <span style="color:var(--gold)">$${reward}</span><br>
@@ -1511,7 +1531,7 @@ function genStandardCards(n){
 function miniCardHTML(c){
   const suit=SUITS[c.suit];const isStone=c.enh==='stone';
   return `<div class="card ${suit.col} ${c.enh?'enh-'+c.enh:''} ${c.cedition?'ced-'+c.cedition:''}" style="cursor:default">
-    <div class="rank">${isStone?'':c.rank}</div><div class="suit">${isStone?'🪨':suit.sym}</div><div class="rankb">${isStone?'':c.rank}</div>
+    <div class="rank">${isStone?'':c.rank}</div>${cardCenterHTML(c)}<div class="rankb">${isStone?'':c.rank}</div>
     ${c.enh&&c.enh!=='stone'?'<div class="enh">'+ENH[c.enh].name+'</div>':''}
     ${c.seal?'<div class="seal seal-'+c.seal+'"></div>':''}
     <div class="tooltip">${cardTooltip(c)}</div></div>`;
@@ -1572,7 +1592,7 @@ function renderTargetCards(){
     const suit=SUITS[c.suit];const isStone=c.enh==='stone';
     const div=document.createElement('div');
     div.className='card '+suit.col+(targetState.sel.includes(c.id)?' sel':'')+(c.enh?' enh-'+c.enh:'')+(c.cedition?' ced-'+c.cedition:'');
-    div.innerHTML=`<div class="rank">${isStone?'':c.rank}</div><div class="suit">${isStone?'🪨':suit.sym}</div><div class="rankb">${isStone?'':c.rank}</div>
+    div.innerHTML=`<div class="rank">${isStone?'':c.rank}</div>${cardCenterHTML(c)}<div class="rankb">${isStone?'':c.rank}</div>
       ${c.enh&&c.enh!=='stone'?'<div class="enh">'+ENH[c.enh].name+'</div>':''}
       ${c.seal?'<div class="seal seal-'+c.seal+'"></div>':''}
       <div class="tooltip">${cardTooltip(c)}</div>`;
@@ -1604,6 +1624,7 @@ function renderSidebar(){
   const pf=document.getElementById('progFill');if(pf&&S.target>0){const pct=Math.min(100,S.curScore/S.target*100);pf.style.width=pct+'%';if(pct>=100)pf.classList.add('done');else pf.classList.remove('done');}
   S.runMaxMoney=Math.max(S.runMaxMoney||0,S.money);
   if(S.money>=100)unlockAch('rich');
+  const sb=document.getElementById('sandboxBtn');if(sb)sb.style.display=S.sandbox?'':'none';
   document.getElementById('statHands').textContent=S.handsLeft;
   document.getElementById('statDisc').textContent=S.discardsLeft;
   const moneyEl=document.getElementById('statMoney');moneyEl.textContent='$'+S.money;
@@ -1620,6 +1641,18 @@ function renderVouchers(){
   const p=document.getElementById('voucherPanel'),row=document.getElementById('voucherRow');
   if(!S.vouchers.length){p.style.display='none';return;}
   p.style.display='';row.innerHTML=S.vouchers.map(k=>'<span class="tagChip">'+VOUCHERS[k].icon+' '+VOUCHERS[k].name+'</span>').join('');
+}
+// Dispositions de pips (style carte à jouer) en grille 3 colonnes
+const PIPS={2:[[1,0],[1,4]],3:[[1,0],[1,2],[1,4]],4:[[0,0],[2,0],[0,4],[2,4]],5:[[0,0],[2,0],[1,2],[0,4],[2,4]],
+  6:[[0,0],[2,0],[0,2],[2,2],[0,4],[2,4]],7:[[0,0],[2,0],[1,1],[0,2],[2,2],[0,4],[2,4]],
+  8:[[0,0],[2,0],[1,1],[0,2],[2,2],[1,3],[0,4],[2,4]],9:[[0,0],[2,0],[0,1.3],[2,1.3],[1,2],[0,2.7],[2,2.7],[0,4],[2,4]],
+  10:[[0,0],[2,0],[1,.7],[0,1.3],[2,1.3],[0,2.7],[2,2.7],[1,3.3],[0,4],[2,4]]};
+function cardCenterHTML(c){
+  if(c.enh==='stone')return '<div class="suit">🪨</div>';
+  const sym=SUITS[c.suit].sym,v=RANKORDER[c.rank];
+  if(v>=11)return '<div class="suit">'+sym+'</div>'; // J,Q,K,A : grand symbole central
+  const cols=[18,50,82];
+  return '<div class="pips">'+(PIPS[v]||[]).map(([col,row])=>'<span class="pip" style="left:'+cols[col]+'%;top:'+(row*25)+'%">'+sym+'</span>').join('')+'</div>';
 }
 const RANKNAME={'A':'As','K':'Roi','Q':'Dame','J':'Valet'};
 const SUITNAME={S:'Pique',H:'Cœur',D:'Carreau',C:'Trèfle'};
@@ -1648,7 +1681,7 @@ function renderHand(){
     div.className='card '+suit.col+(S.selected.includes(c.id)?' sel':'')+(deb?' debuff':'')+(c.enh?' enh-'+c.enh:'')+(c.cedition?' ced-'+c.cedition:'')+(isNew?' dealing':'');
     if(isNew){div.style.animationDelay=(newCount*0.04)+'s';newCount++;}
     div.dataset.id=c.id;
-    div.innerHTML=`<div class="rank">${isStone?'':c.rank}</div><div class="suit">${isStone?'🪨':suit.sym}</div><div class="rankb">${isStone?'':c.rank}</div>
+    div.innerHTML=`<div class="rank">${isStone?'':c.rank}</div>${cardCenterHTML(c)}<div class="rankb">${isStone?'':c.rank}</div>
       ${c.enh&&c.enh!=='stone'?'<div class="enh">'+ENH[c.enh].name+'</div>':''}
       ${c.seal?'<div class="seal seal-'+c.seal+'"></div>':''}
       <div class="tooltip">${cardTooltip(c)}</div>`;
@@ -1738,6 +1771,7 @@ function sortHand(by){if(by==='rank')S.hand.sort((a,b)=>RANKORDER[b.rank]-RANKOR
 function flashSel(){const el=document.getElementById('selInfo');el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');}
 function randKey(obj){const k=Object.keys(obj);return k[rnd(k.length)];}
 function copySeed(){if(!S.seed)return;try{navigator.clipboard.writeText(S.seed);toast('Seed copié : '+S.seed);}catch(e){toast('Seed : '+S.seed);}}
+function coinRain(n){if(SETTINGS.reduceAnim)return;for(let i=0;i<n;i++){const c=document.createElement('div');c.className='coin';c.textContent=Math.random()<0.5?'🪙':'💰';c.style.left=(Math.random()*100)+'vw';c.style.fontSize=(16+Math.random()*16)+'px';c.style.animationDuration=(1.1+Math.random()*1.4)+'s';c.style.animationDelay=(Math.random()*0.6)+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),3000);}}
 
 /* ===================== POPUP / ANIM ===================== */
 function setHandLabel(t){const el=document.getElementById('handLabel');el.textContent=t;if(t){el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');}}
@@ -1880,6 +1914,20 @@ function startNew(){ // affiche le choix du deck + de la mise
 }
 function chooseDeck(k){if(!deckUnlocked(k))return;const seed=(document.getElementById('seedInput').value||'').trim();document.getElementById('deckChoose').style.display='none';document.getElementById('startMain').style.display='';hide('startOverlay');newRun(k,selectedStake,seed,selectedChallenge);}
 function backToMenu(){document.getElementById('deckChoose').style.display='none';document.getElementById('startMain').style.display='';}
+function startSandbox(){hide('startOverlay');newRun('standard',1);S.sandbox=true;S.money=999;renderAll();}
+function openSandbox(){
+  const chips=(arr,fn,type)=>arr.map(k=>'<span class="tagChip" style="cursor:pointer" onclick="sandboxAdd(\''+type+'\',\''+k+'\')">'+fn(k)+'</span>').join(' ');
+  let html='<div style="color:var(--gold);font-weight:bold">Jokers</div><div style="line-height:2">'+chips(Object.keys(JOKER_DEFS).filter(k=>!JOKER_DEFS[k].hidden),k=>JOKER_DEFS[k].icon+' '+JOKER_DEFS[k].name,'joker')+'</div>';
+  html+='<div style="margin-top:8px;color:var(--gold);font-weight:bold">Tarots</div><div style="line-height:2">'+chips(Object.keys(TAROTS),k=>TAROTS[k].name,'tarot')+'</div>';
+  html+='<div style="margin-top:8px;color:var(--gold);font-weight:bold">Planètes</div><div style="line-height:2">'+chips(Object.keys(PLANETS),k=>PLANETS[k].name,'planet')+'</div>';
+  html+='<div style="margin-top:8px;color:var(--gold);font-weight:bold">Spectrales</div><div style="line-height:2">'+chips(Object.keys(SPECTRALS),k=>SPECTRALS[k].name,'spectral')+'</div>';
+  document.getElementById('sandboxBody').innerHTML=html;show('sandboxOverlay');
+}
+function sandboxAdd(type,key){
+  if(type==='joker'){if(usedJokerSlots()<S.jokerSlots)acquireJoker(key);else toast('Slots de Jokers pleins.');}
+  else if(S.consumables.length<S.consumSlots)S.consumables.push({type,key,uid:Math.random()});else toast('Slots de consommables pleins.');
+  renderAll();
+}
 function confirmMenu(){showMsg('Retour au menu ?','Ta progression est auto-sauvegardée (tu pourras « Continuer »). Quitter vers le menu ?','Retour au menu',()=>{hide('msgOverlay');toStartMenu();});}
 
 /* ===================== COLLECTION ===================== */
