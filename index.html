@@ -203,6 +203,9 @@
   .shopItem{display:flex;flex-direction:column;align-items:center;gap:6px;}
   .buyb{background:var(--gold);color:#3a2c00;padding:4px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:bold;border:2px solid var(--panelEdge);box-shadow:0 3px 0 var(--panelEdge);}
   .buyb.dis{opacity:.4;pointer-events:none;}
+  .buyrow{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;}
+  .buyb.sm{padding:4px 8px;font-size:10.5px;}
+  .buyb.use{background:linear-gradient(180deg,#86d5ff,#3a9be0);color:#04263f;}
   .pack{width:84px;height:112px;border-radius:10px;border:2px solid var(--panelEdge);position:relative;display:flex;flex-direction:column;justify-content:space-between;padding:8px;cursor:pointer;box-shadow:0 4px 0 var(--panelEdge);}
   .pack .pn{font-size:10px;font-weight:bold;text-shadow:1px 1px 0 #0008;} .pack .pic{font-size:30px;text-align:center;}
   .pk-cele{background:linear-gradient(160deg,#3a5bd0,#1a2a6e);} .pk-arca{background:linear-gradient(160deg,#7b3fd0,#3a1a6e);}
@@ -1498,7 +1501,13 @@ function renderShop(){
     else if(it.type==='planet')inner=consumHTML('planet',PLANETS[it.key],true,'Améliore : '+PLANETS[it.key].hand,it._new);
     else if(it.type==='spectral')inner=consumHTML('spectral',SPECTRALS[it.key],true,'',it._new);
     else if(it.type==='pcard')inner=miniCardHTML(it.card);
-    div.innerHTML=inner+`<div class="buyb ${afford?'':'dis'}" onclick="buyItem(${idx})">${cost===0?'Gratuit':'$'+cost}</div>`;
+    let btns;
+    if(it.type==='tarot'||it.type==='planet'||it.type==='spectral'){ // choix : ranger OU utiliser tout de suite
+      btns=`<div class="small" style="color:var(--gold)">${cost===0?'Gratuit':'$'+cost}</div>`
+        +`<div class="buyrow"><div class="buyb sm ${afford?'':'dis'}" onclick="buyItem(${idx})" title="Ranger dans les consommables">Acheter</div>`
+        +`<div class="buyb sm use ${afford?'':'dis'}" onclick="useShopItem(${idx})" title="Acheter et utiliser tout de suite">Utiliser</div></div>`;
+    }else btns=`<div class="buyb ${afford?'':'dis'}" onclick="buyItem(${idx})">${cost===0?'Gratuit':'$'+cost}</div>`;
+    div.innerHTML=inner+btns;
     g.appendChild(div);
   });
   if(!S.shop.items.length)g.innerHTML='<div class="small">— épuisé —</div>';
@@ -1629,7 +1638,12 @@ function renderPackOptions(){
     else if(o.type==='tarot')inner=consumHTML('tarot',TAROTS[o.key],false,'',o._new);
     else if(o.type==='spectral')inner=consumHTML('spectral',SPECTRALS[o.key],false,'',o._new);
     else inner=miniCardHTML(o.card);
-    div.innerHTML=inner+`<div class="buyb" onclick="pickFromPack(${i})">Choisir</div>`;
+    let btns;
+    if(o.type==='planet'||o.type==='tarot'||o.type==='spectral'){ // choix : ranger OU utiliser maintenant
+      btns=`<div class="buyrow"><div class="buyb sm" onclick="pickFromPack(${i})" title="Ranger dans les consommables">Prendre</div>`
+        +`<div class="buyb sm use" onclick="useFromPack(${i})" title="Utiliser tout de suite">Utiliser</div></div>`;
+    }else btns=`<div class="buyb" onclick="pickFromPack(${i})">Choisir</div>`;
+    div.innerHTML=inner+btns;
     div.style.animationDelay=(i*0.08)+'s'; // révélation en cascade
     cont.appendChild(div);
   });
@@ -1644,6 +1658,14 @@ function pickFromPack(i){
     else{toast('Emplacements de consommables pleins !');return;}
   }
   afterPackPick(i);
+}
+// Booster : utiliser directement une carte Planète/Tarot/Spectrale au lieu de la ranger
+function useFromPack(i){
+  if(!pendingPack||!pendingPack.options)return;
+  const o=pendingPack.options[i];if(!o)return;
+  if(o.type!=='planet'&&o.type!=='tarot'&&o.type!=='spectral')return;
+  const c={type:o.type,key:o.key,uid:Math.random()};
+  runConsumable(c,true,()=>afterPackPick(i)); // si aucune cible (false), le choix n'est pas consommé
 }
 function afterPackPick(i){
   pendingPack.options.splice(i,1); // retire l'option choisie
@@ -1692,29 +1714,44 @@ function addRandomCards(n,kind,enhanced){
 }
 function useConsumable(uid){
   if(scoringInProgress)return;
-  const idx=S.consumables.findIndex(c=>c.uid===uid);if(idx<0)return;
-  const c=S.consumables[idx];
-  if(c.type==='planet'){applyPlanet(c.key);finishUse(idx,c);return;}
+  const c=S.consumables.find(x=>x.uid===uid);if(!c)return;
+  runConsumable(c,false);
+}
+// Joue un consommable. transient=true → l'objet n'est pas (encore) rangé dans S.consumables
+// (utilisation directe depuis la boutique ou un booster). onDone appelé une fois l'effet appliqué.
+// Renvoie false si l'utilisation n'a pas pu démarrer (aucune cible disponible).
+function runConsumable(c,transient,onDone){
+  const done=()=>{finishUse(c,transient);if(onDone)onDone();};
+  if(c.type==='planet'){applyPlanet(c.key);done();return true;}
   const def=c.type==='spectral'?SPECTRALS[c.key]:TAROTS[c.key];
   const need=c.type==='spectral'?(def.need?[1,1]:[0,0]):def.need;
   if(need[1]>0){
     const sel=S.selected.map(id=>S.hand.find(x=>x.id===id)).filter(Boolean);
     if(sel.length>=need[0]){ // cartes déjà sélectionnées dans la main (en manche)
-      def.use(sel.slice(0,need[1]));finishUse(idx,c);
+      def.use(sel.slice(0,need[1]));done();
     }else{ // sinon (boutique, ou aucune sélection) : on affiche un sélecteur de cartes
       const pool=targetPool();
-      if(!pool.length){toast('Aucune carte à cibler pour le moment.');return;}
-      openTargetSelect(def.name,def.desc,need[0],need[1],pool,(cards)=>{def.use(cards);finishUse(idx,c);});
+      if(!pool.length){toast('Aucune carte à cibler pour le moment.');return false;}
+      openTargetSelect(def.name,def.desc,need[0],need[1],pool,(cards)=>{def.use(cards);done();});
     }
-  }else{ def.use();finishUse(idx,c); }
+  }else{ def.use();done(); }
+  return true;
 }
-function finishUse(idx,c){
+function finishUse(c,transient){
   discover(c.type+':'+c.key);
   if(c.type==='tarot'){S.tarotsUsed++;if(c.key!=='mat')S.lastConsumableUsed={type:'tarot',key:c.key};}
   S.selected=[];
-  // retire le consommable (sauf copie Négative de Perkeo qui ne se consomme pas)
-  const i=S.consumables.indexOf(c);if(i>=0)S.consumables.splice(i,1);
+  // retire le consommable rangé (un objet transitoire n'y est pas → indexOf=-1, rien à faire)
+  if(!transient){const i=S.consumables.indexOf(c);if(i>=0)S.consumables.splice(i,1);}
   renderAll();renderShop();
+}
+// Boutique : acheter ET utiliser tout de suite (ne consomme pas d'emplacement)
+function useShopItem(idx){
+  const it=S.shop.items[idx];if(!it)return;const cost=itemCost(it);if(!canAfford(cost))return;
+  const c={type:it.type,key:it.key,uid:Math.random()};
+  // on ne débite et ne retire de la boutique qu'une fois l'effet réellement appliqué
+  const ok=runConsumable(c,true,()=>{S.money-=cost;const j=S.shop.items.indexOf(it);if(j>=0)S.shop.items.splice(j,1);renderShop();renderAll();});
+  if(ok===false)return; // aucune cible disponible → achat annulé
 }
 // pool de cartes ciblables : la main si dispo, sinon un échantillon du deck
 function targetPool(){return S.hand&&S.hand.length?S.hand:shuffle(S.fullDeck.slice()).slice(0,Math.min(8,S.fullDeck.length));}
