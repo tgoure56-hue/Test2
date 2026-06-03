@@ -300,6 +300,7 @@
     <button class="btn-sort" style="width:240px;font-size:17px;padding:14px;" onclick="loadFromFile()">📂 Charger une sauvegarde</button>
     <button class="btn-sort" style="width:240px;font-size:17px;padding:14px;" onclick="showCollection()">📚 Collection</button>
     <button class="btn-purple" style="width:240px;font-size:17px;padding:14px;" onclick="startSandbox()">🧪 Bac à sable</button>
+    <button class="btn-sort" style="width:240px;font-size:17px;padding:14px;" onclick="openBuilder()">🛠️ Constructeur de deck</button>
     <button class="btn-sort" style="width:240px;font-size:17px;padding:14px;" onclick="showSettings()">⚙️ Réglages</button>
   </div>
   <div id="deckChoose" style="display:none;">
@@ -322,6 +323,23 @@
   <h2>Codex</h2>
   <div class="handinfo" id="handListBody"></div>
   <button class="btn-green" onclick="hide('handListOverlay')">Fermer</button>
+</div></div>
+
+<div class="overlay" id="builderOverlay"><div class="modal" style="max-width:840px;">
+  <h2>🛠️ Constructeur de deck</h2>
+  <div class="small" id="builderCount" style="margin-bottom:6px;"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;margin-bottom:8px;">
+    <span id="brRanks" style="display:flex;gap:3px;flex-wrap:wrap;"></span>
+    <span id="brSuits" style="display:flex;gap:3px;"></span>
+    <select id="brEnh" class="brSel"></select><select id="brSeal" class="brSel"></select>
+    <button class="btn-green" onclick="builderAdd()">+ Ajouter</button>
+  </div>
+  <div class="handinfo" id="builderGrid" style="max-height:42vh;"></div>
+  <div id="controls" style="margin-top:8px;">
+    <button class="btn-gold" onclick="builderReset()">↺ Standard (52)</button>
+    <button class="btn-green" onclick="builderSave()">💾 Enregistrer</button>
+    <button class="btn-red" onclick="hide('builderOverlay')">Fermer</button>
+  </div>
 </div></div>
 
 <div class="overlay" id="sandboxOverlay"><div class="modal">
@@ -858,6 +876,7 @@ const DECKS={
   anaglyphe:{name:'Deck Anaglyphe',icon:'🔴',desc:'Gagne un Tag aléatoire après chaque Boss battue.',apply(){S.anaglyph=true;},u:()=>META.wins>=3,ut:'Gagner 3 parties'},
   plasma:{name:'Deck Plasma',icon:'⚡',desc:'Équilibre Chips et Mult avant le calcul, mais blinds ×2.',apply(){S.plasma=true;},u:()=>META.wins>=3,ut:'Gagner 3 parties'},
   erratique:{name:'Deck Erratique',icon:'🎲',desc:'Les 52 cartes ont rang et couleur aléatoires.',apply(){},u:()=>META.wins>=4,ut:'Gagner 4 parties'},
+  custom:{name:'Deck Personnalisé',icon:'🛠️',desc:'Ton deck construit sur mesure.',apply(){},u:()=>!!(META.customDeck&&META.customDeck.length>=5),ut:'Construis-le dans le Constructeur de deck'},
 };
 function deckUnlocked(k){try{return DECKS[k].u();}catch(e){return true;}}
 // Défis : modificateurs imposés pour la run
@@ -906,6 +925,10 @@ function makeDeck(){
   }
   if(dt==='erratique'){ // 52 cartes rang et couleur aléatoires
     for(let i=0;i<52;i++)d.push(mk(RANKS[rnd(RANKS.length)],SUITKEYS[rnd(4)]));
+    return d;
+  }
+  if(dt==='custom'&&META.customDeck&&META.customDeck.length){ // deck construit sur mesure
+    META.customDeck.forEach(s=>d.push({rank:s.rank,suit:s.suit,enh:s.enh||null,seal:s.seal||null,cedition:s.cedition||null,id:Math.random()}));
     return d;
   }
   let ranks=RANKS;
@@ -1915,6 +1938,32 @@ function startNew(){ // affiche le choix du deck + de la mise
 function chooseDeck(k){if(!deckUnlocked(k))return;const seed=(document.getElementById('seedInput').value||'').trim();document.getElementById('deckChoose').style.display='none';document.getElementById('startMain').style.display='';hide('startOverlay');newRun(k,selectedStake,seed,selectedChallenge);}
 function backToMenu(){document.getElementById('deckChoose').style.display='none';document.getElementById('startMain').style.display='';}
 function startSandbox(){hide('startOverlay');newRun('standard',1);S.sandbox=true;S.money=999;renderAll();}
+/* ===================== CONSTRUCTEUR DE DECK ===================== */
+let builderDeck=[],brRank='A',brSuit='S';
+function stdSpecs(){const a=[];for(const s in SUITS)for(const r of RANKS)a.push({rank:r,suit:s,enh:null,seal:null,cedition:null});return a;}
+function openBuilder(){
+  builderDeck=(META.customDeck&&META.customDeck.length)?META.customDeck.map(s=>({...s})):stdSpecs();
+  const rr=document.getElementById('brRanks');rr.innerHTML='';
+  RANKS.forEach(r=>{const b=document.createElement('button');b.className=brRank===r?'btn-green':'btn-sort';b.style.cssText='padding:3px 6px;font-size:11px;';b.textContent=r;b.onclick=()=>{brRank=r;openBuilderKeepDeck();};rr.appendChild(b);});
+  const sr=document.getElementById('brSuits');sr.innerHTML='';
+  SUITKEYS.forEach(s=>{const b=document.createElement('button');b.className=brSuit===s?'btn-green':'btn-sort';b.style.cssText='padding:3px 8px;font-size:13px;color:'+(SUITS[s].col==='red'?'var(--redsuit)':'#fff');b.textContent=SUITS[s].sym;b.onclick=()=>{brSuit=s;openBuilderKeepDeck();};sr.appendChild(b);});
+  const eS=document.getElementById('brEnh');eS.innerHTML='<option value="">Sans amélioration</option>'+Object.keys(ENH).map(k=>'<option value="'+k+'">'+ENH[k].name+'</option>').join('');
+  const seS=document.getElementById('brSeal');seS.innerHTML='<option value="">Sans sceau</option>'+Object.keys(SEALS).map(k=>'<option value="'+k+'">'+SEALS[k].name+'</option>').join('');
+  renderBuilder();show('builderOverlay');
+}
+function openBuilderKeepDeck(){ // re-render boutons rang/couleur sans réinitialiser le deck
+  const saved=builderDeck.map(s=>({...s}));openBuilder();builderDeck=saved;renderBuilder();
+}
+function renderBuilder(){
+  document.getElementById('builderCount').textContent=builderDeck.length+' cartes (clique une carte pour la retirer)';
+  const g=document.getElementById('builderGrid');g.innerHTML='';
+  const wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-wrap:wrap;gap:4px;justify-content:center;';
+  builderDeck.forEach((s,i)=>{const d=document.createElement('div');d.style.cursor='pointer';d.innerHTML=miniCardHTML(s);d.onclick=()=>{builderDeck.splice(i,1);renderBuilder();};wrap.appendChild(d);});
+  g.appendChild(wrap);
+}
+function builderAdd(){const enh=document.getElementById('brEnh').value||null,seal=document.getElementById('brSeal').value||null;builderDeck.push({rank:brRank,suit:brSuit,enh,seal,cedition:null});renderBuilder();}
+function builderReset(){builderDeck=stdSpecs();renderBuilder();}
+function builderSave(){if(builderDeck.length<5){toast('Il faut au moins 5 cartes.');return;}META.customDeck=builderDeck.map(s=>({...s}));saveMeta();toast('Deck personnalisé enregistré ('+builderDeck.length+' cartes) !');hide('builderOverlay');}
 function openSandbox(){
   const chips=(arr,fn,type)=>arr.map(k=>'<span class="tagChip" style="cursor:pointer" onclick="sandboxAdd(\''+type+'\',\''+k+'\')">'+fn(k)+'</span>').join(' ');
   let html='<div style="color:var(--gold);font-weight:bold">Jokers</div><div style="line-height:2">'+chips(Object.keys(JOKER_DEFS).filter(k=>!JOKER_DEFS[k].hidden),k=>JOKER_DEFS[k].icon+' '+JOKER_DEFS[k].name,'joker')+'</div>';
