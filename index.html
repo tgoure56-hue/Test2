@@ -116,6 +116,16 @@
     animation:floatup .85s ease-out forwards;pointer-events:none;white-space:nowrap;z-index:30;box-shadow:0 2px 6px #0008;}
   @keyframes floatup{0%{opacity:0;transform:translate(-50%,8px) scale(.8);}25%{opacity:1;transform:translate(-50%,0) scale(1.15);}100%{opacity:0;transform:translate(-50%,-34px) scale(1);}}
   .fchip{background:var(--chip);color:#fff;} .fmult{background:var(--mult);color:#fff;} .fgold{background:var(--gold);color:#3a2c00;}
+  .fdestroy{background:#c0392b;color:#fff;} .fadd{background:var(--green);color:#06210f;}
+  /* ---- destruction de carte ---- */
+  @keyframes shatter{0%{transform:none;filter:none;}20%{transform:scale(1.12) rotate(-3deg);filter:brightness(1.8) drop-shadow(0 0 10px #ff5a4d);}100%{transform:scale(.25) rotate(22deg) translateY(30px);opacity:0;filter:brightness(.5) saturate(0);}}
+  .card.shatter{animation:shatter .55s cubic-bezier(.5,-0.2,.8,.6) forwards;z-index:40;pointer-events:none;}
+  .card.shatter::after{content:'💥';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px;animation:floatup .6s ease-out;}
+  /* ---- bannière d'info non bloquante ---- */
+  #fxBanner{position:fixed;top:74px;left:50%;transform:translateX(-50%);z-index:120;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;}
+  .fxNote{background:#1a1f33ee;border:2px solid #ffffff22;border-radius:10px;padding:7px 14px;font-size:13px;font-weight:bold;color:#fff;box-shadow:0 6px 18px #0009;animation:fxNote 2.1s ease-out forwards;white-space:nowrap;}
+  @keyframes fxNote{0%{opacity:0;transform:translateY(-12px) scale(.85);}10%{opacity:1;transform:none;}80%{opacity:1;}100%{opacity:0;transform:translateY(-8px);}}
+  .card.nonscore{opacity:.4;filter:grayscale(.7) brightness(.8);}
   /* ---- juice / animations ---- */
   @keyframes dealIn{0%{opacity:0;transform:translateY(90px) translateX(40px) rotate(-14deg) scale(.7);}60%{opacity:1;}80%{transform:translateY(-6px) rotate(2deg) scale(1.04);}100%{opacity:1;transform:none;}}
   .card.dealing{animation:dealIn .42s cubic-bezier(.2,.8,.3,1.2) backwards;}
@@ -680,7 +690,7 @@ const JOKER_DEFS={
   burglar:{name:'Cambrioleur',icon:'🦹',cost:6,rarity:'u',desc:'Au début de la manche : +3 mains, mais 0 défausse',onBlind:()=>{S.handsLeft+=3;S.discardsLeft=0;}},
   blackboard:{name:'Tableau Noir',icon:'⬛',cost:6,rarity:'u',desc:'×3 Mult si toutes les cartes en main sont ♠/♣',eval:function(){const h=S.hand.filter(c=>!S.selected.includes(c.id));return h.length&&h.every(c=>c.suit==='S'||c.suit==='C')?{xmult:3}:0;}},
   dna:{name:'ADN',icon:'🧬',cost:8,rarity:'r',desc:'Si 1 seule carte jouée : ajoute une copie au deck',onPlay:function(p){if(p.playedCount===1){const c={...p.played[0],id:Math.random()};S.fullDeck.push(c);S.hand.push(c);S.deckCount=S.fullDeck.length;}}},
-  sixthsense:{name:'Sixième Sens',icon:'🔮',cost:6,rarity:'u',desc:'Si tu joues un seul 6 : le détruit et crée une Spectrale',onPlay:function(p){if(p.playedCount===1&&p.played[0].rank==='6'){S.fullDeck=S.fullDeck.filter(c=>c.id!==p.played[0].id);S.deckCount=S.fullDeck.length;if(S.consumables.length<S.consumSlots)S.consumables.push({type:'spectral',key:randKey(SPECTRALS),uid:Math.random()});}}},
+  sixthsense:{name:'Sixième Sens',icon:'🔮',cost:6,rarity:'u',desc:'Si tu joues un seul 6 : le détruit et crée une Spectrale',onPlay:function(p){if(p.playedCount===1&&p.played[0].rank==='6'){const c=p.played[0];S.fullDeck=S.fullDeck.filter(x=>x.id!==c.id);S.deckCount=S.fullDeck.length;shatterCard(c.id);notify('🔮 Sixième Sens détruit '+cardName(c)+' → Spectrale');if(S.consumables.length<S.consumSlots)S.consumables.push({type:'spectral',key:randKey(SPECTRALS),uid:Math.random()});}}},
   constellation:{name:'Constellation',icon:'🌌',cost:6,rarity:'u',desc:'×0.1 Mult par carte Planète utilisée',eval:()=>({xmult:1+0.1*S.planetsUsed})},
   hiker:{name:'Randonneur',icon:'🥾',cost:5,rarity:'u',desc:'Chaque carte marquée gagne +5 Chips en permanence',perCard:c=>{c.chipBonus=(c.chipBonus||0)+5;return{chips:c.chipBonus};}},
   faceless:{name:'Joker Sans Visage',icon:'😶',cost:4,rarity:'c',desc:'+$5 si ≥3 figures défaussées d\'un coup',onDiscard:function(p){if(p.faces>=3)S.money+=5;}},
@@ -699,7 +709,7 @@ const JOKER_DEFS={
   hallucination:{name:'Hallucination',icon:'🍄',cost:4,rarity:'c',desc:'1/2 de créer un Tarot à l\'ouverture d\'un paquet',passive:true},
   fortuneteller:{name:'Diseuse de Bonne Aventure',icon:'🧿',cost:6,rarity:'u',desc:'+1 Mult par Tarot utilisé',eval:()=>({mult:S.tarotsUsed})},
   luckycat:{name:'Chat Chanceux',icon:'🐱',cost:6,rarity:'u',desc:'×0.25 Mult croissant quand une carte Chance se déclenche',x:1,eval:function(){return{xmult:this.x||1}}},
-  tradingcard:{name:'Carte d\'Échange',icon:'🔁',cost:6,rarity:'u',desc:'Si tu défausses 1 seule carte : la détruit et +$3',onDiscard:function(p){if(p.cards.length===1){S.fullDeck=S.fullDeck.filter(c=>c.id!==p.cards[0].id);S.deckCount=S.fullDeck.length;S.money+=3;}}},
+  tradingcard:{name:'Carte d\'Échange',icon:'🔁',cost:6,rarity:'u',desc:'Si tu défausses 1 seule carte : la détruit et +$3',onDiscard:function(p){if(p.cards.length===1){const c=p.cards[0];S.fullDeck=S.fullDeck.filter(x=>x.id!==c.id);S.deckCount=S.fullDeck.length;S.money+=3;notify('🔁 Carte d\'Échange détruit '+cardName(c)+' (+$3)');}}},
   flashcard:{name:'Fiche de Révision',icon:'🗂️',cost:5,rarity:'u',desc:'+2 Mult par reroll effectué',eval:()=>({mult:2*S.rerolls})},
   sparetrousers:{name:'Pantalon de Rechange',icon:'👖',cost:6,rarity:'u',desc:'+2 Mult croissant si Double Paire',x:0,onPlay:function(p){if(p.counts.pairs>=2)this.x=(this.x||0)+2;},eval:function(){return{mult:this.x||0}}},
   ancient:{name:'Joker Ancien',icon:'🏺',cost:8,rarity:'r',desc:'Chaque carte d\'une couleur (change chaque manche) : ×1.5 Mult',perCard:c=>c.suit===S.ancientSuit?{xmult:1.5}:0},
@@ -838,7 +848,7 @@ function themeUnlocked(k){try{return THEMES[k].u();}catch(e){return true;}}
 function applyTheme(){const t=THEMES[SETTINGS.theme]&&themeUnlocked(SETTINGS.theme)?THEMES[SETTINGS.theme]:THEMES.classic;window.bgFightPalette=t.pal.map(a=>a.slice());if(window.setBgTheme&&currentScreen!=='shop')window.setBgTheme(S&&S.blind&&S.blind.type==='boss'?'boss':'fight');}
 function loadSettings(){try{const s=JSON.parse(localStorage.getItem(SET_KEY));if(s&&typeof s==='object')SETTINGS=Object.assign(SETTINGS,s);}catch(e){}applySettings();applyTheme();}
 function saveSettings(){try{localStorage.setItem(SET_KEY,JSON.stringify(SETTINGS));}catch(e){}}
-function applySettings(){scoreSpeed=SETTINGS.speed==='fast'?0.4:(SETTINGS.speed==='instant'?0.04:1);if(document.body){if(SETTINGS.reduceAnim)document.body.classList.add('reduce-anim');else document.body.classList.remove('reduce-anim');}}
+function applySettings(){scoreSpeed=({slow:1.6,normal:1,fast:0.45,instant:0.04})[SETTINGS.speed]||1;if(document.body){if(SETTINGS.reduceAnim)document.body.classList.add('reduce-anim');else document.body.classList.remove('reduce-anim');}}
 
 /* ===================== PROGRESSION (META, persistante) ===================== */
 const META_KEY='jokeratro_meta_v1';
@@ -1246,7 +1256,7 @@ async function playHand(){
   // on marque les cartes dans l'ordre gauche → droite de la main jouée
   const scoringSet=new Set(ev.scoringCards);
   ev.scoringCards=played.filter(c=>scoringSet.has(c));
-  renderScoringLayout(played,heldCards); // monte les cartes jouées dans la zone de jeu
+  renderScoringLayout(played,heldCards,new Set(ev.scoringCards)); // monte les cartes jouées (les non-comptées sont grisées)
   S.handPlays[ev.type]=(S.handPlays[ev.type]||0)+1;
   S.handsThisRound.add(ev.type);S.handsPlayedTotal++;S.lastHandType=ev.type;META.totalHands++;
   if(ev.type==='Flush Five')unlockAch('flushfive');
@@ -1315,6 +1325,10 @@ async function playHand(){
   // onPlay hooks
   S.jokers.forEach(j=>{const d=JOKER_DEFS[j.key];if(d.onPlay)d.onPlay.call(j,ctx);});
   if(S.playedIds)S.selected.forEach(id=>S.playedIds.add(id)); // suivi des cartes jouées
+  if(brokenGlass.length){
+    brokenGlass.forEach(id=>{const bc=played.find(c=>c.id===id);shatterCard(id);notify('🔷 Carte Verre brisée : '+cardName(bc));});
+    await sleep(380);
+  }
   S.hand=S.hand.filter(c=>!S.selected.includes(c.id)&&!brokenGlass.includes(c.id));
   if(brokenGlass.length){S.fullDeck=S.fullDeck.filter(c=>!brokenGlass.includes(c.id));S.deckCount=S.fullDeck.length;S.jokers.forEach(j=>{if(j.key==='glassjoker')j.x=(j.x||1)+0.75;});}
   S.selected=[];S.handsLeft--;
@@ -1650,16 +1664,18 @@ function miniCardHTML(c){
 /* ===================== CONSOMMABLES ===================== */
 function applyPlanet(key){discover('planet:'+key);const h=PLANETS[key].hand;S.handLevels[h]=(S.handLevels[h]||1)+1;S.planetsUsed++;S.lastConsumableUsed={type:'planet',key};toast(`${PLANETS[key].name} : ${h} → niveau ${S.handLevels[h]} !`);}
 function addRandomConsumables(type,n){const src=type==='planet'?PLANETS:TAROTS;for(let i=0;i<n;i++){if(S.consumables.length>=S.consumSlots)break;S.consumables.push({type,key:randKey(src),uid:Math.random()});}renderConsum();renderSidebar();}
-function destroyRandom(n){for(let i=0;i<n&&S.hand.length>0;i++){const c=S.hand.splice(rnd(S.hand.length),1)[0];S.fullDeck=S.fullDeck.filter(x=>x.id!==c.id);}S.deckCount=S.fullDeck.length;}
+function destroyRandom(n){const gone=[];for(let i=0;i<n&&S.hand.length>0;i++){const c=S.hand.splice(rnd(S.hand.length),1)[0];gone.push(c);shatterCard(c.id);S.fullDeck=S.fullDeck.filter(x=>x.id!==c.id);}S.deckCount=S.fullDeck.length;if(gone.length)notify('💥 Carte'+(gone.length>1?'s':'')+' détruite'+(gone.length>1?'s':'')+' : '+gone.map(cardName).join(' '));return gone;}
 function addRandomCards(n,kind,enhanced){
+  const added=[];
   for(let i=0;i<n;i++){
     let rank;
     if(kind==='face')rank=['J','Q','K'][rnd(3)];
     else if(kind==='ace')rank='A';
     else rank=['2','3','4','5','6','7','8','9','10'][rnd(9)];
     const c={rank,suit:SUITKEYS[rnd(4)],enh:enhanced?Object.keys(ENH)[rnd(Object.keys(ENH).length)]:null,seal:null,cedition:null,id:Math.random()};
-    S.hand.push(c);S.fullDeck.push(c);S.deckCount=S.fullDeck.length;
+    S.hand.push(c);S.fullDeck.push(c);S.deckCount=S.fullDeck.length;added.push(c);
   }
+  if(added.length)notify('➕ Carte'+(added.length>1?'s':'')+' ajoutée'+(added.length>1?'s':'')+' : '+added.map(cardName).join(' '));
 }
 function useConsumable(uid){
   if(scoringInProgress)return;
@@ -1812,10 +1828,10 @@ function renderHand(){
   renderPiles();
   updateSelInfo();
 }
-function renderScoringLayout(played,held){
+function renderScoringLayout(played,held,scoringSet){
   const pz=document.getElementById('playZone');
   if(pz){pz.style.display='flex';pz.innerHTML='';
-    played.forEach(c=>{const d=document.createElement('div');d.className=cardClass(c)+(cardDebuffed(c)?' debuff':'');d.dataset.id=c.id;d.innerHTML=buildCardInner(c);pz.appendChild(d);});}
+    played.forEach(c=>{const scores=!scoringSet||scoringSet.has(c);const d=document.createElement('div');d.className=cardClass(c)+(cardDebuffed(c)?' debuff':'')+(scores?'':' nonscore');d.dataset.id=c.id;d.innerHTML=buildCardInner(c);pz.appendChild(d);});}
   const ha=document.getElementById('handArea');if(ha){ha.innerHTML='';
     held.forEach(c=>{const d=document.createElement('div');d.className=cardClass(c)+(cardDebuffed(c)?' debuff':'');d.dataset.id=c.id;d.innerHTML=buildCardInner(c);ha.appendChild(d);});}
   renderPiles();
@@ -2014,8 +2030,15 @@ function flashCard(id,text,cls){const el=document.querySelector(`.card[data-id="
   el.classList.remove('scorepop');void el.offsetWidth;el.classList.add('scorepop');
   const f=document.createElement('div');f.className='scorefloat '+cls;f.textContent=text;el.appendChild(f);setTimeout(()=>f.remove(),850);}
 function flashJoker(uid){if(typeof S.runJokerTriggers==='number')S.runJokerTriggers++;const el=document.querySelector(`.joker[data-uid="${uid}"]`);if(el){el.classList.remove('trigger');void el.offsetWidth;el.classList.add('trigger');setTimeout(()=>el.classList.remove('trigger'),340);}}
+// nom lisible et coloré d'une carte (ex : 7♥, K♠)
+function cardName(c){if(!c)return '?';const s=SUITS[c.suit]||{sym:'?',col:'black'};return '<span style="color:'+(s.col==='red'?'#ff7b7b':'#e6ecff')+'">'+c.rank+s.sym+'</span>';}
+// bannière d'information non bloquante (ne coupe pas le jeu)
+function notify(html){let bar=document.getElementById('fxBanner');if(!bar){bar=document.createElement('div');bar.id='fxBanner';document.body.appendChild(bar);}
+  const n=document.createElement('div');n.className='fxNote';n.innerHTML=html;bar.appendChild(n);setTimeout(()=>n.remove(),2100);}
+// animation de destruction d'une carte présente à l'écran (main ou zone de jeu)
+function shatterCard(id){const el=document.querySelector(`.card[data-id="${id}"]`);if(el&&!SETTINGS.reduceAnim){el.classList.add('shatter');}}
 let scoreSpeed=1,skipScoring=false;
-function sleep(ms){return new Promise(r=>setTimeout(r,skipScoring?0:ms*scoreSpeed));}
+function sleep(ms){return new Promise(r=>setTimeout(r,skipScoring?0:ms*scoreSpeed*1.35));}
 
 /* ===================== OVERLAYS ===================== */
 function show(id){document.getElementById(id).classList.add('show');}
@@ -2257,7 +2280,7 @@ function showCollection(){
 /* ===================== RÉGLAGES (UI) ===================== */
 function showSettings(){
   const row=document.getElementById('speedRow');row.innerHTML='';
-  [['normal','Normale'],['fast','Rapide'],['instant','Instantanée']].forEach(([k,lbl])=>{
+  [['slow','Lente'],['normal','Normale'],['fast','Rapide'],['instant','Instantanée']].forEach(([k,lbl])=>{
     const b=document.createElement('button');b.className=SETTINGS.speed===k?'btn-green':'btn-sort';b.textContent=lbl;
     b.onclick=()=>{SETTINGS.speed=k;saveSettings();applySettings();showSettings();};row.appendChild(b);
   });
