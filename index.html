@@ -198,6 +198,8 @@
   .blindCard{width:215px;background:var(--panel2);border-radius:14px;padding:14px;border:2px solid var(--panelEdge);}
   .blindCard.boss{border-color:var(--mult);}
   .blindCard .bn{font-size:17px;font-weight:bold;} .blindCard .bt{font-size:22px;color:var(--mult);font-weight:bold;margin:6px 0;}
+  .skipInfo{margin-top:6px;background:#0006;border:1px solid var(--purple);border-radius:8px;padding:5px;}
+  .skipTag{font-size:12px;font-weight:bold;color:var(--gold);} .skipDesc{font-size:11px;color:var(--txt);margin-top:2px;line-height:1.3;} .skipNote{font-size:9px;color:var(--muted);margin-top:3px;font-style:italic;}
   .handinfo{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5;text-align:left;max-height:60vh;overflow:auto;}
   .handinfo table{width:100%;font-size:12px;border-collapse:collapse;} .handinfo td{padding:3px 6px;border-bottom:1px solid #ffffff10;}
   .badge{display:inline-block;background:var(--mult);color:#fff;font-size:10px;padding:1px 6px;border-radius:5px;margin-left:4px;}
@@ -788,7 +790,7 @@ const TAGS={
   poly:{name:'Tag Polychrome',icon:'🌈',desc:'Prochain Joker boutique : Polychrome',shop:()=>{S.freeEdition='poly';}},
   negative:{name:'Tag Négatif',icon:'⬛',desc:'Prochain Joker boutique : Négatif',shop:()=>{S.freeEdition='neg';}},
   investment:{name:'Tag Investissement',icon:'📈',desc:'+$15 immédiatement',now:()=>{S.money+=15;}},
-  voucher:{name:'Tag Voucher',icon:'🎫',desc:'Ajoute un Voucher en boutique',shop:()=>{S.extraVoucher=true;}},
+  voucher:{name:'Tag Voucher',icon:'🎫',desc:'Un nouveau Voucher est disponible cet ante',shop:()=>{S.anteVoucher=pickVoucher();S.anteVoucherBought=false;}},
   coupon:{name:'Tag Coupon',icon:'🎟️',desc:'Cartes & Jokers gratuits en boutique',shop:()=>{S.couponShop=true;}},
   d6:{name:'Tag D6',icon:'🎲',desc:'Rerolls gratuits en boutique',shop:()=>{S.freeReroll=true;}},
   juggle:{name:'Tag Jonglage',icon:'🤹',desc:'+3 taille de main la prochaine manche',now:()=>{S.tempHandSize=(S.tempHandSize||0)+3;}},
@@ -952,7 +954,7 @@ function newRun(deckKey,stake,seed,challenge){
      deckCount:52,handPlays:{},handsThisRound:new Set(),handsPlayedTotal:0,discardsUnused:0,
      shopSlots:2,discount:1,edRate:1,rerollBase:5,rerollCost:5,interestCap:5,tarotRate:1,planetRate:1,
      bossReroll:0,observatory:false,omen:false,lastHandType:null,tempHandSize:0,
-     freeJoker:null,freeEdition:null,extraVoucher:false,couponShop:false,freeReroll:false,
+     freeJoker:null,freeEdition:null,extraVoucher:false,couponShop:false,freeReroll:false,anteVoucher:null,anteVoucherBought:false,
      pendingTags:[],ownedTags:[],greenDeck:false,deckType:dk,
      planetsUsed:0,tarotsUsed:0,rerolls:0,packsSkipped:0,blindsSkipped:0,debtLimit:0,endless:false,lastConsumableUsed:null,
      anaglyph:false,plasma:false,seed:null,challenge:challenge||null,
@@ -1041,6 +1043,7 @@ function startAnte(){
     {type:'boss',name:boss.name,mult:2,reward:5,effect:boss.key,effectText:boss.effect},
   ];
   S.bossUsedReroll=false;
+  S.anteVoucher=pickVoucher();S.anteVoucherBought=false; // un voucher par ante
   S.blindIdx=0;setBgTheme('fight');showBlindSelect();
 }
 function rerollBoss(){
@@ -1064,6 +1067,7 @@ function showBlindSelect(){
     if(done)html+='<div class="badge">Terminée ✓</div>';
     else if(i===S.blindIdx){
       html+='<button class="btn-green" style="margin-top:8px;width:100%" onclick="selectBlind('+i+')">Affronter</button>';
+      if(b.type!=='boss'){const t=TAGS[b.tag];html+=`<div class="skipInfo"><div class="skipTag">${t.icon} ${t.name}</div><div class="skipDesc">${t.desc}</div><div class="skipNote">Passer = pas de combat ni de récompense $, mais tu reçois ce Tag.</div></div>`;}
       if(b.type!=='boss')html+=`<button class="btn-purple" style="margin-top:6px;width:100%" onclick="skipBlind(${i})">Passer → ${TAGS[b.tag].icon} ${TAGS[b.tag].name}</button>`;
       else if(S.bossReroll>0&&(!S.bossUsedReroll||hasVoucher('retcon')))html+='<button class="btn-gold" style="margin-top:6px;width:100%" onclick="rerollBoss()">🎬 Reroll Boss ($10)</button>';
     } else html+='<div class="small" style="margin-top:8px">Verrouillée</div>';
@@ -1406,8 +1410,8 @@ function generateShop(){
   // packs
   const packs=[];const ptypes=['cele','arca','buff','spec','std'];
   for(let i=0;i<2;i++){const t=ptypes[rnd(ptypes.length)];packs.push({type:t,size:Math.random()<0.2?'jumbo':'normal',cost:packCost(t)});}
-  // voucher
-  let voucher=pickVoucher();
+  // voucher : un seul par ante (le même dans toutes les boutiques de l'ante, jusqu'à l'achat)
+  const voucher=S.anteVoucherBought?null:(S.anteVoucher||null);
   S.shop={items,packs,voucher,voucherNew:voucher?!isDisc('voucher:'+voucher):false};
   if(voucher)discover('voucher:'+voucher);
   if(S.couponShop){items.forEach(it=>it.cost=0);packs.forEach(p=>p.cost=0);S.couponShop=false;}
@@ -1490,7 +1494,8 @@ function acquireJoker(key,edition,sticker){
 }
 function buyVoucher(){
   const k=S.shop.voucher;if(!k)return;const cost=applyDiscount(10);if(!canAfford(cost))return;
-  S.money-=cost;S.vouchers.push(k);VOUCHERS[k].apply();S.shop.voucher=pickVoucher();
+  S.money-=cost;S.vouchers.push(k);VOUCHERS[k].apply();
+  S.anteVoucherBought=true;S.shop.voucher=null; // un seul voucher par ante
   renderShop();renderAll();renderVouchers();
 }
 function rerollIsFree(){return S.rerollFree||(hasJoker('chaos')&&!S.chaosUsed);}
