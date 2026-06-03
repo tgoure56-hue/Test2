@@ -62,6 +62,8 @@
   .ed-neg .jn{color:#bda7ff;}
   @keyframes shine{0%{background-position:0% 0%}100%{background-position:200% 200%}}
   .edTag{position:absolute;top:3px;right:3px;font-size:8px;background:#000a;border-radius:4px;padding:1px 3px;z-index:3;color:#fff;}
+  .stkTag{position:absolute;top:3px;left:3px;font-size:7px;background:#000b;border-radius:4px;padding:1px 3px;z-index:3;color:#ffd;}
+  .joker.debuff{filter:grayscale(1) brightness(.55);}
   .tooltip{position:absolute;bottom:104%;left:50%;transform:translateX(-50%);width:184px;background:#0c1413;border:2px solid var(--gold);
     border-radius:8px;padding:8px;font-size:11px;z-index:60;display:none;color:var(--txt);box-shadow:0 6px 16px #000c;line-height:1.4;text-align:left;}
   .joker:hover .tooltip,.consum:hover .tooltip,.card:hover .tooltip,.voucher:hover .tooltip,.pack:hover .tooltip{display:block;}
@@ -278,6 +280,9 @@
     <button class="btn-sort" style="width:240px;font-size:17px;padding:14px;" onclick="loadFromFile()">📂 Charger une sauvegarde</button>
   </div>
   <div id="deckChoose" style="display:none;">
+    <div class="pickHint">Choisis ta mise (difficulté)</div>
+    <div id="stakeRow" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:4px;"></div>
+    <div class="small" id="stakeDesc" style="margin-bottom:10px;color:var(--gold);"></div>
     <div class="pickHint">Choisis ton deck de départ</div>
     <div class="grid" id="deckGrid"></div>
     <button class="btn-red" onclick="backToMenu()">← Retour</button>
@@ -666,6 +671,19 @@ const TAGS={
 let S={};
 let currentScreen='start';
 function rnd(n){return Math.floor(Math.random()*n);}
+// Mises (Stakes) — cumulatives : chaque niveau inclut les précédents
+const STAKES=[null,
+  {name:'Mise Blanche',col:'#e8e8e8',desc:'Difficulté de base.'},
+  {name:'Mise Rouge',col:'#e2473b',desc:'La Petite Blind ne donne aucune récompense.'},
+  {name:'Mise Verte',col:'#3fae5a',desc:'Le score requis augmente plus vite.'},
+  {name:'Mise Noire',col:'#555',desc:'Des Jokers Éternels (invendables) peuvent apparaître.'},
+  {name:'Mise Bleue',col:'#3a7bd5',desc:'-1 défausse par manche.'},
+  {name:'Mise Violette',col:'#7a4fd0',desc:'Le score requis augmente encore plus vite.'},
+  {name:'Mise Orange',col:'#e08a2b',desc:'Des Jokers Périssables (désactivés après 5 manches) peuvent apparaître.'},
+  {name:'Mise Or',col:'#f0b132',desc:'Des Jokers en Location (-$3 par manche) peuvent apparaître.'},
+];
+function stakeTargetMult(){let m=1;if(S.stake>=3)m*=1.25;if(S.stake>=6)m*=1.25;return m;}
+const STICKERS={eternal:{lbl:'♾ Éternel',desc:'Ne peut pas être vendu ni détruit.'},perishable:{lbl:'⏳ Périssable',desc:'Désactivé après 5 manches.'},rental:{lbl:'🏷 Location',desc:'-$3 à chaque fin de manche.'}};
 const DECKS={
   standard:{name:'Deck Standard',icon:'🂠',desc:'Aucun bonus particulier.',apply(){}},
   rouge:{name:'Deck Rouge',icon:'🟥',desc:'+1 défausse par manche.',apply(){S.discardsMax++;}},
@@ -676,9 +694,10 @@ const DECKS={
   abandonne:{name:'Deck Abandonné',icon:'🚷',desc:'Aucune figure (J, Q, K) dans le deck.',apply(){}},
   damier:{name:'Deck Damier',icon:'🏁',desc:'Uniquement des ♠ et des ♥ (26 chacun).',apply(){}},
 };
-function newRun(deckKey){
+function newRun(deckKey,stake){
   const dk=DECKS[deckKey]?deckKey:'standard';
-  S={deck:[],hand:[],selected:[],jokers:[],consumables:[],vouchers:[],money:4,ante:1,round:0,
+  const st=(stake>=1&&stake<=8)?stake:1;
+  S={deck:[],hand:[],selected:[],jokers:[],consumables:[],vouchers:[],money:4,ante:1,round:0,stake:st,
      handsMax:4,discardsMax:3,handsLeft:4,discardsLeft:3,handSize:8,jokerSlots:5,consumSlots:2,
      curScore:0,target:0,blind:null,blindIdx:0,anteBlinds:null,handLevels:{},shop:null,
      deckCount:52,handPlays:{},handsThisRound:new Set(),handsPlayedTotal:0,discardsUnused:0,
@@ -690,6 +709,7 @@ function newRun(deckKey){
      ancientSuit:'S',idolRank:'A',idolSuit:'S',todoTarget:'Brelan',mailTarget:'7',castleSuit:'S'};
   for(let k in HANDS)S.handLevels[k]=1;
   DECKS[dk].apply();
+  if(S.stake>=5)S.discardsMax=Math.max(0,S.discardsMax-1); // Mise Bleue : -1 défausse
   S.fullDeck=makeDeck();S.deckCount=S.fullDeck.length;
   document.getElementById('voucherPanel').style.display='none';
   startAnte();
@@ -761,7 +781,7 @@ function showBlindSelect(){
   const base=anteBase(S.ante);const cont=document.getElementById('blindSelect');cont.innerHTML='';
   S.anteBlinds.forEach((b,i)=>{
     let mult=b.mult;if(b.effect==='wall')mult=4;
-    const tgt=Math.floor(base*mult);const done=i<S.blindIdx;
+    const tgt=Math.floor(base*mult*stakeTargetMult());const done=i<S.blindIdx;
     const div=document.createElement('div');div.className='blindCard'+(b.type==='boss'?' boss':'');
     let html=`<div class="tokenCircle tk-${b.type}" style="margin:0 auto 8px"></div>
       <div class="bn">${b.name}</div>
@@ -793,7 +813,7 @@ function selectBlind(i){
   S.blindIdx=i; // la blind affrontée devient la blind courante
   const b=S.anteBlinds[i];S.blind=b;
   let mult=b.mult;if(b.effect==='wall')mult=4;
-  S.target=Math.floor(anteBase(S.ante)*mult);
+  S.target=Math.floor(anteBase(S.ante)*mult*stakeTargetMult());
   S.round++;S.curScore=0;
   S.handsLeft=(b.effect==='needle'&&!bossDisabled())?1:S.handsMax;
   S.discardsLeft=S.discardsMax;
@@ -934,7 +954,7 @@ async function playHand(){
     const card=ev.scoringCards[idx];
     if(cardDebuffed(card))continue;
     let triggers=1+(card.seal==='red'?1:0);
-    S.jokers.forEach((j,ji)=>{const d=effDef(j,ji);if(d.retrig)triggers+=(d.retrig.call(j,card,ctx,false,idx)||0);});
+    S.jokers.forEach((j,ji)=>{if(j.debuffed)return;const d=effDef(j,ji);if(d.retrig)triggers+=(d.retrig.call(j,card,ctx,false,idx)||0);});
     for(let t=0;t<triggers;t++){
       let cv=card.enh==='stone'?50:(RANKVAL[card.rank]+(card.enh==='bonus'?30:0)+(card.chipBonus||0));
       chips+=cv;flashCard(card.id,'+'+cv,'fchip');updateScorePopup(chips,mult);await sleep(110);
@@ -945,7 +965,7 @@ async function playHand(){
       if(card.enh==='lucky'){if(Math.random()<prob(0.2)){mult+=20;flashCard(card.id,'+20 M','fmult');S.jokers.forEach(j=>{if(j.key==='luckycat')j.x=(j.x||1)+0.25;});updateScorePopup(chips,mult);await sleep(110);}if(Math.random()<prob(1/15)){S.money+=4;flashCard(card.id,'+$4','fgold');renderSidebar();await sleep(110);}}
       if(card.cedition==='poly'){mult=r1(mult*1.5);flashCard(card.id,'×1.5','fmult');updateScorePopup(chips,mult);await sleep(90);}
       if(card.seal==='gold'){S.money+=3;flashCard(card.id,'+$3','fgold');renderSidebar();await sleep(90);}
-      for(let ji=0;ji<S.jokers.length;ji++){const j=S.jokers[ji];const d=effDef(j,ji);if(d.perCard){const r=d.perCard.call(j,card,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);flashCard(card.id,fmt(r),r.xmult||r.mult?'fmult':'fchip');flashJoker(j.uid);updateScorePopup(chips,mult);await sleep(100);}}}
+      for(let ji=0;ji<S.jokers.length;ji++){const j=S.jokers[ji];if(j.debuffed)continue;const d=effDef(j,ji);if(d.perCard){const r=d.perCard.call(j,card,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);flashCard(card.id,fmt(r),r.xmult||r.mult?'fmult':'fchip');flashJoker(j.uid);updateScorePopup(chips,mult);await sleep(100);}}}
     }
   }
   // 2) cartes tenues en main (perHeld + acier + Mime retrigger)
@@ -953,13 +973,13 @@ async function playHand(){
     let triggers=1+(card.seal==='red'?1:0)+(hasJoker('mime')?1:0);
     for(let t=0;t<triggers;t++){
       if(card.enh==='steel'){mult=r1(mult*1.5);flashCard(card.id,'×1.5','fmult');updateScorePopup(chips,mult);await sleep(90);}
-      for(let ji=0;ji<S.jokers.length;ji++){const j=S.jokers[ji];const d=effDef(j,ji);if(d.perHeld){const r=d.perHeld.call(j,card,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);flashCard(card.id,fmt(r),r.xmult||r.mult?'fmult':'fchip');flashJoker(j.uid);updateScorePopup(chips,mult);await sleep(100);}}}
+      for(let ji=0;ji<S.jokers.length;ji++){const j=S.jokers[ji];if(j.debuffed)continue;const d=effDef(j,ji);if(d.perHeld){const r=d.perHeld.call(j,card,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);flashCard(card.id,fmt(r),r.xmult||r.mult?'fmult':'fchip');flashJoker(j.uid);updateScorePopup(chips,mult);await sleep(100);}}}
       if(!hasJoker('mime')&&card.seal!=='red')break;
     }
   }
   // 3) jokers globaux + éditions de joker
   for(let ji=0;ji<S.jokers.length;ji++){
-    const j=S.jokers[ji];const d=effDef(j,ji);let acted=false;
+    const j=S.jokers[ji];if(j.debuffed)continue;const d=effDef(j,ji);let acted=false;
     if(d.eval){const r=d.eval.call(j,ctx);if(r){if(r.chips)chips+=r.chips;if(r.mult)mult+=r.mult;if(r.xmult)mult=r1(mult*r.xmult);acted=true;}}
     if(j.edition&&EDITIONS[j.edition]){const e=EDITIONS[j.edition];if(e.chips){chips+=e.chips;acted=true;}if(e.mult){mult+=e.mult;acted=true;}if(e.xmult){mult=r1(mult*e.xmult);acted=true;}}
     if(acted){flashJoker(j.uid);updateScorePopup(chips,mult);await sleep(150);}
@@ -1009,7 +1029,10 @@ function winBlind(){
   // sceau bleu : planète de la dernière main
   let bluePlanets=0;
   S.hand.forEach(c=>{if(c.seal==='blue'){const pk=Object.keys(PLANETS).find(k=>PLANETS[k].hand===S.lastHandType);if(pk&&S.consumables.length<S.consumSlots){S.consumables.push({type:'planet',key:pk,uid:Math.random()});bluePlanets++;}}});
-  let reward=S.blind.reward;
+  let reward=(S.stake>=2&&S.blind.type==='small')?0:S.blind.reward; // Mise Rouge : Petite Blind sans récompense
+  // Jokers Location (-$3) et Périssables (désactivés après 5 manches)
+  let rentalCost=0;
+  S.jokers.forEach(j=>{if(j.sticker==='rental')rentalCost+=3;if(j.sticker==='perishable'){j.perish=(j.perish||0)+1;if(j.perish>5)j.debuffed=true;}});
   const interest=S.greenDeck?0:Math.min(S.interestCap,Math.floor(S.money/5))*(hasJoker('tothemoon')?2:1);
   const handBonus=S.greenDeck?S.handsLeft*2:S.handsLeft; // Deck Vert : $2 par main restante
   const greenDisc=S.greenDeck?S.discardsLeft:0;          // Deck Vert : $1 par défausse restante
@@ -1018,7 +1041,7 @@ function winBlind(){
   S.jokers.forEach(j=>{const d=JOKER_DEFS[j.key];if(d.onRound){const m=d.onRound.call(j);if(typeof m==='number')jokerMoney+=m;}if(j.key==='rocket'&&S.blind.type==='boss'){j.x=(j.x||1)+1;}});
   S.jokers=S.jokers.filter(j=>!j._dead);
   S.discardsUnused+=S.discardsLeft;
-  S.money+=reward+interest+handBonus+greenDisc+goldMoney+jokerMoney;
+  S.money+=reward+interest+handBonus+greenDisc+goldMoney+jokerMoney-rentalCost;
   setBgTheme('shop');
   showMsg('Blind battue ! 🎉',
     `<b>${S.blind.name}</b> vaincue !<br><br>
@@ -1027,6 +1050,7 @@ function winBlind(){
      ${greenDisc?'Défausses restantes : <span style="color:var(--gold)">+$'+greenDisc+'</span><br>':''}
      ${goldMoney?'Cartes Or : <span style="color:var(--gold)">+$'+goldMoney+'</span><br>':''}
      ${jokerMoney?'Jokers : <span style="color:var(--gold)">+$'+jokerMoney+'</span><br>':''}
+     ${rentalCost?'Location de Jokers : <span style="color:var(--mult)">-$'+rentalCost+'</span><br>':''}
      ${bluePlanets?'Sceaux Bleus : +'+bluePlanets+' Planète<br>':''}
      ${S.greenDeck?'':'Intérêts : <span style="color:var(--gold)">+$'+interest+'</span><br>'}<br>
      Total : <b style="color:var(--gold)">$${S.money}</b>`,
@@ -1041,6 +1065,7 @@ function loseGame(){
 function randomJokerKey(rarity){const owned=hasJoker('showman')?[]:S.jokers.map(j=>j.key);let pool=Object.keys(JOKER_DEFS).filter(k=>!owned.includes(k)&&!JOKER_DEFS[k].hidden);if(rarity)pool=pool.filter(k=>JOKER_DEFS[k].rarity===rarity);if(!pool.length)pool=Object.keys(JOKER_DEFS).filter(k=>!owned.includes(k)&&!JOKER_DEFS[k].hidden);return pool.length?pool[rnd(pool.length)]:null;}
 function rollEdition(){const r=Math.random()/S.edRate;if(r<0.003)return'neg';if(r<0.015)return'poly';if(r<0.04)return'holo';if(r<0.09)return'foil';return null;}
 function rollRarity(){const r=Math.random();if(r<0.05)return'r';if(r<0.30)return'u';return'c';}
+function rollSticker(){if(S.stake>=8&&Math.random()<0.25)return'rental';if(S.stake>=7&&Math.random()<0.25)return'perishable';if(S.stake>=4&&Math.random()<0.25)return'eternal';return null;}
 function openShop(){
   setBgTheme('shop');
   S.rerollCost=S.rerollBase; // le coût de reroll repart de la base à chaque nouvelle boutique
@@ -1055,7 +1080,7 @@ function generateShop(){
     // type pondéré : joker / tarot / planete / spectral / carte
     const rTarot=4*S.tarotRate,rPlanet=4*S.planetRate;
     const roll=Math.random()*(20+rTarot+rPlanet);
-    if(roll<14){const rar=rollRarity();let k=randomJokerKey(rar)||randomJokerKey();if(k)items.push({type:'joker',key:k,cost:JOKER_DEFS[k].cost,edition:rollEdition()});}
+    if(roll<14){const rar=rollRarity();let k=randomJokerKey(rar)||randomJokerKey();if(k)items.push({type:'joker',key:k,cost:JOKER_DEFS[k].cost,edition:rollEdition(),sticker:rollSticker()});}
     else if(roll<14+rTarot){items.push({type:'tarot',key:randKey(TAROTS),cost:3});}
     else if(roll<14+rTarot+rPlanet){items.push({type:'planet',key:randKey(PLANETS),cost:3});}
     else{items.push({type:'spectral',key:randKey(SPECTRALS),cost:4});}
@@ -1090,7 +1115,7 @@ function renderShop(){
     const div=document.createElement('div');div.className='shopItem';
     const cost=itemCost(it);const afford=canAfford(cost);
     let inner='';
-    if(it.type==='joker')inner=jokerHTML(JOKER_DEFS[it.key],true,null,it.edition);
+    if(it.type==='joker')inner=jokerHTML(JOKER_DEFS[it.key],true,null,it.edition,null,it.sticker);
     else if(it.type==='tarot')inner=consumHTML('tarot',TAROTS[it.key],true);
     else if(it.type==='planet')inner=consumHTML('planet',PLANETS[it.key],true,'Améliore : '+PLANETS[it.key].hand);
     else inner=consumHTML('spectral',SPECTRALS[it.key],true);
@@ -1126,15 +1151,16 @@ function buyItem(idx){
   const it=S.shop.items[idx];if(!it)return;const cost=itemCost(it);if(!canAfford(cost))return;
   if(it.type==='joker'){
     if(it.edition!=='neg'&&usedJokerSlots()>=S.jokerSlots){toast('Emplacements de Jokers pleins !');return;}
-    S.money-=cost;acquireJoker(it.key,it.edition);
+    S.money-=cost;acquireJoker(it.key,it.edition,it.sticker);
   }else{
     if(S.consumables.length>=S.consumSlots){toast('Emplacements de consommables pleins !');return;}
     S.money-=cost;S.consumables.push({type:it.type,key:it.key,uid:Math.random()});
   }
   S.shop.items.splice(idx,1);renderShop();renderAll();
 }
-function acquireJoker(key,edition){
+function acquireJoker(key,edition,sticker){
   const j={key,uid:Math.random(),edition:edition||null};const def=JOKER_DEFS[key];
+  if(sticker){j.sticker=sticker;if(sticker==='perishable')j.perish=0;}
   ['x','c','d'].forEach(p=>{if(p in def)j[p]=def[p];});
   S.jokers.push(j);
   if(edition==='neg')S.jokerSlots++;
@@ -1368,7 +1394,7 @@ function renderSidebar(){
   document.getElementById('statAnte').textContent=S.ante+(S.endless?' ♾️':'/8');
   document.getElementById('statRound').textContent=S.round;
   document.getElementById('consumCount').textContent=S.consumables.length+'/'+S.consumSlots;
-  document.getElementById('runinfo').textContent='Deck : '+S.deckCount+' cartes';
+  document.getElementById('runinfo').innerHTML='Deck : '+S.deckCount+' cartes'+(S.stake?(' • <span style="color:'+STAKES[S.stake].col+'">'+STAKES[S.stake].name.replace('Mise ','Mise ')+'</span>'):'');
 }
 function renderVouchers(){
   const p=document.getElementById('voucherPanel'),row=document.getElementById('voucherRow');
@@ -1431,20 +1457,24 @@ function renderJokers(){
     bar.appendChild(el);});
 }
 let dragJokerIdx=null;
-function jokerHTML(def,inShop,uid,edition,inst){
+function jokerHTML(def,inShop,uid,edition,inst,sticker){
   const edCls=edition?(' ed-'+edition):'';
   const edTag=edition?('<div class="edTag">'+EDITIONS[edition].tag+'</div>'):'';
   const edDesc=edition?('<br><span style="color:#9cf">'+EDITIONS[edition].name+' : '+EDITIONS[edition].desc+'</span>'):'';
+  const stk=sticker||(inst&&inst.sticker);
+  const stkTag=stk?('<div class="stkTag">'+STICKERS[stk].lbl+'</div>'):'';
+  const stkDesc=stk?('<br><span style="color:#fc9">'+STICKERS[stk].lbl+' : '+STICKERS[stk].desc+'</span>'):'';
   let xtag='';
   if(inst&&typeof inst.x==='number'&&inst.x)xtag='<div class="jx">+'+r1(inst.x)+'</div>';
-  return `<div class="joker${edCls}" ${uid?'data-uid="'+uid+'"':''}>${edTag}
+  return `<div class="joker${edCls}${inst&&inst.debuffed?' debuff':''}" ${uid?'data-uid="'+uid+'"':''}>${edTag}${stkTag}
     <div class="jn" style="color:${RARITY_COL[def.rarity]}">${def.name}</div><div class="jicon">${def.icon}</div>
     <div class="jcost">${inShop?'$'+def.cost:RARITY_NAME[def.rarity]}</div>${xtag}
-    <div class="tooltip"><b>${def.name}</b> <span style="color:${RARITY_COL[def.rarity]}">[${RARITY_NAME[def.rarity]}]</span><br>${def.desc}${edDesc}${uid?'<br><span class="small">Clic droit : revendre ($'+sellValue(def)+')</span>':''}</div></div>`;
+    <div class="tooltip"><b>${def.name}</b> <span style="color:${RARITY_COL[def.rarity]}">[${RARITY_NAME[def.rarity]}]</span><br>${def.desc}${edDesc}${stkDesc}${inst&&inst.debuffed?'<br><span style="color:var(--mult)">⚠ Désactivé (périmé)</span>':''}${uid?'<br><span class="small">Clic droit : revendre ($'+sellValue(def)+')</span>':''}</div></div>`;
 }
 function sellValue(def){return Math.max(1,Math.floor(def.cost/2));}
 function sellJoker(uid){
   const idx=S.jokers.findIndex(j=>j.uid===uid);if(idx<0)return;const j=S.jokers[idx];const def=JOKER_DEFS[j.key];
+  if(j.sticker==='eternal'){toast('Joker Éternel : invendable.');return;}
   if(j.key==='luchador'&&S.blind&&S.blind.type==='boss'){S.blind.effect=null;toast('Boss Blind désactivée !');}
   if(def.onSell)def.onSell.call(j);
   if(j.edition==='neg')S.jokerSlots--;
@@ -1529,6 +1559,7 @@ function loadState(txt){
   // valeurs par défaut pour compatibilité
   if(!S.fullDeck)S.fullDeck=makeDeck();
   ['planetsUsed','tarotsUsed','rerolls','packsSkipped','blindsSkipped','debtLimit'].forEach(k=>{if(typeof S[k]!=='number')S[k]=0;});
+  if(typeof S.stake!=='number')S.stake=1;if(typeof S.rerollCost!=='number')S.rerollCost=S.rerollBase||5;
   currentScreen=o.screen||'blind';
   ['blindOverlay','shopOverlay','packOverlay','msgOverlay','startOverlay','handListOverlay'].forEach(hide);
   setBgTheme(S.blind&&S.blind.type==='boss'?'boss':(currentScreen==='shop'?'shop':'fight'));
@@ -1565,8 +1596,20 @@ async function loadFromFile(){
   }
 }
 function applyLoad(txt){try{loadState(txt);hide('startOverlay');toast('Partie chargée ! 📂');}catch(e){toast('Fichier de sauvegarde invalide.');}}
-function startNew(){ // affiche le choix du deck
+let selectedStake=1;
+function renderStakeRow(){
+  const r=document.getElementById('stakeRow');r.innerHTML='';
+  for(let s=1;s<=8;s++){const st=STAKES[s];
+    const b=document.createElement('button');b.className='btn-sort';b.style.cssText='padding:5px 8px;font-size:11px;border-bottom:4px solid '+st.col+(s===selectedStake?';outline:2px solid var(--gold)':'');
+    b.textContent=s+'. '+st.name.replace('Mise ','');b.title=st.desc;
+    b.onclick=()=>{selectedStake=s;renderStakeRow();document.getElementById('stakeDesc').textContent=st.desc;};
+    r.appendChild(b);
+  }
+  document.getElementById('stakeDesc').textContent=STAKES[selectedStake].desc;
+}
+function startNew(){ // affiche le choix du deck + de la mise
   document.getElementById('startMain').style.display='none';
+  renderStakeRow();
   const g=document.getElementById('deckGrid');g.innerHTML='';
   Object.keys(DECKS).forEach(k=>{const d=DECKS[k];
     const div=document.createElement('div');div.className='shopItem';
@@ -1577,7 +1620,7 @@ function startNew(){ // affiche le choix du deck
   });
   document.getElementById('deckChoose').style.display='';
 }
-function chooseDeck(k){document.getElementById('deckChoose').style.display='none';document.getElementById('startMain').style.display='';hide('startOverlay');newRun(k);}
+function chooseDeck(k){document.getElementById('deckChoose').style.display='none';document.getElementById('startMain').style.display='';hide('startOverlay');newRun(k,selectedStake);}
 function backToMenu(){document.getElementById('deckChoose').style.display='none';document.getElementById('startMain').style.display='';}
 function confirmMenu(){showMsg('Retour au menu ?','Ta progression est auto-sauvegardée (tu pourras « Continuer »). Quitter vers le menu ?','Retour au menu',()=>{hide('msgOverlay');currentScreen='start';['blindOverlay','shopOverlay','packOverlay'].forEach(hide);show('startOverlay');document.getElementById('continueBtn').style.display=hasLocalSave()?'':'none';});}
 
