@@ -551,6 +551,10 @@ const JOKER_DEFS={
   satellite:{name:'Satellite',icon:'🛰️',cost:6,rarity:'u',desc:'+$1 en fin de manche par carte Planète utilisée',money:true,onRound:()=>Math.min(20,S.planetsUsed)},
   swashbuckler:{name:'Bretteur',icon:'⚔️',cost:4,rarity:'c',desc:'+Mult = valeur de revente de tes autres Jokers',eval:function(){let m=0;S.jokers.forEach(j=>{if(j.key!=='swashbuckler')m+=sellValue(JOKER_DEFS[j.key]);});return{mult:m};}},
   gift:{name:'Carte Cadeau',icon:'🎁',cost:6,rarity:'u',desc:'+$1 par Joker possédé en fin de manche',money:true,onRound:()=>S.jokers.length},
+  acrobat:{name:'Acrobate',icon:'🤾',cost:6,rarity:'u',desc:'×3 Mult sur la dernière main de la manche',eval:x=>x.isFinalHand?{xmult:3}:0},
+  dietcola:{name:'Soda Light',icon:'🥤',cost:6,rarity:'u',desc:'Revends-le pour obtenir un Tag gratuit',onSell:function(){grantTag(randomSafeTag());toast('Soda Light : Tag gratuit obtenu !');}},
+  invisible:{name:'Joker Invisible',icon:'🫥',cost:8,rarity:'r',desc:'Après 2 manches, revends-le pour copier un Joker au hasard',x:0,onRound:function(){this.x=(this.x||0)+1;},onSell:function(){if((this.x||0)>=2){const others=S.jokers.filter(j=>j.key!=='invisible');if(others.length&&usedJokerSlots()<S.jokerSlots){const o=others[rnd(others.length)];S.jokers.push({key:o.key,uid:Math.random(),edition:null});}}}},
+  certificate:{name:'Certificat',icon:'📜',cost:6,rarity:'u',desc:'Au début de la manche : ajoute une carte aléatoire avec un sceau aléatoire',onBlind:()=>{const c={rank:RANKS[rnd(RANKS.length)],suit:SUITKEYS[rnd(4)],enh:null,seal:Object.keys(SEALS)[rnd(4)],cedition:null,id:Math.random()};S.fullDeck.push(c);if(S.deck)S.deck.push(c);S.deckCount=S.fullDeck.length;}},
   hanginghikertest:{name:'x',icon:'',cost:99,rarity:'c',desc:'',hidden:true},
 };
 delete JOKER_DEFS.hanginghikertest;
@@ -641,7 +645,9 @@ function hasJoker(k){return S.jokers.some(j=>j.key===k);}
 function countEnh(e){return S.fullDeck.filter(c=>c.enh===e).length;}
 function countRank(r){return S.fullDeck.filter(c=>c.rank===r).length;}
 function rotateTargets(){S.ancientSuit=SUITKEYS[rnd(4)];S.idolRank=RANKS[rnd(RANKS.length)];S.idolSuit=SUITKEYS[rnd(4)];S.todoTarget=Object.keys(HANDS)[rnd(9)];S.mailTarget=RANKS[rnd(RANKS.length)];S.castleSuit=SUITKEYS[rnd(4)];}
-function sellJokerSilent(uid){const i=S.jokers.findIndex(j=>j.uid===uid);if(i<0)return;const j=S.jokers[i];const d=JOKER_DEFS[j.key];if(d.onSell)d.onSell();if(j.edition==='neg')S.jokerSlots--;S.jokers.splice(i,1);}
+function sellJokerSilent(uid){const i=S.jokers.findIndex(j=>j.uid===uid);if(i<0)return;const j=S.jokers[i];const d=JOKER_DEFS[j.key];if(d.onSell)d.onSell.call(j);if(j.edition==='neg')S.jokerSlots--;S.jokers.splice(i,1);}
+function grantTag(tag){const t=TAGS[tag];if(!t)return;if(t.now)t.now();else S.ownedTags.push(tag);}
+function randomSafeTag(){const safe=Object.keys(TAGS).filter(k=>!TAGS[k].pack);return safe[rnd(safe.length)];}
 function bossDisabled(){return hasJoker('chicot');}
 
 /* ===================== ANTE / BLINDS ===================== */
@@ -1039,7 +1045,7 @@ function acquireJoker(key,edition){
   ['x','c','d'].forEach(p=>{if(p in def)j[p]=def[p];});
   S.jokers.push(j);
   if(edition==='neg')S.jokerSlots++;
-  if(def.onAcq)def.onAcq();
+  if(def.onAcq)def.onAcq.call(j);
   renderSidebar();
 }
 function buyVoucher(){
@@ -1248,7 +1254,7 @@ function sellValue(def){return Math.max(1,Math.floor(def.cost/2));}
 function sellJoker(uid){
   const idx=S.jokers.findIndex(j=>j.uid===uid);if(idx<0)return;const j=S.jokers[idx];const def=JOKER_DEFS[j.key];
   if(j.key==='luchador'&&S.blind&&S.blind.type==='boss'){S.blind.effect=null;toast('Boss Blind désactivée !');}
-  if(def.onSell)def.onSell();
+  if(def.onSell)def.onSell.call(j);
   if(j.edition==='neg')S.jokerSlots--;
   S.money+=sellValue(def);S.jokers.splice(idx,1);renderAll();
 }
