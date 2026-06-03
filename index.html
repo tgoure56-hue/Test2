@@ -662,7 +662,7 @@ function newRun(){
      handsMax:4,discardsMax:3,handsLeft:4,discardsLeft:3,handSize:8,jokerSlots:5,consumSlots:2,
      curScore:0,target:0,blind:null,blindIdx:0,anteBlinds:null,handLevels:{},shop:null,
      deckCount:52,handPlays:{},handsThisRound:new Set(),handsPlayedTotal:0,discardsUnused:0,
-     shopSlots:2,discount:1,edRate:1,rerollBase:5,interestCap:5,tarotRate:1,planetRate:1,
+     shopSlots:2,discount:1,edRate:1,rerollBase:5,rerollCost:5,interestCap:5,tarotRate:1,planetRate:1,
      bossReroll:0,observatory:false,omen:false,lastHandType:null,tempHandSize:0,
      freeJoker:null,freeEdition:null,extraVoucher:false,couponShop:false,freeReroll:false,
      pendingTags:[],ownedTags:[],
@@ -859,9 +859,13 @@ async function playHand(){
     if(S.handsThisRound.has(ev0.type)){toast('L\'Œil : cette main a déjà été jouée cette manche !');return;}
   }
   scoringInProgress=true;
-  const played=S.selected.map(id=>S.hand.find(c=>c.id===id));
+  // les cartes jouées sont prises dans l'ordre de la main (gauche → droite), pas dans l'ordre de sélection
+  const played=S.hand.filter(c=>S.selected.includes(c.id));
   const heldCards=S.hand.filter(c=>!S.selected.includes(c.id));
   const ev=evaluateHand(played);
+  // on marque les cartes dans l'ordre gauche → droite de la main jouée
+  const scoringSet=new Set(ev.scoringCards);
+  ev.scoringCards=played.filter(c=>scoringSet.has(c));
   S.handPlays[ev.type]=(S.handPlays[ev.type]||0)+1;
   S.handsThisRound.add(ev.type);S.handsPlayedTotal++;S.lastHandType=ev.type;
   const lvl=S.handLevels[ev.type]||1;const base=HANDS[ev.type]||[5,1];
@@ -989,6 +993,7 @@ function rollEdition(){const r=Math.random()/S.edRate;if(r<0.003)return'neg';if(
 function rollRarity(){const r=Math.random();if(r<0.05)return'r';if(r<0.30)return'u';return'c';}
 function openShop(){
   setBgTheme('shop');
+  S.rerollCost=S.rerollBase; // le coût de reroll repart de la base à chaque nouvelle boutique
   // applique les tags en attente
   S.ownedTags.forEach(t=>{if(TAGS[t].shop)TAGS[t].shop();});S.ownedTags=[];
   generateShop();renderShop();currentScreen='shop';saveLocal();show('shopOverlay');
@@ -1029,7 +1034,7 @@ function packPrice(p){let c=p.cost;if(p.type==='cele'&&hasJoker('astronomer'))c=
 function renderShop(){
   if(!S.shop)return;
   document.getElementById('shopMoney').textContent='$'+S.money;
-  document.getElementById('rerollBtn').textContent='🔄 Reroll ($'+(S.rerollFree?0:S.rerollBase)+')';
+  document.getElementById('rerollBtn').textContent='🔄 Reroll ($'+(rerollIsFree()?0:(S.rerollCost||S.rerollBase))+')';
   const g=document.getElementById('shopGrid');g.innerHTML='';
   S.shop.items.forEach((it,idx)=>{
     const div=document.createElement('div');div.className='shopItem';
@@ -1091,13 +1096,16 @@ function buyVoucher(){
   S.money-=cost;S.vouchers.push(k);VOUCHERS[k].apply();S.shop.voucher=pickVoucher();
   renderShop();renderAll();renderVouchers();
 }
+function rerollIsFree(){return S.rerollFree||(hasJoker('chaos')&&!S.chaosUsed);}
 function reroll(){
   const chaosFree=hasJoker('chaos')&&!S.chaosUsed;
   const free=S.rerollFree||chaosFree;
-  const cost=free?0:S.rerollBase;
+  const cost=free?0:(S.rerollCost||S.rerollBase);
   if(!canAfford(cost))return;
   if(!free)S.money-=cost; else if(chaosFree&&!S.rerollFree)S.chaosUsed=true;
-  S.rerollFree=false;S.rerolls++;generateShop();renderShop();
+  S.rerollFree=false;
+  S.rerollCost=(S.rerollCost||S.rerollBase)+1; // le prix grimpe de $1 à chaque reroll
+  S.rerolls++;generateShop();renderShop();
 }
 function canAfford(cost){return (S.money-cost)>=-(S.debtLimit||0);}
 function closeShop(){
@@ -1363,8 +1371,16 @@ function renderJokers(){
   const bar=document.getElementById('jokerBar');bar.innerHTML='';
   document.getElementById('jokerCount').textContent=usedJokerSlots()+'/'+S.jokerSlots;
   if(S.jokers.length===0){bar.innerHTML='<span class="small">Aucun Joker — achète-en à la boutique !</span>';return;}
-  S.jokers.forEach(j=>{const w=document.createElement('div');w.innerHTML=jokerHTML(JOKER_DEFS[j.key],false,j.uid,j.edition,j);const el=w.firstElementChild;el.oncontextmenu=(e)=>{e.preventDefault();sellJoker(j.uid);};el.title='Clic droit : revendre';bar.appendChild(el);});
+  S.jokers.forEach((j,index)=>{const w=document.createElement('div');w.innerHTML=jokerHTML(JOKER_DEFS[j.key],false,j.uid,j.edition,j);const el=w.firstElementChild;
+    el.oncontextmenu=(e)=>{e.preventDefault();sellJoker(j.uid);};el.title='Glisser pour réorganiser · Clic droit : revendre';
+    el.draggable=true;
+    el.ondragstart=(e)=>{dragJokerIdx=index;if(e.dataTransfer){e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text','');}el.style.opacity='.5';};
+    el.ondragend=()=>{el.style.opacity='';};
+    el.ondragover=(e)=>{e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect='move';};
+    el.ondrop=(e)=>{e.preventDefault();if(dragJokerIdx!=null&&dragJokerIdx!==index){const[m]=S.jokers.splice(dragJokerIdx,1);S.jokers.splice(index,0,m);renderJokers();}dragJokerIdx=null;};
+    bar.appendChild(el);});
 }
+let dragJokerIdx=null;
 function jokerHTML(def,inShop,uid,edition,inst){
   const edCls=edition?(' ed-'+edition):'';
   const edTag=edition?('<div class="edTag">'+EDITIONS[edition].tag+'</div>'):'';
