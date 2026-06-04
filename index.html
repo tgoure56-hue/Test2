@@ -61,8 +61,9 @@
   .ed-foil::after{background:linear-gradient(120deg,#7ad7ff66,#ffffff22,#7ad7ff66);animation:shine 3s linear infinite;background-size:200% 200%;}
   .ed-holo::after{background:linear-gradient(120deg,#ff5f9e88,#5fff9e88,#5f9eff88,#ff5f9e88);animation:shine 2.5s linear infinite;background-size:300% 300%;}
   .ed-poly::after{background:linear-gradient(60deg,#ff000055,#ffea0055,#00ff8855,#0088ff55,#aa00ff55);animation:shine 4s linear infinite;background-size:400% 400%;}
-  .ed-neg{background:linear-gradient(165deg,#1a1a22,#05050a)!important;box-shadow:0 4px 0 #000,0 0 12px #6cf8;}
-  .ed-neg .jn{color:#bda7ff;}
+  .ed-neg{background:linear-gradient(165deg,#1a1830,#04040c)!important;border-color:#8be9ff!important;box-shadow:0 4px 0 #000,0 0 16px 2px #6cf,inset 0 0 0 1px #b58bff99!important;}
+  .ed-neg .jn{color:#cdb8ff;}
+  .ed-neg::after{content:'';position:absolute;inset:0;z-index:1;border-radius:7px;pointer-events:none;mix-blend-mode:screen;background:linear-gradient(120deg,#7ddfff44,#b58bff33,#7ddfff44);background-size:200% 200%;animation:shine 3.5s linear infinite;}
   @keyframes shine{0%{background-position:0% 0%}100%{background-position:200% 200%}}
   .edTag{position:absolute;top:3px;right:3px;font-size:8px;background:#000a;border-radius:4px;padding:1px 3px;z-index:3;color:#fff;}
   .stkTag{position:absolute;top:3px;left:3px;font-size:7px;background:#000b;border-radius:4px;padding:1px 3px;z-index:3;color:#ffd;}
@@ -583,7 +584,7 @@ const TAROTS={
   jugement:{name:'Le Jugement',icon:'📯',need:[0,0],desc:'Crée un Joker aléatoire',use:()=>{const k=randomJokerKey();if(k&&usedJokerSlots()<S.jokerSlots)acquireJoker(k);else toast('Pas de place pour un Joker.');}},
   hermite:{name:'L\'Hermite',icon:'🏮',need:[0,0],desc:'Double ton argent (max +$20)',use:()=>{S.money+=Math.min(20,S.money);}},
   pendule:{name:'La Roue Lunaire',icon:'🌗',need:[1,1],desc:'Ajoute un Sceau Rouge à 1 carte',use:cs=>cs.forEach(c=>c.seal='red')},
-  mat:{name:'Le Mat',icon:'🎏',need:[0,0],desc:'Crée une copie du dernier Tarot ou Planète utilisé',use:()=>{const l=S.lastConsumableUsed;if(l&&S.consumables.length<S.consumSlots)S.consumables.push({type:l.type,key:l.key,uid:Math.random()});else if(!l)toast('Aucun consommable utilisé récemment.');else toast('Pas de place.');}},
+  mat:{name:'Le Mat',icon:'🎏',need:[0,0],desc:'Crée une copie du dernier Tarot ou Planète utilisé',use:()=>{const l=S.lastConsumableUsed;if(l&&usedConsumSlots()<S.consumSlots)S.consumables.push({type:l.type,key:l.key,uid:Math.random()});else if(!l)toast('Aucun consommable utilisé récemment.');else toast('Pas de place.');}},
   mort:{name:'La Mort',icon:'💀',need:[2,2],desc:'Sélectionne 2 cartes : la 1ʳᵉ devient une copie de la 2ᵉ',use:cs=>{if(cs.length>=2){const src=cs[1],dst=cs[0];dst.rank=src.rank;dst.suit=src.suit;dst.enh=src.enh;dst.seal=src.seal;dst.cedition=src.cedition;}}},
   temperance:{name:'Tempérance',icon:'⏳',need:[0,0],desc:'Donne la valeur de revente totale de tes Jokers (max $50)',use:()=>{let v=0;S.jokers.forEach(j=>v+=sellValue(j));S.money+=Math.min(50,v);}},
 };
@@ -702,7 +703,7 @@ const JOKER_DEFS={
   misprint:{name:'Erreur d\'Impression',icon:'🎲',cost:4,rarity:'c',desc:'+0 à +23 Mult (aléatoire)',eval:()=>({mult:rnd(24)})},
   creditcard:{name:'Carte de Crédit',icon:'💳',cost:1,rarity:'c',desc:'Permet de descendre jusqu\'à -$20',onAcq:()=>{S.debtLimit=20;},onSell:()=>{S.debtLimit=0;}},
   chaos:{name:'Chaos le Clown',icon:'🤡',cost:4,rarity:'c',desc:'1 reroll gratuit par boutique',passive:true},
-  eightball:{name:'Boule de 8',icon:'🎱',cost:5,rarity:'u',desc:'1/4 de créer un Tarot par 8 marqué',perCard:c=>{if(c.rank==='8'&&Math.random()<prob(0.25)&&S.consumables.length<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});return 0;}},
+  eightball:{name:'Boule de 8',icon:'🎱',cost:5,rarity:'u',desc:'1/4 de créer un Tarot par 8 marqué',perCard:c=>{if(c.rank==='8'&&Math.random()<prob(0.25)&&usedConsumSlots()<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});return 0;}},
   businesscard:{name:'Carte de Visite',icon:'💼',cost:4,rarity:'c',desc:'Figures marquées : 1/2 de donner $2',perCard:c=>{if(isFace(c)&&Math.random()<prob(0.5))S.money+=2;return 0;}},
   pareidolia:{name:'Paréidolie',icon:'👁️‍🗨️',cost:5,rarity:'u',desc:'Toutes les cartes comptent comme des figures',passive:true},
   grosmichel:{name:'Gros Michel',icon:'🍌',cost:5,rarity:'c',desc:'+15 Mult, 1/6 de se détruire en fin de manche',eval:()=>({mult:15}),onRound:function(){if(Math.random()<1/6)this._dead=true;}},
@@ -710,18 +711,18 @@ const JOKER_DEFS={
   burglar:{name:'Cambrioleur',icon:'🦹',cost:6,rarity:'u',desc:'Au début de la manche : +3 mains, mais 0 défausse',onBlind:()=>{S.handsLeft+=3;S.discardsLeft=0;}},
   blackboard:{name:'Tableau Noir',icon:'⬛',cost:6,rarity:'u',desc:'×3 Mult si toutes les cartes en main sont ♠/♣',eval:function(){const h=S.hand.filter(c=>!S.selected.includes(c.id));return h.length&&h.every(c=>c.suit==='S'||c.suit==='C')?{xmult:3}:0;}},
   dna:{name:'ADN',icon:'🧬',cost:8,rarity:'r',desc:'Si 1 seule carte jouée : ajoute une copie au deck',onPlay:function(p){if(p.playedCount===1){const c={...p.played[0],id:Math.random()};S.fullDeck.push(c);S.hand.push(c);S.deckCount=S.fullDeck.length;}}},
-  sixthsense:{name:'Sixième Sens',icon:'🔮',cost:6,rarity:'u',desc:'Si tu joues un seul 6 : le détruit et crée une Spectrale',onPlay:function(p){if(p.playedCount===1&&p.played[0].rank==='6'){const c=p.played[0];S.fullDeck=S.fullDeck.filter(x=>x.id!==c.id);S.deckCount=S.fullDeck.length;shatterCard(c.id);notify('🔮 Sixième Sens détruit '+cardName(c)+' → Spectrale');if(S.consumables.length<S.consumSlots)S.consumables.push({type:'spectral',key:randKey(SPECTRALS),uid:Math.random()});}}},
+  sixthsense:{name:'Sixième Sens',icon:'🔮',cost:6,rarity:'u',desc:'Si tu joues un seul 6 : le détruit et crée une Spectrale',onPlay:function(p){if(p.playedCount===1&&p.played[0].rank==='6'){const c=p.played[0];S.fullDeck=S.fullDeck.filter(x=>x.id!==c.id);S.deckCount=S.fullDeck.length;shatterCard(c.id);notify('🔮 Sixième Sens détruit '+cardName(c)+' → Spectrale');if(usedConsumSlots()<S.consumSlots)S.consumables.push({type:'spectral',key:randKey(SPECTRALS),uid:Math.random()});}}},
   constellation:{name:'Constellation',icon:'🌌',cost:6,rarity:'u',desc:'×0.1 Mult par carte Planète utilisée',eval:()=>({xmult:1+0.1*S.planetsUsed})},
   hiker:{name:'Randonneur',icon:'🥾',cost:5,rarity:'u',desc:'Chaque carte marquée gagne +5 Chips en permanence',perCard:c=>{c.chipBonus=(c.chipBonus||0)+5;return{chips:c.chipBonus};}},
   faceless:{name:'Joker Sans Visage',icon:'😶',cost:4,rarity:'c',desc:'+$5 si ≥3 figures défaussées d\'un coup',onDiscard:function(p){if(p.faces>=3)S.money+=5;}},
-  superposition:{name:'Superposition',icon:'⚛️',cost:6,rarity:'u',desc:'Crée un Tarot si Suite contenant un As',onPlay:function(p){if(p.isStraight&&p.played.some(c=>c.rank==='A')&&S.consumables.length<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});}},
+  superposition:{name:'Superposition',icon:'⚛️',cost:6,rarity:'u',desc:'Crée un Tarot si Suite contenant un As',onPlay:function(p){if(p.isStraight&&p.played.some(c=>c.rank==='A')&&usedConsumSlots()<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});}},
   todolist:{name:'Liste de Tâches',icon:'📝',cost:4,rarity:'c',desc:'+$4 si tu joues la main demandée (change chaque manche)',onPlay:function(p){if(p.handType===S.todoTarget)S.money+=4;}},
   redcard:{name:'Carte Rouge',icon:'🟥',cost:5,rarity:'c',desc:'+3 Mult par paquet passé',eval:()=>({mult:3*S.packsSkipped})},
   madness:{name:'Folie',icon:'🌀',cost:7,rarity:'u',desc:'×Mult croissant chaque manche, détruit un autre Joker',x:1,onBlind:function(){this.x=(this.x||1)+0.5;const others=S.jokers.filter(j=>j!==this);if(others.length)sellJokerSilent(others[rnd(others.length)].uid);},eval:function(){return{xmult:this.x||1}}},
-  seance:{name:'Séance',icon:'🕯️',cost:6,rarity:'u',desc:'Crée une Spectrale si Quinte Flush',onPlay:function(p){if(p.handType==='Quinte Flush'&&S.consumables.length<S.consumSlots)S.consumables.push({type:'spectral',key:randKey(SPECTRALS),uid:Math.random()});}},
+  seance:{name:'Séance',icon:'🕯️',cost:6,rarity:'u',desc:'Crée une Spectrale si Quinte Flush',onPlay:function(p){if(p.handType==='Quinte Flush'&&usedConsumSlots()<S.consumSlots)S.consumables.push({type:'spectral',key:randKey(SPECTRALS),uid:Math.random()});}},
   shortcut:{name:'Raccourci',icon:'🔀',cost:7,rarity:'u',desc:'Les Suites peuvent avoir des trous d\'1 rang',passive:true},
   hologram:{name:'Hologramme',icon:'📡',cost:7,rarity:'u',desc:'×0.25 Mult par carte ajoutée au deck',eval:()=>({xmult:1+0.25*Math.max(0,S.deckCount-52)})},
-  vagabond:{name:'Vagabond',icon:'🧳',cost:6,rarity:'u',desc:'Crée un Tarot si la main est jouée avec ≤$4',onPlay:function(){if(S.money<=4&&S.consumables.length<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});}},
+  vagabond:{name:'Vagabond',icon:'🧳',cost:6,rarity:'u',desc:'Crée un Tarot si la main est jouée avec ≤$4',onPlay:function(){if(S.money<=4&&usedConsumSlots()<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});}},
   midas:{name:'Masque de Midas',icon:'🎭',cost:7,rarity:'u',desc:'Les figures jouées deviennent des cartes Or',onPlay:function(p){p.played.forEach(c=>{if(isFace(c))c.enh='gold';});}},
   turtlebean:{name:'Haricot Tortue',icon:'🫘',cost:6,rarity:'u',desc:'+5 taille de main, -1 par manche',onAcq:function(){S.handSize+=5;this._b=5;},onRound:function(){if(this._b>0){S.handSize--;this._b--;}},onSell:function(){S.handSize-=(this._b||0);}},
   reservedparking:{name:'Stationnement',icon:'🅿️',cost:5,rarity:'c',desc:'Figures tenues en main : 1/2 de donner $1',perHeld:c=>{if(isFace(c)&&Math.random()<prob(0.5))S.money+=1;return 0;}},
@@ -761,7 +762,7 @@ const JOKER_DEFS={
   tribe:{name:'La Tribu',icon:'🎽',cost:8,rarity:'r',desc:'×2 Mult si la main contient une Couleur',eval:x=>x.isFlush?{xmult:2}:0},
   stuntman:{name:'Cascadeur',icon:'🤸',cost:7,rarity:'r',desc:'+250 Chips, -2 taille de main',onAcq:()=>{S.handSize-=2;},onSell:()=>{S.handSize+=2;},eval:()=>({chips:250})},
   driverlicense:{name:'Permis de Conduire',icon:'🪪',cost:7,rarity:'r',desc:'×3 Mult si ≥16 cartes améliorées dans le deck',eval:()=>S.fullDeck.filter(c=>c.enh).length>=16?{xmult:3}:0},
-  cartomancer:{name:'Cartomancien',icon:'🎴',cost:6,rarity:'u',desc:'Crée un Tarot au début de la manche',onBlind:()=>{if(S.consumables.length<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});}},
+  cartomancer:{name:'Cartomancien',icon:'🎴',cost:6,rarity:'u',desc:'Crée un Tarot au début de la manche',onBlind:()=>{if(usedConsumSlots()<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});}},
   astronomer:{name:'Astronome',icon:'🔭',cost:8,rarity:'u',desc:'Planètes et Packs Célestes gratuits',passive:true},
   burnt:{name:'Joker Brûlé',icon:'🔥',cost:8,rarity:'r',desc:'La 1ʳᵉ main défaussée de la manche monte d\'1 niveau',onDiscard:function(p){if(!S._burntDone&&p.cards.length){const ev=evaluateHand(p.cards);S.handLevels[ev.type]=(S.handLevels[ev.type]||1)+1;S._burntDone=true;}}},
   satellite:{name:'Satellite',icon:'🛰️',cost:6,rarity:'u',desc:'+$1 en fin de manche par carte Planète utilisée',money:true,onRound:()=>Math.min(20,S.planetsUsed)},
@@ -1024,8 +1025,8 @@ function newRun(deckKey,stake,seed,challenge){
   if(challenge&&CHALLENGES[challenge])CHALLENGES[challenge].apply(); // modificateurs de défi
   if(S.stake>=5)S.discardsMax=Math.max(0,S.discardsMax-1); // Mise Bleue : -1 défausse
   // cartes de départ de certains decks
-  for(let i=0;i<(S._startTarots||0);i++)if(S.consumables.length<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});
-  for(let i=0;i<(S._startSpectral||0);i++)if(S.consumables.length<S.consumSlots)S.consumables.push({type:'spectral',key:randKey(SPECTRALS),uid:Math.random()});
+  for(let i=0;i<(S._startTarots||0);i++)if(usedConsumSlots()<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});
+  for(let i=0;i<(S._startSpectral||0);i++)if(usedConsumSlots()<S.consumSlots)S.consumables.push({type:'spectral',key:randKey(SPECTRALS),uid:Math.random()});
   S.fullDeck=makeDeck();S.deckCount=S.fullDeck.length;
   META.runsPlayed++;_knownUnlocked=Object.keys(DECKS).filter(deckUnlocked);saveMeta();
   document.getElementById('voucherPanel').style.display='none';
@@ -1053,6 +1054,7 @@ function makeDeck(){
 }
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
 function usedJokerSlots(){return S.jokers.filter(j=>j.edition!=='neg').length;}
+function usedConsumSlots(){return S.consumables.filter(c=>!c.neg).length;} // les consommables Négatifs ne prennent pas de place
 function hasJoker(k){return S.jokers.some(j=>j.key===k);}
 function countEnh(e){return S.fullDeck.filter(c=>c.enh===e).length;}
 function countRank(r){return S.fullDeck.filter(c=>c.rank===r).length;}
@@ -1385,7 +1387,7 @@ function discard(){
   if(scoringInProgress||S.discardsLeft<=0||S.selected.length===0)return;
   const cards=S.selected.map(id=>S.hand.find(c=>c.id===id)).filter(Boolean);
   // sceau violet : crée un tarot
-  cards.forEach(c=>{if(c.seal==='purple'&&S.consumables.length<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});});
+  cards.forEach(c=>{if(c.seal==='purple'&&usedConsumSlots()<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});});
   const di={n:cards.length,cards,faces:cards.filter(isFace).length};
   S.jokers.forEach(j=>{const d=JOKER_DEFS[j.key];if(d.onDiscard)d.onDiscard.call(j,di);});
   if(S.discardedIds)S.selected.forEach(id=>S.discardedIds.add(id)); // suivi des cartes défaussées
@@ -1398,7 +1400,7 @@ function winBlind(){
   if(S.blind.type==='boss'&&S.jokers.length===0)unlockAch('nojoker'); // Puriste
   // sceau bleu : planète de la dernière main
   let bluePlanets=0;
-  S.hand.forEach(c=>{if(c.seal==='blue'){const pk=Object.keys(PLANETS).find(k=>PLANETS[k].hand===S.lastHandType);if(pk&&S.consumables.length<S.consumSlots){S.consumables.push({type:'planet',key:pk,uid:Math.random()});bluePlanets++;}}});
+  S.hand.forEach(c=>{if(c.seal==='blue'){const pk=Object.keys(PLANETS).find(k=>PLANETS[k].hand===S.lastHandType);if(pk&&usedConsumSlots()<S.consumSlots){S.consumables.push({type:'planet',key:pk,uid:Math.random()});bluePlanets++;}}});
   let reward=(S.stake>=2&&S.blind.type==='small')?0:S.blind.reward; // Mise Rouge : Petite Blind sans récompense
   // Jokers Location (-$3) et Périssables (désactivés après 5 manches)
   let rentalCost=0;
@@ -1549,12 +1551,13 @@ const PACKDESC={cele:'Contient des cartes Planète qui améliorent le niveau de 
 function buyItem(idx){
   const it=S.shop.items[idx];if(!it)return;const cost=itemCost(it);if(!canAfford(cost))return;
   if(it.type==='joker'){
-    if(it.edition!=='neg'&&usedJokerSlots()>=S.jokerSlots){toast('Emplacements de Jokers pleins !');return;}
-    S.money-=cost;acquireJoker(it.key,it.edition,it.sticker);
+    const ed=S.freeEdition||it.edition; // Tag Négatif/Brillant/… : édition gratuite sur le prochain Joker acheté
+    if(ed!=='neg'&&usedJokerSlots()>=S.jokerSlots){toast('Emplacements de Jokers pleins !');return;}
+    S.money-=cost;S.freeEdition=null;acquireJoker(it.key,ed,it.sticker);
   }else if(it.type==='pcard'){
     S.money-=cost;addCardToHandOrDeck(it.card);
   }else{
-    if(S.consumables.length>=S.consumSlots){toast('Emplacements de consommables pleins !');return;}
+    if(usedConsumSlots()>=S.consumSlots){toast('Emplacements de consommables pleins !');return;}
     S.money-=cost;S.consumables.push({type:it.type,key:it.key,uid:Math.random()});
   }
   S.shop.items.splice(idx,1);renderShop();renderAll();
@@ -1590,7 +1593,7 @@ function reroll(){
 function canAfford(cost){return (S.money-cost)>=-(S.debtLimit||0);}
 function closeShop(){
   // Perkeo : copie négative d'un consommable
-  if(hasJoker('perkeo')&&S.consumables.length&&S.consumables.length<S.consumSlots){const c=S.consumables[rnd(S.consumables.length)];S.consumables.push({type:c.type,key:c.key,uid:Math.random(),neg:true});}
+  if(hasJoker('perkeo')&&S.consumables.length){const c=S.consumables[rnd(S.consumables.length)];S.consumables.push({type:c.type,key:c.key,uid:Math.random(),neg:true});const dn=c.type==='planet'?PLANETS[c.key]:c.type==='spectral'?SPECTRALS[c.key]:TAROTS[c.key];notify('🍷 Perkeo crée une copie Négative : '+(dn?dn.name:'?'));}
   S.blindIdx++; // on avance d'une blind dans l'ante courante
   if(S.blindIdx>=3){ // le Boss vient d'être battu → ante suivante
     S.ante++;if(S.ante>8&&!S.endless){winGame();return;} // victoire à l'Ante 8 (sauf mode infini)
@@ -1622,7 +1625,7 @@ function packSizes(type,size){
   return[n,pick];
 }
 function openPack(type,size,fromTag){
-  if(hasJoker('hallucination')&&Math.random()<prob(0.5)&&S.consumables.length<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});
+  if(hasJoker('hallucination')&&Math.random()<prob(0.5)&&usedConsumSlots()<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});
   pendingPack={type,size,picks:packSizes(type,size)[1],fromTag};packFree=!!fromTag;
   const meta=PACKMETA[type];
   const[n,pick]=packSizes(type,size);
@@ -1667,7 +1670,7 @@ function pickFromPack(i){
   if(o.type==='joker'){if(usedJokerSlots()<S.jokerSlots)acquireJoker(o.key,o.edition);else{toast('Pas de place pour ce Joker.');return;}}
   else if(o.type==='card')addCardToHandOrDeck(o.card);
   else{ // Planète / Tarot / Spectrale : rangée dans les consommables (utilisable plus tard)
-    if(S.consumables.length<S.consumSlots){S.consumables.push({type:o.type,key:o.key,uid:Math.random()});discover(o.type+':'+o.key);}
+    if(usedConsumSlots()<S.consumSlots){S.consumables.push({type:o.type,key:o.key,uid:Math.random()});discover(o.type+':'+o.key);}
     else{toast('Emplacements de consommables pleins !');return;}
   }
   afterPackPick(i);
@@ -1711,7 +1714,7 @@ function miniCardHTML(c){
 
 /* ===================== CONSOMMABLES ===================== */
 function applyPlanet(key){discover('planet:'+key);const h=PLANETS[key].hand;S.handLevels[h]=(S.handLevels[h]||1)+1;S.planetsUsed++;S.lastConsumableUsed={type:'planet',key};toast(`${PLANETS[key].name} : ${h} → niveau ${S.handLevels[h]} !`);}
-function addRandomConsumables(type,n){const src=type==='planet'?PLANETS:TAROTS;for(let i=0;i<n;i++){if(S.consumables.length>=S.consumSlots)break;S.consumables.push({type,key:randKey(src),uid:Math.random()});}renderConsum();renderSidebar();}
+function addRandomConsumables(type,n){const src=type==='planet'?PLANETS:TAROTS;for(let i=0;i<n;i++){if(usedConsumSlots()>=S.consumSlots)break;S.consumables.push({type,key:randKey(src),uid:Math.random()});}renderConsum();renderSidebar();}
 function destroyRandom(n){const gone=[];for(let i=0;i<n&&S.hand.length>0;i++){const c=S.hand.splice(rnd(S.hand.length),1)[0];gone.push(c);shatterCard(c.id);S.fullDeck=S.fullDeck.filter(x=>x.id!==c.id);}S.deckCount=S.fullDeck.length;if(gone.length)notify('💥 Carte'+(gone.length>1?'s':'')+' détruite'+(gone.length>1?'s':'')+' : '+gone.map(cardName).join(' '));return gone;}
 function addRandomCards(n,kind,enhanced){
   const added=[];
@@ -2053,6 +2056,27 @@ function iconFor(cat,def){
   if(cat==='voucher')return iconBadge(GLY.spark,hueTint(def.name,28,60,62,48));
   return iconBadge(GLY.sun,hueTint(def.name,255,90,50,50)); // tarot
 }
+// Valeur en direct des Jokers à compteur (affichée dans l'info-bulle). i = instance du Joker.
+const LIVE_INFO={
+  constellation:()=>'×'+r1(1+0.1*S.planetsUsed)+' Mult ('+S.planetsUsed+' Planète(s) utilisée(s) depuis le début)',
+  fortuneteller:()=>'+'+S.tarotsUsed+' Mult ('+S.tarotsUsed+' Tarot(s) utilisé(s) depuis le début)',
+  satellite:()=>'+$'+Math.min(20,S.planetsUsed)+' en fin de manche ('+S.planetsUsed+' Planète(s))',
+  hologram:()=>'×'+r1(1+0.25*Math.max(0,S.deckCount-52))+' Mult ('+Math.max(0,S.deckCount-52)+' carte(s) ajoutée(s))',
+  erosion:()=>'+'+(4*Math.max(0,52-S.deckCount))+' Mult ('+Math.max(0,52-S.deckCount)+' carte(s) sous 52)',
+  stencil:()=>'×'+(1+Math.max(0,S.jokerSlots-usedJokerSlots()+1))+' Mult',
+  ceremonial:i=>'+'+(i.x||0)+' Mult',ridebus:i=>'+'+(i.x||0)+' Mult',greenjoker:i=>'+'+(i.x||0)+' Mult',
+  ride:i=>'+'+(i.x||0)+' Mult',sparetrousers:i=>'+'+(i.x||0)+' Mult',
+  square:i=>'+'+(i.x||0)+' Chips',runner:i=>'+'+(i.x||0)+' Chips',castle:i=>'+'+(i.x||0)+' Chips',wee:i=>'+'+(i.x||0)+' Chips',
+  icecream:i=>'+'+(i.x!=null?i.x:100)+' Chips',popcorn:i=>'+'+(i.x!=null?i.x:20)+' Mult',
+  canio:i=>'×'+r1(i.x||1)+' Mult',glassjoker:i=>'×'+r1(i.x||1)+' Mult',luckycat:i=>'×'+r1(i.x||1)+' Mult',
+  madness:i=>'×'+r1(i.x||1)+' Mult',yorick:i=>'×'+r1(i.x||1)+' Mult',
+  vampire:i=>'×'+r1(1+(i.x||0))+' Mult',obelisk:i=>'×'+r1(1+(i.x||0))+' Mult',hittheroad:i=>'×'+r1(1+(i.x||0))+' Mult',
+  ramen:i=>'×'+r1(i.x!=null?i.x:2)+' Mult',rocket:i=>'+$'+(i.x||1)+' en fin de manche'
+};
+function liveInfoHTML(inst){
+  if(!inst||!inst.key||!LIVE_INFO[inst.key])return'';
+  try{return '<br><span style="color:var(--gold)">➤ Actuellement : '+LIVE_INFO[inst.key](inst)+'</span>';}catch(e){return'';}
+}
 function jokerHTML(def,inShop,uid,edition,inst,sticker,isNew){
   const edCls=edition?(' ed-'+edition):'';
   const newTag=isNew?'<div class="newTag">NOUVEAU</div>':'';
@@ -2066,7 +2090,7 @@ function jokerHTML(def,inShop,uid,edition,inst,sticker,isNew){
   return `<div class="joker rar-${def.rarity}${edCls}${inst&&inst.debuffed?' debuff':''}" ${uid?'data-uid="'+uid+'"':''}>${edTag}${stkTag}${newTag}
     <div class="jn" style="color:${RARITY_COL[def.rarity]}">${def.name}</div><div class="jicon">${iconFor('joker',def)}</div>
     <div class="jcost">${inShop?'$'+def.cost:RARITY_NAME[def.rarity]}</div>${xtag}
-    <div class="tooltip"><b>${def.name}</b> <span style="color:${RARITY_COL[def.rarity]}">[${RARITY_NAME[def.rarity]}]</span><br>${def.desc}${descExtras(def.desc)}${edDesc}${stkDesc}${inst&&inst.debuffed?'<br><span style="color:var(--mult)">⚠ Désactivé (périmé)</span>':''}${uid?'<br><span class="small">Clic droit : revendre ($'+sellValue(inst||def)+')</span>':''}</div></div>`;
+    <div class="tooltip"><b>${def.name}</b> <span style="color:${RARITY_COL[def.rarity]}">[${RARITY_NAME[def.rarity]}]</span><br>${def.desc}${liveInfoHTML(inst)}${descExtras(def.desc)}${edDesc}${stkDesc}${inst&&inst.debuffed?'<br><span style="color:var(--mult)">⚠ Désactivé (périmé)</span>':''}${uid?'<br><span class="small">Clic droit : revendre ($'+sellValue(inst||def)+')</span>':''}</div></div>`;
 }
 function sellValue(x){ // accepte une définition OU une instance de Joker (valeur dynamique : Œuf...)
   if(x&&x.key&&JOKER_DEFS[x.key])return Math.max(1,Math.floor(JOKER_DEFS[x.key].cost/2))+(x.sell||0);
@@ -2090,9 +2114,18 @@ function descExtras(text){let out='';if(!text)return out;
   for(const k in edM)if(text.indexOf(k)>=0)out+='<br><span style="color:#9cf;font-size:10px">↳ '+EDITIONS[edM[k]].name+' : '+EDITIONS[edM[k]].desc+'</span>';
   return out;
 }
+// Info en direct pour les consommables (ex : Le Mat copie le dernier Tarot/Planète utilisé)
+function consumLiveHTML(def){
+  if(def===TAROTS.mat){
+    const l=S.lastConsumableUsed;
+    if(l){const n=l.type==='planet'?PLANETS[l.key]:TAROTS[l.key];return '<br><span style="color:var(--gold)">➤ Copiera : '+(n?n.name:'?')+' ('+(l.type==='planet'?'Planète':'Tarot')+')</span>';}
+    return '<br><span style="color:#9cf">➤ Aucun Tarot/Planète utilisé pour l\'instant</span>';
+  }
+  return '';
+}
 function consumHTML(type,def,inShop,extra,isNew){
   const cls=type==='planet'?'consum planet':type==='spectral'?'consum spectral':'consum';
-  const tip=(extra?extra+'<br>':'')+(def.desc||'')+descExtras(def.desc);
+  const tip=(extra?extra+'<br>':'')+(def.desc||'')+consumLiveHTML(def)+descExtras(def.desc);
   const lbl=type==='planet'?'Planète':type==='spectral'?'Spectrale':'Tarot';
   const newTag=isNew?'<div class="newTag">NOUVEAU</div>':'';
   return `<div class="${cls}">${newTag}<div class="jn">${def.name}</div><div class="jicon">${iconFor(type,def)}</div><div class="jcost">${inShop?'':lbl}</div>
@@ -2308,7 +2341,7 @@ function openSandbox(){
 }
 function sandboxAdd(type,key){
   if(type==='joker'){if(usedJokerSlots()<S.jokerSlots)acquireJoker(key);else toast('Slots de Jokers pleins.');}
-  else if(S.consumables.length<S.consumSlots)S.consumables.push({type,key,uid:Math.random()});else toast('Slots de consommables pleins.');
+  else if(usedConsumSlots()<S.consumSlots)S.consumables.push({type,key,uid:Math.random()});else toast('Slots de consommables pleins.');
   renderAll();
 }
 function confirmMenu(){showMsg('Retour au menu ?','Ta progression est auto-sauvegardée (tu pourras « Continuer »). Quitter vers le menu ?','Retour au menu',()=>{hide('msgOverlay');toStartMenu();});}
