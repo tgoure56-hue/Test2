@@ -55,7 +55,8 @@
   .cardlabel.cl-l{left:1px;} .cardlabel.cl-r{right:1px;transform:rotate(180deg);}
   .ed-neg .cardlabel{color:#d8c8ff;}
   .joker .jcost,.consum .jcost{position:absolute;top:2px;left:50%;transform:translateX(-50%);z-index:4;font:bold 8px sans-serif;color:#3a2c00;background:#ffd75e;border-radius:5px;padding:0 4px;box-shadow:0 1px 2px #0008;}
-  .ico,.art{display:block;}
+  .ico,.art{display:block;width:100%;height:100%;}
+  .pxart{image-rendering:pixelated;image-rendering:crisp-edges;}
   .jx{position:absolute;right:11px;bottom:6px;font-size:9px;font-weight:bold;color:#9f6;background:#000d;border-radius:5px;padding:0 4px;z-index:4;box-shadow:0 1px 2px #0009;}
   .ed-foil::after,.ed-holo::after,.ed-poly::after{content:'';position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;border-radius:7px;}
   .ed-foil::after{background:linear-gradient(120deg,#7ad7ff66,#ffffff22,#7ad7ff66);animation:shine 3s linear infinite;background-size:200% 200%;}
@@ -2213,13 +2214,40 @@ function artVoucher(def){
   b+='<path d="'+starPath(30,34,9)+'" fill="#ffe9a8" stroke="#b8860b" stroke-width="1"/>';
   return artSVG(bgd,b);
 }
+const pxCache={};
 function iconFor(cat,def){
-  if(cat==='planet')return artPlanet(def);
-  if(cat==='spectral')return artSpectral(def);
-  if(cat==='voucher')return artVoucher(def);
-  if(cat==='tarot')return artTarot(def);
-  return artJoker(def);
+  const key=cat+':'+((def&&def.key)||(def&&def.name)||'')+':'+((def&&def.rarity)||'');
+  if(pxCache[key])return '<img class="art pxart" src="'+pxCache[key]+'">'; // version pixel-art déjà calculée
+  let svg;
+  if(cat==='planet')svg=artPlanet(def);
+  else if(cat==='spectral')svg=artSpectral(def);
+  else if(cat==='voucher')svg=artVoucher(def);
+  else if(cat==='tarot')svg=artTarot(def);
+  else svg=artJoker(def);
+  return svg.replace('<svg class="art"','<svg class="art" data-pxkey="'+key.replace(/"/g,'')+'"');
 }
+// Rendu pixel-art : rastérise les illustrations SVG en basse résolution puis les affiche agrandies (pixels nets)
+function pixelateAll(){
+  if(typeof Image==='undefined'||!document.querySelectorAll)return;
+  document.querySelectorAll('svg.art[data-pxkey]').forEach(svgEl=>{
+    const key=svgEl.getAttribute('data-pxkey');svgEl.removeAttribute('data-pxkey');
+    if(pxCache[key]){const im=document.createElement('img');im.className='art pxart';im.src=pxCache[key];if(svgEl.parentNode)svgEl.replaceWith(im);return;}
+    const clone=svgEl.cloneNode(true);clone.setAttribute('width','120');clone.setAttribute('height','160');
+    let xml;try{xml=new XMLSerializer().serializeToString(clone);}catch(e){return;}
+    let url;try{url='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(xml)));}catch(e){return;}
+    const img=new Image();
+    img.onload=()=>{try{
+      const PW=27,PH=36,c=document.createElement('canvas');c.width=PW;c.height=PH;
+      const cx=c.getContext('2d');cx.imageSmoothingEnabled=false;cx.drawImage(img,0,0,PW,PH);
+      const data=c.toDataURL();pxCache[key]=data;
+      const im=document.createElement('img');im.className='art pxart';im.src=data;
+      if(svgEl.parentNode)svgEl.replaceWith(im);
+    }catch(e){}};
+    img.src=url;
+  });
+}
+let _pxSched=false;
+function schedulePixelate(){if(_pxSched)return;_pxSched=true;(window.requestAnimationFrame||setTimeout)(()=>{_pxSched=false;pixelateAll();},16);}
 // Emblème (sceau) d'un booster
 function packArt(type){
   const m=({cele:{g:GLY.planet,c:'#7fb0ff'},arca:{g:GLY.sun,c:'#d0a9ff'},buff:{g:GLY.face,c:'#ff9a8a'},spec:{g:GLY.ghost,c:'#8fe6d6'},std:{g:GLY.spade,c:'#ffe08a'}})[type]||{g:GLY.spark,c:'#fff'};
@@ -2632,6 +2660,7 @@ function boot(){
   loadMeta();loadSettings();
   if(document.getElementById('playArea'))document.getElementById('playArea').onclick=()=>{if(scoringInProgress)skipScoring=true;};
   document.getElementById('continueBtn').style.display=hasLocalSave()?'':'none';
+  if(typeof MutationObserver!=='undefined'){try{new MutationObserver(schedulePixelate).observe(document.body,{childList:true,subtree:true});schedulePixelate();}catch(e){}}
   show('startOverlay');
 }
 boot();
