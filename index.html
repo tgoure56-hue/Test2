@@ -43,18 +43,19 @@
   .barTitle{font-size:11px;color:var(--gold);font-weight:bold;display:flex;justify-content:space-between;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;}
   #jokerBar{min-height:104px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
   #consumBar{min-height:70px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
-  .joker,.consum{width:73px;height:97px;border-radius:8px;position:relative;cursor:pointer;border:2px solid #0c1413;
-    box-shadow:0 4px 0 #0a0f0f,inset 0 0 0 1px #ffffff22;display:flex;flex-direction:column;justify-content:space-between;padding:0;
-    transition:transform .1s;background:linear-gradient(165deg,#48737a,#223b3c);overflow:visible;}
+  .joker,.consum{width:74px;height:99px;border-radius:9px;position:relative;cursor:pointer;border:2px solid #0b1211;
+    box-shadow:0 5px 0 #0a0f0fcc,0 7px 11px #00000066,inset 0 0 0 1.5px #ffffff2e,inset 0 -12px 18px #00000038;display:flex;flex-direction:column;justify-content:space-between;padding:0;
+    transition:transform .1s;background:linear-gradient(165deg,#5b8b92,#21403f);overflow:visible;}
+  .joker::before,.consum::before{content:'';position:absolute;inset:0;border-radius:7px;pointer-events:none;z-index:1;background:linear-gradient(157deg,#ffffff3d 0%,#ffffff12 20%,transparent 44%);}
   .consum{background:linear-gradient(165deg,#5a4488,#241b40);}
   .consum.planet{background:linear-gradient(165deg,#36589e,#16223f);}
   .consum.spectral{background:linear-gradient(165deg,#1c8aa0,#06222b);}
   .joker.rar-u{border-color:#2f8f4f;} .joker.rar-r{border-color:#c0344d;}
   .joker.rar-l{border-color:#f0b132;box-shadow:0 4px 0 #0a0f0f,0 0 11px #f0b13299,inset 0 0 0 1px #ffffff33;}
   .joker:hover,.consum:hover{transform:translateY(-5px);z-index:8;}
-  .joker .jn,.consum .jn{font-size:8.5px;font-weight:bold;line-height:1.02;text-shadow:1px 1px 0 #0009;position:relative;z-index:2;background:#0007;border-radius:6px 6px 0 0;padding:2px 2px;text-align:center;min-height:21px;display:flex;align-items:center;justify-content:center;}
-  .joker .jcost,.consum .jcost{font-size:8.5px;color:var(--gold);text-align:center;z-index:2;position:relative;background:#0007;border-radius:0 0 6px 6px;padding:1px;}
-  .joker .jicon,.consum .jicon{font-size:28px;text-align:center;z-index:2;position:relative;filter:drop-shadow(1px 1px 0 #0006);flex:1;display:flex;align-items:center;justify-content:center;margin:2px;border-radius:5px;background:radial-gradient(circle at 50% 38%,#ffffff20,#00000026 78%);}
+  .joker .jn,.consum .jn{font-size:8.5px;font-weight:bold;line-height:1.02;text-shadow:1px 1px 0 #0009;position:relative;z-index:2;background:linear-gradient(#000a,#0006);border-radius:7px 7px 0 0;padding:2px 2px;text-align:center;min-height:21px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -1px 0 #ffffff1f,inset 0 1px 0 #ffffff22;}
+  .joker .jcost,.consum .jcost{font-size:8.5px;color:var(--gold);text-align:center;z-index:2;position:relative;background:linear-gradient(#0006,#000a);border-radius:0 0 7px 7px;padding:1px;font-weight:bold;box-shadow:inset 0 1px 0 #ffffff1f;}
+  .joker .jicon,.consum .jicon{font-size:28px;text-align:center;z-index:2;position:relative;filter:drop-shadow(1px 1px 0 #0006);flex:1;display:flex;align-items:center;justify-content:center;margin:3px;border-radius:6px;background:radial-gradient(circle at 50% 34%,#ffffff22,#00000033 82%);box-shadow:inset 0 0 0 1.5px #00000047,inset 0 2px 7px #00000055,inset 0 -1px 0 #ffffff1a;}
   .ico{display:block;}
   .jx{position:absolute;left:4px;bottom:4px;font-size:10px;color:#fff;background:#0007;border-radius:4px;padding:0 3px;z-index:3;}
   .ed-foil::after,.ed-holo::after,.ed-poly::after{content:'';position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;border-radius:7px;}
@@ -109,12 +110,24 @@
   .card.enh-stone{background:linear-gradient(150deg,#cccec9,#8d8f8a);color:#2a2a2a;}
   .card.enh-wild{background:linear-gradient(135deg,#ffdede,#deffe8,#dee9ff,#f4deff);}
   .card.enh-lucky{background:linear-gradient(150deg,#e6ffe0,#a6f0a0);}
-  .card.enh-bonus,.card.enh-mult,.card.enh-gold,.card.enh-steel,.card.enh-glass,.card.enh-stone,.card.enh-wild,.card.enh-lucky{border-color:#b8923a;}
+  .card.enh-bonus,.card.enh-mult,.card.enh-gold,.card.enh-steel,.card.enh-glass,.card.enh-stone,.card.enh-wild,.card.enh-lucky{border-width:2px;}
+  .card.enh-bonus{border-color:#2f7fe0;box-shadow:0 4px 0 #00000055,0 0 9px #2f7fe077,inset 0 0 0 1.5px #fff;}
+  .card.enh-mult{border-color:#e0432f;box-shadow:0 4px 0 #00000055,0 0 9px #e0432f88,inset 0 0 0 1.5px #fff;}
+  .card.enh-gold{border-color:#d8a01f;box-shadow:0 4px 0 #00000055,0 0 10px #f4c95d99,inset 0 0 0 1.5px #fff;}
+  .card.enh-steel{border-color:#7e8a99;box-shadow:0 4px 0 #00000055,0 0 8px #aab4c099,inset 0 0 0 1.5px #fff;}
+  .card.enh-glass{border-color:#5fcadf;box-shadow:0 4px 0 #00000055,0 0 10px #cdeef5cc,inset 0 0 0 1.5px #fff;}
+  .card.enh-stone{border-color:#6f716c;box-shadow:0 4px 0 #00000055,inset 0 0 0 1.5px #ffffffaa;}
+  .card.enh-wild{border-color:#b06fe0;box-shadow:0 4px 0 #00000055,0 0 10px #d9a9ff99,inset 0 0 0 1.5px #fff;}
+  .card.enh-lucky{border-color:#3fa84f;box-shadow:0 4px 0 #00000055,0 0 9px #8be08a99,inset 0 0 0 1.5px #fff;}
   .card.ced-foil::before,.card.ced-holo::before,.card.ced-poly::before{content:'';position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;border-radius:6px;animation:shine 3s linear infinite;background-size:220% 220%;}
   .card.ced-foil::before{background:linear-gradient(120deg,#7ad7ff99,#ffffff55,#7ad7ff99,#bfeaff66);}
   .card.ced-holo::before{background:linear-gradient(120deg,#ff5f9e99,#5fff9e99,#5f9eff99,#ff5f9e99);animation-duration:2.4s;}
   .card.ced-poly::before{background:linear-gradient(60deg,#ff000088,#ffea0088,#00ff8888,#0088ff88,#aa00ff88,#ff000088);background-size:320% 320%;animation-duration:4s;}
-  .card .enh{position:absolute;top:1px;left:50%;transform:translateX(-50%);font-size:7.5px;font-weight:bold;color:#fff;background:#000b;border-radius:0 0 4px 4px;padding:1px 4px;z-index:4;letter-spacing:.3px;white-space:nowrap;}
+  .card .enh{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:900;color:#fff;background:#000d;border-radius:6px;padding:1px 5px;z-index:6;letter-spacing:.2px;white-space:nowrap;box-shadow:0 1px 2px #0009,inset 0 0 0 1px #ffffff3a;text-shadow:0 1px 1px #000;}
+  .card.enh-bonus .enh{background:linear-gradient(#2f7fe0,#1c5bb0);} .card.enh-mult .enh{background:linear-gradient(#e0432f,#b02a1c);}
+  .card.enh-gold .enh{background:linear-gradient(#e8b42f,#b8870f);color:#2a1f00;} .card.enh-steel .enh{background:linear-gradient(#9aa6b4,#6f7a88);}
+  .card.enh-glass .enh{background:linear-gradient(#5fcadf,#2f93b0);} .card.enh-wild .enh{background:linear-gradient(#b06fe0,#7e3fb0);}
+  .card.enh-lucky .enh{background:linear-gradient(#4fb85f,#2f8a3f);}
   .card .seal{position:absolute;top:3px;right:3px;width:14px;height:14px;border-radius:50%;z-index:4;border:1px solid #fff9;box-shadow:0 1px 3px #0008,inset 0 -2px 2px #0004,inset 0 2px 2px #fff5;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;text-shadow:0 1px 1px #0008;}
   .seal-red{background:radial-gradient(circle at 35% 30%,#ff6b6b,#c0202e);} .seal-blue{background:radial-gradient(circle at 35% 30%,#6ab0ff,#1f5bc0);} .seal-gold{background:radial-gradient(circle at 35% 30%,#ffe08a,#c8920f);color:#3a2c00;} .seal-purple{background:radial-gradient(circle at 35% 30%,#c79bff,#6a36c0);}
   .scorefloat{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-weight:900;font-size:17px;padding:3px 9px;border-radius:8px;
@@ -598,7 +611,7 @@ const SPECTRALS={
   wraith:{name:'Spectre',icon:'👻',desc:'Crée un Joker Rare, met ton argent à $0',use:()=>{const k=randomJokerKey('r');if(k&&usedJokerSlots()<S.jokerSlots){acquireJoker(k);S.money=0;}else toast('Pas de place.');}},
   sigil:{name:'Sceau Mystique',icon:'🔯',desc:'Toutes les cartes en main d\'une seule couleur',use:()=>{const s=SUITKEYS[rnd(4)];S.hand.forEach(c=>c.suit=s);}},
   ophelie:{name:'Ophélie',icon:'🎭',desc:'Toutes les cartes en main d\'un seul rang',use:()=>{const r=RANKS[rnd(RANKS.length)];S.hand.forEach(c=>c.rank=r);}},
-  ectoplasme:{name:'Ectoplasme',icon:'🟢',desc:'Ajoute Négatif à un Joker aléatoire, -1 main',use:()=>{const js=S.jokers.filter(j=>j.edition!=='neg');if(js.length){js[rnd(js.length)].edition='neg';S.jokerSlots++;S.handsMax=Math.max(1,S.handsMax-1);}else toast('Aucun Joker éligible.');}},
+  ectoplasme:{name:'Ectoplasme',icon:'🟢',desc:'Ajoute Négatif à un Joker aléatoire, -1 main',use:()=>{const js=S.jokers.filter(j=>j.edition!=='neg');if(js.length){js[rnd(js.length)].edition='neg';S.handsMax=Math.max(1,S.handsMax-1);}else toast('Aucun Joker éligible.');}},
   immolation:{name:'Immolation',icon:'🔥',desc:'Détruit 5 cartes, gagne $20',use:()=>{destroyRandom(5);S.money+=20;}},
   ankh:{name:'Ankh',icon:'☥',desc:'Crée une copie d\'un Joker, détruit les autres',use:()=>{if(S.jokers.length){const j=S.jokers[rnd(S.jokers.length)];const copy={...j,uid:Math.random(),edition:null};S.jokers=[j,copy];}else toast('Aucun Joker.');}},
   dejavu:{name:'Déjà Vu',icon:'🔁',need:true,desc:'Ajoute un Sceau Rouge à 1 carte',use:cs=>cs.forEach(c=>c.seal='red')},
@@ -711,7 +724,7 @@ const JOKER_DEFS={
   burglar:{name:'Cambrioleur',icon:'🦹',cost:6,rarity:'u',desc:'Au début de la manche : +3 mains, mais 0 défausse',onBlind:()=>{S.handsLeft+=3;S.discardsLeft=0;}},
   blackboard:{name:'Tableau Noir',icon:'⬛',cost:6,rarity:'u',desc:'×3 Mult si toutes les cartes en main sont ♠/♣',eval:function(){const h=S.hand.filter(c=>!S.selected.includes(c.id));return h.length&&h.every(c=>c.suit==='S'||c.suit==='C')?{xmult:3}:0;}},
   dna:{name:'ADN',icon:'🧬',cost:8,rarity:'r',desc:'Si 1 seule carte jouée : ajoute une copie au deck',onPlay:function(p){if(p.playedCount===1){const c={...p.played[0],id:Math.random()};S.fullDeck.push(c);S.hand.push(c);S.deckCount=S.fullDeck.length;}}},
-  sixthsense:{name:'Sixième Sens',icon:'🔮',cost:6,rarity:'u',desc:'Si tu joues un seul 6 : le détruit et crée une Spectrale',onPlay:function(p){if(p.playedCount===1&&p.played[0].rank==='6'){const c=p.played[0];S.fullDeck=S.fullDeck.filter(x=>x.id!==c.id);S.deckCount=S.fullDeck.length;shatterCard(c.id);notify('🔮 Sixième Sens détruit '+cardName(c)+' → Spectrale');if(usedConsumSlots()<S.consumSlots)S.consumables.push({type:'spectral',key:randKey(SPECTRALS),uid:Math.random()});}}},
+  sixthsense:{name:'Sixième Sens',icon:'🔮',cost:6,rarity:'u',desc:'Si tu joues un seul 6 : le détruit et crée une Spectrale',onPlay:function(p){if(p.playedCount===1&&p.played[0].rank==='6'){const c=p.played[0];S.fullDeck=S.fullDeck.filter(x=>x.id!==c.id);S.deckCount=S.fullDeck.length;shatterCard(c.id);notify('🔮 Sixième Sens détruit '+cardGlyph(c)+' → Spectrale');if(usedConsumSlots()<S.consumSlots)S.consumables.push({type:'spectral',key:randKey(SPECTRALS),uid:Math.random()});}}},
   constellation:{name:'Constellation',icon:'🌌',cost:6,rarity:'u',desc:'×0.1 Mult par carte Planète utilisée',eval:()=>({xmult:1+0.1*S.planetsUsed})},
   hiker:{name:'Randonneur',icon:'🥾',cost:5,rarity:'u',desc:'Chaque carte marquée gagne +5 Chips en permanence',perCard:c=>{c.chipBonus=(c.chipBonus||0)+5;return{chips:c.chipBonus};}},
   faceless:{name:'Joker Sans Visage',icon:'😶',cost:4,rarity:'c',desc:'+$5 si ≥3 figures défaussées d\'un coup',onDiscard:function(p){if(p.faces>=3)S.money+=5;}},
@@ -730,7 +743,7 @@ const JOKER_DEFS={
   hallucination:{name:'Hallucination',icon:'🍄',cost:4,rarity:'c',desc:'1/2 de créer un Tarot à l\'ouverture d\'un paquet',passive:true},
   fortuneteller:{name:'Diseuse de Bonne Aventure',icon:'🧿',cost:6,rarity:'u',desc:'+1 Mult par Tarot utilisé',eval:()=>({mult:S.tarotsUsed})},
   luckycat:{name:'Chat Chanceux',icon:'🐱',cost:6,rarity:'u',desc:'×0.25 Mult croissant quand une carte Chance se déclenche',x:1,eval:function(){return{xmult:this.x||1}}},
-  tradingcard:{name:'Carte d\'Échange',icon:'🔁',cost:6,rarity:'u',desc:'Si tu défausses 1 seule carte : la détruit et +$3',onDiscard:function(p){if(p.cards.length===1){const c=p.cards[0];S.fullDeck=S.fullDeck.filter(x=>x.id!==c.id);S.deckCount=S.fullDeck.length;S.money+=3;notify('🔁 Carte d\'Échange détruit '+cardName(c)+' (+$3)');}}},
+  tradingcard:{name:'Carte d\'Échange',icon:'🔁',cost:6,rarity:'u',desc:'Si tu défausses 1 seule carte : la détruit et +$3',onDiscard:function(p){if(p.cards.length===1){const c=p.cards[0];S.fullDeck=S.fullDeck.filter(x=>x.id!==c.id);S.deckCount=S.fullDeck.length;S.money+=3;notify('🔁 Carte d\'Échange détruit '+cardGlyph(c)+' (+$3)');}}},
   flashcard:{name:'Fiche de Révision',icon:'🗂️',cost:5,rarity:'u',desc:'+2 Mult par reroll effectué',eval:()=>({mult:2*S.rerolls})},
   sparetrousers:{name:'Pantalon de Rechange',icon:'👖',cost:6,rarity:'u',desc:'+2 Mult croissant si Double Paire',x:0,onPlay:function(p){if(p.counts.pairs>=2)this.x=(this.x||0)+2;},eval:function(){return{mult:this.x||0}}},
   ancient:{name:'Joker Ancien',icon:'🏺',cost:8,rarity:'r',desc:'Chaque carte d\'une couleur (change chaque manche) : ×1.5 Mult',perCard:c=>c.suit===S.ancientSuit?{xmult:1.5}:0},
@@ -1059,7 +1072,7 @@ function hasJoker(k){return S.jokers.some(j=>j.key===k);}
 function countEnh(e){return S.fullDeck.filter(c=>c.enh===e).length;}
 function countRank(r){return S.fullDeck.filter(c=>c.rank===r).length;}
 function rotateTargets(){S.ancientSuit=SUITKEYS[rnd(4)];S.idolRank=RANKS[rnd(RANKS.length)];S.idolSuit=SUITKEYS[rnd(4)];S.todoTarget=Object.keys(HANDS)[rnd(9)];S.mailTarget=RANKS[rnd(RANKS.length)];S.castleSuit=SUITKEYS[rnd(4)];}
-function sellJokerSilent(uid){const i=S.jokers.findIndex(j=>j.uid===uid);if(i<0)return;const j=S.jokers[i];const d=JOKER_DEFS[j.key];if(d.onSell)d.onSell.call(j);if(j.edition==='neg')S.jokerSlots--;S.jokers.splice(i,1);}
+function sellJokerSilent(uid){const i=S.jokers.findIndex(j=>j.uid===uid);if(i<0)return;const j=S.jokers[i];const d=JOKER_DEFS[j.key];if(d.onSell)d.onSell.call(j);S.jokers.splice(i,1);}
 function grantTag(tag){const t=TAGS[tag];if(!t)return;if(t.now)t.now();else S.ownedTags.push(tag);}
 function randomSafeTag(){const safe=Object.keys(TAGS).filter(k=>!TAGS[k].pack);return safe[rnd(safe.length)];}
 function bossDisabled(){return hasJoker('chicot');}
@@ -1350,7 +1363,7 @@ async function playHand(){
   S.jokers.forEach(j=>{const d=JOKER_DEFS[j.key];if(d.onPlay)d.onPlay.call(j,ctx);});
   if(S.playedIds)S.selected.forEach(id=>S.playedIds.add(id)); // suivi des cartes jouées
   if(brokenGlass.length){
-    brokenGlass.forEach(id=>{const bc=played.find(c=>c.id===id);shatterCard(id);notify('🔷 Carte Verre brisée : '+cardName(bc));});
+    brokenGlass.forEach(id=>{const bc=played.find(c=>c.id===id);shatterCard(id);notify('🔷 Carte Verre brisée : '+cardGlyph(bc));});
     await sleep(380);
   }
   S.hand=S.hand.filter(c=>!S.selected.includes(c.id)&&!brokenGlass.includes(c.id));
@@ -1569,7 +1582,8 @@ function acquireJoker(key,edition,sticker){
   if(sticker){j.sticker=sticker;if(sticker==='perishable')j.perish=0;}
   ['x','c','d','sell'].forEach(p=>{if(p in def)j[p]=def[p];});
   S.jokers.push(j);
-  if(edition==='neg')S.jokerSlots++;
+  // Joker Négatif : il ne compte simplement pas dans la limite (usedJokerSlots l'exclut),
+  // on n'augmente donc PAS jokerSlots (sinon double comptage → trop de Jokers autorisés)
   if(def.onAcq)def.onAcq.call(j);
   renderSidebar();
 }
@@ -1715,7 +1729,7 @@ function miniCardHTML(c){
 /* ===================== CONSOMMABLES ===================== */
 function applyPlanet(key){discover('planet:'+key);const h=PLANETS[key].hand;S.handLevels[h]=(S.handLevels[h]||1)+1;S.planetsUsed++;S.lastConsumableUsed={type:'planet',key};toast(`${PLANETS[key].name} : ${h} → niveau ${S.handLevels[h]} !`);}
 function addRandomConsumables(type,n){const src=type==='planet'?PLANETS:TAROTS;for(let i=0;i<n;i++){if(usedConsumSlots()>=S.consumSlots)break;S.consumables.push({type,key:randKey(src),uid:Math.random()});}renderConsum();renderSidebar();}
-function destroyRandom(n){const gone=[];for(let i=0;i<n&&S.hand.length>0;i++){const c=S.hand.splice(rnd(S.hand.length),1)[0];gone.push(c);shatterCard(c.id);S.fullDeck=S.fullDeck.filter(x=>x.id!==c.id);}S.deckCount=S.fullDeck.length;if(gone.length)notify('💥 Carte'+(gone.length>1?'s':'')+' détruite'+(gone.length>1?'s':'')+' : '+gone.map(cardName).join(' '));return gone;}
+function destroyRandom(n){const gone=[];for(let i=0;i<n&&S.hand.length>0;i++){const c=S.hand.splice(rnd(S.hand.length),1)[0];gone.push(c);shatterCard(c.id);S.fullDeck=S.fullDeck.filter(x=>x.id!==c.id);}S.deckCount=S.fullDeck.length;if(gone.length)notify('💥 Carte'+(gone.length>1?'s':'')+' détruite'+(gone.length>1?'s':'')+' : '+gone.map(cardGlyph).join(' '));return gone;}
 function addRandomCards(n,kind,enhanced){
   const added=[];
   for(let i=0;i<n;i++){
@@ -1726,7 +1740,7 @@ function addRandomCards(n,kind,enhanced){
     const c={rank,suit:SUITKEYS[rnd(4)],enh:enhanced?Object.keys(ENH)[rnd(Object.keys(ENH).length)]:null,seal:null,cedition:null,id:Math.random()};
     S.hand.push(c);S.fullDeck.push(c);S.deckCount=S.fullDeck.length;added.push(c);
   }
-  if(added.length)notify('➕ Carte'+(added.length>1?'s':'')+' ajoutée'+(added.length>1?'s':'')+' : '+added.map(cardName).join(' '));
+  if(added.length)notify('➕ Carte'+(added.length>1?'s':'')+' ajoutée'+(added.length>1?'s':'')+' : '+added.map(cardGlyph).join(' '));
 }
 function useConsumable(uid){
   if(scoringInProgress)return;
@@ -1843,7 +1857,7 @@ const PIPS={2:[[1,0],[1,4]],3:[[1,0],[1,2],[1,4]],4:[[0,0],[2,0],[0,4],[2,4]],5:
   8:[[0,0],[2,0],[1,1],[0,2],[2,2],[1,3],[0,4],[2,4]],9:[[0,0],[2,0],[0,1.3],[2,1.3],[1,2],[0,2.7],[2,2.7],[0,4],[2,4]],
   10:[[0,0],[2,0],[1,.7],[0,1.3],[2,1.3],[0,2.7],[2,2.7],[1,3.3],[0,4],[2,4]]};
 const FACEICON={J:'🤵',Q:'👸',K:'🤴'};
-const ENHSHORT={bonus:'+30 ©',mult:'+4 Mult',wild:'WILD',glass:'VERRE',steel:'ACIER',gold:'OR',stone:'PIERRE',lucky:'CHANCE'};
+const ENHSHORT={bonus:'+30 Chips',mult:'+4 Mult',wild:'Wild',glass:'×2 Mult',steel:'×1.5 Mult',gold:'+$3',stone:'+50 Chips',lucky:'Chance'};
 function cardCenterHTML(c){
   if(c.enh==='stone')return '<div class="bigc">🪨</div>';
   const sym=SUITS[c.suit].sym,v=RANKORDER[c.rank];
@@ -1960,7 +1974,7 @@ function estimateHandScore(playedReal){
 }
 function renderJokers(){
   const bar=document.getElementById('jokerBar');bar.innerHTML='';
-  document.getElementById('jokerCount').textContent=usedJokerSlots()+'/'+S.jokerSlots;
+  {const ng=S.jokers.filter(j=>j.edition==='neg').length;document.getElementById('jokerCount').textContent=usedJokerSlots()+'/'+S.jokerSlots+(ng?(' +'+ng+' Nég'):'');}
   if(S.jokers.length===0){bar.innerHTML='<span class="small">Aucun Joker — achète-en à la boutique !</span>';return;}
   S.jokers.forEach((j,index)=>{const w=document.createElement('div');w.innerHTML=jokerHTML(JOKER_DEFS[j.key],false,j.uid,j.edition,j);const el=w.firstElementChild;
     if(!prevJokerUids.has(j.uid))el.classList.add('pop'); else el.classList.add('idlefloat'); // nouveau Joker : apparition animée ; sinon respiration
@@ -2103,7 +2117,6 @@ function sellJoker(uid,confirmed){
   if(j.key==='luchador'&&S.blind&&S.blind.type==='boss'){S.blind.effect=null;toast('Boss Blind désactivée !');}
   if(S.verdantActive){S.verdantActive=false;toast('Feuille Verdoyante levée !');} // vendre un Joker réactive les cartes
   if(def.onSell)def.onSell.call(j);
-  if(j.edition==='neg')S.jokerSlots--;
   S.money+=sellValue(j);S.jokers.splice(idx,1);renderAll();
 }
 // décrit les sceaux/éditions mentionnés dans un texte (description imbriquée)
@@ -2164,7 +2177,7 @@ function flashCard(id,text,cls){const el=document.querySelector(`.card[data-id="
   const f=document.createElement('div');f.className='scorefloat '+cls;f.textContent=text;el.appendChild(f);setTimeout(()=>f.remove(),850);}
 function flashJoker(uid){if(typeof S.runJokerTriggers==='number')S.runJokerTriggers++;const el=document.querySelector(`.joker[data-uid="${uid}"]`);if(el){el.classList.remove('idlefloat');el.classList.remove('trigger');void el.offsetWidth;el.classList.add('trigger');setTimeout(()=>el.classList.remove('trigger'),340);}}
 // nom lisible et coloré d'une carte (ex : 7♥, K♠)
-function cardName(c){if(!c)return '?';const s=SUITS[c.suit]||{sym:'?',col:'black'};return '<span style="color:'+(s.col==='red'?'#ff7b7b':'#e6ecff')+'">'+c.rank+s.sym+'</span>';}
+function cardGlyph(c){if(!c)return '?';const s=SUITS[c.suit]||{sym:'?',col:'black'};return '<span style="color:'+(s.col==='red'?'#ff7b7b':'#e6ecff')+'">'+c.rank+s.sym+'</span>';}
 // bannière d'information non bloquante (ne coupe pas le jeu)
 function notify(html){let bar=document.getElementById('fxBanner');if(!bar){bar=document.createElement('div');bar.id='fxBanner';document.body.appendChild(bar);}
   const n=document.createElement('div');n.className='fxNote';n.innerHTML=html;bar.appendChild(n);setTimeout(()=>n.remove(),2100);}
