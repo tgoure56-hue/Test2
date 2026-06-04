@@ -84,7 +84,7 @@
   .card{width:74px;height:104px;border-radius:7px;background:linear-gradient(150deg,#fffdf8,#f3eedf);color:#222;position:relative;cursor:pointer;border:1px solid #b9b09a;
     box-shadow:0 4px 0 #00000055,inset 0 0 0 1.5px #fff,inset 0 0 0 3px #00000010;transition:transform .12s;flex-shrink:0;overflow:visible;}
   .card.sel{transform:translateY(-22px);border-color:var(--gold);box-shadow:0 4px 0 var(--gold),inset 0 0 0 1.5px #fff,inset 0 0 0 3px var(--gold);}
-  .card.dragging,.joker.dragging{z-index:999!important;cursor:grabbing;transition:none!important;box-shadow:0 18px 32px #000b,inset 0 0 0 1.5px #fff;filter:brightness(1.07);}
+  .card.dragging,.joker.dragging{z-index:999!important;cursor:grabbing;transition:none!important;animation:none!important;box-shadow:0 18px 32px #000b,inset 0 0 0 1.5px #fff;filter:brightness(1.07);}
   .joker.dragging{box-shadow:0 18px 32px #000b;}
   body.dragging-active{cursor:grabbing;user-select:none;-webkit-user-select:none;}
   .card:active{cursor:grabbing;} .joker{cursor:grab;} .joker:active{cursor:grabbing;}
@@ -116,9 +116,9 @@
   .card .enh{position:absolute;top:1px;left:50%;transform:translateX(-50%);font-size:7.5px;font-weight:bold;color:#fff;background:#000b;border-radius:0 0 4px 4px;padding:1px 4px;z-index:4;letter-spacing:.3px;white-space:nowrap;}
   .card .seal{position:absolute;top:3px;right:3px;width:14px;height:14px;border-radius:50%;z-index:4;border:1px solid #fff9;box-shadow:0 1px 3px #0008,inset 0 -2px 2px #0004,inset 0 2px 2px #fff5;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;text-shadow:0 1px 1px #0008;}
   .seal-red{background:radial-gradient(circle at 35% 30%,#ff6b6b,#c0202e);} .seal-blue{background:radial-gradient(circle at 35% 30%,#6ab0ff,#1f5bc0);} .seal-gold{background:radial-gradient(circle at 35% 30%,#ffe08a,#c8920f);color:#3a2c00;} .seal-purple{background:radial-gradient(circle at 35% 30%,#c79bff,#6a36c0);}
-  .scorefloat{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-weight:bold;font-size:14px;padding:2px 7px;border-radius:6px;
-    animation:floatup .85s ease-out forwards;pointer-events:none;white-space:nowrap;z-index:30;box-shadow:0 2px 6px #0008;}
-  @keyframes floatup{0%{opacity:0;transform:translate(-50%,8px) scale(.8);}25%{opacity:1;transform:translate(-50%,0) scale(1.15);}100%{opacity:0;transform:translate(-50%,-34px) scale(1);}}
+  .scorefloat{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-weight:900;font-size:17px;padding:3px 9px;border-radius:8px;
+    animation:floatup 1s cubic-bezier(.2,.7,.3,1) forwards;pointer-events:none;white-space:nowrap;z-index:30;box-shadow:0 3px 8px #000a;text-shadow:0 1px 2px #0007;}
+  @keyframes floatup{0%{opacity:0;transform:translate(-50%,10px) scale(.5);}18%{opacity:1;transform:translate(-50%,-2px) scale(1.35);}42%{transform:translate(-50%,-18px) scale(1);}100%{opacity:0;transform:translate(-50%,-48px) scale(.85);}}
   .fchip{background:var(--chip);color:#fff;} .fmult{background:var(--mult);color:#fff;} .fgold{background:var(--gold);color:#3a2c00;}
   .fdestroy{background:#c0392b;color:#fff;} .fadd{background:var(--green);color:#06210f;}
   /* ---- destruction de carte ---- */
@@ -133,14 +133,27 @@
   /* ---- juice / animations ---- */
   @keyframes dealIn{0%{opacity:0;transform:translateY(90px) translateX(40px) rotate(-14deg) scale(.7);}60%{opacity:1;}80%{transform:translateY(-6px) rotate(2deg) scale(1.04);}100%{opacity:1;transform:none;}}
   .card.dealing{animation:dealIn .42s cubic-bezier(.2,.8,.3,1.2) backwards;}
-  @keyframes cardScore{0%{box-shadow:0 4px 0 #00000055;}45%{box-shadow:0 0 16px 5px var(--glow,var(--gold));}100%{box-shadow:0 4px 0 #00000055;}}
-  .card.scorepop{animation:cardScore .3s ease-out;z-index:26;}
-  @keyframes pillpop{0%{transform:scale(1);}45%{transform:scale(1.16);}100%{transform:scale(1);}}
-  .chipDisp,.multDisp{animation:pillpop .16s ease-out;}
-  @keyframes jokerwiggle{0%{transform:translateY(0) rotate(0) scale(1);}30%{transform:translateY(-11px) rotate(-6deg) scale(1.14);}60%{transform:translateY(-6px) rotate(5deg) scale(1.08);}100%{transform:translateY(0) rotate(0) scale(1);}}
-  .joker.trigger{animation:jokerwiggle .34s ease-out;z-index:9;}
-  @keyframes gainPop{0%{opacity:0;transform:scale(.4);}55%{opacity:1;transform:scale(1.35);}100%{transform:scale(1);}}
-  .gainNum{display:inline-block;animation:gainPop .45s cubic-bezier(.2,.9,.3,1.3) backwards;}
+  @keyframes cardScore{0%{transform:translateY(0) scale(1,1);box-shadow:0 4px 0 #00000055;filter:none;}
+    26%{transform:translateY(-30px) scale(1.13,1.18);box-shadow:0 0 26px 9px var(--glow,var(--gold));filter:brightness(1.6) saturate(1.25);}
+    52%{transform:translateY(-8px) scale(1.03,.93);}
+    74%{transform:translateY(-13px) scale(.98,1.04);}
+    100%{transform:translateY(0) scale(1,1);box-shadow:0 4px 0 #00000055;filter:none;}}
+  #playZone .card.scorepop,#handArea .card.scorepop{animation:cardScore .46s cubic-bezier(.2,.85,.3,1.25);z-index:26;}
+  @keyframes pillpop{0%{transform:scale(1);}32%{transform:scale(1.3) rotate(-1.5deg);}62%{transform:scale(.93);}100%{transform:scale(1);}}
+  .chipDisp,.multDisp{display:inline-block;animation:pillpop .27s cubic-bezier(.2,.9,.3,1.4);}
+  @keyframes jokerwiggle{0%{transform:translateY(0) rotate(0) scale(1);}24%{transform:translateY(-15px) rotate(-9deg) scale(1.2);}54%{transform:translateY(-7px) rotate(7deg) scale(1.1);}80%{transform:translateY(-2px) rotate(-2deg) scale(1.04);}100%{transform:translateY(0) rotate(0) scale(1);}}
+  #jokerBar .joker.trigger{animation:jokerwiggle .4s cubic-bezier(.2,.85,.3,1.3);z-index:9;}
+  @keyframes gainPop{0%{opacity:0;transform:scale(2.3);filter:blur(3px);}38%{opacity:1;transform:scale(.82);filter:blur(0);}68%{transform:scale(1.13);}100%{transform:scale(1);}}
+  .gainNum{display:inline-block;animation:gainPop .52s cubic-bezier(.2,.9,.3,1.3) backwards;}
+  /* respiration/flottement permanent (façon Balatro), désactivé pendant le drag/la sélection/un effet */
+  @keyframes floatIdle{0%,100%{transform:translateY(0) rotate(-.6deg);}50%{transform:translateY(-5px) rotate(.6deg);}}
+  #handArea .card.idlefloat{animation:floatIdle 2.8s ease-in-out infinite;}
+  #handArea .card.idlefloat:nth-child(2n){animation-delay:-.6s;} #handArea .card.idlefloat:nth-child(3n){animation-delay:-1.3s;} #handArea .card.idlefloat:nth-child(4n){animation-delay:-1.9s;}
+  @keyframes jokerIdle{0%,100%{transform:translateY(0) rotate(-.8deg);}50%{transform:translateY(-4px) rotate(.8deg);}}
+  #jokerBar .joker.idlefloat{animation:jokerIdle 3.1s ease-in-out infinite;}
+  #jokerBar .joker.idlefloat:nth-child(2n){animation-delay:-.8s;} #jokerBar .joker.idlefloat:nth-child(3n){animation-delay:-1.6s;}
+  body.reduce-anim #handArea .card,body.reduce-anim #jokerBar .joker{animation:none!important;}
+  .reordering .card,.reordering .joker{animation:none!important;} /* pas de flottement pendant un glisser-déposer (les voisins doivent pouvoir s'écarter) */
   @keyframes scoreBump{0%{transform:scale(1);}40%{transform:scale(1.22);color:var(--gold);}100%{transform:scale(1);}}
   .roundScore.bump{animation:scoreBump .35s ease-out;}
   @keyframes tokenPulse{0%,100%{box-shadow:inset -3px -3px 0 #00000044,inset 3px 3px 0 #ffffff44;}50%{box-shadow:inset -3px -3px 0 #00000044,inset 3px 3px 0 #ffffff44,0 0 14px 3px var(--gold);}}
@@ -1868,7 +1881,7 @@ function renderHand(){
   S.hand.forEach(c=>{
     const deb=cardDebuffed(c);const isNew=!prevHandIds.has(c.id);
     const div=document.createElement('div');
-    div.className=cardClass(c)+(S.selected.includes(c.id)?' sel':'')+(deb?' debuff':'')+(isNew?' dealing':'');
+    div.className=cardClass(c)+(S.selected.includes(c.id)?' sel':'')+(deb?' debuff':'')+(isNew?' dealing':'')+((!isNew&&!S.selected.includes(c.id))?' idlefloat':'');
     if(isNew){div.style.animationDelay=(newCount*0.06)+'s';newCount++;}
     div.dataset.id=c.id;
     div.innerHTML=buildCardInner(c);
@@ -1947,7 +1960,7 @@ function renderJokers(){
   document.getElementById('jokerCount').textContent=usedJokerSlots()+'/'+S.jokerSlots;
   if(S.jokers.length===0){bar.innerHTML='<span class="small">Aucun Joker — achète-en à la boutique !</span>';return;}
   S.jokers.forEach((j,index)=>{const w=document.createElement('div');w.innerHTML=jokerHTML(JOKER_DEFS[j.key],false,j.uid,j.edition,j);const el=w.firstElementChild;
-    if(!prevJokerUids.has(j.uid))el.classList.add('pop'); // nouveau Joker : apparition animée
+    if(!prevJokerUids.has(j.uid))el.classList.add('pop'); else el.classList.add('idlefloat'); // nouveau Joker : apparition animée ; sinon respiration
     el.oncontextmenu=(e)=>{e.preventDefault();sellJoker(j.uid);};el.title='Glisser pour réorganiser · Clic droit : revendre';
     enableReorder(el,bar,(from,to)=>{const[m]=S.jokers.splice(from,1);S.jokers.splice(to,0,m);renderJokers();});
     bar.appendChild(el);});
@@ -1964,6 +1977,7 @@ function enableReorder(el,area,commit,onTap){
     let dragging=false,sibs=null,base=null,slot=0,fromIdx=0,to=0;
     try{el.setPointerCapture(e.pointerId);}catch(_){}
     const setup=()=>{
+      area.classList.add('reordering'); // fige le flottement le temps du déplacement
       sibs=[...area.children];fromIdx=sibs.indexOf(el);
       const rects=sibs.map(s=>s.getBoundingClientRect());
       base=rects.map(r=>r.left+r.width/2);
@@ -1982,7 +1996,7 @@ function enableReorder(el,area,commit,onTap){
     const up=()=>{
       el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);
       try{el.releasePointerCapture(e.pointerId);}catch(_){}
-      document.body.classList.remove('dragging-active');
+      document.body.classList.remove('dragging-active');area.classList.remove('reordering');
       if(!dragging){if(onTap)onTap();return;}
       el.classList.remove('dragging');
       if(to!==fromIdx){commit(fromIdx,to);} // re-render : reconstruit le DOM (efface les transforms)
@@ -2112,9 +2126,10 @@ function updateScorePopup(chips,mult){document.getElementById('scorePopup').inne
 const GLOWCOL={fchip:'var(--chip)',fmult:'var(--mult)',fgold:'var(--gold)'};
 function flashCard(id,text,cls){const el=document.querySelector(`.card[data-id="${id}"]`);if(!el)return;
   el.style.setProperty('--glow',GLOWCOL[cls]||'var(--gold)');
+  el.classList.remove('idlefloat'); // l'effet de score prime sur le flottement
   el.classList.remove('scorepop');void el.offsetWidth;el.classList.add('scorepop');
   const f=document.createElement('div');f.className='scorefloat '+cls;f.textContent=text;el.appendChild(f);setTimeout(()=>f.remove(),850);}
-function flashJoker(uid){if(typeof S.runJokerTriggers==='number')S.runJokerTriggers++;const el=document.querySelector(`.joker[data-uid="${uid}"]`);if(el){el.classList.remove('trigger');void el.offsetWidth;el.classList.add('trigger');setTimeout(()=>el.classList.remove('trigger'),340);}}
+function flashJoker(uid){if(typeof S.runJokerTriggers==='number')S.runJokerTriggers++;const el=document.querySelector(`.joker[data-uid="${uid}"]`);if(el){el.classList.remove('idlefloat');el.classList.remove('trigger');void el.offsetWidth;el.classList.add('trigger');setTimeout(()=>el.classList.remove('trigger'),340);}}
 // nom lisible et coloré d'une carte (ex : 7♥, K♠)
 function cardName(c){if(!c)return '?';const s=SUITS[c.suit]||{sym:'?',col:'black'};return '<span style="color:'+(s.col==='red'?'#ff7b7b':'#e6ecff')+'">'+c.rank+s.sym+'</span>';}
 // bannière d'information non bloquante (ne coupe pas le jeu)
