@@ -792,6 +792,7 @@ const JOKER_DEFS={
 delete JOKER_DEFS.hanginghikertest;
 delete JOKER_DEFS.evensteven_dummy;
 Object.keys(JOKER_DEFS).forEach(k=>{JOKER_DEFS[k].key=k;}); // chaque Joker connaît sa clé (pour son illustration)
+[PLANETS,TAROTS,SPECTRALS].forEach(O=>Object.keys(O).forEach(k=>{O[k].key=k;})); // idem pour les consommables
 JOKER_DEFS.yinyang={name:'Joker Yin-Yang',icon:'☯️',cost:5,rarity:'u',desc:'+20 Chips par carte impaire et +2 Mult par carte paire marquée',perCard:c=>{const v=RANKORDER[c.rank];if(v<=10&&v%2===0)return{mult:2};if(v%2===1||v===14)return{chips:20};return 0;}};
 const RARITY_NAME={c:'Commun',u:'Peu commun',r:'Rare',l:'Légendaire'};
 const RARITY_COL={c:'#5ea0ff',u:'#54d07a',r:'#fe5f55',l:'#f0b132'};
@@ -2139,7 +2140,37 @@ const MO={
   twocard:'<rect x="21" y="23" width="18" height="26" rx="3" fill="#fff" stroke="#1c1c1c" stroke-width="1.3"/><text x="30" y="42" font-size="18" font-weight="900" text-anchor="middle" fill="#c0344d" font-family="Georgia,serif">2</text>',
   baseball:'<circle cx="30" cy="38" r="12.5" fill="#fff" stroke="#1c1c1c" stroke-width="1.3"/><path d="M21 31 Q26 38 21 45 M39 31 Q34 38 39 45" stroke="#c0344d" stroke-width="1.4" fill="none"/>'
 };
-const JART={joker:'jester',greedy:'diamond',lusty:'heart',wrathful:'spade',glutton:'club',jolly:'starmult',zany:'starmult',mad:'starmult',crazy:'starmult',droll:'starmult',sly:'chip',wily:'chip',clever:'chip',devious:'chip',crafty:'chip',half:'starmult',stencil:'square',fourfingers:'fan',mime:'mask',ceremonial:'dagger',banner:'banner',mystic:'mountain',loyalty:'ticket',steven:'twocard',todd:'card',scary:'scary',smiley:'smiley',fibonacci:'spiral',scholar:'cap',walkie:'card',hack:'refresh',sockbuskin:'mask',hangingchad:'refresh',dusk:'refresh',bull:'coin',bluejoker:'chip',abstract:'paint',ridebus:'bus',greenjoker:'starmult',square:'square',runner:'bus',icecream:'icecream',popcorn:'popcorn',splash:'paint',supernova:'galaxy',cavendish:'banana',cardsharp:'fan',obelisk:'obelisk',baron:'crown',shootmoon:'moon',raisedfist:'person',baseball:'baseball',blueprint:'card',photograph:'camera',vampire:'fangs',erosion:'stone',stonejoker:'stone',flower:'coin',ride:'refresh',bootstraps:'boot',golden:'goldbar',rocket:'rocket',egg:'egg',cloud9:'coin',delayedgrat:'hourglass',tothemoon:'moon',juggler:'fan',drunkard:'bottle',troubadour:'person',mrbones:'skull',luchador:'mask',riffraff:'jester',marble:'stone',canio:'jester',triboulet:'crown',yorick:'skull',chicot:'jester',perkeo:'crystalball',misprint:'dice',creditcard:'ticket',chaos:'dice',eightball:'dice',businesscard:'ticket',pareidolia:'smiley',grosmichel:'banana',spacejoker:'galaxy',burglar:'mask',blackboard:'square',dna:'dna',sixthsense:'eye',constellation:'galaxy',hiker:'mountain',faceless:'scary',superposition:'galaxy',todolist:'ticket',redcard:'banner',madness:'starmult',seance:'candle',shortcut:'refresh',hologram:'galaxy',vagabond:'boot',midas:'goldbar',turtlebean:'flower',reservedparking:'coin',mailrebate:'ticket',hallucination:'crystalball',fortuneteller:'crystalball',luckycat:'clover',tradingcard:'card',flashcard:'refresh',sparetrousers:'starmult',ancient:'gem',ramen:'ramen',seltzer:'bottle',castle:'castle',smeared:'mirror',throwback:'refresh',roughgem:'gem',bloodstone:'heart',arrowhead:'spade',onyx:'club',glassjoker:'glass',showman:'fan',flowerpot:'flower',brainstorm:'bulb',wee:'twocard',merryandy:'jester',oops:'dice',idol:'eye',seeingdouble:'mirror',matador:'coin',hittheroad:'bus',duo:'fan',trio:'fan',family:'fan',order:'fan',tribe:'fan',stuntman:'person',driverlicense:'ticket',cartomancer:'crystalball',astronomer:'galaxy',burnt:'candle',satellite:'satellite',swashbuckler:'dagger',gift:'ticket',acrobat:'person',dietcola:'bottle',invisible:'ghost',certificate:'ticket'};
+Object.assign(MO,{
+  pairc:'<g stroke="#1c1c1c" stroke-width="1.2" fill="#fff"><rect x="19" y="29" width="13" height="19" rx="2"/><rect x="28" y="29" width="13" height="19" rx="2"/></g><path d="M25.5 35 l1.6 3 -1.6 3 -1.6 -3Z" fill="#c0344d"/><path d="M34.5 35 l1.6 3 -1.6 3 -1.6 -3Z" fill="#c0344d"/>',
+  trioc:'<g stroke="#1c1c1c" stroke-width="1.1" fill="#fff"><rect x="15" y="30" width="13" height="18" rx="2"/><rect x="23.5" y="30" width="13" height="18" rx="2"/><rect x="32" y="30" width="13" height="18" rx="2"/></g>',
+  twopairc:'<g stroke="#1c1c1c" stroke-width="1" fill="#fff"><rect x="14" y="31" width="11" height="16" rx="2"/><rect x="20" y="31" width="11" height="16" rx="2"/><rect x="29" y="31" width="11" height="16" rx="2"/><rect x="35" y="31" width="11" height="16" rx="2"/></g>',
+  straightc:'<g stroke="#1c1c1c" stroke-width="1" fill="#fff"><rect x="14" y="42" width="11" height="14" rx="2"/><rect x="21" y="37" width="11" height="14" rx="2"/><rect x="28" y="32" width="11" height="14" rx="2"/><rect x="35" y="27" width="11" height="14" rx="2"/></g>',
+  flushc:'<g stroke="#1c1c1c" stroke-width="1.1" fill="#fff"><rect x="16" y="30" width="13" height="18" rx="2"/><rect x="23.5" y="30" width="13" height="18" rx="2"/><rect x="31" y="30" width="13" height="18" rx="2"/></g><path d="M38 36 c-2.5 -2.5 -6 1 0 5 c6 -4 2.5 -7.5 0 -5Z" fill="#c0344d"/>',
+  quadc:'<g stroke="#1c1c1c" stroke-width="1" fill="#fff"><rect x="14" y="30" width="11" height="17" rx="2"/><rect x="20" y="30" width="11" height="17" rx="2"/><rect x="26" y="30" width="11" height="17" rx="2"/><rect x="32" y="30" width="11" height="17" rx="2"/></g><text x="38" y="43" font-size="9" font-weight="900" fill="#c0344d" font-family="Georgia,serif">4</text>',
+  creditcard:'<rect x="16" y="30" width="28" height="18" rx="3" fill="#3a6ea5" stroke="#1c1c1c" stroke-width="1.3"/><rect x="16" y="34" width="28" height="4" fill="#16243a"/><rect x="20" y="42" width="11" height="3" rx="1" fill="#cfd8e0"/>',
+  giftbox:'<rect x="18" y="35" width="24" height="15" fill="#c0344d" stroke="#1c1c1c" stroke-width="1.2"/><rect x="17" y="30" width="26" height="6" fill="#e0556a" stroke="#1c1c1c"/><rect x="28" y="30" width="4" height="20" fill="#ffd75e"/><path d="M30 30 q-6 -7 -2 -1 q-5 -6 2 -1 q7 -7 2 1 q5 -6 -2 1" fill="#ffd75e" stroke="#1c1c1c" stroke-width=".8"/>',
+  envelope:'<rect x="16" y="31" width="28" height="18" rx="2" fill="#fff" stroke="#1c1c1c" stroke-width="1.3"/><path d="M16 32 L30 42 L44 32" fill="none" stroke="#1c1c1c" stroke-width="1.3"/>',
+  telescope:'<rect x="22" y="27" width="20" height="7" rx="3" fill="#3a3f4a" stroke="#1c1c1c" stroke-width="1.2" transform="rotate(32 32 31)"/><line x1="25" y1="43" x2="30" y2="52" stroke="#9a6b0f" stroke-width="2"/><line x1="35" y1="43" x2="30" y2="52" stroke="#9a6b0f" stroke-width="2"/><circle cx="41" cy="24" r="2" fill="#ffd75e"/>',
+  cloud:'<g fill="#cfe0ff" stroke="#5a6b8a" stroke-width="1.2"><circle cx="23" cy="40" r="7"/><circle cx="34" cy="37" r="8.5"/><circle cx="41" cy="42" r="6"/><rect x="21" y="42" width="21" height="6"/></g><text x="32" y="46" font-size="8" font-weight="900" text-anchor="middle" fill="#3a78c0">9</text>',
+  eightball:'<circle cx="30" cy="38" r="13" fill="#1c1c1c"/><circle cx="30" cy="34" r="5" fill="#fff"/><text x="30" y="37" font-size="7" font-weight="900" text-anchor="middle" fill="#1c1c1c">8</text>',
+  fist:'<rect x="22" y="32" width="16" height="14" rx="4" fill="#f4c89a" stroke="#1c1c1c" stroke-width="1.3"/><path d="M22 35 h16 M22 39 h16 M22 43 h16" stroke="#1c1c1c" stroke-width=".7"/><rect x="20" y="46" width="20" height="5" rx="2" fill="#c0344d" stroke="#1c1c1c"/>',
+  can:'<rect x="23" y="28" width="14" height="22" rx="2" fill="#c0344d" stroke="#1c1c1c" stroke-width="1.3"/><ellipse cx="30" cy="28" rx="7" ry="2.5" fill="#e0556a" stroke="#1c1c1c"/><rect x="26" y="34" width="8" height="9" rx="1" fill="#fff" opacity=".7"/>',
+  parking:'<rect x="19" y="26" width="22" height="26" rx="3" fill="#2f7fe0" stroke="#1c1c1c" stroke-width="1.3"/><text x="30" y="47" font-size="22" font-weight="900" text-anchor="middle" fill="#fff" font-family="Arial">P</text>',
+  roadsign:'<rect x="18" y="27" width="24" height="16" rx="2" fill="#3fa84f" stroke="#1c1c1c" stroke-width="1.2"/><text x="30" y="38" font-size="7.5" font-weight="900" text-anchor="middle" fill="#fff" font-family="Arial">210A</text><rect x="28" y="43" width="4" height="9" fill="#8a8c87"/>',
+  swap:'<path d="M20 33 H38 L34 29 M38 33 L34 37" fill="none" stroke="#2f7fe0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M40 43 H22 L26 39 M22 43 L26 47" fill="none" stroke="#c0344d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>',
+  lute:'<ellipse cx="28" cy="44" rx="9" ry="11" fill="#a5642a" stroke="#1c1c1c" stroke-width="1.3"/><circle cx="28" cy="44" r="3" fill="#1c1c1c"/><rect x="33" y="20" width="3" height="22" rx="1" fill="#7a4a2a" stroke="#1c1c1c" transform="rotate(20 34 31)"/>',
+  sun:'<g stroke="#ffb83a" stroke-width="2.4" stroke-linecap="round"><line x1="30" y1="18" x2="30" y2="24"/><line x1="30" y1="52" x2="30" y2="58"/><line x1="12" y1="38" x2="18" y2="38"/><line x1="42" y1="38" x2="48" y2="38"/><line x1="18" y1="26" x2="22" y2="30"/><line x1="38" y1="46" x2="42" y2="50"/><line x1="42" y1="26" x2="38" y2="30"/><line x1="22" y1="46" x2="18" y2="50"/></g><circle cx="30" cy="38" r="11" fill="#ffd75e" stroke="#c9920f" stroke-width="1.4"/>',
+  star:'<path d="'+starPath(30,38,15)+'" fill="#ffd75e" stroke="#c9920f" stroke-width="1.3"/>',
+  tower:'<rect x="24" y="28" width="12" height="26" fill="#9a9c97" stroke="#1c1c1c" stroke-width="1.2"/><path d="M23 28 h14 l-2 -5 h-10 Z" fill="#7a1f2a" stroke="#1c1c1c"/><rect x="27" y="44" width="6" height="10" fill="#5a5c57"/><path d="M22 34 q8 -7 16 0" stroke="#ff8a3a" stroke-width="2" fill="none"/>',
+  wheel:'<circle cx="30" cy="38" r="13" fill="none" stroke="#9a6b0f" stroke-width="3"/><circle cx="30" cy="38" r="3" fill="#9a6b0f"/><g stroke="#9a6b0f" stroke-width="2"><line x1="30" y1="25" x2="30" y2="51"/><line x1="17" y1="38" x2="43" y2="38"/><line x1="21" y1="29" x2="39" y2="47"/><line x1="39" y1="29" x2="21" y2="47"/></g>',
+  scale:'<line x1="30" y1="24" x2="30" y2="50" stroke="#9a6b0f" stroke-width="2"/><line x1="17" y1="29" x2="43" y2="29" stroke="#9a6b0f" stroke-width="2"/><path d="M13 29 l4 8 h-8Z" fill="#ffd75e" stroke="#9a6b0f"/><path d="M47 29 l-4 8 h8Z" fill="#ffd75e" stroke="#9a6b0f"/><rect x="26" y="50" width="8" height="3" fill="#9a6b0f"/>',
+  hand:'<path d="M24 51 V35 q0-3 3-3 t3 3 v-5 q0-3 3-3 t3 3 v3 q0-3 3-3 t3 3 v11 q0 8 -8 8 Z" fill="#f4c89a" stroke="#1c1c1c" stroke-width="1.2"/>',
+  ankh:'<circle cx="30" cy="29" r="6" fill="none" stroke="#e0a92a" stroke-width="3"/><line x1="30" y1="35" x2="30" y2="53" stroke="#e0a92a" stroke-width="3" stroke-linecap="round"/><line x1="22" y1="42" x2="38" y2="42" stroke="#e0a92a" stroke-width="3" stroke-linecap="round"/>',
+  earth:'<circle cx="30" cy="38" r="14" fill="#2f7fe0" stroke="#10355f" stroke-width="1.3"/><path d="M21 33 q6 1 4 6 q5 1 2 6 M39 35 q-5 2 -1 7" fill="#3fa84f" stroke="#1c6b2f" stroke-width="1"/>',
+  ringplanet:'<ellipse cx="30" cy="38" rx="22" ry="6" fill="none" stroke="#d8a84a" stroke-width="2.5" transform="rotate(-18 30 38)"/><circle cx="30" cy="38" r="11" fill="#e0a34a" stroke="#9a6b0f" stroke-width="1.2"/>',
+  redplanet:'<circle cx="30" cy="38" r="13" fill="#c0492f" stroke="#7a2510" stroke-width="1.3"/><circle cx="25" cy="34" r="2.4" fill="#9a3520"/><circle cx="34" cy="42" r="3" fill="#9a3520"/>'
+});
+const JART={joker:'jester',greedy:'diamond',lusty:'heart',wrathful:'spade',glutton:'club',jolly:'pairc',zany:'trioc',mad:'twopairc',crazy:'straightc',droll:'flushc',sly:'chip',wily:'trioc',clever:'twopairc',devious:'straightc',crafty:'flushc',half:'starmult',stencil:'square',fourfingers:'fan',mime:'mask',ceremonial:'dagger',banner:'banner',mystic:'mountain',loyalty:'ticket',steven:'twocard',todd:'card',scary:'scary',smiley:'smiley',fibonacci:'spiral',scholar:'cap',walkie:'roadsign',hack:'refresh',sockbuskin:'mask',hangingchad:'refresh',dusk:'refresh',bull:'coin',bluejoker:'chip',abstract:'paint',ridebus:'bus',greenjoker:'starmult',square:'square',runner:'bus',icecream:'icecream',popcorn:'popcorn',splash:'paint',supernova:'star',cavendish:'banana',cardsharp:'fan',obelisk:'obelisk',baron:'crown',shootmoon:'moon',raisedfist:'fist',baseball:'baseball',blueprint:'card',photograph:'camera',vampire:'fangs',erosion:'stone',stonejoker:'stone',flower:'flower',ride:'refresh',bootstraps:'boot',golden:'goldbar',rocket:'rocket',egg:'egg',cloud9:'cloud',delayedgrat:'hourglass',tothemoon:'moon',juggler:'fan',drunkard:'bottle',troubadour:'lute',mrbones:'skull',luchador:'mask',riffraff:'jester',marble:'stone',canio:'jester',triboulet:'crown',yorick:'skull',chicot:'jester',perkeo:'crystalball',misprint:'dice',creditcard:'creditcard',chaos:'dice',eightball:'eightball',businesscard:'creditcard',pareidolia:'smiley',grosmichel:'banana',spacejoker:'galaxy',burglar:'mask',blackboard:'square',dna:'dna',sixthsense:'eye',constellation:'galaxy',hiker:'mountain',faceless:'scary',superposition:'galaxy',todolist:'envelope',redcard:'banner',madness:'starmult',seance:'candle',shortcut:'swap',hologram:'galaxy',vagabond:'boot',midas:'goldbar',turtlebean:'flower',reservedparking:'parking',mailrebate:'envelope',hallucination:'crystalball',fortuneteller:'crystalball',luckycat:'clover',tradingcard:'swap',flashcard:'card',sparetrousers:'starmult',ancient:'gem',ramen:'ramen',seltzer:'can',castle:'castle',smeared:'mirror',throwback:'hourglass',roughgem:'gem',bloodstone:'heart',arrowhead:'spade',onyx:'club',glassjoker:'glass',showman:'fan',flowerpot:'flower',brainstorm:'bulb',wee:'twocard',merryandy:'jester',oops:'eightball',idol:'eye',seeingdouble:'mirror',matador:'coin',hittheroad:'roadsign',duo:'pairc',trio:'trioc',family:'quadc',order:'straightc',tribe:'flushc',stuntman:'person',driverlicense:'creditcard',cartomancer:'card',astronomer:'telescope',burnt:'candle',satellite:'satellite',swashbuckler:'dagger',gift:'giftbox',acrobat:'person',dietcola:'can',invisible:'ghost',certificate:'ticket'};
 function motifCat(def){return ({spade:'spade',heart:'heart',diamond:'diamond',club:'club',mult:'starmult',plus:'starmult',chip:'chip',money:'coin',retrig:'refresh',spark:'galaxy'})[jokerSym(def)]||'jester';}
 // ---- Carte Joker : illustration sur fond clair (carte blanche) ----
 function artJoker(def){
@@ -2152,45 +2183,27 @@ function artJoker(def){
   b+=motif;
   return artSVG('',b);
 }
-// ---- Tarot (soleil ou lune à visage) ----
-function artTarot(def){
-  const top=hueTint(def.name,272,55,58,46);
-  const [bg,bgd]=rg('<stop offset="0%" stop-color="'+top+'"/><stop offset="100%" stop-color="#150a2b"/>',50,38,85);
-  let b='<rect width="60" height="80" fill="#150a2b"/><rect width="60" height="80" fill="'+bg+'"/>'+scatterStars(def.name,15,'#e9d8ff',1.1);
-  if(hashN(def.name)%2===0){
-    b+='<g stroke="#ffd86b" stroke-width="2.4" stroke-linecap="round">';
-    for(let i=0;i<12;i++){const a=i*Math.PI/6,x1=(30+Math.cos(a)*15).toFixed(1),y1=(35+Math.sin(a)*15).toFixed(1),x2=(30+Math.cos(a)*23).toFixed(1),y2=(35+Math.sin(a)*23).toFixed(1);b+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'"/>';}
-    b+='</g><circle cx="30" cy="35" r="13.5" fill="#ffd86b" stroke="#b8860b" stroke-width="1.4"/>';
-    b+='<circle cx="25.8" cy="33" r="1.7" fill="#5a3a00"/><circle cx="34.2" cy="33" r="1.7" fill="#5a3a00"/><path d="M25.5 38 Q30 42.5 34.5 38" fill="none" stroke="#5a3a00" stroke-width="1.8" stroke-linecap="round"/>';
-  }else{
-    b+='<path d="M40 19 A16 16 0 1 0 40 51 A12.5 12.5 0 1 1 40 19 Z" fill="#ffe9a8" stroke="#c9a23a" stroke-width="1.2"/>';
-    b+='<circle cx="29" cy="31" r="1.6" fill="#7a5a10"/><path d="M25 37 Q29 40 32 36" fill="none" stroke="#7a5a10" stroke-width="1.5" stroke-linecap="round"/>';
-  }
-  b+='<path d="'+starPath(15,58,3.6)+'" fill="#e9d8ff" opacity=".85"/><path d="'+starPath(45,61,2.8)+'" fill="#e9d8ff" opacity=".7"/>';
-  return artSVG(bgd,b);
+// ---- Consommables : illustration par carte (motif dédié) sur fond clair ----
+const CONSUM_ART={
+  // Planètes
+  pluton:'moon',mercure:'redplanet',uranus:'ringplanet',venus:'earth',saturne:'ringplanet',jupiter:'ringplanet',terre:'earth',mars:'redplanet',neptune:'earth',planetx:'galaxy',ceres:'moon',eris:'star',
+  // Tarots
+  bateleur:'hand',imperatrice:'crown',pape:'ankh',amoureux:'heart',chariot:'gem',diable:'fangs',tour:'tower',justice:'scale',force:'fist',pendu:'person',roue:'wheel',etoile:'star',lune:'moon',soleil:'sun',monde:'earth',papesse:'crystalball',empereur:'crown',jugement:'candle',hermite:'candle',pendule:'wheel',mat:'jester',mort:'skull',temperance:'coin',
+  // Spectrales
+  familier:'fangs',grim:'skull',incantation:'candle',talisman:'gem',aura:'star',wraith:'ghost',sigil:'eye',ophelie:'ghost',ectoplasme:'ghost',immolation:'candle',ankh:'ankh',dejavu:'swap',hex:'gem',transe:'crystalball',medium:'crystalball',cryptide:'fangs',ame:'crown',trounoir:'galaxy'
+};
+function artConsum(type,def){
+  const tint=({planet:'#2f5bb0',spectral:'#1c7e92',tarot:'#6a48b0'})[type]||'#888';
+  const mk=CONSUM_ART[def.key]||({planet:'ringplanet',spectral:'ghost',tarot:'star'})[type];
+  const m=MO[mk]||MO.star;const motif=(typeof m==='function')?m(tint):m;
+  let b='<rect width="60" height="80" fill="#f3efe3"/>';
+  b+='<ellipse cx="30" cy="38" rx="26" ry="30" fill="'+tint+'" opacity="0.16"/>';
+  b+=motif;
+  return artSVG('',b);
 }
-// ---- Planète ----
-function artPlanet(def){
-  const pc=hueTint(def.name,205,90,62,54);
-  const [bg,bgd]=rg('<stop offset="0%" stop-color="#1a356e"/><stop offset="100%" stop-color="#04081c"/>',50,28,90);
-  const [pg,pgd]=rg('<stop offset="0%" stop-color="#ffffff"/><stop offset="34%" stop-color="'+pc+'"/><stop offset="100%" stop-color="#0a1330"/>',36,30,78);
-  let b='<rect width="60" height="80" fill="'+bg+'"/>'+scatterStars(def.name,18,'#dfeaff',1.1);
-  b+='<ellipse cx="30" cy="40" rx="25" ry="8" fill="none" stroke="'+pc+'" stroke-width="2.5" opacity=".45" transform="rotate(-20 30 40)"/>';
-  b+='<circle cx="30" cy="38" r="16" fill="'+pg+'" stroke="#0006" stroke-width="1"/>';
-  b+='<path d="M15 34 Q30 31 45 34" stroke="#ffffff33" stroke-width="2" fill="none"/><path d="M16 43 Q30 46 44 43" stroke="#00000030" stroke-width="2.5" fill="none"/>';
-  b+='<ellipse cx="30" cy="38" rx="25" ry="8" fill="none" stroke="'+pc+'" stroke-width="3" transform="rotate(-20 30 38)"/>';
-  b+='<circle cx="49" cy="19" r="3.4" fill="#cfe0ff" stroke="#0005"/>';
-  return artSVG(bgd+pgd,b);
-}
-// ---- Spectrale (fantôme) ----
-function artSpectral(def){
-  const [bg,bgd]=rg('<stop offset="0%" stop-color="'+hueTint(def.name,170,50,46,34)+'"/><stop offset="100%" stop-color="#03161c"/>',50,38,85);
-  let b='<rect width="60" height="80" fill="#03161c"/><rect width="60" height="80" fill="'+bg+'"/>'+scatterStars(def.name,7,'#bfeede',0.85);
-  b+='<path d="M15 60 V40 a15 15 0 0 1 30 0 V60 l-4.3-4 -4.3 4 -4.3-4 -4.3 4 -4.3-4 -4.3 4 Z" fill="#eaf7ff" opacity=".95" stroke="#bcd8e0" stroke-width="1"/>';
-  b+='<ellipse cx="24.5" cy="40" rx="2.3" ry="3" fill="#1d3a44"/><ellipse cx="35.5" cy="40" rx="2.3" ry="3" fill="#1d3a44"/><ellipse cx="30" cy="48" rx="2.8" ry="3.6" fill="#1d3a44" opacity=".85"/>';
-  b+='<circle cx="13" cy="24" r="1.8" fill="#eaf7ff" opacity=".5"/><circle cx="48" cy="30" r="2.3" fill="#eaf7ff" opacity=".4"/>';
-  return artSVG(bgd,b);
-}
+function artTarot(def){return artConsum('tarot',def);}
+function artPlanet(def){return artConsum('planet',def);}
+function artSpectral(def){return artConsum('spectral',def);}
 // ---- Voucher (sceau doré) ----
 function artVoucher(def){
   const [bg,bgd]=rg('<stop offset="0%" stop-color="#f0c14b"/><stop offset="100%" stop-color="#553a0b"/>',50,32,85);
