@@ -69,10 +69,10 @@
   .newTag{position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:bold;background:var(--gold);color:#3a2c00;border-radius:5px;padding:1px 5px;z-index:5;box-shadow:0 2px 4px #0008;animation:newpulse 1s infinite;}
   @keyframes newpulse{0%,100%{transform:translateX(-50%) scale(1);}50%{transform:translateX(-50%) scale(1.12);}}
   .joker.debuff{filter:grayscale(1) brightness(.55);}
-  .tooltip{position:absolute;top:106%;left:50%;transform:translateX(-50%);width:190px;max-width:46vw;background:#0c1413;border:2px solid var(--gold);
-    border-radius:8px;padding:8px;font-size:11px;z-index:60;display:none;color:var(--txt);box-shadow:0 6px 16px #000c;line-height:1.4;text-align:left;white-space:normal;}
-  .joker:hover .tooltip,.consum:hover .tooltip,.card:hover .tooltip,.voucher:hover .tooltip,.pack:hover .tooltip{display:block;}
-  .card .tooltip,.pile .tooltip{top:auto;bottom:106%;width:172px;}
+  .tooltip{display:none;} /* source de texte uniquement — affichée via #floatTip, repositionné pour rester lisible */
+  #floatTip{position:fixed;z-index:9999;width:max-content;max-width:min(280px,88vw);background:#0c1413;border:2px solid var(--gold);
+    border-radius:8px;padding:8px 10px;font-size:11px;color:var(--txt);box-shadow:0 8px 22px #000e;line-height:1.45;text-align:left;white-space:normal;pointer-events:none;display:none;}
+  #floatTip b{color:var(--gold);}
   .tooltip b{color:var(--gold);}
   #playArea{min-height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
   #handLabel{font-size:18px;color:var(--gold);height:24px;font-weight:bold;text-shadow:1px 1px 0 #000;}
@@ -2381,6 +2381,33 @@ function toggleReduceAnim(){SETTINGS.reduceAnim=document.getElementById('reduceA
 function resetMetaObj(){META={maxStake:1,wins:0,bestAnte:1,runsPlayed:0,totalHands:0,bestHandScore:0,discovered:[],unlockedJokers:[],achievements:[],scores:[]};_knownUnlocked=null;}
 function resetProgress(){showMsg('Réinitialiser ?','Cela efface toute ta progression (déblocages, découvertes, statistiques). Action irréversible.','Tout effacer',()=>{try{localStorage.removeItem(META_KEY);}catch(e){}resetMetaObj();hide('msgOverlay');hide('settingsOverlay');toast('Progression réinitialisée.');},'Annuler',()=>{hide('msgOverlay');});}
 function fullReset(){showMsg('Réinitialisation complète ?','Efface DÉFINITIVEMENT <b>tout</b> : succès, découvertes, déblocages (decks/mises/jokers), statistiques, meilleurs scores, thème, et la sauvegarde de partie en cours.<br><br>Cette action est irréversible.','Tout effacer',()=>{try{localStorage.removeItem(META_KEY);localStorage.removeItem(SAVE_KEY);localStorage.removeItem(SET_KEY);}catch(e){}resetMetaObj();SETTINGS={speed:'normal',reduceAnim:false,theme:'classic'};applySettings();applyTheme();hide('msgOverlay');const cb=document.getElementById('continueBtn');if(cb)cb.style.display='none';toast('Tout a été réinitialisé. 🗑️');},'Annuler',()=>{hide('msgOverlay');});}
+
+/* ===================== INFO-BULLE FLOTTANTE (repositionnée pour rester entièrement lisible) ===================== */
+const TIP_HOSTS='.joker,.consum,.card,.voucher,.pack,.pile';
+let _floatTip=null,_tipHost=null;
+function tipEnsure(){if(!_floatTip){_floatTip=document.createElement('div');_floatTip.id='floatTip';document.body.appendChild(_floatTip);}return _floatTip;}
+function tipHide(){_tipHost=null;if(_floatTip)_floatTip.style.display='none';}
+function tipShow(host){
+  const src=host.querySelector(':scope > .tooltip');if(!src||!src.innerHTML.trim())return;
+  _tipHost=host;
+  const t=tipEnsure();t.innerHTML=src.innerHTML;t.style.display='block';
+  // mesure puis place : sous l'élément si possible, sinon au-dessus ; toujours bridé à l'écran
+  t.style.left='-9999px';t.style.top='0px';
+  const r=host.getBoundingClientRect();const tw=t.offsetWidth,th=t.offsetHeight;
+  const vw=window.innerWidth||document.documentElement.clientWidth,vh=window.innerHeight||document.documentElement.clientHeight,m=8;
+  let left=r.left+r.width/2-tw/2;left=Math.max(m,Math.min(left,vw-tw-m));
+  let top=r.bottom+8;if(top+th>vh-m)top=r.top-th-8;if(top<m)top=Math.max(m,Math.min(r.bottom+8,vh-th-m));
+  t.style.left=Math.round(left)+'px';t.style.top=Math.round(top)+'px';
+}
+function tipHandler(e){
+  const host=e.target&&e.target.closest?e.target.closest(TIP_HOSTS):null;
+  if(host===_tipHost)return; // même élément : rien à refaire (évite le scintillement)
+  if(host&&host.querySelector(':scope > .tooltip'))tipShow(host);else tipHide();
+}
+document.addEventListener('pointerover',tipHandler);
+document.addEventListener('pointermove',tipHandler);
+document.addEventListener('pointerdown',tipHide);
+window.addEventListener('scroll',tipHide,true);
 
 /* ===================== DÉMARRAGE ===================== */
 function boot(){
