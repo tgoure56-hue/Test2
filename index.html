@@ -2245,12 +2245,12 @@ function artJoker(def){
 }
 // ---- Consommables : illustration par carte (motif dédié) sur fond clair ----
 const CONSUM_ART={
-  // Planètes
-  pluton:'moon',mercure:'redplanet',uranus:'ringplanet',venus:'earth',saturne:'ringplanet',jupiter:'ringplanet',terre:'earth',mars:'redplanet',neptune:'earth',planetx:'galaxy',ceres:'moon',eris:'star',
-  // Tarots
-  bateleur:'hand',imperatrice:'crown',pape:'ankh',amoureux:'heart',chariot:'gem',diable:'fangs',tour:'tower',justice:'scale',force:'fist',pendu:'person',roue:'wheel',etoile:'star',lune:'moon',soleil:'sun',monde:'earth',papesse:'crystalball',empereur:'crown',jugement:'candle',hermite:'candle',pendule:'wheel',mat:'jester',mort:'skull',temperance:'coin',
-  // Spectrales
-  familier:'fangs',grim:'skull',incantation:'candle',talisman:'gem',aura:'star',wraith:'ghost',sigil:'eye',ophelie:'ghost',ectoplasme:'ghost',immolation:'candle',ankh:'ankh',dejavu:'swap',hex:'gem',transe:'crystalball',medium:'crystalball',cryptide:'fangs',ame:'crown',trounoir:'galaxy'
+  // Planètes (12 dessins distincts)
+  pluton:'moon',mercure:'redplanet',uranus:'ringplanet',venus:'cloud',saturne:'satellite',jupiter:'galaxy',terre:'earth',mars:'rocket',neptune:'star',planetx:'telescope',ceres:'sun',eris:'atom',
+  // Tarots (23 distincts)
+  bateleur:'hand',imperatrice:'crown',pape:'ankh',amoureux:'heart',chariot:'gem',diable:'fangs',tour:'tower',justice:'scale',force:'fist',pendu:'person',roue:'wheel',etoile:'star',lune:'moon',soleil:'sun',monde:'earth',papesse:'crystalball',empereur:'kingqueen',jugement:'flame',hermite:'candle',pendule:'clock',mat:'jester',mort:'skull',temperance:'coin',
+  // Spectrales (18 distincts)
+  familier:'turtle',grim:'skull',incantation:'candle',talisman:'gem',aura:'star',wraith:'ghost',sigil:'eye',ophelie:'flower',ectoplasme:'splat',immolation:'flame',ankh:'ankh',dejavu:'swap',hex:'spiral',transe:'crystalball',medium:'twoeyes',cryptide:'fangs',ame:'crown',trounoir:'galaxy'
 };
 function artConsum(type,def){
   const mk=CONSUM_ART[def.key]||({planet:'ringplanet',spectral:'ghost',tarot:'star'})[type];
@@ -2323,7 +2323,7 @@ function pixelateAll(){
     let url;try{url='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(xml)));}catch(e){return;}
     const img=new Image();
     img.onload=()=>{try{
-      const PW=54,PH=72,c=document.createElement('canvas');c.width=PW;c.height=PH;
+      const PW=58,PH=77,c=document.createElement('canvas');c.width=PW;c.height=PH;
       const cx=c.getContext('2d');cx.imageSmoothingEnabled=false;cx.drawImage(img,0,0,PW,PH);
       const data=c.toDataURL();pxCache[key]=data;
       const im=document.createElement('img');im.className='art pxart';im.src=data;
@@ -2336,11 +2336,9 @@ let _pxSched=false;
 function schedulePixelate(){if(_pxSched)return;_pxSched=true;(window.requestAnimationFrame||setTimeout)(()=>{_pxSched=false;pixelateAll();},16);}
 // Emblème (sceau) d'un booster
 function packArt(type){
-  const m=({cele:{g:GLY.planet,c:'#7fb0ff'},arca:{g:GLY.sun,c:'#d0a9ff'},buff:{g:GLY.face,c:'#ff9a8a'},spec:{g:GLY.ghost,c:'#8fe6d6'},std:{g:GLY.spade,c:'#ffe08a'}})[type]||{g:GLY.spark,c:'#fff'};
-  return '<svg viewBox="0 0 60 60" width="52" height="52">'
-    +'<circle cx="30" cy="30" r="24" fill="#0008" stroke="'+m.c+'" stroke-width="2.5"/>'
-    +'<circle cx="30" cy="30" r="20" fill="none" stroke="#ffffff33" stroke-width="1" stroke-dasharray="2 3"/>'
-    +'<g fill="#fff" stroke="rgba(0,0,0,.4)" stroke-width="1.1" stroke-linejoin="round" transform="translate(10,10)">'+m.g+'</g></svg>';
+  const c=({cele:{m:'galaxy',p:[214,66]},arca:{m:'sun',p:[270,56]},buff:{m:'jester',p:[36,66]},spec:{m:'ghost',p:[185,58]},std:{m:'spade',p:[150,46]}})[type]||{m:'star',p:[45,70]};
+  const mm=MO[c.m];const motif=(typeof mm==='function')?mm('#d84a4a'):mm;
+  return artScene(jitterPal(c.p[0],c.p[1],'pack'+type),motif).replace('<svg class="art"','<svg class="art" data-pxkey="pack:'+type+'"');
 }
 // Valeur en direct des Jokers à compteur (affichée dans l'info-bulle). i = instance du Joker.
 const LIVE_INFO={
