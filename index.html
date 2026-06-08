@@ -2079,18 +2079,18 @@ function scatterStars(name,count,color,maxR){
 function starPath(cx,cy,r){let p='';for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rad=(i%2?r*0.45:r),x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad;p+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1);}return p+'Z';}
 function artSVG(defs,body){return '<svg class="art" viewBox="0 0 60 80" width="100%" height="100%" preserveAspectRatio="xMidYMid slice"><defs>'+defs+'</defs>'+body+'</svg>';}
 // ---- Bibliothèque d'illustrations (motifs) dessinées sur la carte claire ----
-function jesterFace(rc){return '<path d="M13 31 Q8 8 20 14 Q25 3 30 12 Q35 3 40 14 Q52 8 47 31 Z" fill="'+rc+'" stroke="#1a1a1a" stroke-width="1.4"/><circle cx="20" cy="13" r="3.3" fill="#ffd75e" stroke="#1a1a1a" stroke-width=".9"/><circle cx="40" cy="13" r="3.3" fill="#ffd75e" stroke="#1a1a1a" stroke-width=".9"/><circle cx="30" cy="10.5" r="3" fill="#ffd75e" stroke="#1a1a1a" stroke-width=".9"/><ellipse cx="30" cy="41" rx="14" ry="13" fill="#fbf6ea" stroke="#1a1a1a" stroke-width="1.4"/><circle cx="24.5" cy="39" r="2" fill="#27324a"/><circle cx="35.5" cy="39" r="2" fill="#27324a"/><ellipse cx="22" cy="45" rx="2.4" ry="1.6" fill="#ff9a9a" opacity=".6"/><ellipse cx="38" cy="45" rx="2.4" ry="1.6" fill="#ff9a9a" opacity=".6"/><path d="M23 45 Q30 53 37 45" fill="none" stroke="#27324a" stroke-width="2" stroke-linecap="round"/><path d="M15 53 L21 61 L26 53 L30 61 L34 53 L39 61 L45 53 L42 65 L18 65 Z" fill="'+rc+'" stroke="#1a1a1a" stroke-width="1.1"/>';}
+function jesterFace(rc){return '<path d="M13 31 Q8 8 20 14 Q25 3 30 12 Q35 3 40 14 Q52 8 47 31 Z" fill="'+rc+'" stroke="#1a1a1a" stroke-width="1.4"/><path d="M16 28 Q14 14 22 16" fill="none" stroke="#ffffff55" stroke-width="1.6" stroke-linecap="round"/><circle cx="20" cy="13" r="3.3" fill="#ffd75e" stroke="#1a1a1a" stroke-width=".9"/><circle cx="40" cy="13" r="3.3" fill="#ffd75e" stroke="#1a1a1a" stroke-width=".9"/><circle cx="30" cy="10.5" r="3" fill="#ffd75e" stroke="#1a1a1a" stroke-width=".9"/><circle cx="19" cy="12" r="1" fill="#fff8"/><ellipse cx="30" cy="41" rx="14" ry="13" fill="#fbf6ea" stroke="#1a1a1a" stroke-width="1.4"/><ellipse cx="25" cy="36" rx="3.5" ry="2.4" fill="#fff" opacity=".5"/><path d="M22 36 Q24.5 34.5 27 36 M33 36 Q35.5 34.5 38 36" fill="none" stroke="#1a1a1a" stroke-width="1" stroke-linecap="round"/><circle cx="24.5" cy="39" r="2" fill="#27324a"/><circle cx="35.5" cy="39" r="2" fill="#27324a"/><circle cx="25.1" cy="38.4" r=".6" fill="#fff"/><circle cx="36.1" cy="38.4" r=".6" fill="#fff"/><path d="M29 41 Q30 43 31 41" fill="none" stroke="#1a1a1a" stroke-width="1" stroke-linecap="round"/><ellipse cx="22" cy="45" rx="2.4" ry="1.6" fill="#ff9a9a" opacity=".6"/><ellipse cx="38" cy="45" rx="2.4" ry="1.6" fill="#ff9a9a" opacity=".6"/><path d="M23 45 Q30 53 37 45" fill="none" stroke="#27324a" stroke-width="2" stroke-linecap="round"/><path d="M15 53 L21 61 L26 53 L30 61 L34 53 L39 61 L45 53 L42 65 L18 65 Z" fill="'+rc+'" stroke="#1a1a1a" stroke-width="1.1"/><path d="M18 56 L22 60 L26 56" fill="none" stroke="#ffffff44" stroke-width="1"/>';}
 const MO={
   jester:rc=>jesterFace(rc),
   smiley:'<circle cx="30" cy="38" r="14" fill="#ffd75e" stroke="#1c1c1c" stroke-width="1.5"/><circle cx="25" cy="35" r="2" fill="#1c1c1c"/><circle cx="35" cy="35" r="2" fill="#1c1c1c"/><path d="M23 42 Q30 50 37 42" fill="none" stroke="#1c1c1c" stroke-width="2.2" stroke-linecap="round"/>',
   scary:'<path d="M30 22 C40 22 44 31 44 39 C44 50 37 54 30 54 C23 54 16 50 16 39 C16 31 20 22 30 22 Z" fill="#3a1530" stroke="#1c1c1c" stroke-width="1.4"/><path d="M21 33 l6 4 -6 4Z" fill="#ff5a4d"/><path d="M39 33 l-6 4 6 4Z" fill="#ff5a4d"/><path d="M24 47 q6 5 12 0" fill="none" stroke="#ff5a4d" stroke-width="2.2"/>',
-  spade:'<path d="M30 18 C30 18 45 31 45 40 C45 46 39 48 34 45 C35 49 37 51 40 53 L20 53 C23 51 25 49 26 45 C21 48 15 46 15 40 C15 31 30 18 30 18 Z" fill="#27324a" stroke="#0a0a0a" stroke-width="1.2"/>',
-  heart:'<path d="M30 53 C11 40 14 23 23 23 C28 23 30 28 30 31 C30 28 32 23 37 23 C46 23 49 40 30 53 Z" fill="#d0354a" stroke="#5a0f1a" stroke-width="1.2"/>',
-  diamond:'<path d="M30 17 L45 38 L30 57 L15 38 Z" fill="#e0552f" stroke="#7a2510" stroke-width="1.2"/>',
-  club:'<circle cx="30" cy="29" r="6.6" fill="#1f2a22" stroke="#0a0a0a" stroke-width="1.1"/><circle cx="22.5" cy="39" r="6.6" fill="#1f2a22" stroke="#0a0a0a" stroke-width="1.1"/><circle cx="37.5" cy="39" r="6.6" fill="#1f2a22" stroke="#0a0a0a" stroke-width="1.1"/><path d="M27 39 H33 L36 54 H24 Z" fill="#1f2a22" stroke="#0a0a0a" stroke-width="1.1"/>',
-  chip:'<circle cx="30" cy="38" r="14" fill="#2f7fe0" stroke="#0a3a6a" stroke-width="1.6"/><circle cx="30" cy="38" r="9" fill="none" stroke="#fff" stroke-width="2.2" stroke-dasharray="3 3.6"/><circle cx="30" cy="38" r="4" fill="#fff8"/>',
-  starmult:'<path d="'+starPath(30,38,15)+'" fill="#fe5f55" stroke="#7a1f1a" stroke-width="1.3"/>',
-  coin:'<ellipse cx="30" cy="38" rx="12.5" ry="13.5" fill="#ffd75e" stroke="#9a6b0f" stroke-width="1.7"/><ellipse cx="30" cy="38" rx="9" ry="10" fill="none" stroke="#e0a92a" stroke-width="1.2"/><text x="30" y="44" font-size="16" font-weight="900" text-anchor="middle" fill="#9a6b0f" font-family="Georgia,serif">$</text>',
+  spade:'<path d="M30 18 C30 18 45 31 45 40 C45 46 39 48 34 45 C35 49 37 51 40 53 L20 53 C23 51 25 49 26 45 C21 48 15 46 15 40 C15 31 30 18 30 18 Z" fill="#2b3850" stroke="#0a0a0a" stroke-width="1.2"/><path d="M27 26 C24 31 22 35 24 39" fill="none" stroke="#5a6b8a" stroke-width="2" stroke-linecap="round" opacity=".7"/>',
+  heart:'<path d="M30 53 C11 40 14 23 23 23 C28 23 30 28 30 31 C30 28 32 23 37 23 C46 23 49 40 30 53 Z" fill="#d0354a" stroke="#5a0f1a" stroke-width="1.2"/><path d="M22 28 C19 32 21 36 24 37" fill="none" stroke="#ff9aa8" stroke-width="2.2" stroke-linecap="round" opacity=".75"/>',
+  diamond:'<path d="M30 17 L45 38 L30 57 L15 38 Z" fill="#e0552f" stroke="#7a2510" stroke-width="1.2"/><path d="M30 22 L20 38 L30 38Z" fill="#ff8a5a" opacity=".5"/>',
+  club:'<circle cx="30" cy="29" r="6.6" fill="#243028" stroke="#0a0a0a" stroke-width="1.1"/><circle cx="22.5" cy="39" r="6.6" fill="#243028" stroke="#0a0a0a" stroke-width="1.1"/><circle cx="37.5" cy="39" r="6.6" fill="#243028" stroke="#0a0a0a" stroke-width="1.1"/><path d="M27 39 H33 L36 54 H24 Z" fill="#243028" stroke="#0a0a0a" stroke-width="1.1"/><circle cx="28" cy="27" r="1.6" fill="#5a6b5a" opacity=".7"/>',
+  chip:'<circle cx="30" cy="38" r="14" fill="#2f7fe0" stroke="#0a3a6a" stroke-width="1.6"/><circle cx="30" cy="38" r="9" fill="none" stroke="#fff" stroke-width="2.2" stroke-dasharray="3 3.6"/><circle cx="30" cy="38" r="4" fill="#fff8"/><path d="M22 31 A11 11 0 0 1 38 31" fill="none" stroke="#fff" stroke-width="1.6" opacity=".5"/>',
+  starmult:'<path d="'+starPath(30,38,15)+'" fill="#fe5f55" stroke="#7a1f1a" stroke-width="1.3"/><path d="'+starPath(30,36,7)+'" fill="#ff9a8a" opacity=".6"/>',
+  coin:'<ellipse cx="30" cy="38" rx="12.5" ry="13.5" fill="#ffd75e" stroke="#9a6b0f" stroke-width="1.7"/><ellipse cx="30" cy="38" rx="9" ry="10" fill="none" stroke="#e0a92a" stroke-width="1.2"/><path d="M22 31 A12 13 0 0 1 33 27" fill="none" stroke="#fff6c8" stroke-width="2" stroke-linecap="round" opacity=".8"/><text x="30" y="44" font-size="16" font-weight="900" text-anchor="middle" fill="#9a6b0f" font-family="Georgia,serif">$</text>',
   crown:'<path d="M15 47 L18 25 L25 34 L30 21 L35 34 L42 25 L45 47 Z" fill="#ffd75e" stroke="#9a6b0f" stroke-width="1.4"/><rect x="15" y="46" width="30" height="6" rx="1" fill="#e0a92a" stroke="#9a6b0f" stroke-width="1.2"/><circle cx="30" cy="21" r="2.4" fill="#c0344d" stroke="#9a6b0f"/>',
   moon:'<path d="M40 19 A17 17 0 1 0 40 55 A13 13 0 1 1 40 19 Z" fill="#dbe6ff" stroke="#5a6b8a" stroke-width="1.3"/><circle cx="33" cy="30" r="2" fill="#aab8d8"/><circle cx="30" cy="40" r="3" fill="#aab8d8"/>',
   banana:'<path d="M17 27 Q20 50 42 51 Q35 47 33 40 Q42 45 46 33 Q37 40 31 33 Q27 29 22 25 Z" fill="#ffd84a" stroke="#9a7a10" stroke-width="1.5"/><path d="M42 51 l3 2" stroke="#5a3a10" stroke-width="2" stroke-linecap="round"/>',
@@ -2160,7 +2160,7 @@ Object.assign(MO,{
   swap:'<path d="M20 33 H38 L34 29 M38 33 L34 37" fill="none" stroke="#2f7fe0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M40 43 H22 L26 39 M22 43 L26 47" fill="none" stroke="#c0344d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>',
   lute:'<ellipse cx="28" cy="44" rx="9" ry="11" fill="#a5642a" stroke="#1c1c1c" stroke-width="1.3"/><circle cx="28" cy="44" r="3" fill="#1c1c1c"/><rect x="33" y="20" width="3" height="22" rx="1" fill="#7a4a2a" stroke="#1c1c1c" transform="rotate(20 34 31)"/>',
   sun:'<g stroke="#ffb83a" stroke-width="2.4" stroke-linecap="round"><line x1="30" y1="18" x2="30" y2="24"/><line x1="30" y1="52" x2="30" y2="58"/><line x1="12" y1="38" x2="18" y2="38"/><line x1="42" y1="38" x2="48" y2="38"/><line x1="18" y1="26" x2="22" y2="30"/><line x1="38" y1="46" x2="42" y2="50"/><line x1="42" y1="26" x2="38" y2="30"/><line x1="22" y1="46" x2="18" y2="50"/></g><circle cx="30" cy="38" r="11" fill="#ffd75e" stroke="#c9920f" stroke-width="1.4"/>',
-  star:'<path d="'+starPath(30,38,15)+'" fill="#ffd75e" stroke="#c9920f" stroke-width="1.3"/>',
+  star:'<path d="'+starPath(30,38,15)+'" fill="#ffd75e" stroke="#c9920f" stroke-width="1.3"/><path d="'+starPath(30,36,7)+'" fill="#fff6c8" opacity=".7"/>',
   tower:'<rect x="24" y="28" width="12" height="26" fill="#9a9c97" stroke="#1c1c1c" stroke-width="1.2"/><path d="M23 28 h14 l-2 -5 h-10 Z" fill="#7a1f2a" stroke="#1c1c1c"/><rect x="27" y="44" width="6" height="10" fill="#5a5c57"/><path d="M22 34 q8 -7 16 0" stroke="#ff8a3a" stroke-width="2" fill="none"/>',
   wheel:'<circle cx="30" cy="38" r="13" fill="none" stroke="#9a6b0f" stroke-width="3"/><circle cx="30" cy="38" r="3" fill="#9a6b0f"/><g stroke="#9a6b0f" stroke-width="2"><line x1="30" y1="25" x2="30" y2="51"/><line x1="17" y1="38" x2="43" y2="38"/><line x1="21" y1="29" x2="39" y2="47"/><line x1="39" y1="29" x2="21" y2="47"/></g>',
   scale:'<line x1="30" y1="24" x2="30" y2="50" stroke="#9a6b0f" stroke-width="2"/><line x1="17" y1="29" x2="43" y2="29" stroke="#9a6b0f" stroke-width="2"/><path d="M13 29 l4 8 h-8Z" fill="#ffd75e" stroke="#9a6b0f"/><path d="M47 29 l-4 8 h8Z" fill="#ffd75e" stroke="#9a6b0f"/><rect x="26" y="50" width="8" height="3" fill="#9a6b0f"/>',
@@ -2303,13 +2303,25 @@ function motifPalette(mk,key){
 }
 // scène plein cadre : fond dégradé + projecteur sur le sujet + vignette (pour lisibilité du libellé)
 function artScene(pal,motif,extra){
-  const [bg,bgd]=rg('<stop offset="0%" stop-color="'+pal[0]+'"/><stop offset="100%" stop-color="'+pal[1]+'"/>',50,28,98);
-  const [vg,vgd]=rg('<stop offset="50%" stop-color="rgba(0,0,0,0)"/><stop offset="100%" stop-color="rgba(0,0,0,0.45)"/>',50,44,80);
+  const [bg,bgd]=rg('<stop offset="0%" stop-color="'+pal[0]+'"/><stop offset="100%" stop-color="'+pal[1]+'"/>',50,26,100);
+  const [vg,vgd]=rg('<stop offset="46%" stop-color="rgba(0,0,0,0)"/><stop offset="100%" stop-color="rgba(0,0,0,0.5)"/>',50,42,82);
   let b='<rect width="60" height="80" fill="'+bg+'"/>';
-  b+='<ellipse cx="30" cy="14" rx="34" ry="13" fill="#ffffff22"/>';
-  b+='<ellipse cx="30" cy="39" rx="23" ry="26" fill="#ffffff" opacity="0.22"/>';
+  // faisceaux de lumière diagonaux
+  b+='<g opacity="0.09" fill="#fff"><path d="M2 80 L26 0 L33 0 L11 80Z"/><path d="M40 0 L46 0 L62 64 L56 80 L40 12Z"/></g>';
+  // poussière / particules
+  b+='<g fill="#ffffff" opacity="0.5"><circle cx="14" cy="20" r=".8"/><circle cx="46" cy="16" r="1"/><circle cx="50" cy="44" r=".7"/><circle cx="11" cy="50" r=".7"/><circle cx="44" cy="62" r=".8"/></g>';
+  // reflet supérieur
+  b+='<ellipse cx="30" cy="12" rx="35" ry="13" fill="#ffffff26"/>';
+  // halo lumineux derrière le sujet
+  b+='<ellipse cx="30" cy="38" rx="22" ry="25" fill="#ffffff" opacity="0.24"/>';
+  // ombre portée au sol (le sujet est posé, pas flottant)
+  b+='<ellipse cx="30" cy="60" rx="15" ry="3.6" fill="#000000" opacity="0.30"/>';
   b+=(extra||'')+motif;
+  // vignette
   b+='<rect width="60" height="80" fill="'+vg+'"/>';
+  // cadre ornemental + petites fioritures de coin
+  b+='<rect x="3.5" y="3.5" width="53" height="73" rx="5" fill="none" stroke="#ffffff30" stroke-width="1"/>';
+  b+='<g fill="#ffffff44"><path d="M4 9 L4 4 L9 4"/><path d="M56 9 L56 4 L51 4"/><path d="M4 71 L4 76 L9 76"/><path d="M56 71 L56 76 L51 76"/></g>'.replace(/<path/g,'<path stroke="#ffffff55" stroke-width="1.2" fill="none"');
   return artSVG(bgd+vgd,b);
 }
 // Rendu pixel-art : rastérise les illustrations SVG en basse résolution puis les affiche agrandies (pixels nets)
