@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Une petite question pour toi…</title>
+<style>
+  :root {
+    --rose: #ff5e8a;
+    --rose-fonce: #e23e6e;
+    --fond1: #ffe1ec;
+    --fond2: #ffd0e0;
+    --texte: #4a2030;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--texte);
+    background: linear-gradient(135deg, var(--fond1), var(--fond2));
+    overflow-x: hidden;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    position: relative;
+  }
+
+  /* Cœurs flottants en fond */
+  .heart-bg {
+    position: fixed;
+    bottom: -40px;
+    font-size: 24px;
+    opacity: 0.6;
+    pointer-events: none;
+    animation: float-up linear infinite;
+    z-index: 0;
+  }
+  @keyframes float-up {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.7; }
+    90%  { opacity: 0.7; }
+    100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+  }
+
+  .carte {
+    position: relative;
+    z-index: 1;
+    background: #fff;
+    border-radius: 28px;
+    padding: 40px 32px;
+    max-width: 460px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(226, 62, 110, 0.25);
+    text-align: center;
+    animation: pop 0.5s ease;
+  }
+  @keyframes pop {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+
+  h1 {
+    font-size: 1.7rem;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .sous-titre {
+    font-size: 1rem;
+    color: #8a6070;
+    margin: 0 0 28px;
+  }
+
+  .emoji-geant {
+    font-size: 3.2rem;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  /* Zone des boutons oui/non */
+  .zone-boutons {
+    position: relative;
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    min-height: 70px;
+    margin-top: 8px;
+  }
+
+  button {
+    font-family: inherit;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 50px;
+    padding: 16px 30px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  button:active { transform: scale(0.96); }
+
+  .btn-oui {
+    background: var(--rose);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(255, 94, 138, 0.45);
+  }
+  .btn-oui:hover { background: var(--rose-fonce); }
+
+  /* Le "Non" grossit son "Oui" au fur et à mesure pour appâter */
+  .btn-non {
+    background: #f0e4e9;
+    color: #9a7080;
+  }
+
+  /* Quand le "Non" s'enfuit, il devient positionné en absolu/fixe */
+  .btn-non.fuit {
+    position: fixed;
+    z-index: 50;
+    margin: 0;
+  }
+
+  /* Écrans cachés */
+  .ecran { display: none; }
+  .ecran.actif { display: block; animation: pop 0.4s ease; }
+
+  /* Formulaire date/heure */
+  .champ {
+    text-align: left;
+    margin: 0 0 18px;
+  }
+  .champ label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+  }
+  .champ input, .champ textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 13px 14px;
+    border: 2px solid #f0d5de;
+    border-radius: 14px;
+    background: #fff7fa;
+    color: var(--texte);
+  }
+  .champ input:focus, .champ textarea:focus {
+    outline: none;
+    border-color: var(--rose);
+  }
+  .champ textarea { resize: vertical; min-height: 70px; }
+
+  .ligne-2 {
+    display: flex;
+    gap: 12px;
+  }
+  .ligne-2 .champ { flex: 1; }
+
+  .btn-envoyer {
+    background: var(--rose);
+    color: #fff;
+    width: 100%;
+    margin-top: 6px;
+    box-shadow: 0 8px 20px rgba(255, 94, 138, 0.45);
+  }
+  .btn-envoyer:hover { background: var(--rose-fonce); }
+
+  .recap {
+    background: #fff2f6;
+    border-radius: 16px;
+    padding: 18px;
+    margin: 18px 0;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+  .recap strong { color: var(--rose-fonce); }
+
+  .note {
+    font-size: 0.82rem;
+    color: #b08a98;
+    margin-top: 16px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="carte">
+
+    <!-- ÉCRAN 1 : la question -->
+    <div id="ecran-question" class="ecran actif">
+      <span class="emoji-geant">🥰</span>
+      <h1>Est-ce que tu veux faire un date avec moi&nbsp;?</h1>
+      <p class="sous-titre">Promis, ce sera un super moment&nbsp;✨</p>
+      <div class="zone-boutons" id="zone">
+        <button class="btn-oui" id="btnOui">Oui&nbsp;💖</button>
+        <button class="btn-non" id="btnNon">Non</button>
+      </div>
+    </div>
+
+    <!-- ÉCRAN 2 : choix date et heure -->
+    <div id="ecran-date" class="ecran">
+      <span class="emoji-geant">🎉</span>
+      <h1>Youhou&nbsp;! On organise ça&nbsp;?</h1>
+      <p class="sous-titre">Choisis le jour et l'heure qui te vont&nbsp;:</p>
+
+      <div class="ligne-2">
+        <div class="champ">
+          <label for="dateInput">📅 Le jour</label>
+          <input type="date" id="dateInput" />
+        </div>
+        <div class="champ">
+          <label for="heureInput">🕐 L'heure</label>
+          <input type="time" id="heureInput" />
+        </div>
+      </div>
+
+      <div class="champ">
+        <label for="lieuInput">📍 Une idée d'endroit&nbsp;? (facultatif)</label>
+        <input type="text" id="lieuInput" placeholder="Ex : un café, un resto, balade…" />
+      </div>
+
+      <div class="champ">
+        <label for="motInput">💌 Un petit mot&nbsp;? (facultatif)</label>
+        <textarea id="motInput" placeholder="Écris-moi quelque chose de mignon…"></textarea>
+      </div>
+
+      <button class="btn-envoyer" id="btnEnvoyer">Valider notre date&nbsp;💕</button>
+      <p class="note">En validant, ta réponse me sera envoyée directement.</p>
+    </div>
+
+    <!-- ÉCRAN 3 : confirmation -->
+    <div id="ecran-fin" class="ecran">
+      <span class="emoji-geant">💞</span>
+      <h1>C'est noté&nbsp;!</h1>
+      <div class="recap" id="recap"></div>
+      <p class="sous-titre">J'ai trop hâte&nbsp;! À très vite&nbsp;😍</p>
+      <p class="note">Si rien ne s'est ouvert pour m'envoyer le message, fais une capture d'écran de ce récap et envoie-la moi&nbsp;!</p>
+    </div>
+
+  </div>
+
+<script>
+  // ====== À PERSONNALISER ======
+  // Mets ici TON adresse email pour recevoir la réponse :
+  const MON_EMAIL = "tgoure56@gmail.com";
+  // ==============================
+
+  /* ---------- Cœurs flottants en fond ---------- */
+  (function fondCoeurs() {
+    const coeurs = ["💗", "💕", "💖", "❤️", "💘", "💓"];
+    for (let i = 0; i < 14; i++) {
+      const h = document.createElement("div");
+      h.className = "heart-bg";
+      h.textContent = coeurs[Math.floor(Math.random() * coeurs.length)];
+      h.style.left = Math.random() * 100 + "vw";
+      h.style.fontSize = (16 + Math.random() * 26) + "px";
+      h.style.animationDuration = (7 + Math.random() * 8) + "s";
+      h.style.animationDelay = (Math.random() * 8) + "s";
+      document.body.appendChild(h);
+    }
+  })();
+
+  /* ---------- Le bouton "Non" qui s'enfuit ---------- */
+  const btnNon = document.getElementById("btnNon");
+  let aFui = false;
+
+  function deplacerNon() {
+    if (!aFui) {
+      btnNon.classList.add("fuit");
+      aFui = true;
+    }
+    const largeur = btnNon.offsetWidth;
+    const hauteur = btnNon.offsetHeight;
+    const maxX = window.innerWidth - largeur - 16;
+    const maxY = window.innerHeight - hauteur - 16;
+    const x = Math.max(8, Math.random() * maxX);
+    const y = Math.max(8, Math.random() * maxY);
+    btnNon.style.left = x + "px";
+    btnNon.style.top = y + "px";
+
+    // Petit message taquin qui change
+    const messages = ["Non", "Sûre ?", "Essaie encore 😜", "Raté !", "Trop lent 😏", "Hé non 🙈", "Allez, dis oui 🥺"];
+    btnNon.textContent = messages[Math.floor(Math.random() * messages.length)];
+  }
+
+  // Sur PC : au survol
+  btnNon.addEventListener("mouseover", deplacerNon);
+  // Sur PC : si jamais elle arrive à cliquer quand même
+  btnNon.addEventListener("click", function (e) { e.preventDefault(); deplacerNon(); });
+  // Sur mobile : au toucher, il saute avant le clic
+  btnNon.addEventListener("touchstart", function (e) { e.preventDefault(); deplacerNon(); }, { passive: false });
+
+  /* ---------- Passage à l'écran date ---------- */
+  document.getElementById("btnOui").addEventListener("click", function () {
+    montrerEcran("ecran-date");
+  });
+
+  function montrerEcran(id) {
+    document.querySelectorAll(".ecran").forEach(function (el) {
+      el.classList.remove("actif");
+    });
+    document.getElementById(id).classList.add("actif");
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- Validation et envoi ---------- */
+  function formaterDate(valeur) {
+    if (!valeur) return null;
+    const d = new Date(valeur + "T00:00:00");
+    return d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  }
+
+  document.getElementById("btnEnvoyer").addEventListener("click", function () {
+    const dateVal = document.getElementById("dateInput").value;
+    const heureVal = document.getElementById("heureInput").value;
+    const lieuVal = document.getElementById("lieuInput").value.trim();
+    const motVal = document.getElementById("motInput").value.trim();
+
+    if (!dateVal || !heureVal) {
+      alert("Choisis au moins un jour et une heure 🙂");
+      return;
+    }
+
+    const dateJolie = formaterDate(dateVal);
+
+    // Récap affiché
+    let recapHTML = "Notre date 💑<br><br>";
+    recapHTML += "📅 <strong>" + dateJolie + "</strong><br>";
+    recapHTML += "🕐 à <strong>" + heureVal + "</strong>";
+    if (lieuVal) recapHTML += "<br>📍 " + lieuVal;
+    if (motVal) recapHTML += '<br><br>💌 "' + motVal + '"';
+    document.getElementById("recap").innerHTML = recapHTML;
+
+    // Construction de l'email vers MON_EMAIL
+    const sujet = "Oui, je veux faire un date avec toi ! 💖";
+    let corps = "Coucou !\n\nC'est oui 😍 Voici ce que je propose :\n\n";
+    corps += "📅 Jour : " + dateJolie + "\n";
+    corps += "🕐 Heure : " + heureVal + "\n";
+    if (lieuVal) corps += "📍 Endroit : " + lieuVal + "\n";
+    if (motVal) corps += "\n💌 Mon petit mot : " + motVal + "\n";
+    corps += "\nÀ très vite ! 💕";
+
+    const mailto = "mailto:" + encodeURIComponent(MON_EMAIL) +
+                   "?subject=" + encodeURIComponent(sujet) +
+                   "&body=" + encodeURIComponent(corps);
+
+    montrerEcran("ecran-fin");
+
+    // Ouvre l'app mail (léger délai pour laisser l'écran s'afficher)
+    setTimeout(function () { window.location.href = mailto; }, 600);
+  });
+</script>
+</body>
+</html>
