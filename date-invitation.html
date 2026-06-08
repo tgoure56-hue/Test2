@@ -150,6 +150,14 @@
   }
   .btn-principal:hover { background: var(--accent-fonce); }
 
+  .btn-secondaire {
+    background: #efeae3;
+    color: var(--texte);
+    width: 100%;
+    margin-top: 10px;
+  }
+  .btn-secondaire:hover { background: #e6e0d8; }
+
   .recap {
     background: #f7f4ef;
     border: 1px solid var(--bord);
@@ -225,7 +233,8 @@
       <h1>C'est noté&nbsp;👌</h1>
       <p class="sous-titre">Copie ta réponse et envoie-la moi (Insta, Snap, SMS… comme tu veux)&nbsp;:</p>
       <div class="recap" id="recap"></div>
-      <button class="btn-principal" id="btnCopier">Copier ma réponse</button>
+      <button class="btn-principal" id="btnSms">M'envoyer par SMS</button>
+      <button class="btn-secondaire" id="btnCopier">Copier ma réponse</button>
       <div class="copie-ok" id="copieOk"></div>
       <p class="note">À bientôt&nbsp;!</p>
     </div>
@@ -333,6 +342,15 @@
 
     document.getElementById("recap").textContent = texteReponse;
     montrerEcran("ecran-fin");
+  });
+
+  /* ---------- Envoyer par SMS (vers mon numéro) ---------- */
+  const MON_NUMERO = "+33783316707"; // 07 83 31 67 07
+
+  document.getElementById("btnSms").addEventListener("click", function () {
+    const corps = encodeURIComponent(texteReponse);
+    // Syntaxe compatible iOS et Android
+    window.location.href = "sms:" + MON_NUMERO + "?&body=" + corps;
   });
 
   /* ---------- Copier dans le presse-papier ---------- */
