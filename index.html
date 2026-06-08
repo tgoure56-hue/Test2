@@ -56,6 +56,7 @@
   .joker .jcost,.consum .jcost{position:absolute;top:2px;left:50%;transform:translateX(-50%);z-index:4;font:bold 8px sans-serif;color:#3a2c00;background:#ffd75e;border-radius:5px;padding:0 4px;box-shadow:0 1px 2px #0008;}
   .ico,.art{display:block;width:100%;height:100%;}
   .pxart{image-rendering:pixelated;image-rendering:crisp-edges;}
+  .customart{display:block;width:100%;height:100%;object-fit:cover;border-radius:7px;}
   .jx{position:absolute;right:11px;bottom:6px;font-size:9px;font-weight:bold;color:#9f6;background:#000d;border-radius:5px;padding:0 4px;z-index:4;box-shadow:0 1px 2px #0009;}
   .ed-foil::after,.ed-holo::after,.ed-poly::after{content:'';position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;border-radius:7px;}
   .ed-foil::after{background:linear-gradient(120deg,#7ad7ff66,#ffffff22,#7ad7ff66);animation:shine 3s linear infinite;background-size:200% 200%;}
@@ -468,6 +469,10 @@
     <div style="margin-top:14px;color:var(--gold);font-weight:bold;margin-bottom:4px;">Thème de fond <span class="small">(débloquable)</span></div>
     <div id="themeRow" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
     <div style="margin-top:14px;"><label style="cursor:pointer;"><input type="checkbox" id="reduceAnimChk" onchange="toggleReduceAnim()"> Réduire les animations</label></div>
+    <div style="margin-top:14px;color:var(--gold);font-weight:bold;margin-bottom:4px;">🎨 Images perso (style Balatro)</div>
+    <div class="small" id="artStatus" style="margin-bottom:6px;"></div>
+    <div class="small">Mets tes propres images dans un dossier <b>art/</b> à côté du jeu (ex. <b>art/joker_baron.png</b>) + un fichier <b>art/_enabled.png</b> pour activer. Le jeu les affiche à la place de mes dessins.</div>
+    <button class="btn-sort" style="margin-top:6px;" onclick="exportArtList()">📄 Télécharger la liste des fichiers</button>
   </div>
   <div id="controls" style="margin-top:8px;">
     <button class="btn-gold" onclick="exportProgress()">📤 Exporter</button>
@@ -2270,9 +2275,9 @@ function artVoucher(def){
   b+='<path d="'+starPath(30,34,9)+'" fill="#ffe9a8" stroke="#b8860b" stroke-width="1"/>';
   return artSVG(bgd,b);
 }
-const pxCache={};
-function iconFor(cat,def){
-  const key=cat+':'+((def&&def.key)||(def&&def.name)||'')+':'+((def&&def.rarity)||'');
+const pxCache={},genCache={};let customArtEnabled=false;
+// art généré (repli) pour une carte
+function genArt(cat,def,key){
   if(pxCache[key])return '<img class="art pxart" src="'+pxCache[key]+'">';
   let svg;
   if(cat==='planet')svg=artPlanet(def);
@@ -2281,6 +2286,20 @@ function iconFor(cat,def){
   else if(cat==='tarot')svg=artTarot(def);
   else svg=artJoker(def);
   return svg.replace('<svg class="art"','<svg class="art" data-pxkey="'+key.replace(/"/g,'')+'"');
+}
+function iconFor(cat,def){
+  const key=cat+':'+((def&&def.key)||(def&&def.name)||'')+':'+((def&&def.rarity)||'');
+  if(customArtEnabled){ // images perso : art/<cat>_<clé>.png ; repli sur l'art généré si absente
+    genCache[key]=genArt(cat,def,key);
+    const fname='art/'+cat+'_'+((def&&def.key)||(def&&def.name)||'')+'.png';
+    return '<img class="art customart" src="'+fname.replace(/"/g,'')+'" data-gk="'+key.replace(/"/g,'')+'" onerror="genFallback(this)">';
+  }
+  return genArt(cat,def,key);
+}
+function genFallback(img){const k=img.getAttribute('data-gk');img.onerror=null;
+  if(pxCache[k]){img.className='art pxart';img.src=pxCache[k];return;}
+  const html=genCache[k];if(!html)return;
+  const w=document.createElement('div');w.innerHTML=html;const el=w.firstElementChild;if(img.parentNode&&el)img.replaceWith(el);schedulePixelate();
 }
 // palette de fond par motif (illustration plein cadre, colorée)
 const motifFamily={coin:'gold',goldbar:'gold',crown:'gold',ticket:'gold',giftbox:'gold',ankh:'gold',scale:'gold',wheel:'gold',star:'gold',sun:'gold',
@@ -2717,9 +2736,21 @@ function showSettings(){
       b.textContent=(lck?'🔒 ':'')+th.name;b.title=lck?th.ut:th.name;
       if(!lck)b.onclick=()=>{SETTINGS.theme=k;saveSettings();applyTheme();showSettings();};tr.appendChild(b);});}
   document.getElementById('reduceAnimChk').checked=!!SETTINGS.reduceAnim;
+  {const as=document.getElementById('artStatus');if(as)as.innerHTML=customArtEnabled?'<span style="color:var(--green)">✓ Images perso ACTIVÉES (dossier art/ détecté)</span>':'<span style="color:var(--muted)">Images perso : désactivées (pas de dossier art/ détecté)</span>';}
   show('settingsOverlay');
 }
 function toggleReduceAnim(){SETTINGS.reduceAnim=document.getElementById('reduceAnimChk').checked;saveSettings();applySettings();}
+function exportArtList(){
+  const L=['# IMAGES PERSO — Jokeratro','# 1) Crée un dossier "art/" à côté de index.html','# 2) Ajoute un fichier "art/_enabled.png" (n\'importe quelle image) pour ACTIVER','# 3) Ajoute tes images PNG nommées exactement comme ci-dessous (conseil : ~148x200 px)','# Toute image manquante = mon dessin généré est utilisé à la place.',''];
+  Object.keys(JOKER_DEFS).filter(k=>!JOKER_DEFS[k].hidden).forEach(k=>L.push('art/joker_'+k+'.png   ←  '+JOKER_DEFS[k].name));
+  Object.keys(TAROTS).forEach(k=>L.push('art/tarot_'+k+'.png   ←  '+TAROTS[k].name));
+  Object.keys(PLANETS).forEach(k=>L.push('art/planet_'+k+'.png   ←  '+PLANETS[k].name));
+  Object.keys(SPECTRALS).forEach(k=>L.push('art/spectral_'+k+'.png   ←  '+SPECTRALS[k].name));
+  Object.keys(VOUCHERS).forEach(k=>L.push('art/voucher_'+k+'.png   ←  '+VOUCHERS[k].name));
+  ['cele','arca','buff','spec','std'].forEach(t=>L.push('art/pack_'+t+'.png   ←  Booster '+t));
+  const blob=new Blob([L.join('\n')],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='jokeratro-images-perso.txt';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
+  toast('Liste exportée : '+Object.keys(JOKER_DEFS).filter(k=>!JOKER_DEFS[k].hidden).length+' jokers + '+(Object.keys(TAROTS).length+Object.keys(PLANETS).length+Object.keys(SPECTRALS).length)+' consommables + boosters.');
+}
 function resetMetaObj(){META={maxStake:1,wins:0,bestAnte:1,runsPlayed:0,totalHands:0,bestHandScore:0,discovered:[],unlockedJokers:[],achievements:[],scores:[]};_knownUnlocked=null;}
 function resetProgress(){showMsg('Réinitialiser ?','Cela efface toute ta progression (déblocages, découvertes, statistiques). Action irréversible.','Tout effacer',()=>{try{localStorage.removeItem(META_KEY);}catch(e){}resetMetaObj();hide('msgOverlay');hide('settingsOverlay');toast('Progression réinitialisée.');},'Annuler',()=>{hide('msgOverlay');});}
 function fullReset(){showMsg('Réinitialisation complète ?','Efface DÉFINITIVEMENT <b>tout</b> : succès, découvertes, déblocages (decks/mises/jokers), statistiques, meilleurs scores, thème, et la sauvegarde de partie en cours.<br><br>Cette action est irréversible.','Tout effacer',()=>{try{localStorage.removeItem(META_KEY);localStorage.removeItem(SAVE_KEY);localStorage.removeItem(SET_KEY);}catch(e){}resetMetaObj();SETTINGS={speed:'normal',reduceAnim:false,theme:'classic'};applySettings();applyTheme();hide('msgOverlay');const cb=document.getElementById('continueBtn');if(cb)cb.style.display='none';toast('Tout a été réinitialisé. 🗑️');},'Annuler',()=>{hide('msgOverlay');});}
@@ -2757,6 +2788,8 @@ function boot(){
   if(document.getElementById('playArea'))document.getElementById('playArea').onclick=()=>{if(scoringInProgress)skipScoring=true;};
   document.getElementById('continueBtn').style.display=hasLocalSave()?'':'none';
   if(typeof MutationObserver!=='undefined'){try{new MutationObserver(schedulePixelate).observe(document.body,{childList:true,subtree:true});schedulePixelate();}catch(e){}}
+  // art perso : si un dossier "art/" avec un marqueur "_enabled.png" existe, on utilise tes images
+  if(typeof Image!=='undefined'){try{const p=new Image();p.onload=function(){customArtEnabled=true;try{renderAll();}catch(e){}try{if(S&&S.shop)renderShop();}catch(e){}};p.src='art/_enabled.png';}catch(e){}}
   show('startOverlay');
 }
 boot();
