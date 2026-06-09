@@ -58,10 +58,10 @@
   .pxart{image-rendering:pixelated;image-rendering:crisp-edges;}
   .customart{display:block;width:100%;height:100%;object-fit:cover;border-radius:7px;}
   .jx{position:absolute;right:11px;bottom:6px;font-size:9px;font-weight:bold;color:#9f6;background:#000d;border-radius:5px;padding:0 4px;z-index:4;box-shadow:0 1px 2px #0009;}
-  .ed-foil::after,.ed-holo::after,.ed-poly::after{content:'';position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;border-radius:7px;}
-  .ed-foil::after{background:linear-gradient(120deg,#7ad7ff66,#ffffff22,#7ad7ff66);animation:shine 3s linear infinite;background-size:200% 200%;}
-  .ed-holo::after{background:linear-gradient(120deg,#ff5f9e88,#5fff9e88,#5f9eff88,#ff5f9e88);animation:shine 2.5s linear infinite;background-size:300% 300%;}
-  .ed-poly::after{background:linear-gradient(60deg,#ff000055,#ffea0055,#00ff8855,#0088ff55,#aa00ff55);animation:shine 4s linear infinite;background-size:400% 400%;}
+  .ed-foil::after,.ed-holo::after,.ed-poly::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:7px;}
+  .ed-foil::after{background:linear-gradient(115deg,transparent 30%,#d6f2ffbb 48%,#ffffffbb 52%,#d6f2ffbb 56%,transparent 74%);animation:shine 2.8s linear infinite;background-size:240% 240%;}
+  .ed-holo::after{background:linear-gradient(120deg,#ff5f9e77,#5fff9e77,#5f9eff77,#ffe65f77,#ff5f9e77);animation:shine 2.3s linear infinite;background-size:300% 300%;}
+  .ed-poly::after{background:linear-gradient(60deg,#ff000099,#ffea0099,#00ff8899,#0088ff99,#aa00ff99,#ff000099);animation:shine 3.6s linear infinite;background-size:380% 380%;}
   .ed-neg{background:linear-gradient(165deg,#1a1830,#04040c)!important;border-color:#8be9ff!important;box-shadow:0 4px 0 #000,0 0 16px 2px #6cf,inset 0 0 0 1px #b58bff99!important;}
   .ed-neg .jn{color:#cdb8ff;}
   .ed-neg::after{content:'';position:absolute;inset:0;z-index:1;border-radius:7px;pointer-events:none;mix-blend-mode:screen;background:linear-gradient(120deg,#7ddfff44,#b58bff33,#7ddfff44);background-size:200% 200%;animation:shine 3.5s linear infinite;}
@@ -119,10 +119,10 @@
   .card.enh-stone{border-color:#6f716c;box-shadow:0 4px 0 #00000055,inset 0 0 0 1.5px #ffffffaa;}
   .card.enh-wild{border-color:#b06fe0;box-shadow:0 4px 0 #00000055,0 0 10px #d9a9ff99,inset 0 0 0 1.5px #fff;}
   .card.enh-lucky{border-color:#3fa84f;box-shadow:0 4px 0 #00000055,0 0 9px #8be08a99,inset 0 0 0 1.5px #fff;}
-  .card.ced-foil::before,.card.ced-holo::before,.card.ced-poly::before{content:'';position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;border-radius:6px;animation:shine 3s linear infinite;background-size:220% 220%;}
-  .card.ced-foil::before{background:linear-gradient(120deg,#7ad7ff99,#ffffff55,#7ad7ff99,#bfeaff66);}
-  .card.ced-holo::before{background:linear-gradient(120deg,#ff5f9e99,#5fff9e99,#5f9eff99,#ff5f9e99);animation-duration:2.4s;}
-  .card.ced-poly::before{background:linear-gradient(60deg,#ff000088,#ffea0088,#00ff8888,#0088ff88,#aa00ff88,#ff000088);background-size:320% 320%;animation-duration:4s;}
+  .card.ced-foil::before,.card.ced-holo::before,.card.ced-poly::before{content:'';position:absolute;inset:0;z-index:2;border-radius:6px;pointer-events:none;animation:shine 2.6s linear infinite;background-size:240% 240%;}
+  .card.ced-foil::before{background:linear-gradient(115deg,transparent 28%,#d6f2ffcc 46%,#ffffffcc 52%,#d6f2ffcc 58%,transparent 76%);}
+  .card.ced-holo::before{background:linear-gradient(120deg,#ff5f9e88,#5fff9e88,#5f9eff88,#ffe65f88,#ff5f9e88);animation-duration:2.1s;}
+  .card.ced-poly::before{background:linear-gradient(60deg,#ff0000aa,#ffea00aa,#00ff88aa,#0088ffaa,#aa00ffaa,#ff0000aa);background-size:360% 360%;animation-duration:3.6s;}
   .card .enh{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:900;color:#fff;background:#000d;border-radius:6px;padding:1px 5px;z-index:6;letter-spacing:.2px;white-space:nowrap;box-shadow:0 1px 2px #0009,inset 0 0 0 1px #ffffff3a;text-shadow:0 1px 1px #000;}
   .card.enh-bonus .enh{background:linear-gradient(#2f7fe0,#1c5bb0);} .card.enh-mult .enh{background:linear-gradient(#e0432f,#b02a1c);}
   .card.enh-gold .enh{background:linear-gradient(#e8b42f,#b8870f);color:#2a1f00;} .card.enh-steel .enh{background:linear-gradient(#9aa6b4,#6f7a88);}
@@ -784,7 +784,7 @@ const JOKER_DEFS={
   driverlicense:{name:'Permis de Conduire',icon:'🪪',cost:7,rarity:'r',desc:'×3 Mult si ≥16 cartes améliorées dans le deck',eval:()=>S.fullDeck.filter(c=>c.enh).length>=16?{xmult:3}:0},
   cartomancer:{name:'Cartomancien',icon:'🎴',cost:6,rarity:'u',desc:'Crée un Tarot au début de la manche',onBlind:()=>{if(usedConsumSlots()<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});}},
   astronomer:{name:'Astronome',icon:'🔭',cost:8,rarity:'u',desc:'Planètes et Packs Célestes gratuits',passive:true},
-  burnt:{name:'Joker Brûlé',icon:'🔥',cost:8,rarity:'r',desc:'La 1ʳᵉ main défaussée de la manche monte d\'1 niveau',onDiscard:function(p){if(!S._burntDone&&p.cards.length){const ev=evaluateHand(p.cards);S.handLevels[ev.type]=(S.handLevels[ev.type]||1)+1;S._burntDone=true;}}},
+  burnt:{name:'Joker Brûlé',icon:'🔥',cost:8,rarity:'r',desc:'La 1ʳᵉ main défaussée de la manche monte d\'1 niveau',onDiscard:function(p){if(!S._burntDone&&p.cards.length){const ev=evaluateHand(p.cards);S.handLevels[ev.type]=(S.handLevels[ev.type]||1)+1;S._burntDone=true;jokerFx(this.uid,'🔥 '+ev.type+' Niv.'+S.handLevels[ev.type],'fchip');notify('🔥 Joker Brûlé : '+ev.type+' → niveau '+S.handLevels[ev.type]);}}},
   satellite:{name:'Satellite',icon:'🛰️',cost:6,rarity:'u',desc:'+$1 en fin de manche par carte Planète utilisée',money:true,onRound:()=>Math.min(20,S.planetsUsed)},
   swashbuckler:{name:'Bretteur',icon:'⚔️',cost:4,rarity:'c',desc:'+Mult = valeur de revente de tes autres Jokers',eval:function(){let m=0;S.jokers.forEach(j=>{if(j.key!=='swashbuckler')m+=sellValue(j);});return{mult:m};}},
   gift:{name:'Carte Cadeau',icon:'🎁',cost:6,rarity:'u',desc:'+$1 par Joker possédé en fin de manche',money:true,onRound:()=>S.jokers.length},
@@ -1190,7 +1190,7 @@ function selectBlind(i){
   S.curHandSize=hs;S.tempHandSize=0;
   if(b.effect==='amber'&&!bossDisabled())shuffle(S.jokers); // Gland d'Ambre : mélange les Jokers
   // jokers début de manche
-  S.jokers.forEach(j=>{const d=JOKER_DEFS[j.key];if(d.onBlind)d.onBlind();});
+  S.jokers.forEach(j=>pingHook(j,'onBlind'));
   setBgTheme(b.type==='boss'?'boss':'fight');
   showView('play');dealToFull();renderAll();
   setHandLabel(b.effect&&!bossDisabled()?('⚠ '+b.effectText):'');
@@ -1367,9 +1367,9 @@ async function playHand(){
   if(gained>(S._runBest||0))S._runBest=gained;
   if(gained>(META.bestHandScore||0)){META.bestHandScore=gained;saveMeta();}
   if(S.blind.effect==='pillar')played.forEach(c=>S.playedRanks.add(c.id));
-  if(bossOn&&S.blind.effect==='tooth'){S.money=Math.max(0,S.money-played.length);renderSidebar();} // La Dent : -$1 par carte jouée
+  if(bossOn&&S.blind.effect==='tooth'){S.money-=played.length;renderSidebar();} // La Dent : -$1 par carte jouée (peut passer en négatif)
   // onPlay hooks
-  S.jokers.forEach(j=>{const d=JOKER_DEFS[j.key];if(d.onPlay)d.onPlay.call(j,ctx);});
+  S.jokers.forEach(j=>pingHook(j,'onPlay',ctx));
   if(S.playedIds)S.selected.forEach(id=>S.playedIds.add(id)); // suivi des cartes jouées
   if(brokenGlass.length){
     brokenGlass.forEach(id=>{const bc=played.find(c=>c.id===id);shatterCard(id);notify('🔷 Carte Verre brisée : '+cardGlyph(bc));});
@@ -1411,7 +1411,7 @@ function discard(){
   // sceau violet : crée un tarot
   cards.forEach(c=>{if(c.seal==='purple'&&usedConsumSlots()<S.consumSlots)S.consumables.push({type:'tarot',key:randKey(TAROTS),uid:Math.random()});});
   const di={n:cards.length,cards,faces:cards.filter(isFace).length};
-  S.jokers.forEach(j=>{const d=JOKER_DEFS[j.key];if(d.onDiscard)d.onDiscard.call(j,di);});
+  S.jokers.forEach(j=>pingHook(j,'onDiscard',di));
   if(S.discardedIds)S.selected.forEach(id=>S.discardedIds.add(id)); // suivi des cartes défaussées
   S.hand=S.hand.filter(c=>!S.selected.includes(c.id));
   S.selected=[];S.discardsLeft--;dealToFull();renderAll();
@@ -1427,18 +1427,19 @@ function winBlind(){
   // Jokers Location (-$3) et Périssables (désactivés après 5 manches)
   let rentalCost=0;
   S.jokers.forEach(j=>{if(j.sticker==='rental')rentalCost+=3;if(j.sticker==='perishable'){j.perish=(j.perish||0)+1;if(j.perish>5)j.debuffed=true;}});
-  const interest=S.greenDeck?0:Math.min(S.interestCap,Math.floor(S.money/5))*(hasJoker('tothemoon')?2:1);
+  const interest=S.greenDeck?0:Math.max(0,Math.min(S.interestCap,Math.floor(S.money/5)))*(hasJoker('tothemoon')?2:1);
   const handBonus=S.greenDeck?S.handsLeft*2:S.handsLeft; // Deck Vert : $2 par main restante
   const greenDisc=S.greenDeck?S.discardsLeft:0;          // Deck Vert : $1 par défausse restante
   const goldCards=S.hand.filter(c=>c.enh==='gold').length;const goldMoney=goldCards*3;
   let jokerMoney=0;
-  S.jokers.forEach(j=>{const d=JOKER_DEFS[j.key];if(d.onRound){const m=d.onRound.call(j);if(typeof m==='number')jokerMoney+=m;}if(j.key==='rocket'&&S.blind.type==='boss'){j.x=(j.x||1)+1;}});
+  S.jokers.forEach(j=>{const d=JOKER_DEFS[j.key];if(d.onRound){const m=pingHook(j,'onRound');if(typeof m==='number')jokerMoney+=m;}if(j.key==='rocket'&&S.blind.type==='boss'){j.x=(j.x||1)+1;}});
   S.jokers=S.jokers.filter(j=>!j._dead);
   if(S.anaglyph&&S.blind.type==='boss')S.ownedTags.push(randomSafeTag()); // Deck Anaglyphe
   S.discardsUnused+=S.discardsLeft;
   const totalGain=reward+interest+handBonus+greenDisc+goldMoney+jokerMoney;
   S.money+=totalGain-rentalCost;
   renderSidebar();renderConsum(); // affiche tout de suite les consommables créés (Sceau Bleu...)
+  if(S.blind.type==='boss'&&S.ante>=8&&!S.endless){winGame();return;} // victoire : écran de fin tout de suite après la dernière Blind
   setBgTheme('shop');coinRain(Math.min(50,12+totalGain));
   showMsg('Blind battue ! 🎉',
     `<b>${S.blind.name}</b> vaincue !<br><br>
@@ -1551,7 +1552,7 @@ function renderShop(){
   // voucher
   const vg=document.getElementById('voucherGrid');vg.innerHTML='';
   if(S.shop.voucher){const v=VOUCHERS[S.shop.voucher];const cost=applyDiscount(10);const afford=canAfford(cost);
-    vg.innerHTML=`<div class="shopItem"><div class="voucher">${S.shop.voucherNew?'<div class="newTag">NOUVEAU</div>':''}<div class="pn">${v.name}</div><div class="pic">${iconFor('voucher',v)}</div><div class="jcost">$${cost}</div>
+    vg.innerHTML=`<div class="shopItem"><div class="voucher">${S.shop.voucherNew?'<div class="newTag">NOUVEAU</div>':''}<div class="pn">${v.name}</div><div class="pic">${iconFor('voucher',v)}</div>
       <div class="tooltip"><b>${v.name}</b><br>${v.desc}</div></div>
       <div class="buyb ${afford?'':'dis'}" onclick="buyVoucher()">Acheter $${cost}</div></div>`;
   }else vg.innerHTML='<div class="small">— aucun —</div>';
@@ -1561,7 +1562,7 @@ function renderShop(){
     const cost=packPrice(p);const afford=canAfford(cost);
     const meta=PACKMETA[p.type];const sz=packSizes(p.type,p.size);
     const sizeLbl=p.size==='jumbo'?' Jumbo':p.size==='mega'?' Méga':'';
-    pg.innerHTML+=`<div class="shopItem"><div class="pack ${meta.cl}"><div class="pn">${meta.n}${sizeLbl}</div><div class="pic">${packArt(p.type)}</div><div class="jcost">$${cost}</div>
+    pg.innerHTML+=`<div class="shopItem"><div class="pack ${meta.cl}"><div class="pn">${meta.n}${sizeLbl}</div><div class="pic">${packArt(p.type)}</div>
       <div class="tooltip"><b>Pack ${meta.n}${sizeLbl}</b><br>${PACKDESC[p.type]}<br><span style="color:var(--gold)">Choisis ${sz[1]} carte${sz[1]>1?'s':''} parmi ${sz[0]}.</span></div></div>
       <div class="buyb ${afford?'':'dis'}" onclick="buyPack(${idx})">${cost===0?'Ouvrir':'$'+cost}</div></div>`;
   });
@@ -1783,6 +1784,9 @@ function finishUse(c,transient){
   // retire le consommable rangé (un objet transitoire n'y est pas → indexOf=-1, rien à faire)
   if(!transient){const i=S.consumables.indexOf(c);if(i>=0)S.consumables.splice(i,1);}
   renderAll();renderShop();
+  // montre les Jokers à compteur qui réagissent à l'utilisation
+  const scal=c.type==='planet'?['constellation','satellite','hologram']:c.type==='tarot'?['fortuneteller']:[];
+  S.jokers.forEach(j=>{if(scal.indexOf(j.key)>=0)jokerFx(j.uid,LIVE_INFO[j.key]?LIVE_INFO[j.key](j):'⚡','fmult');});
 }
 // Boutique : acheter ET utiliser tout de suite (ne consomme pas d'emplacement)
 function useShopItem(idx){
@@ -2004,6 +2008,7 @@ function enableReorder(el,area,commit,onTap){
     try{el.setPointerCapture(e.pointerId);}catch(_){}
     const setup=()=>{
       area.classList.add('reordering'); // fige le flottement le temps du déplacement
+      document.body.classList.add('dragging-active');tipHide&&tipHide();
       sibs=[...area.children];fromIdx=sibs.indexOf(el);
       const rects=sibs.map(s=>s.getBoundingClientRect());
       base=rects.map(r=>r.left+r.width/2);
@@ -2014,7 +2019,7 @@ function enableReorder(el,area,commit,onTap){
     const shifts=()=>{sibs.forEach((s,k)=>{if(s===el)return;const jj=(k<fromIdx)?k:k-1;const fs=(jj<to)?jj:jj+1;const ty=s.classList.contains('sel')?' translateY(-22px)':'';s.style.transform='translateX('+((fs-k)*slot)+'px)'+ty;});};
     const move=(ev)=>{
       const dx=ev.clientX-startX,dy=ev.clientY-startY;
-      if(!dragging){if(Math.abs(dx)<6&&Math.abs(dy)<6)return;dragging=true;setup();}
+      if(!dragging){if(Math.abs(dx)<4&&Math.abs(dy)<4)return;dragging=true;setup();}
       el.style.transform='translate('+dx+'px,'+dy+'px) scale(1.07) rotate(2deg)';
       let t=0;for(let k=0;k<base.length;k++){if(k===fromIdx)continue;if(ev.clientX>base[k])t++;}
       to=t;shifts();
@@ -2402,7 +2407,7 @@ function jokerHTML(def,inShop,uid,edition,inst,sticker,isNew){
   const stkDesc=stk?('<br><span style="color:#fc9">'+STICKERS[stk].lbl+' : '+STICKERS[stk].desc+'</span>'):'';
   let xtag='';
   if(inst&&typeof inst.x==='number'&&inst.x)xtag='<div class="jx">+'+r1(inst.x)+'</div>';
-  return `<div class="joker rar-${def.rarity}${edCls}${inst&&inst.debuffed?' debuff':''}" ${uid?'data-uid="'+uid+'"':''}><div class="jicon">${iconFor('joker',def)}</div><div class="cardlabel cl-l">JOKER</div><div class="cardlabel cl-r">JOKER</div>${edTag}${stkTag}${newTag}${inShop?'<div class="jcost">$'+def.cost+'</div>':''}${xtag}
+  return `<div class="joker rar-${def.rarity}${edCls}${inst&&inst.debuffed?' debuff':''}" ${uid?'data-uid="'+uid+'"':''}><div class="jicon">${iconFor('joker',def)}</div><div class="cardlabel cl-l">JOKER</div><div class="cardlabel cl-r">JOKER</div>${edTag}${stkTag}${newTag}${xtag}
     <div class="tooltip"><b>${def.name}</b> <span style="color:${RARITY_COL[def.rarity]}">[${RARITY_NAME[def.rarity]}]</span><br>${def.desc}${liveInfoHTML(inst)}${descExtras(def.desc)}${edDesc}${stkDesc}${inst&&inst.debuffed?'<br><span style="color:var(--mult)">⚠ Désactivé (périmé)</span>':''}${uid?'<br><span class="small">Clic droit : revendre ($'+sellValue(inst||def)+')</span>':''}</div></div>`;
 }
 function sellValue(x){ // accepte une définition OU une instance de Joker (valeur dynamique : Œuf...)
@@ -2454,8 +2459,18 @@ function renderConsumList(barId,emptyMsg){
     const extra=c.type==='planet'?('Améliore : '+def.hand):'';
     const w=document.createElement('div');w.innerHTML=consumHTML(c.type,def,false,extra);const el=w.firstElementChild;
     if(c.neg)el.classList.add('ed-neg');
-    el.onclick=()=>useConsumable(c.uid);el.title='Cliquer pour utiliser';bar.appendChild(el);
+    el.onclick=()=>useConsumable(c.uid);el.oncontextmenu=(e)=>{e.preventDefault();sellConsumable(c.uid);};
+    el.title='Cliquer : utiliser · Clic droit : revendre ($'+consumSellValue(c)+')';bar.appendChild(el);
   });
+}
+function consumSellValue(c){return 1;} // revente d'un consommable
+function sellConsumable(uid){
+  if(scoringInProgress)return;
+  const i=S.consumables.findIndex(c=>c.uid===uid);if(i<0)return;const c=S.consumables[i];
+  S.money+=consumSellValue(c);S.consumables.splice(i,1);
+  const def=c.type==='planet'?PLANETS[c.key]:c.type==='spectral'?SPECTRALS[c.key]:TAROTS[c.key];
+  toast('Revendu : '+(def?def.name:'consommable')+' (+$'+consumSellValue(c)+').');
+  renderAll();renderShop();
 }
 
 /* ===================== INTERACTIONS ===================== */
@@ -2476,6 +2491,16 @@ function flashCard(id,text,cls){const el=document.querySelector(`.card[data-id="
   el.classList.remove('scorepop');void el.offsetWidth;el.classList.add('scorepop');
   const f=document.createElement('div');f.className='scorefloat '+cls;f.textContent=text;el.appendChild(f);setTimeout(()=>f.remove(),850);}
 function flashJoker(uid){if(typeof S.runJokerTriggers==='number')S.runJokerTriggers++;const el=document.querySelector(`.joker[data-uid="${uid}"]`);if(el){el.classList.remove('idlefloat');el.classList.remove('trigger');void el.offsetWidth;el.classList.add('trigger');setTimeout(()=>el.classList.remove('trigger'),340);}}
+// Montre qu'un effet de Joker s'est déclenché (animation + petit texte flottant)
+function jokerFx(uid,text,cls){const el=document.querySelector('.joker[data-uid="'+uid+'"]');if(!el)return;
+  el.classList.remove('idlefloat');el.classList.remove('trigger');void el.offsetWidth;el.classList.add('trigger');setTimeout(()=>el.classList.remove('trigger'),360);
+  if(text){const f=document.createElement('div');f.className='scorefloat '+(cls||'fmult');f.style.fontSize='10px';f.textContent=text;el.appendChild(f);setTimeout(()=>f.remove(),1000);}}
+// Appelle un hook et signale visuellement si la valeur du Joker a changé
+function pingHook(j,hook,arg){const d=JOKER_DEFS[j.key];if(!d[hook])return undefined;const bx=(typeof j.x==='number')?j.x:null;const r=d[hook].call(j,arg);
+  if(bx!==null&&typeof j.x==='number'&&j.x!==bx)jokerFx(j.uid,(LIVE_INFO[j.key]?LIVE_INFO[j.key](j):('→'+r1(j.x))),j.x>bx?'fmult':'fchip');
+  return r;}
+// Signale les Jokers dont la valeur dépend des Planètes/Tarots utilisés
+function pingScalers(){['constellation','fortuneteller','satellite','hologram'].forEach(k=>{S.jokers.filter(j=>j.key===k).forEach(j=>jokerFx(j.uid,LIVE_INFO[k]?LIVE_INFO[k](j):'⚡','fmult'));});}
 // nom lisible et coloré d'une carte (ex : 7♥, K♠)
 function cardGlyph(c){if(!c)return '?';const s=SUITS[c.suit]||{sym:'?',col:'black'};return '<span style="color:'+(s.col==='red'?'#ff7b7b':'#e6ecff')+'">'+c.rank+s.sym+'</span>';}
 // bannière d'information non bloquante (ne coupe pas le jeu)
@@ -2773,6 +2798,7 @@ function tipShow(host){
   t.style.left=Math.round(left)+'px';t.style.top=Math.round(top)+'px';
 }
 function tipHandler(e){
+  if(document.body.classList.contains('dragging-active')){tipHide();return;} // pas d'info-bulle pendant un déplacement
   const host=e.target&&e.target.closest?e.target.closest(TIP_HOSTS):null;
   if(host===_tipHost)return; // même élément : rien à refaire (évite le scintillement)
   if(host&&host.querySelector(':scope > .tooltip'))tipShow(host);else tipHide();
