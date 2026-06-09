@@ -288,8 +288,16 @@
     // direction : du pointeur vers le bouton -> on pousse dans ce sens
     let dx = cx - pointerX;
     let dy = cy - pointerY;
-    let dist = Math.hypot(dx, dy) || 1;
-    dx /= dist; dy /= dist;
+    let dist = Math.hypot(dx, dy);
+    if (dist < 1) {
+      // doigt/souris pile au centre : on choisit une direction au hasard
+      const ang = Math.random() * Math.PI * 2;
+      dx = Math.cos(ang);
+      dy = Math.sin(ang);
+    } else {
+      dx /= dist;
+      dy /= dist;
+    }
 
     const pas = 130; // distance de déplacement (glissement, pas téléportation)
     const marge = 8;
