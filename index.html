@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Version Noire — mini-RPG de créatures</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: #08080c;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-family: monospace; color: #6a6a78;
+  }
+  #screen {
+    width: min(96vw, calc(92vh * 256 / 224));
+    aspect-ratio: 256 / 224;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    background: #000;
+    box-shadow: 0 0 40px rgba(120, 40, 160, 0.25);
+    border: 2px solid #1a1a26;
+    border-radius: 4px;
+  }
+  #hint { margin-top: 10px; font-size: 12px; text-align: center; line-height: 1.6; }
+  #hint b { color: #9a9aae; }
+</style>
+</head>
+<body>
+<canvas id="screen" width="256" height="224"></canvas>
+<div id="hint">
+  <b>Flèches / ZQSD / WASD</b> se déplacer &nbsp;·&nbsp; <b>E / Espace</b> parler, valider &nbsp;·&nbsp;
+  <b>Entrée</b> menu &nbsp;·&nbsp; <b>Échap / X</b> annuler &nbsp;·&nbsp; <b>M</b> musique
+</div>
+<script>
+/* ============================================================
+   VERSION NOIRE — mini-RPG de créatures jouable au navigateur
+   Hommage original (créatures & graphismes inédits).
+   ============================================================ */
+'use strict';
+
+const TILE = 16;            // taille d'une case en pixels logiques
+const VIEW_W = 16;          // cases visibles en largeur  (256 px)
+const VIEW_H = 14;          // cases visibles en hauteur  (224 px)
+const SCR_W = VIEW_W * TILE;
+const SCR_H = VIEW_H * TILE;
+
+// ---------- utilitaires ----------
+const clamp = (v, a, b) => v < a ? a : (v > b ? b : v);
+const rndi  = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick  = arr => arr[Math.floor(Math.random() * arr.length)];
+const chance = p => Math.random() < p;
+// petit hash déterministe pour décorer les tuiles
+function thash(x, y) {
+  let h = (x * 374761393 + y * 668265263) | 0;
+  h = (h ^ (h >> 13)) * 1274126177;
+  return ((h ^ (h >> 16)) >>> 0) / 4294967296;
+}
+
+// ---------- entrées clavier ----------
+// e.code = position physique : KeyW/KeyA/KeyS/KeyD couvrent WASD et ZQSD.
+const held = new Set();
+let keyResolver = null;          // résolveur en attente (dialogues/menus)
+const ACTION_KEYS = ['Enter', 'Space', 'KeyE'];
+const CANCEL_KEYS = ['Escape', 'KeyX', 'Backspace'];
+
+function dirOfCode(c) {
+  if (c === 'ArrowUp'    || c === 'KeyW') return 'up';
+  if (c === 'ArrowDown'  || c === 'KeyS') return 'down';
+  if (c === 'ArrowLeft'  || c === 'KeyA') return 'left';
+  if (c === 'ArrowRight' || c === 'KeyD') return 'right';
+  return null;
+}
+
+function onKeyDown(e) {
+  if (e.repeat) { if (dirOfCode(e.code)) e.preventDefault(); return; }
+  ensureAudio();
+  if (e.code === 'KeyM') { toggleMusic(); e.preventDefault(); return; }
+  held.add(e.code);
+  if (keyResolver) {
+    const r = keyResolver;
+    const d = dirOfCode(e.code);
+    let sym = null;
+    if (ACTION_KEYS.includes(e.code)) sym = 'ok';
+    else if (CANCEL_KEYS.includes(e.code)) sym = 'cancel';
+    else if (d) sym = d;
+    if (sym) { keyResolver = null; r(sym); e.preventDefault(); return; }
+  }
+  if (pressQueue.length < 3) pressQueue.push(e.code);
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','Enter'].includes(e.code)) e.preventDefault();
+}
+function onKeyUp(e) { held.delete(e.code); }
+
+// attend une touche « significative » (ok / cancel / direction)
+function waitKey() { return new Promise(res => { keyResolver = res; }); }
+function heldDir() {
+  for (const c of ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyW','KeyA','KeyS','KeyD']) {
+    if (held.has(c)) return dirOfCode(c);
+  }
+  return null;
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function nextFrame() { return new Promise(r => requestAnimationFrame(() => r())); }
+
+/* ============================================================
+   AUDIO — petit moteur chiptune (WebAudio), touche M pour couper
+   ============================================================ */
+let actx = null, musicOn = true, musicTimer = null;
+let curTrack = null, trackPos = 0, nextNoteTime = 0;
+
+function ensureAudio() {
+  if (!actx && (window.AudioContext || window.webkitAudioContext)) {
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    startMusicLoop();
+  }
+  if (actx && actx.state === 'suspended') actx.resume();
+}
+function midi2freq(n) { return 440 * Math.pow(2, (n - 69) / 12); }
+
+function blip(freq, dur, type, vol, when) {
+  if (!actx) return;
+  const t = when !== undefined ? when : actx.currentTime;
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type = type || 'square'; o.frequency.value = freq;
+  g.gain.setValueAtTime(vol || 0.06, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(actx.destination);
+  o.start(t); o.stop(t + dur + 0.02);
+}
+
+// pistes : [note midi (0 = silence), durée en doubles-croches]
+const TRACKS = {
+  // ambiance bourg/route — gaie, pentatonique
+  world: { tempo: 132, bass: true, notes: [
+    [72,2],[76,2],[79,2],[76,2],[81,4],[79,2],[76,2],
+    [72,2],[76,2],[79,2],[84,2],[81,4],[0,2],[79,2],
+    [77,2],[81,2],[84,2],[81,2],[86,4],[84,2],[81,2],
+    [79,2],[76,2],[72,2],[76,2],[79,6],[0,2],
+  ]},
+  // combat — tendue, mineure
+  battle: { tempo: 168, bass: true, notes: [
+    [69,1],[0,1],[69,1],[72,1],[74,2],[72,1],[69,1],
+    [67,2],[69,2],[72,2],[69,2],
+    [69,1],[0,1],[69,1],[72,1],[76,2],[74,1],[72,1],
+    [74,2],[72,2],[69,2],[65,2],
+  ]},
+  // écran titre — solennelle
+  title: { tempo: 100, bass: false, notes: [
+    [57,4],[60,4],[64,6],[62,2],[60,4],[57,4],[55,8],
+    [57,4],[60,4],[64,6],[67,2],[69,8],[0,4],
+  ]},
+};
+
+function setTrack(name) {
+  curTrack = name ? TRACKS[name] : null;
+  trackPos = 0;
+  if (actx) nextNoteTime = actx.currentTime + 0.05;
+}
+function startMusicLoop() {
+  if (musicTimer) return;
+  nextNoteTime = actx.currentTime + 0.1;
+  musicTimer = setInterval(() => {
+    if (!musicOn || !curTrack || !actx) return;
+    const spb = 60 / curTrack.tempo / 4; // durée d'une double-croche
+    while (nextNoteTime < actx.currentTime + 0.35) {
+      const [n, d] = curTrack.notes[trackPos];
+      if (n > 0) {
+        blip(midi2freq(n), d * spb * 0.9, 'square', 0.035, nextNoteTime);
+        if (curTrack.bass) blip(midi2freq(n - 24), d * spb * 0.9, 'triangle', 0.05, nextNoteTime);
+      }
+      nextNoteTime += d * spb;
+      trackPos = (trackPos + 1) % curTrack.notes.length;
+    }
+  }, 90);
+}
+function toggleMusic() { musicOn = !musicOn; toast(musicOn ? 'Musique : ON  (M)' : 'Musique : OFF  (M)'); }
+
+// effets sonores
+const SFX = {
+  select: () => blip(880, 0.06, 'square', 0.05),
+  confirm: () => { blip(660, 0.05, 'square', 0.05); blip(990, 0.08, 'square', 0.05, actx ? actx.currentTime + 0.05 : 0); },
+  hit:    () => blip(180, 0.15, 'sawtooth', 0.09),
+  faible: () => blip(120, 0.2, 'sawtooth', 0.07),
+  faint:  () => { if (!actx) return; const t = actx.currentTime; [420, 320, 220, 140].forEach((f, i) => blip(f, 0.1, 'square', 0.06, t + i * 0.08)); },
+  levelup:() => { if (!actx) return; const t = actx.currentTime; [523, 659, 784, 1047].forEach((f, i) => blip(f, 0.09, 'square', 0.05, t + i * 0.07)); },
+  heal:   () => { if (!actx) return; const t = actx.currentTime; [784, 988, 1175, 1568].forEach((f, i) => blip(f, 0.12, 'sine', 0.06, t + i * 0.09)); },
+  throwB: () => blip(520, 0.12, 'sine', 0.06),
+  tick:   () => blip(740, 0.04, 'square', 0.04),
+  catchOk:() => { if (!actx) return; const t = actx.currentTime; [659, 784, 1047, 1319].forEach((f, i) => blip(f, 0.1, 'square', 0.05, t + i * 0.08)); },
+  flee:   () => blip(300, 0.18, 'sine', 0.06),
+};
+
+/* ============================================================
+   SPRITES — pixel-art 16x16 encodé en chaînes (1 char = 1 px)
+   ============================================================ */
+function drawSprite(ctx, mat, pal, x, y, scale, flip) {
+  scale = scale || 1;
+  for (let r = 0; r < mat.length; r++) {
+    const row = mat[r];
+    for (let c = 0; c < row.length; c++) {
+      const ch = flip ? row[row.length - 1 - c] : row[c];
+      const col = pal[ch];
+      if (!col) continue;
+      ctx.fillStyle = col;
+      ctx.fillRect(x + c * scale, y + r * scale, scale, scale);
+    }
+  }
+}
+
+// --- humain générique (vu de face / dos / profil), 16x16 ---
+const HUMAN_DOWN = [
+'................',
+'.....kkkkkk.....',
+'....khhhhhhk....',
+'...khhhhhhhhk...',
+'...khhhhhhhhk...',
+'...kshhsshhsk...',
+'...kssssssssk...',
+'...kswksskwsk...',
+'....kssssss.....',
+'.....ksmms......',
+'....krrrrrrk....',
+'...ksrrrrrrsk...',
+'...k.rrrrrr.k...',
+'.....pp..pp.....',
+'.....pp..pp.....',
+'....kk....kk....',
+];
+const HUMAN_UP = [
+'................',
+'.....kkkkkk.....',
+'....khhhhhhk....',
+'...khhhhhhhhk...',
+'...khhhhhhhhk...',
+'...khhhhhhhhk...',
+'...khhhhhhhhk...',
+'...khhhhhhhhk...',
+'....khhhhhh.....',
+'.....ksssss.....',
+'....krrrrrrk....',
+'...ksrrrrrrsk...',
+'...k.rrrrrr.k...',
+'.....pp..pp.....',
+'.....pp..pp.....',
+'....kk....kk....',
+];
+const HUMAN_SIDE = [
+'................',
+'.....kkkkkk.....',
+'....khhhhhhk....',
+'...khhhhhhhhk...',
+'...khhhhhhhhk...',
+'...khhsshhhhk...',
+'...kssssshhhk...',
+'...kswkssshhk...',
+'....ssssssh.....',
+'.....smmss......',
+'....krrrrrk.....',
+'....srrrrrs.....',
+'....krrrrrk.....',
+'.....pppp.......',
+'.....pp.pp......',
+'....kk...kk.....',
+];
+// palettes : k contour, h cheveux, s peau, w blanc des yeux,
+// m bouche, r haut, p pantalon
+function humanPal(hair, shirt, pants) {
+  return { k:'#1a1a22', h:hair, s:'#f4c89a', w:'#ffffff', m:'#c66', r:shirt, p:pants };
+}
+const PAL_PLAYER = humanPal('#3b2a20', '#c8332e', '#2b4a8f');
+const PAL_PROF   = humanPal('#8a8a92', '#f2f2f4', '#5a5a66');
+const PAL_NURSE  = humanPal('#e88bb4', '#ff9fc4', '#f4f4f8');
+const PAL_RIVAL  = humanPal('#2d5fbe', '#3aa3d8', '#37374a');
+const PAL_ZOE    = humanPal('#b8302a', '#e8e84a', '#7a2a52');
+const PAL_VILLAGER = humanPal('#6a4a26', '#4a9a4e', '#8a6a3a');
+
+function humanSprite(dir) {
+  if (dir === 'up') return { mat: HUMAN_UP, flip: false };
+  if (dir === 'left') return { mat: HUMAN_SIDE, flip: false };
+  if (dir === 'right') return { mat: HUMAN_SIDE, flip: true };
+  return { mat: HUMAN_DOWN, flip: false };
+}
+
+/* ============================================================
+   SPRITES DES CRÉATURES (16x16) — starters et évolutions
+   ============================================================ */
+const SPR = {};
+
+SPR.pyrouf = { pal: { k:'#2a1c12', o:'#f08438', d:'#b85a1e', c:'#ffe6c0', e:'#1a1a22', w:'#ffffff', f:'#ffd23a', r:'#f25c2a' }, mat: [
+'....k......k....',
+'...kok....kok...',
+'...kdok..kdok...',
+'..kooooooooook..',
+'.koooooooooook..',
+'.kocoooooooock..',
+'.kocewoooowecok.',
+'.kocooookooocok.',
+'..kooocccooook..',
+'..kkoooooookk...',
+'...koooooook....',
+'..koooooooook.f.',
+'.kooooooooookrf.',
+'.koookoookookrf.',
+'..kk..kk..kk.f..',
+'................',
+]};
+
+SPR.pyrenard = { pal: { k:'#241410', o:'#e8742e', d:'#a84a16', c:'#ffe6c0', e:'#1a1a22', w:'#ffffff', f:'#ffd23a', r:'#f25c2a' }, mat: [
+'....k......k....',
+'...kok....kok...',
+'..kddok..kddok..',
+'..koooookoooook.',
+'.kooooooooooook.',
+'.koewooooooweok.',
+'.kooooooooooook.',
+'.kkocccccccookk.',
+'..koooooooook...',
+'..koooooooook.f.',
+'.kooooooooookff.',
+'.kooooooooookfrf',
+'.kooookoooookkf.',
+'.koook..koook...',
+'..kk......kk....',
+'................',
+]};
+
+SPR.aquanou = { pal: { k:'#14222e', b:'#58a8e8', d:'#2a6aa8', c:'#cfeeff', e:'#101822', w:'#ffffff' }, mat: [
+'................',
+'.....kkkkkk.....',
+'....kbbbbbbk....',
+'...kbbbbbbbbk...',
+'..kbcbbbbbbcbk..',
+'..kbewbbbbwebk..',
+'..kbbbbkkbbbbk..',
+'..kbcbkcckbcbk..',
+'...kbbccccbbk...',
+'...kbbbbbbbbk...',
+'..kbbbbbbbbbbk..',
+'..kbbkbbbbkbbk..',
+'.kdbbbbbbbbbbdk.',
+'.kddbkbbbbkbddk.',
+'..kk.kk..kk.kk..',
+'................',
+]};
+
+SPR.loutrazur = { pal: { k:'#101c2a', b:'#3a8ad8', d:'#1e5a98', c:'#cfeeff', e:'#101822', w:'#ffffff' }, mat: [
+'......kk........',
+'.....kddk.......',
+'....kbbbbkkk....',
+'...kbbbbbbbdk...',
+'..kbbbbbbbbbbk..',
+'..kbewbbbbwebk..',
+'..kbbbbbbbbbbk..',
+'..kbbkcccckbbk..',
+'...kbccccccbk...',
+'..kbbbbbbbbbbk..',
+'.kbbbbbbbbbbbbk.',
+'.kbbkbbbbbbkbbk.',
+'.kdbbbbbbbbbbdk.',
+'..kbbkbbbbkbbk..',
+'...kk.kk.kk.....',
+'................',
+]};
+
+SPR.verdylis = { pal: { k:'#142a16', g:'#58c858', d:'#2e8a3a', c:'#d8f8c0', e:'#101a12', w:'#ffffff', l:'#8ae060', y:'#f8e048' }, mat: [
+'................',
+'.....kkkk.......',
+'....kggggk......',
+'...kggggggk.....',
+'...kgewggggk....',
+'...kggggggkk....',
+'..kygggggggyk...',
+'...kkgggggggk...',
+'.....kkggggggk..',
+'....kkggggggggk.',
+'...kgggggkkgggk.',
+'..kggggk..kggk..',
+'..kgggk..kkggk..',
+'..kggggkkggggkl.',
+'...kggggggggkll.',
+'.....kkkkkkk.l..',
+]};
+
+SPR.vipelia = { pal: { k:'#0e2010', g:'#3aa84a', d:'#1e7a30', c:'#d8f8c0', e:'#0c140e', w:'#ffffff', l:'#8ae060', y:'#f8e048' }, mat: [
+'......kkkk......',
+'....kkggggkk....',
+'...kglgggglgk...',
+'..kglggggggglk..',
+'..kgewggggwegk..',
+'..kggggggggggk..',
+'...kgyggggygk...',
+'....kggggggk....',
+'.....kggggk.....',
+'....kggggggk....',
+'...kggggggggk...',
+'..kgggkkkkgggk..',
+'..kggk....kggk..',
+'..kgggkkkkgggk..',
+'...kggggggggkl..',
+'.....kkkkkk.ll..',
+]};
+
+/* ---- créatures sauvages + légendaire ---- */
+SPR.roupiaf = { pal: { k:'#241812', b:'#a86838', r:'#e85838', c:'#f8e8d0', w:'#ffffff', e:'#161014', y:'#f8c838', d:'#7a4a26' }, mat: [
+'................',
+'......kkkk......',
+'.....kbbbbk.....',
+'....kbbbbbbk....',
+'....kbewbbbk....',
+'...kbbbbbbyyk...',
+'...kbrrrbbbyk...',
+'..kbrrrrrbbbk...',
+'..kbrrrrrbdbk...',
+'..kbrrrrrbddbk..',
+'...krrrrrbbdbk..',
+'...kbrrrbbbbk...',
+'....kbbbbbbk....',
+'.....kkbbkk.....',
+'......y..y......',
+'................',
+]};
+
+SPR.mulotin = { pal: { k:'#1a1a20', m:'#9a8a7a', c:'#e8d8c8', e:'#14101a', w:'#ffffff', p:'#e8a0a0' }, mat: [
+'................',
+'...kk......kk...',
+'..kppk....kppk..',
+'..kpppk..kpppk..',
+'...kmmkkkkmmk...',
+'...kmmmmmmmmk...',
+'..kmewmmmmwemk..',
+'..kmmmmppmmmmk..',
+'...kmmkppkmmk...',
+'...kmmmmmmmmk...',
+'..kmmmmmmmmmmk..',
+'..kmcccccccmkk..',
+'..kmcccccccmk.k.',
+'...kmmmmmmmmk.k.',
+'....kkmmkkmmkk..',
+'................',
+]};
+
+SPR.chenivert = { pal: { k:'#14240f', g:'#78d048', d:'#48a030', y:'#f8e048', e:'#101a0c', w:'#ffffff', r:'#e84848' }, mat: [
+'......r..r......',
+'......k..k......',
+'.....kggggk.....',
+'....kggggggk....',
+'....kgewwegk....',
+'....kggggggk....',
+'.....kggggk.....',
+'....kddddddk....',
+'...kggggggggk...',
+'...kggggggggk...',
+'..kddddddddddk..',
+'..kggggggggggk..',
+'.kddddddddddddk.',
+'.kggggggggggggk.',
+'..kkkkkkkkkkkk..',
+'................',
+]};
+
+SPR.voltichat = { pal: { k:'#1c1c10', y:'#f8d838', d:'#caa020', b:'#3a3a2a', w:'#ffffff', e:'#141408' }, mat: [
+'...k.......k....',
+'..kyk.....kyk...',
+'..kyyk...kyyk...',
+'.kyyyykkkyyyyk..',
+'.kyyyyyyyyyyyk..',
+'.kyewyyyyyweyk..',
+'.kyyyyyyyyyyyk..',
+'.kyybyyyybyyyk..',
+'..kyyyyyyyyyk...',
+'..kyyyyyyyyyk...',
+'.kyyyyyyyyyyykb.',
+'.kyybyyyybyyykbb',
+'.kyyyyyyyyyyyk.b',
+'.kyykyyyykyyyk..',
+'..kk..kk..kk....',
+'................',
+]};
+
+SPR.taupix = { pal: { k:'#1a1410', t:'#8a6a4a', d:'#5e4630', p:'#f0a0a0', c:'#d8c0a0', w:'#ffffff', e:'#120e0a', g:'#c8c8d0' }, mat: [
+'................',
+'................',
+'....kkkkkkkk....',
+'...kttttttttk...',
+'..kttttttttttk..',
+'..ktewttttwetk..',
+'..ktttkppktttk..',
+'..kttttppttttk..',
+'.kttttttttttttk.',
+'.kttgkttttkgttk.',
+'.ktggktttttkggk.',
+'.ktggkttttkggtk.',
+'..kttttttttttk..',
+'...kttttttttk...',
+'....kkkkkkkk....',
+'................',
+]};
+
+SPR.grenouilla = { pal: { k:'#102820', g:'#48b888', d:'#2a8a60', c:'#d8f8e8', w:'#ffffff', e:'#0c1a14', b:'#68d8f8' }, mat: [
+'...kkk....kkk...',
+'..kgwegkkgewgk..',
+'..kgggggggggk...',
+'.kgggggggggggk..',
+'.kgcgggggggcgk..',
+'.kgccgggggccgk..',
+'.kgggkkkkkgggk..',
+'..kgggggggggk...',
+'..kbgggggggbk...',
+'.kggggggggggggk.',
+'.kggkggggggkggk.',
+'.kgkggggggggkgk.',
+'.kggkkggggkkggk.',
+'..kk..kkkk..kk..',
+'................',
+'................',
+]};
+
+SPR.noctyran = { pal: { k:'#000000', n:'#2a2a36', d:'#16161e', r:'#e8283a', g:'#8a8a9a', w:'#ffffff' }, mat: [
+'.g..........g...',
+'kgk........kgk..',
+'knnk......knnk..',
+'.knnk..kkknnk...',
+'..knnkknnnnk....',
+'..knnnnnnnnk....',
+'.knrwnnnnwrnk...',
+'.knnnnnnnnnnk...',
+'..knnkrrknnk....',
+'.knnnnrrnnnnk...',
+'knnknnnnnnknnk..',
+'knkknnnnnnkknk..',
+'.k.knnkknnk..k..',
+'...knnk.knnk....',
+'...kgk...kgk....',
+'................',
+]};
+
+/* ============================================================
+   DONNÉES DE JEU — attaques, types, espèces
+   ============================================================ */
+const MOVES = {
+  charge:      { name:'Charge',         type:'Normal',   pow:40, acc:100 },
+  griffure:    { name:'Griffure',       type:'Normal',   pow:40, acc:100 },
+  morsure:     { name:'Morsure',        type:'Normal',   pow:60, acc:100 },
+  plaquage:    { name:'Plaquage',       type:'Normal',   pow:85, acc:95 },
+  vifsprint:   { name:'Sprint Éclair',  type:'Normal',   pow:40, acc:100, prio:1 },
+  flammette:   { name:'Flammette',      type:'Feu',      pow:40, acc:100 },
+  brasier:     { name:'Brasier',        type:'Feu',      pow:65, acc:100 },
+  fournaise:   { name:'Fournaise',      type:'Feu',      pow:95, acc:95 },
+  jetdo:       { name:"Jet d'Eau",      type:'Eau',      pow:40, acc:100 },
+  torrent:     { name:'Torrent',        type:'Eau',      pow:65, acc:100 },
+  raz:         { name:'Raz-de-Marée',   type:'Eau',      pow:95, acc:95 },
+  feuillelame: { name:'Feuille Lame',   type:'Plante',   pow:45, acc:100 },
+  lianes:      { name:'Fouet Végétal',  type:'Plante',   pow:65, acc:100 },
+  tempeteverte:{ name:'Tempête Verte',  type:'Plante',   pow:95, acc:95 },
+  etincelle:   { name:'Étincelle',      type:'Électrik', pow:40, acc:100 },
+  foudre:      { name:'Foudre',         type:'Électrik', pow:80, acc:95 },
+  picorage:    { name:'Picorage',       type:'Vol',      pow:35, acc:100 },
+  rafale:      { name:"Rafale d'Ailes", type:'Vol',      pow:60, acc:100 },
+  boue:        { name:'Jet de Boue',    type:'Sol',      pow:40, acc:100 },
+  seisme:      { name:'Secousse',       type:'Sol',      pow:80, acc:100 },
+  crochenuit:  { name:'Croc Nocturne',  type:'Ténèbres', pow:70, acc:100 },
+  aileombre:   { name:"Aile d'Ombre",   type:'Ténèbres', pow:95, acc:95 },
+};
+
+// multiplicateurs : TYPE_CHART[attaque][défense] (1 si absent)
+const TYPE_CHART = {
+  Feu:      { Plante:2, Feu:0.5, Eau:0.5 },
+  Eau:      { Feu:2, Sol:2, Eau:0.5, Plante:0.5 },
+  Plante:   { Eau:2, Sol:2, Feu:0.5, Plante:0.5, Vol:0.5 },
+  Électrik: { Eau:2, Vol:2, Sol:0, Plante:0.5, Électrik:0.5 },
+  Sol:      { Feu:2, Électrik:2, Vol:0, Plante:0.5 },
+  Vol:      { Plante:2, Électrik:0.5 },
+};
+function typeMult(atkType, defTypes) {
+  let m = 1;
+  const row = TYPE_CHART[atkType] || {};
+  for (const t of defTypes) m *= (row[t] !== undefined ? row[t] : 1);
+  return m;
+}
+const TYPE_COLORS = {
+  Normal:'#a8a090', Feu:'#f05030', Eau:'#3890f0', Plante:'#58b048',
+  'Électrik':'#f0c020', Vol:'#8098f0', Sol:'#d0a048', 'Ténèbres':'#605068',
+};
+
+const SPECIES = {
+  pyrouf:    { name:'Pyrouf',    types:['Feu'],          base:{hp:44,atk:52,def:43,spe:65}, catch:45,  exp:64,
+               evolveAt:11, evolveTo:'pyrenard',
+               learn:[[1,'charge'],[1,'flammette'],[5,'vifsprint'],[8,'brasier'],[13,'morsure'],[17,'fournaise']] },
+  pyrenard:  { name:'Pyrenard',  types:['Feu'],          base:{hp:58,atk:68,def:56,spe:80}, catch:45,  exp:142,
+               learn:[[1,'charge'],[1,'flammette'],[5,'vifsprint'],[8,'brasier'],[13,'morsure'],[17,'fournaise']] },
+  aquanou:   { name:'Aquanou',   types:['Eau'],          base:{hp:48,atk:50,def:48,spe:55}, catch:45,  exp:64,
+               evolveAt:11, evolveTo:'loutrazur',
+               learn:[[1,'charge'],[1,'jetdo'],[5,'vifsprint'],[8,'torrent'],[13,'morsure'],[17,'raz']] },
+  loutrazur: { name:'Loutrazur', types:['Eau'],          base:{hp:62,atk:66,def:62,spe:68}, catch:45,  exp:142,
+               learn:[[1,'charge'],[1,'jetdo'],[5,'vifsprint'],[8,'torrent'],[13,'morsure'],[17,'raz']] },
+  verdylis:  { name:'Verdylis',  types:['Plante'],       base:{hp:45,atk:49,def:49,spe:63}, catch:45,  exp:64,
+               evolveAt:11, evolveTo:'vipelia',
+               learn:[[1,'charge'],[1,'feuillelame'],[5,'vifsprint'],[8,'lianes'],[13,'morsure'],[17,'tempeteverte']] },
+  vipelia:   { name:'Vipélia',   types:['Plante'],       base:{hp:60,atk:63,def:65,spe:76}, catch:45,  exp:142,
+               learn:[[1,'charge'],[1,'feuillelame'],[5,'vifsprint'],[8,'lianes'],[13,'morsure'],[17,'tempeteverte']] },
+  roupiaf:   { name:'Roupiaf',   types:['Normal','Vol'], base:{hp:40,atk:45,def:38,spe:58}, catch:200, exp:50,
+               learn:[[1,'charge'],[4,'picorage'],[7,'vifsprint'],[10,'rafale']] },
+  mulotin:   { name:'Mulotin',   types:['Normal'],       base:{hp:38,atk:48,def:35,spe:52}, catch:230, exp:45,
+               learn:[[1,'charge'],[6,'morsure'],[9,'vifsprint'],[13,'plaquage']] },
+  chenivert: { name:'Chenivert', types:['Plante'],       base:{hp:45,atk:35,def:50,spe:30}, catch:240, exp:40,
+               learn:[[1,'charge'],[4,'feuillelame'],[9,'lianes']] },
+  voltichat: { name:'Voltichat', types:['Électrik'],     base:{hp:42,atk:50,def:40,spe:70}, catch:150, exp:60,
+               learn:[[1,'griffure'],[1,'etincelle'],[7,'vifsprint'],[12,'foudre']] },
+  taupix:    { name:'Taupix',    types:['Sol'],          base:{hp:45,atk:55,def:50,spe:40}, catch:160, exp:58,
+               learn:[[1,'griffure'],[5,'boue'],[9,'morsure'],[14,'seisme']] },
+  grenouilla:{ name:'Grenouilla',types:['Eau'],          base:{hp:44,atk:46,def:44,spe:56}, catch:170, exp:55,
+               learn:[[1,'charge'],[4,'jetdo'],[8,'vifsprint'],[12,'torrent']] },
+  noctyran:  { name:'Noctyran',  types:['Ténèbres'],     base:{hp:75,atk:85,def:70,spe:85}, catch:20,  exp:220,
+               learn:[[1,'crochenuit'],[1,'aileombre'],[1,'vifsprint'],[1,'plaquage']] },
+};
+
+// ---------- instances de créatures ----------
+function statOf(base, level, isHp) {
+  if (isHp) return Math.floor(2 * base * level / 100) + level + 10;
+  return Math.floor(2 * base * level / 100) + 5;
+}
+function xpTotalFor(level) { return level * level * level; }
+
+function movesAtLevel(spId, level) {
+  const list = SPECIES[spId].learn.filter(([l]) => l <= level).map(([, m]) => m);
+  return list.slice(-4);
+}
+function makeMon(spId, level) {
+  const sp = SPECIES[spId];
+  const m = {
+    sp: spId, level,
+    xp: xpTotalFor(level),
+    moves: movesAtLevel(spId, level),
+    hp: 0, maxhp: 0, atk: 0, def: 0, spe: 0,
+  };
+  recalcStats(m);
+  m.hp = m.maxhp;
+  return m;
+}
+function recalcStats(m) {
+  const b = SPECIES[m.sp].base;
+  m.maxhp = statOf(b.hp, m.level, true);
+  m.atk = statOf(b.atk, m.level);
+  m.def = statOf(b.def, m.level);
+  m.spe = statOf(b.spe, m.level);
+}
+function monName(m) { return SPECIES[m.sp].name; }
+
+/* ============================================================
+   CARTE DU MONDE — Bourg Sépia (sud), Route 1, Lac Onyx (nord)
+   '#' arbre  '.' herbe  ',' fleurs  ':' chemin  ';' hautes herbes
+   '~' eau  '=' barrière  'S' panneau
+   ============================================================ */
+const MAP_W = 40, MAP_H = 60;
+const M = Array.from({ length: MAP_H }, () => Array(MAP_W).fill('.'));
+function mrect(x, y, w, h, ch) {
+  for (let j = y; j < y + h; j++)
+    for (let i = x; i < x + w; i++)
+      if (i >= 0 && j >= 0 && i < MAP_W && j < MAP_H) M[j][i] = ch;
+}
+(function buildMap() {
+  // bordure d'arbres
+  mrect(0, 0, MAP_W, 1, '#'); mrect(0, MAP_H - 1, MAP_W, 1, '#');
+  mrect(0, 0, 1, MAP_H, '#'); mrect(MAP_W - 1, 0, 1, MAP_H, '#');
+  mrect(0, 0, MAP_W, 2, '#'); // lisière nord épaisse
+
+  // ---- LAC ONYX (lignes 2..16) ----
+  mrect(6, 4, 13, 9, '~');                 // le lac
+  mrect(24, 3, 12, 12, ';');               // hautes herbes de l'est
+  mrect(2, 2, 3, 3, '#'); mrect(2, 9, 2, 6, '#');
+  mrect(36, 2, 3, 5, '#');
+  mrect(19, 2, 2, 15, ':');                // sentier du lac
+  mrect(8, 2, 9, 2, '.');                  // rive nord (où rôde l'ombre)
+  M[16][22] = 'S';                          // panneau du lac
+
+  // séparation lac / route (passage en 19-20)
+  mrect(1, 17, 18, 1, '#'); mrect(21, 17, 18, 1, '#');
+
+  // ---- ROUTE 1 (lignes 18..44) ----
+  mrect(19, 18, 2, 28, ':');               // chemin principal
+  mrect(24, 19, 9, 3, ';');                // herbes nord-est
+  mrect(6, 22, 10, 6, ';');                // herbes ouest
+  mrect(5, 38, 10, 5, ';');                // herbes sud-ouest
+  mrect(24, 32, 10, 4, ';');               // herbes sud-est
+  mrect(1, 36, 12, 1, '#');                // ligne d'arbres
+  mrect(23, 30, 14, 1, '#');               // ligne d'arbres
+  mrect(13, 20, 1, 6, '#'); mrect(34, 22, 4, 6, '#');
+  mrect(2, 30, 6, 2, '#'); mrect(28, 40, 8, 2, '#');
+  mrect(15, 33, 4, 1, '='); mrect(21, 33, 2, 1, '=');
+  mrect(15, 26, 4, 1, '='); mrect(21, 26, 2, 1, '=');
+  M[43][21] = 'S';                          // panneau de la route
+  mrect(3, 19, 2, 2, ','); mrect(35, 36, 3, 2, ',');
+
+  // séparation route / bourg (passage en 19-20)
+  mrect(1, 45, 18, 1, '#'); mrect(21, 45, 18, 1, '#');
+
+  // ---- BOURG SÉPIA (lignes 46..58) ----
+  mrect(19, 46, 2, 8, ':');                // entrée du bourg
+  mrect(9, 52, 20, 2, ':');                // place centrale
+  mrect(4, 54, 3, 2, ','); mrect(31, 47, 4, 2, ','); mrect(13, 47, 3, 1, ',');
+  mrect(33, 53, 4, 3, '#'); mrect(2, 46, 2, 3, '#');
+  M[53][22] = 'S';                          // panneau du bourg
+})();
+
+const SIGNS = {
+  '22,53': 'BOURG SÉPIA — « Là où les aventures commencent. »',
+  '21,43': "ROUTE 1 — Attention : les hautes herbes\nabritent des créatures sauvages !",
+  '22,16': "LAC ONYX — Les anciens parlent d'une ombre\nqui rôde sur la rive nord...",
+};
+
+// bâtiments (bloquants, dessinés par-dessus le sol)
+const BUILDINGS = [
+  { x:7,  y:48, w:5, h:4, roof:'#d85a64', wall:'#efe2cc', door:9,  emblem:'heart', name:'CLINIQUE' },
+  { x:22, y:48, w:7, h:4, roof:'#5a74d8', wall:'#e9e4d2', door:25, emblem:'flask', name:'LABO' },
+  { x:3,  y:55, w:4, h:3, roof:'#7a9a54', wall:'#efe2cc', door:4,  emblem:null,    name:'' },
+];
+
+// PNJ du monde
+const NPCS = [
+  { id:'prof',     x:24, y:54, dir:'up',    pal:PAL_PROF },
+  { id:'nurse',    x:9,  y:52, dir:'down',  pal:PAL_NURSE },
+  { id:'villager', x:31, y:55, dir:'left',  pal:PAL_VILLAGER },
+  { id:'rival',    x:19, y:30, dir:'down',  pal:PAL_RIVAL,  hideIf:'rivalBeaten' },
+  { id:'zoe',      x:20, y:14, dir:'down',  pal:PAL_ZOE,    hideIf:'zoeBeaten' },
+  { id:'dragon',   x:12, y:2,  dir:'down',  dragon:true },
+];
+
+// objets posés au sol  (caps = Capsules, pot = Potions)
+const PICKUPS = [
+  { x:8,  y:40, item:'caps', n:3 },
+  { x:30, y:33, item:'pot',  n:2 },
+  { x:10, y:23, item:'caps', n:3 },
+  { x:28, y:20, item:'pot',  n:2 },
+  { x:34, y:5,  item:'caps', n:5 },
+  { x:25, y:9,  item:'pot',  n:2 },
+];
+
+function zoneName(y) { return y < 18 ? 'LAC ONYX' : (y < 46 ? 'ROUTE 1' : 'BOURG SÉPIA'); }
+
+// tables de rencontres : [espèce, poids, [nivMin, nivMax]]
+function encounterTable(y) {
+  if (y < 18) return [
+    ['grenouilla', 30, [5, 8]], ['voltichat', 25, [5, 8]],
+    ['taupix', 25, [5, 8]], ['roupiaf', 20, [6, 9]],
+  ];
+  return [
+    ['mulotin', 30, [2, 4]], ['roupiaf', 30, [2, 4]],
+    ['chenivert', 25, [2, 4]], ['voltichat', 10, [3, 5]], ['taupix', 5, [3, 5]],
+  ];
+}
+
+function tileAt(x, y) {
+  if (x < 0 || y < 0 || x >= MAP_W || y >= MAP_H) return '#';
+  return M[y][x];
+}
+function buildingAt(x, y) {
+  return BUILDINGS.find(b => x >= b.x && x < b.x + b.w && y >= b.y && y < b.y + b.h);
+}
+function npcAt(x, y) {
+  return NPCS.find(n => n.x === x && n.y === y && npcVisible(n));
+}
+function npcVisible(n) {
+  if (n.dragon) return G.flags.zoeBeaten && !G.flags.dragonDone;
+  return true;
+}
+function isBlocked(x, y) {
+  const t = tileAt(x, y);
+  if (t === '#' || t === '~' || t === '=' || t === 'S') return true;
+  if (buildingAt(x, y)) return true;
+  if (npcAt(x, y)) return true;
+  return false;
+}
+
+/* ============================================================
+   ÉTAT DU JEU, SAUVEGARDE, INTERFACE (dialogues & menus)
+   ============================================================ */
+const G = {
+  state: 'title',           // title | world | battle
+  px: 25, py: 53, dir: 'down',
+  moving: null,             // { tx, ty, t } progression du pas (0..1)
+  animT: 0,
+  team: [], bag: { caps: 5, pot: 3 },
+  flags: { pickups: {} },
+  stored: [],
+  zone: '',
+};
+const SAVE_KEY = 'version-noire-save-v1';
+function saveGame() {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      px: G.px, py: G.py, dir: G.dir, team: G.team, bag: G.bag,
+      flags: G.flags, stored: G.stored,
+    }));
+    return true;
+  } catch (e) { return false; }
+}
+function loadGame() {
+  try {
+    const d = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (!d || !d.team || !d.team.length) return false;
+    Object.assign(G, { px: d.px, py: d.py, dir: d.dir, team: d.team,
+      bag: d.bag, flags: d.flags || { pickups: {} }, stored: d.stored || [] });
+    if (!G.flags.pickups) G.flags.pickups = {};
+    return true;
+  } catch (e) { return false; }
+}
+function hasSave() { try { return !!localStorage.getItem(SAVE_KEY); } catch (e) { return false; } }
+
+// ---------- interface ----------
+const UI = { dialog: null, menu: null, toast: null };
+const pressQueue = [];
+
+function wrapText(text, maxChars) {
+  const out = [];
+  for (const para of text.split('\n')) {
+    let line = '';
+    for (const word of para.split(' ')) {
+      if ((line + ' ' + word).trim().length > maxChars) { out.push(line); line = word; }
+      else line = (line ? line + ' ' : '') + word;
+    }
+    out.push(line);
+  }
+  return out;
+}
+
+// affiche un texte façon machine à écrire ; touche = accélérer puis fermer
+async function say(text) {
+  const lines = wrapText(text, 28);
+  // par paquets de 2 lignes
+  for (let i = 0; i < lines.length; i += 2) {
+    const chunk = lines.slice(i, i + 2).join('\n');
+    UI.dialog = { text: chunk, shown: 0, more: i + 2 < lines.length };
+    const tick = setInterval(() => {
+      if (UI.dialog) { UI.dialog.shown += 1; if (chance(0.5)) SFX.tick(); }
+    }, 28);
+    while (true) {
+      const k = await waitKey();
+      if (UI.dialog.shown < chunk.length) { UI.dialog.shown = chunk.length; continue; }
+      if (k === 'ok' || k === 'cancel') break;
+    }
+    clearInterval(tick);
+  }
+  UI.dialog = null;
+}
+
+// menu naviguable ; renvoie l'indice choisi, ou -1 si annulable et annulé
+async function menu(options, opts) {
+  opts = opts || {};
+  UI.menu = { options, idx: opts.idx || 0, cols: opts.cols || 1,
+              x: opts.x, y: opts.y, w: opts.w, title: opts.title || null };
+  const m = UI.menu;
+  while (true) {
+    const k = await waitKey();
+    const rows = Math.ceil(options.length / m.cols);
+    let r = Math.floor(m.idx / m.cols), c = m.idx % m.cols;
+    if (k === 'up') r = (r + rows - 1) % rows;
+    else if (k === 'down') r = (r + 1) % rows;
+    else if (k === 'left') c = (c + m.cols - 1) % m.cols;
+    else if (k === 'right') c = (c + 1) % m.cols;
+    else if (k === 'ok') { SFX.confirm(); UI.menu = null; return m.idx; }
+    else if (k === 'cancel') {
+      if (opts.cancelable !== false) { UI.menu = null; return -1; }
+      continue;
+    }
+    const ni = r * m.cols + c;
+    if (ni < options.length) { if (ni !== m.idx) SFX.select(); m.idx = ni; }
+  }
+}
+
+function toast(text) { UI.toast = { text, t: 130 }; }
+
+/* ============================================================
+   RENDU — tuiles, monde, personnages
+   ============================================================ */
+let cv = null, ctx = null;
+
+function playerPixelPos() {
+  let x = G.px * TILE, y = G.py * TILE;
+  if (G.moving) {
+    const m = G.moving, t = m.t;
+    x = (G.px + (m.tx - G.px) * t) * TILE;
+    y = (G.py + (m.ty - G.py) * t) * TILE;
+  }
+  return { x, y };
+}
+
+function drawTile(t, sx, sy, wx, wy) {
+  // herbe de base sous tout sauf eau/chemin
+  if (t === '~') {
+    ctx.fillStyle = '#3a7ed0'; ctx.fillRect(sx, sy, TILE, TILE);
+    ctx.fillStyle = '#5f9fe8';
+    const ph = Math.floor(G.animT / 30 + (wx + wy) ) % 4;
+    ctx.fillRect(sx + 2 + ph, sy + 4, 6, 1);
+    ctx.fillRect(sx + 8 - ph, sy + 11, 5, 1);
+    return;
+  }
+  if (t === ':') {
+    ctx.fillStyle = '#dfc48e'; ctx.fillRect(sx, sy, TILE, TILE);
+    ctx.fillStyle = '#c9ad74';
+    if (thash(wx, wy) > 0.5) ctx.fillRect(sx + 3, sy + 5, 2, 2);
+    if (thash(wx + 7, wy) > 0.5) ctx.fillRect(sx + 10, sy + 10, 2, 2);
+    return;
+  }
+  // base herbeuse
+  ctx.fillStyle = '#8cc66e'; ctx.fillRect(sx, sy, TILE, TILE);
+  ctx.fillStyle = '#7cb55e';
+  if (thash(wx, wy) > 0.55) ctx.fillRect(sx + 4, sy + 3, 2, 1);
+  if (thash(wx + 3, wy + 5) > 0.55) ctx.fillRect(sx + 11, sy + 9, 2, 1);
+  if (t === '.') return;
+
+  if (t === ';') { // hautes herbes
+    ctx.fillStyle = '#4f9a44';
+    for (const ox of [1, 6, 11]) {
+      ctx.fillRect(sx + ox, sy + 6, 1, 8); ctx.fillRect(sx + ox + 2, sy + 6, 1, 8);
+      ctx.fillRect(sx + ox + 1, sy + 4, 1, 10);
+    }
+    ctx.fillStyle = '#3d8136';
+    for (const ox of [3, 8, 13]) ctx.fillRect(sx + ox, sy + 9, 1, 5);
+    return;
+  }
+  if (t === '#') { // arbre
+    ctx.fillStyle = '#6e4a28'; ctx.fillRect(sx + 6, sy + 9, 4, 6);
+    ctx.fillStyle = '#256e35';
+    ctx.fillRect(sx + 2, sy + 2, 12, 9); ctx.fillRect(sx + 1, sy + 4, 14, 5);
+    ctx.fillStyle = '#3a9a4c';
+    ctx.fillRect(sx + 3, sy + 2, 5, 3); ctx.fillRect(sx + 2, sy + 5, 3, 2);
+    return;
+  }
+  if (t === ',') { // fleurs
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(sx + 3, sy + 4, 3, 3); ctx.fillRect(sx + 10, sy + 9, 3, 3);
+    ctx.fillStyle = '#f8d048'; ctx.fillRect(sx + 4, sy + 5, 1, 1); ctx.fillRect(sx + 11, sy + 10, 1, 1);
+    ctx.fillStyle = '#e86a8a'; ctx.fillRect(sx + 11, sy + 3, 2, 2);
+    return;
+  }
+  if (t === '=') { // barrière
+    ctx.fillStyle = '#b08a50';
+    ctx.fillRect(sx, sy + 6, TILE, 2); ctx.fillRect(sx + 2, sy + 4, 2, 9); ctx.fillRect(sx + 12, sy + 4, 2, 9);
+    return;
+  }
+  if (t === 'S') { // panneau
+    ctx.fillStyle = '#7a5230'; ctx.fillRect(sx + 7, sy + 8, 2, 7);
+    ctx.fillStyle = '#c8a05a'; ctx.fillRect(sx + 2, sy + 2, 12, 7);
+    ctx.fillStyle = '#8a6a3a'; ctx.fillRect(sx + 4, sy + 4, 8, 1); ctx.fillRect(sx + 4, sy + 6, 6, 1);
+    return;
+  }
+}
+
+function drawBuilding(b, camX, camY) {
+  const x = b.x * TILE - camX, y = b.y * TILE - camY;
+  const w = b.w * TILE, h = b.h * TILE, roofH = Math.floor(h * 0.45);
+  ctx.fillStyle = '#1a1a22'; ctx.fillRect(x - 1, y - 1, w + 2, h + 2);
+  ctx.fillStyle = b.wall; ctx.fillRect(x, y + roofH, w, h - roofH);
+  ctx.fillStyle = b.roof; ctx.fillRect(x - 2, y, w + 4, roofH);
+  ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(x - 2, y, w + 4, 3);
+  // porte
+  const dx = b.door * TILE - camX;
+  ctx.fillStyle = '#5a4632'; ctx.fillRect(dx + 3, y + h - 12, 10, 12);
+  ctx.fillStyle = '#3a2e20'; ctx.fillRect(dx + 4, y + h - 11, 8, 11);
+  // fenêtres
+  ctx.fillStyle = '#9fd8f0';
+  ctx.fillRect(x + 5, y + roofH + 4, 8, 7);
+  ctx.fillRect(x + w - 13, y + roofH + 4, 8, 7);
+  // emblème
+  const ex = x + Math.floor(w / 2) - 3, ey = y + Math.floor(roofH / 2) - 3;
+  if (b.emblem === 'heart') {
+    ctx.fillStyle = '#fff'; ctx.fillRect(ex - 2, ey - 2, 11, 11);
+    ctx.fillStyle = '#e83a4a';
+    ctx.fillRect(ex + 1, ey + 1, 2, 2); ctx.fillRect(ex + 4, ey + 1, 2, 2);
+    ctx.fillRect(ex, ey + 2, 7, 2); ctx.fillRect(ex + 1, ey + 4, 5, 1);
+    ctx.fillRect(ex + 2, ey + 5, 3, 1); ctx.fillRect(ex + 3, ey + 6, 1, 1);
+  } else if (b.emblem === 'flask') {
+    ctx.fillStyle = '#fff'; ctx.fillRect(ex - 2, ey - 2, 11, 11);
+    ctx.fillStyle = '#3a6ad8';
+    ctx.fillRect(ex + 3, ey, 1, 3); ctx.fillRect(ex + 2, ey + 3, 3, 4);
+    ctx.fillRect(ex + 1, ey + 5, 5, 2);
+  }
+}
+
+function drawPickup(p, camX, camY) {
+  const x = p.x * TILE - camX + 4, y = p.y * TILE - camY + 5;
+  ctx.fillStyle = '#1a1a22'; ctx.fillRect(x - 1, y - 1, 9, 9);
+  ctx.fillStyle = '#e83a4a'; ctx.fillRect(x, y, 7, 4);
+  ctx.fillStyle = '#f4f4f8'; ctx.fillRect(x, y + 4, 7, 3);
+  ctx.fillStyle = '#fff'; ctx.fillRect(x + 2, y + 1, 2, 1);
+}
+
+function drawHumanAt(px, py, dir, pal, bob) {
+  const s = humanSprite(dir);
+  drawSprite(ctx, s.mat, pal, Math.round(px), Math.round(py) - 4 - (bob ? 1 : 0), 1, s.flip);
+}
+
+function drawWorld() {
+  const pp = playerPixelPos();
+  let camX = Math.round(clamp(pp.x + 8 - SCR_W / 2, 0, MAP_W * TILE - SCR_W));
+  let camY = Math.round(clamp(pp.y + 8 - SCR_H / 2, 0, MAP_H * TILE - SCR_H));
+  const x0 = Math.floor(camX / TILE), y0 = Math.floor(camY / TILE);
+  for (let j = y0; j <= y0 + VIEW_H; j++)
+    for (let i = x0; i <= x0 + VIEW_W; i++)
+      drawTile(tileAt(i, j), i * TILE - camX, j * TILE - camY, i, j);
+
+  for (let k = 0; k < PICKUPS.length; k++)
+    if (!G.flags.pickups[k]) drawPickup(PICKUPS[k], camX, camY);
+  for (const b of BUILDINGS) drawBuilding(b, camX, camY);
+
+  // entités triées par y pour la superposition
+  const ents = [];
+  for (const n of NPCS) {
+    if (!npcVisible(n)) continue;
+    ents.push({ y: n.y * TILE, draw: () => {
+      const ex = n.x * TILE - camX, ey = n.y * TILE - camY;
+      if (n.dragon) {
+        const hov = Math.floor(G.animT / 25) % 2;
+        ctx.fillStyle = 'rgba(20,10,40,0.45)';
+        ctx.beginPath(); ctx.ellipse(ex + 8, ey + 14, 8, 3, 0, 0, Math.PI * 2); ctx.fill();
+        drawSprite(ctx, SPR.noctyran.mat, SPR.noctyran.pal, ex, ey - 4 - hov, 1, false);
+      } else {
+        drawHumanAt(ex, ey, n.dir, n.pal, false);
+      }
+    }});
+  }
+  const bob = G.moving && G.moving.t > 0.25 && G.moving.t < 0.75;
+  ents.push({ y: pp.y, draw: () => drawHumanAt(pp.x - camX, pp.y - camY, G.dir, PAL_PLAYER, bob) });
+  ents.sort((a, b) => a.y - b.y);
+  for (const e of ents) e.draw();
+}
+
+/* ============================================================
+   INTERFACE — boîtes, menus, jauges, écran titre
+   ============================================================ */
+function drawText(t, x, y, color, font) {
+  ctx.font = font || '9px monospace';
+  ctx.textBaseline = 'top';
+  ctx.fillStyle = color || '#f2f2f4';
+  ctx.fillText(t, x, y);
+}
+function drawBox(x, y, w, h) {
+  ctx.fillStyle = 'rgba(12,12,18,0.94)'; ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = '#f2f2f4'; ctx.lineWidth = 1;
+  ctx.strokeRect(x + 1.5, y + 1.5, w - 3, h - 3);
+  ctx.strokeStyle = '#6a6a78';
+  ctx.strokeRect(x + 3.5, y + 3.5, w - 7, h - 7);
+}
+function drawDialogUI() {
+  if (!UI.dialog) return;
+  const d = UI.dialog;
+  const bx = 4, by = SCR_H - 52, bw = SCR_W - 8, bh = 48;
+  drawBox(bx, by, bw, bh);
+  const lines = d.text.split('\n');
+  let cnt = d.shown;
+  for (let i = 0; i < lines.length; i++) {
+    const vis = lines[i].slice(0, Math.max(0, cnt));
+    cnt -= lines[i].length;
+    drawText(vis, bx + 10, by + 10 + i * 14);
+  }
+  if (d.shown >= d.text.length && Math.floor(G.animT / 20) % 2 === 0) {
+    ctx.fillStyle = '#f2f2f4';
+    const ax = bx + bw - 14, ay = by + bh - 11;
+    ctx.fillRect(ax, ay, 6, 2); ctx.fillRect(ax + 1, ay + 2, 4, 2); ctx.fillRect(ax + 2, ay + 4, 2, 2);
+  }
+}
+function drawMenuUI() {
+  if (!UI.menu) return;
+  const m = UI.menu;
+  const longest = Math.max(...m.options.map(o => o.length), m.title ? m.title.length : 0);
+  const cellW = longest * 6 + 18;
+  const w = m.w || (cellW * m.cols + 10);
+  const rows = Math.ceil(m.options.length / m.cols);
+  const h = rows * 13 + 14 + (m.title ? 12 : 0);
+  const x = m.x !== undefined ? m.x : SCR_W - w - 4;
+  const y = m.y !== undefined ? m.y : 4;
+  drawBox(x, y, w, h);
+  let oy = y + 8;
+  if (m.title) { drawText(m.title, x + 10, oy, '#9ad8ff'); oy += 12; }
+  m.options.forEach((opt, i) => {
+    const r = Math.floor(i / m.cols), c = i % m.cols;
+    const ox = x + 8 + c * cellW, oyy = oy + r * 13;
+    if (i === m.idx) drawText('►', ox, oyy, '#f8d048');
+    drawText(opt, ox + 8, oyy, i === m.idx ? '#fff' : '#c8c8d0');
+  });
+}
+function drawToastUI() {
+  if (!UI.toast) return;
+  const t = UI.toast;
+  const w = t.text.length * 6 + 16;
+  drawBox(Math.floor((SCR_W - w) / 2), 4, w, 18);
+  drawText(t.text, Math.floor((SCR_W - w) / 2) + 8, 9, '#f8d048');
+  if (--t.t <= 0) UI.toast = null;
+}
+function drawHPBar(x, y, w, ratio, showBg) {
+  ratio = clamp(ratio, 0, 1);
+  if (showBg !== false) { ctx.fillStyle = '#2a2a32'; ctx.fillRect(x - 1, y - 1, w + 2, 5); }
+  ctx.fillStyle = '#46464e'; ctx.fillRect(x, y, w, 3);
+  ctx.fillStyle = ratio > 0.5 ? '#48d860' : (ratio > 0.2 ? '#f8c030' : '#f04038');
+  ctx.fillRect(x, y, Math.round(w * ratio), 3);
+}
+
+function drawTitle() {
+  ctx.fillStyle = '#08080c'; ctx.fillRect(0, 0, SCR_W, SCR_H);
+  // halo
+  const g = ctx.createRadialGradient(128, 88, 8, 128, 88, 90);
+  g.addColorStop(0, 'rgba(120,40,160,0.35)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, SCR_W, SCR_H);
+  const hov = Math.floor(G.animT / 30) % 2;
+  drawSprite(ctx, SPR.noctyran.mat, SPR.noctyran.pal, 128 - 40, 40 - hov, 5, false);
+  ctx.textAlign = 'center';
+  drawText('CRÉATURES', 128, 130, '#9a9aae', 'bold 12px monospace');
+  drawText('VERSION NOIRE', 128, 144, '#f2f2f4', 'bold 18px monospace');
+  drawText('Hommage non officiel, fait main', 128, 170, '#6a6a78', '8px monospace');
+  if (Math.floor(G.animT / 35) % 2 === 0)
+    drawText('— Appuie sur ENTRÉE —', 128, 192, '#f8d048', '10px monospace');
+  drawText('Flèches/ZQSD bouger · E parler · Entrée menu · M musique', 128, 212, '#55555f', '7px monospace');
+  ctx.textAlign = 'left';
+}
+
+/* ============================================================
+   MONDE — déplacements, interactions, menus du joueur
+   ============================================================ */
+const DIRV = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+let busy = false; // une séquence scriptée est en cours
+
+function updateWorld() {
+  if (G.moving) {
+    G.moving.t += 0.14;
+    if (G.moving.t >= 1) {
+      G.px = G.moving.tx; G.py = G.moving.ty; G.moving = null;
+      onStepEnd();
+    }
+    return;
+  }
+  if (busy || UI.dialog || UI.menu) { pressQueue.length = 0; return; }
+  while (pressQueue.length) {
+    const code = pressQueue.shift();
+    if (code === 'Space' || code === 'KeyE') { interact(); return; }
+    if (code === 'Enter' || code === 'Escape') { pauseMenu(); return; }
+  }
+  const d = heldDir();
+  if (d) {
+    G.dir = d;
+    const [dx, dy] = DIRV[d];
+    const nx = G.px + dx, ny = G.py + dy;
+    if (!isBlocked(nx, ny)) G.moving = { tx: nx, ty: ny, t: 0 };
+  }
+}
+
+function onStepEnd() {
+  const zn = zoneName(G.py);
+  if (zn !== G.zone) { G.zone = zn; toast(zn); }
+  // objets au sol
+  PICKUPS.forEach((p, i) => {
+    if (!G.flags.pickups[i] && p.x === G.px && p.y === G.py) {
+      G.flags.pickups[i] = true;
+      G.bag[p.item] += p.n;
+      SFX.confirm();
+      runScript(async () => {
+        await say('Tu trouves ' + p.n + ' ' + (p.item === 'caps' ? 'Capsule(s)' : 'Potion(s)') + ' !');
+      });
+      return;
+    }
+  });
+  if (busy) return;
+  // dresseurs embusqués
+  if (!G.flags.rivalBeaten && G.py >= 29 && G.py <= 31 && G.px >= 17 && G.px <= 22) { rivalBattle(); return; }
+  if (!G.flags.zoeBeaten && G.py >= 14 && G.py <= 16 && G.px >= 18 && G.px <= 21) { zoeBattle(); return; }
+  // rencontres dans les hautes herbes
+  if (tileAt(G.px, G.py) === ';' && chance(0.12) && G.team.some(m => m.hp > 0)) {
+    const table = encounterTable(G.py);
+    const total = table.reduce((s, e) => s + e[1], 0);
+    let r = Math.random() * total, entry = table[0];
+    for (const e of table) { r -= e[1]; if (r <= 0) { entry = e; break; } }
+    const lvl = rndi(entry[2][0], entry[2][1]);
+    runScript(async () => { await battle(makeMon(entry[0], lvl), null); });
+  }
+}
+
+function runScript(fn) {
+  busy = true;
+  fn().catch(e => console.error(e)).finally(() => { busy = false; });
+}
+
+function interact() {
+  const [dx, dy] = DIRV[G.dir];
+  const fx = G.px + dx, fy = G.py + dy;
+  const n = npcAt(fx, fy);
+  if (n) { npcTalk(n); return; }
+  const sign = SIGNS[fx + ',' + fy];
+  if (sign) { SFX.select(); runScript(async () => { await say(sign); }); return; }
+  const b = buildingAt(fx, fy);
+  if (b) {
+    runScript(async () => {
+      if (b.name === 'CLINIQUE') await say("CLINIQUE DU BOURG — L'infirmière Joline se tient devant l'entrée.");
+      else if (b.name === 'LABO') await say('LABORATOIRE du Pr Karoubin — « Parti observer les créatures, parlez-moi dehors ! »');
+      else await say("C'est verrouillé. Les habitants doivent dormir.");
+    });
+  }
+}
+
+function npcTalk(n) {
+  if (n.dragon) { dragonBattle(); return; }
+  // le PNJ se tourne vers le joueur
+  n.dir = G.dir === 'up' ? 'down' : G.dir === 'down' ? 'up' : G.dir === 'left' ? 'right' : 'left';
+  runScript(async () => {
+    if (n.id === 'nurse') {
+      await say('JOLINE : Bonjour ! Je soigne tes créatures, ça ne prend qu’un instant...');
+      SFX.heal();
+      G.team.forEach(m => { m.hp = m.maxhp; });
+      await sleep(600);
+      await say('Et voilà ! Toute ton équipe est en pleine forme. Reviens quand tu veux !');
+      if (G.bag.caps === 0) { G.bag.caps = 3; await say('Tiens, prends aussi 3 Capsules, tu n’en avais plus !'); }
+      saveGame(); toast('Partie sauvegardée');
+    } else if (n.id === 'prof') {
+      if (!G.flags.zoeBeaten) {
+        await say('PR KAROUBIN : Les créatures évoluent vers le niveau 11, ne lâche rien !');
+        await say('Au nord, la dresseuse Zoé garde le Lac Onyx. Montre-lui ce que tu vaux !');
+      } else if (!G.flags.dragonDone) {
+        await say('PR KAROUBIN : Tu as battu Zoé ?! Alors la rumeur est vraie...');
+        await say("Une OMBRE est apparue sur la rive nord du lac. Affaiblis-la avant de lancer tes Capsules !");
+      } else {
+        await say('PR KAROUBIN : Noctyran t’a choisi... Incroyable. Tu as fini la démo, bravo !');
+      }
+    } else if (n.id === 'villager') {
+      await say('HABITANT : Feu > Plante > Eau > Feu... Connaître les types, c’est gagner !');
+      await say('Et pour capturer : affaiblis la créature, PUIS lance une Capsule !');
+    } else if (n.id === 'rival') {
+      if (G.flags.rivalBeaten) await say('LÉO : Pff, je t’ai laissé gagner ! La prochaine fois, entraîne-toi au lac.');
+      else { await rivalFight(); }
+    } else if (n.id === 'zoe') {
+      if (G.flags.zoeBeaten) await say('ZOÉ : Le lac est à toi. Mais méfie-toi de la rive nord...');
+      else { await zoeFight(); }
+    }
+  });
+}
+
+function rivalBattle() { runScript(async () => { await rivalFight(); }); }
+function zoeBattle()   { runScript(async () => { await zoeFight(); }); }
+function dragonBattle() {
+  runScript(async () => {
+    await say('L’ombre se dresse devant toi... Ses yeux rouges te transpercent !');
+    await battle(makeMon('noctyran', 15), null, { legendary: true });
+  });
+}
+
+async function rivalFight() {
+  await say('LÉO : Hé ! C’est toi le voisin qui a reçu une créature du Prof ?');
+  await say('LÉO : Alors voyons laquelle de nos équipes est la plus forte !');
+  const counter = { pyrouf: 'aquanou', pyrenard: 'aquanou', aquanou: 'verdylis', loutrazur: 'verdylis', verdylis: 'pyrouf', vipelia: 'pyrouf' };
+  const sp = counter[G.team[0].sp] || 'mulotin';
+  const won = await battle(null, { name: 'LÉO', team: [makeMon(sp, 6)], pal: PAL_RIVAL,
+    winMsg: 'LÉO : Quoi ?! Bon... t’es pas si nul. Tiens, 3 Capsules, et file vers le lac !',
+    loseMsg: 'LÉO : Ha ! Retourne t’entraîner dans les herbes !' });
+  if (won) { G.flags.rivalBeaten = true; G.bag.caps += 3; saveGame(); }
+}
+async function zoeFight() {
+  await say('ZOÉ : Halte ! Le Lac Onyx est sous ma protection.');
+  await say('ZOÉ : Seuls les dresseurs aguerris passent. En garde !');
+  const won = await battle(null, { name: 'ZOÉ', team: [makeMon('voltichat', 9), makeMon('grenouilla', 10)], pal: PAL_ZOE,
+    winMsg: 'ZOÉ : Magnifique...! Prends ces 5 Capsules et 2 Potions. Le lac est à toi.',
+    loseMsg: 'ZOÉ : Reviens quand ton équipe sera prête !' });
+  if (won) {
+    G.flags.zoeBeaten = true; G.bag.caps += 5; G.bag.pot += 2; saveGame();
+    await say('Au loin, un CRI déchirant résonne depuis la rive nord du lac...');
+  }
+}
+
+/* ---- menu pause : équipe, sac, sauvegarde ---- */
+function pauseMenu() {
+  runScript(async () => {
+    while (true) {
+      const c = await menu(['ÉQUIPE', 'SAC', 'SAUVER', 'FERMER'], { title: 'MENU' });
+      if (c === 0) await teamMenu(false);
+      else if (c === 1) await bagMenuWorld();
+      else if (c === 2) { saveGame(); toast('Partie sauvegardée !'); SFX.confirm(); break; }
+      else break;
+    }
+  });
+}
+
+function monLabel(m) {
+  const dead = m.hp <= 0 ? '✗ ' : '';
+  return dead + monName(m) + ' N.' + m.level + '  ' + m.hp + '/' + m.maxhp + ' PV';
+}
+
+// inBattle : true => sélection pour échange (renvoie l'indice ou -1)
+async function teamMenu(inBattle) {
+  while (true) {
+    const labels = G.team.map(monLabel).concat(['RETOUR']);
+    const c = await menu(labels, { title: 'ÉQUIPE', x: 4, y: 4 });
+    if (c < 0 || c >= G.team.length) return -1;
+    if (inBattle) return c;
+    const m = G.team[c];
+    const a = await menu(['SOIGNER (Potion x' + G.bag.pot + ')', 'METTRE EN TÊTE', 'INFOS', 'RETOUR'], { title: monName(m) });
+    if (a === 0) {
+      if (G.bag.pot <= 0) await say('Tu n’as plus de Potions !');
+      else if (m.hp <= 0) await say('K.O. ! Seule la clinique peut le ranimer.');
+      else if (m.hp >= m.maxhp) await say(monName(m) + ' a déjà tous ses PV.');
+      else { G.bag.pot--; m.hp = Math.min(m.maxhp, m.hp + 25); SFX.heal(); await say(monName(m) + ' récupère 25 PV !'); }
+    } else if (a === 1) {
+      if (c === 0) await say(monName(m) + ' est déjà en tête.');
+      else { G.team.splice(c, 1); G.team.unshift(m); SFX.confirm(); await say(monName(m) + ' passe en première position !'); }
+    } else if (a === 2) {
+      const sp = SPECIES[m.sp];
+      await say(monName(m) + '  N.' + m.level + '  [' + sp.types.join('/') + ']\nPV ' + m.hp + '/' + m.maxhp + '  ATQ ' + m.atk + '  DÉF ' + m.def + '  VIT ' + m.spe);
+      await say('Attaques : ' + m.moves.map(id => MOVES[id].name).join(', '));
+    }
+  }
+}
+
+async function bagMenuWorld() {
+  while (true) {
+    const c = await menu(['Capsules x' + G.bag.caps, 'Potions x' + G.bag.pot, 'RETOUR'], { title: 'SAC' });
+    if (c === 0) await say('CAPSULE — Se lance en combat sur une créature sauvage affaiblie pour la capturer.');
+    else if (c === 1) {
+      if (G.bag.pot <= 0) { await say('Tu n’as plus de Potions !'); continue; }
+      const labels = G.team.map(monLabel).concat(['ANNULER']);
+      const t = await menu(labels, { title: 'Soigner qui ?', x: 4, y: 4 });
+      if (t >= 0 && t < G.team.length) {
+        const m = G.team[t];
+        if (m.hp <= 0) await say('K.O. ! Seule la clinique peut le ranimer.');
+        else if (m.hp >= m.maxhp) await say(monName(m) + ' a déjà tous ses PV.');
+        else { G.bag.pot--; m.hp = Math.min(m.maxhp, m.hp + 25); SFX.heal(); await say(monName(m) + ' récupère 25 PV !'); }
+      }
+    } else break;
+  }
+}
+
+/* ============================================================
+   COMBAT — moteur au tour par tour
+   ============================================================ */
+let B = null;
+function bAlly() { return G.team[B.allyIdx]; }
+function setPrompt(t) { UI.dialog = { text: t, shown: t.length, more: false }; }
+
+async function execMove(att, def, mvId, attIsAlly) {
+  const mv = MOVES[mvId];
+  await say(monName(att) + ' utilise ' + mv.name + ' !');
+  if (attIsAlly) B.offAlly = 7; else B.offFoe = 7;
+  await sleep(130);
+  B.offAlly = 0; B.offFoe = 0;
+  if (rndi(1, 100) > mv.acc) { await say('... mais rate sa cible !'); return false; }
+  const tm = typeMult(mv.type, SPECIES[def.sp].types);
+  if (tm === 0) { await say('Ça n’affecte pas ' + monName(def) + '...'); return false; }
+  const crit = chance(1 / 16);
+  const stab = SPECIES[att.sp].types.includes(mv.type) ? 1.5 : 1;
+  let dmg = (((2 * att.level / 5 + 2) * mv.pow * att.atk / Math.max(1, def.def)) / 50 + 2);
+  dmg = Math.max(1, Math.floor(dmg * stab * tm * (crit ? 1.5 : 1) * (0.85 + Math.random() * 0.15)));
+  SFX.hit();
+  if (attIsAlly) B.flashFoe = 10; else B.flashAlly = 10;
+  await animHP(def, Math.max(0, def.hp - dmg));
+  if (crit) await say('Coup critique !');
+  if (tm >= 2) await say('C’est super efficace !');
+  else if (tm < 1) await say('Ce n’est pas très efficace...');
+  return def.hp <= 0;
+}
+
+async function animHP(m, target) {
+  while (m.hp !== target) {
+    m.hp += Math.sign(target - m.hp) * Math.min(2, Math.abs(target - m.hp));
+    await nextFrame();
+  }
+  await sleep(120);
+}
+
+async function gainXP(mon, foe) {
+  const amt = Math.max(1, Math.floor(SPECIES[foe.sp].exp * foe.level / 7 * (B.trainer ? 1.5 : 1)));
+  await say(monName(mon) + ' gagne ' + amt + ' points d’XP !');
+  mon.xp += amt;
+  while (mon.level < 30 && mon.xp >= xpTotalFor(mon.level + 1)) {
+    mon.level++;
+    const oldMax = mon.maxhp;
+    recalcStats(mon);
+    mon.hp = Math.min(mon.maxhp, mon.hp + (mon.maxhp - oldMax));
+    SFX.levelup();
+    await say(monName(mon) + ' passe au niveau ' + mon.level + ' !');
+    for (const [lv, mv] of SPECIES[mon.sp].learn) {
+      if (lv === mon.level && !mon.moves.includes(mv)) {
+        if (mon.moves.length < 4) { mon.moves.push(mv); await say(monName(mon) + ' apprend ' + MOVES[mv].name + ' !'); }
+        else {
+          const old = mon.moves.shift(); mon.moves.push(mv);
+          await say(monName(mon) + ' oublie ' + MOVES[old].name + ' et apprend ' + MOVES[mv].name + ' !');
+        }
+      }
+    }
+    const sp = SPECIES[mon.sp];
+    if (sp.evolveAt && mon.level >= sp.evolveAt) {
+      await say('Quoi ?! ' + monName(mon) + ' frémit d’une lueur étrange...');
+      for (let i = 0; i < 8; i++) { B.flashAlly = 3; await sleep(90); }
+      const oldName = monName(mon);
+      mon.sp = sp.evolveTo;
+      const om = mon.maxhp;
+      recalcStats(mon);
+      mon.hp = Math.min(mon.maxhp, mon.hp + (mon.maxhp - om));
+      SFX.catchOk();
+      await say('Félicitations ! ' + oldName + ' évolue en ' + monName(mon) + ' !');
+    }
+  }
+}
+
+async function handleFaint(mon, isAllySide) {
+  SFX.faint();
+  if (!isAllySide) {
+    B.foeDown = true;
+    await sleep(350);
+    await say(monName(mon) + ' ennemi est K.O. !');
+    await gainXP(bAlly(), mon);
+    if (B.trainer && B.foeIdx < B.foes.length - 1) {
+      B.foeIdx++; B.foe = B.foes[B.foeIdx]; B.foeDown = false;
+      await say(B.trainer.name + ' envoie ' + monName(B.foe) + ' !');
+      return null;
+    }
+    return 'win';
+  }
+  await say(monName(mon) + ' est K.O. !');
+  if (!G.team.some(m => m.hp > 0)) return 'lose';
+  let t = -1;
+  while (t < 0 || G.team[t].hp <= 0) {
+    setPrompt('Qui envoyer au combat ?');
+    t = await teamMenu(true);
+  }
+  B.allyIdx = t;
+  await say('À toi, ' + monName(bAlly()) + ' !');
+  return null;
+}
+
+async function bothMoves(allyMv) {
+  const a = bAlly(), f = B.foe;
+  const fMv = pick(f.moves);
+  const ap = MOVES[allyMv].prio || 0, fp = MOVES[fMv].prio || 0;
+  const allyFirst = ap !== fp ? ap > fp : (a.spe === f.spe ? chance(0.5) : a.spe > f.spe);
+  const seq = allyFirst
+    ? [[a, f, allyMv, true], [f, a, fMv, false]]
+    : [[f, a, fMv, false], [a, f, allyMv, true]];
+  for (const [att, def, mv, isAllyAtt] of seq) {
+    if (att.hp <= 0) continue;
+    const ko = await execMove(att, def, mv, isAllyAtt);
+    if (ko) return await handleFaint(def, !isAllyAtt);
+  }
+  return null;
+}
+
+async function foeFreeAttack() {
+  const f = B.foe;
+  if (f.hp <= 0) return null;
+  const ko = await execMove(f, bAlly(), pick(f.moves), false);
+  if (ko) return await handleFaint(bAlly(), true);
+  return null;
+}
+
+/* ---- capture ---- */
+async function tryCapture() {
+  if (B.trainer) { await say('On ne capture pas la créature d’un autre dresseur !'); return 'noturn'; }
+  if (G.bag.caps <= 0) { await say('Tu n’as plus de Capsules !'); return 'noturn'; }
+  G.bag.caps--;
+  await say('Tu lances une Capsule !');
+  SFX.throwB();
+  B.ball = { t: 0, shake: 0 };
+  for (let i = 0; i <= 24; i++) { B.ball.t = i / 24; await nextFrame(); await nextFrame(); }
+  B.hideFoe = true;
+  const f = B.foe;
+  const a = (3 * f.maxhp - 2 * f.hp) / (3 * f.maxhp) * SPECIES[f.sp].catch / 255;
+  const pShake = Math.pow(Math.min(0.95, a * 1.8), 1 / 3);
+  let ok = true;
+  for (let s = 0; s < 3; s++) {
+    await sleep(430);
+    SFX.tick();
+    B.ball.shake = (s % 2 ? 1 : -1) * 2;
+    await sleep(170);
+    B.ball.shake = 0;
+    if (!chance(pShake)) { ok = false; break; }
+  }
+  await sleep(380);
+  if (!ok) {
+    B.hideFoe = false; B.ball = null;
+    await say('Oh non ! ' + monName(f) + ' s’est libéré !');
+    return 'failed';
+  }
+  SFX.catchOk();
+  await say('Et hop ! ' + monName(f) + ' a été capturé !');
+  if (B.legendary) G.flags.dragonDone = true;
+  if (G.team.length < 6) { G.team.push(f); await say(monName(f) + ' rejoint ton équipe !'); }
+  else { G.stored.push(f); await say('Ton équipe est pleine : ' + monName(f) + ' est envoyé au labo du Pr Karoubin.'); }
+  saveGame();
+  return 'caught';
+}
+
+/* ---- choix d'action du joueur ---- */
+async function chooseAction() {
+  while (true) {
+    setPrompt('Que doit faire\n' + monName(bAlly()) + ' ?');
+    const c = await menu(['ATTAQUE', 'SAC', 'ÉQUIPE', 'FUITE'],
+      { cols: 2, x: 124, y: SCR_H - 52, w: 128, cancelable: false });
+    if (c === 0) {
+      const mvs = bAlly().moves.map(id => MOVES[id].name + ' [' + MOVES[id].type + ']');
+      const mc = await menu(mvs, { x: 4, y: SCR_H - 52 - mvs.length * 13 - 14, title: 'ATTAQUES' });
+      if (mc >= 0) return { kind: 'move', mv: bAlly().moves[mc] };
+    } else if (c === 1) {
+      const bc = await menu(['Capsule x' + G.bag.caps, 'Potion x' + G.bag.pot, 'RETOUR'],
+        { x: 4, y: SCR_H - 52 - 3 * 13 - 14, title: 'SAC' });
+      if (bc === 0) return { kind: 'caps' };
+      if (bc === 1) return { kind: 'pot' };
+    } else if (c === 2) {
+      const t = await teamMenu(true);
+      if (t >= 0) {
+        if (t === B.allyIdx) { await say('Il est déjà au combat !'); continue; }
+        if (G.team[t].hp <= 0) { await say(monName(G.team[t]) + ' est K.O. !'); continue; }
+        return { kind: 'switch', idx: t };
+      }
+    } else if (c === 3) return { kind: 'flee' };
+  }
+}
+
+/* ---- combat principal ---- */
+async function battle(wild, trainer, opts) {
+  opts = opts || {};
+  setTrack('battle');
+  G.state = 'battle';
+  B = {
+    trainer, foes: trainer ? trainer.team.slice() : [wild],
+    foeIdx: 0, foe: null,
+    allyIdx: Math.max(0, G.team.findIndex(m => m.hp > 0)),
+    intro: 26, ball: null, hideFoe: false, foeDown: false,
+    offFoe: 0, offAlly: 0, flashFoe: 0, flashAlly: 0,
+    legendary: !!opts.legendary,
+  };
+  B.foe = B.foes[0];
+  if (trainer) { await say(trainer.name + ' veut se battre !'); await say(trainer.name + ' envoie ' + monName(B.foe) + ' !'); }
+  else if (B.legendary) await say('NOCTYRAN, l’ombre du Lac Onyx, fond sur toi !');
+  else await say('Un ' + monName(B.foe) + ' sauvage apparaît !');
+  await say('À toi, ' + monName(bAlly()) + ' !');
+
+  let result = null;
+  while (!result) {
+    const act = await chooseAction();
+    UI.dialog = null;
+    if (act.kind === 'move') result = await bothMoves(act.mv);
+    else if (act.kind === 'switch') {
+      B.allyIdx = act.idx;
+      await say('À toi, ' + monName(bAlly()) + ' !');
+      result = await foeFreeAttack();
+    } else if (act.kind === 'pot') {
+      if (G.bag.pot <= 0) { await say('Tu n’as plus de Potions !'); continue; }
+      const m = bAlly();
+      if (m.hp >= m.maxhp) { await say('Ses PV sont déjà au maximum !'); continue; }
+      G.bag.pot--; SFX.heal();
+      await animHP(m, Math.min(m.maxhp, m.hp + 25));
+      await say(monName(m) + ' récupère des PV !');
+      result = await foeFreeAttack();
+    } else if (act.kind === 'caps') {
+      const r = await tryCapture();
+      if (r === 'caught') result = 'caught';
+      else if (r === 'failed') result = await foeFreeAttack();
+    } else if (act.kind === 'flee') {
+      if (trainer) { await say('Impossible de fuir un duel de dresseurs !'); continue; }
+      const a = bAlly(), f = B.foe;
+      if (chance(a.spe >= f.spe ? 0.9 : 0.4 + 0.4 * a.spe / f.spe)) {
+        SFX.flee(); await say('Tu prends la fuite !'); result = 'flee';
+      } else {
+        await say('Impossible de fuir !');
+        result = await foeFreeAttack();
+      }
+    }
+  }
+
+  if (result === 'win' && trainer) await say(trainer.winMsg);
+  if (result === 'win' && B.legendary) await say('L’ombre se disperse en volutes noires... Tu sens qu’elle reviendra hanter la rive.');
+  if (result === 'lose') {
+    if (trainer) await say(trainer.loseMsg);
+    await say('Tu n’as plus de créatures en état de se battre...');
+    await say('Tout devient noir. Tu te réveilles à la clinique du bourg.');
+    G.team.forEach(m => { m.hp = m.maxhp; });
+    G.px = 9; G.py = 53; G.dir = 'down'; G.moving = null;
+  }
+  const caughtLegendary = result === 'caught' && B.legendary;
+  B = null;
+  G.state = 'world';
+  setTrack('world');
+  saveGame();
+  if (caughtLegendary) {
+    await say('Incroyable... NOCTYRAN, la légende du Lac Onyx, est avec toi !');
+    await say('★ FÉLICITATIONS ! Tu as terminé la démo de VERSION NOIRE. ★\nContinue à explorer, capturer et monter tes niveaux à volonté !');
+  }
+  return result === 'win' || result === 'caught';
+}
+
+/* ============================================================
+   RENDU DU COMBAT
+   ============================================================ */
+function fillEllipse(x, y, rx, ry, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+}
+function drawBattle() {
+  const grd = ctx.createLinearGradient(0, 0, 0, SCR_H);
+  if (B && B.legendary) { grd.addColorStop(0, '#16101e'); grd.addColorStop(1, '#3a2a4e'); }
+  else { grd.addColorStop(0, '#23233a'); grd.addColorStop(1, '#46466a'); }
+  ctx.fillStyle = grd; ctx.fillRect(0, 0, SCR_W, SCR_H);
+  fillEllipse(184, 88, 48, 12, 'rgba(255,255,255,0.12)');
+  fillEllipse(58, 164, 52, 12, 'rgba(255,255,255,0.12)');
+  if (!B) return;
+  const foe = B.foe, al = bAlly();
+  // adversaire
+  if (B.flashFoe > 0) B.flashFoe--;
+  if (!B.hideFoe && !(B.flashFoe % 2)) {
+    if (B.foeDown) ctx.globalAlpha = 0.45;
+    const fy = 22 + (B.foeDown ? 26 : 0);
+    drawSprite(ctx, SPR[foe.sp].mat, SPR[foe.sp].pal, 152 - B.offFoe * 2, fy, 4, false);
+    ctx.globalAlpha = 1;
+  }
+  // allié (de dos : miroir)
+  if (B.flashAlly > 0) B.flashAlly--;
+  if (!(B.flashAlly % 2))
+    drawSprite(ctx, SPR[al.sp].mat, SPR[al.sp].pal, 26 + B.offAlly * 2, 100, 4, true);
+  // capsule lancée
+  if (B.ball) {
+    const t = B.ball.t;
+    const bx = 64 + (184 - 64) * t + (B.ball.shake || 0);
+    const by = (148 + (76 - 148) * t) - Math.sin(Math.PI * t) * 46;
+    ctx.fillStyle = '#1a1a22'; ctx.fillRect(bx - 5, by - 5, 10, 10);
+    ctx.fillStyle = '#e83a4a'; ctx.fillRect(bx - 4, by - 4, 8, 4);
+    ctx.fillStyle = '#f4f4f8'; ctx.fillRect(bx - 4, by, 8, 4);
+  }
+  // panneau adversaire
+  drawBox(6, 8, 116, 34);
+  drawText(monName(foe), 14, 14, '#fff');
+  drawText('N.' + foe.level, 92, 14, '#c8c8d0');
+  drawHPBar(14, 30, 96, foe.hp / foe.maxhp);
+  // panneau allié
+  drawBox(136, 112, 116, 52);
+  drawText(monName(al), 144, 118, '#fff');
+  drawText('N.' + al.level, 222, 118, '#c8c8d0');
+  drawHPBar(144, 132, 96, al.hp / al.maxhp);
+  drawText(al.hp + '/' + al.maxhp + ' PV', 144, 140, '#c8c8d0', '8px monospace');
+  const xpCur = al.xp - xpTotalFor(al.level);
+  const xpNeed = xpTotalFor(al.level + 1) - xpTotalFor(al.level);
+  ctx.fillStyle = '#2a2a32'; ctx.fillRect(144, 154, 96, 3);
+  ctx.fillStyle = '#48a8f8'; ctx.fillRect(144, 154, Math.round(96 * clamp(xpCur / xpNeed, 0, 1)), 3);
+  // cadre de message permanent
+  drawBox(4, SCR_H - 52, SCR_W - 8, 48);
+  // fondu d'introduction
+  if (B.intro > 0) {
+    B.intro--;
+    ctx.fillStyle = 'rgba(0,0,0,' + (B.intro / 26) + ')';
+    ctx.fillRect(0, 0, SCR_W, SCR_H);
+  }
+}
+
+/* ============================================================
+   CHOIX DU STARTER, TITRE, NOUVELLE PARTIE
+   ============================================================ */
+const STARTERS = [
+  ['pyrouf', 'Le renardeau ardent. Fonceur et loyal.'],
+  ['aquanou', 'La loutre des rivières. Calme et maligne.'],
+  ['verdylis', 'Le serpent des feuilles. Vif et rusé.'],
+];
+let starterUI = null;
+
+function drawStarter() {
+  const grd = ctx.createLinearGradient(0, 0, 0, SCR_H);
+  grd.addColorStop(0, '#101018'); grd.addColorStop(1, '#2a2a3e');
+  ctx.fillStyle = grd; ctx.fillRect(0, 0, SCR_W, SCR_H);
+  ctx.textAlign = 'center';
+  drawText('Choisis ta première partenaire !', 128, 12, '#f8d048', 'bold 10px monospace');
+  STARTERS.forEach(([sp], i) => {
+    const x = 24 + i * 80, sel = starterUI && starterUI.idx === i;
+    if (sel) {
+      fillEllipse(x + 24, 110, 30, 8, 'rgba(248,208,72,0.25)');
+      drawText('▼', x + 24, 30, '#f8d048');
+    }
+    drawSprite(ctx, SPR[sp].mat, SPR[sp].pal, x, 44, 3, false);
+    drawText(SPECIES[sp].name, x + 24, 118, sel ? '#fff' : '#9a9aae', 'bold 9px monospace');
+    const ty = SPECIES[sp].types[0];
+    drawText('[' + ty + ']', x + 24, 130, TYPE_COLORS[ty]);
+  });
+  ctx.textAlign = 'left';
+  if (starterUI) {
+    drawBox(4, SCR_H - 52, SCR_W - 8, 48);
+    drawText(STARTERS[starterUI.idx][1], 14, SCR_H - 40, '#f2f2f4');
+    drawText('◄ ► choisir   E/Entrée valider', 14, SCR_H - 22, '#6a6a78', '8px monospace');
+  }
+}
+
+async function chooseStarter() {
+  starterUI = { idx: 0 };
+  G.state = 'starter';
+  while (true) {
+    const k = await waitKey();
+    if (k === 'left') { starterUI.idx = (starterUI.idx + 2) % 3; SFX.select(); }
+    else if (k === 'right') { starterUI.idx = (starterUI.idx + 1) % 3; SFX.select(); }
+    else if (k === 'ok') {
+      SFX.confirm();
+      const sp = STARTERS[starterUI.idx][0];
+      const c = await menu(['Je choisis ' + SPECIES[sp].name + ' !', 'Hmm, attends...'], { x: 60, y: 100 });
+      if (c === 0) { starterUI = null; return sp; }
+    }
+  }
+}
+
+async function titleFlow() {
+  G.state = 'title'; setTrack('title');
+  while ((await waitKey()) !== 'ok') { /* attendre Entrée */ }
+  SFX.confirm();
+  while (true) {
+    if (hasSave()) {
+      const c = await menu(['CONTINUER', 'NOUVELLE PARTIE'], { x: 84, y: 116, cancelable: false });
+      if (c === 0) {
+        if (loadGame()) { startWorld(); return; }
+        localStorage.removeItem(SAVE_KEY);
+        continue;
+      }
+      const s = await menu(['NON, garder ma partie', 'OUI, tout effacer'], { title: 'Effacer la sauvegarde ?', x: 44, y: 110, cancelable: false });
+      if (s === 1) { localStorage.removeItem(SAVE_KEY); await newGame(); return; }
+    } else { await newGame(); return; }
+  }
+}
+
+async function newGame() {
+  Object.assign(G, { px: 25, py: 53, dir: 'down', moving: null, team: [],
+    bag: { caps: 5, pot: 3 }, flags: { pickups: {} }, stored: [], zone: '' });
+  G.state = 'world'; setTrack('world');
+  await sleep(400);
+  await say('PR KAROUBIN : Bienvenue dans le monde de VERSION NOIRE !');
+  await say('PR KAROUBIN : Des créatures fabuleuses peuplent les hautes herbes. Nous, dresseurs, les capturons et grandissons avec elles.');
+  await say('PR KAROUBIN : Pour commencer ton voyage, choisis ta première partenaire !');
+  const sp = await chooseStarter();
+  G.state = 'world';
+  G.team = [makeMon(sp, 5)];
+  SFX.catchOk();
+  await say(SPECIES[sp].name + ' (niveau 5) rejoint ton équipe !');
+  await say('PR KAROUBIN : Excellent choix ! J’ai glissé 5 Capsules et 3 Potions dans ton sac.');
+  await say('PR KAROUBIN : La ROUTE 1 est au nord du bourg. LÉO t’y attend de pied ferme... Bonne aventure !');
+  saveGame();
+  startWorld();
+}
+
+function startWorld() {
+  G.state = 'world'; setTrack('world');
+  G.zone = zoneName(G.py);
+  toast(G.zone);
+}
+
+/* ============================================================
+   VALIDATION DES DONNÉES, BOUCLE PRINCIPALE, DÉMARRAGE
+   ============================================================ */
+function validateData() {
+  const errs = [];
+  for (const [id, s] of Object.entries(SPECIES)) {
+    if (!SPR[id]) errs.push('sprite manquant : ' + id);
+    for (const [, mv] of s.learn) if (!MOVES[mv]) errs.push('attaque inconnue ' + mv + ' (' + id + ')');
+    if (s.evolveTo && !SPECIES[s.evolveTo]) errs.push('évolution inconnue : ' + s.evolveTo);
+    for (const t of s.types) if (!TYPE_COLORS[t]) errs.push('type inconnu ' + t + ' (' + id + ')');
+  }
+  for (const [name, s] of Object.entries(SPR)) {
+    if (s.mat.length !== 16) errs.push(name + ' : ' + s.mat.length + ' lignes');
+    s.mat.forEach((r, i) => { if (r.length !== 16) errs.push(name + ' ligne ' + i + ' : ' + r.length + ' px'); });
+  }
+  for (const mv of Object.values(MOVES)) if (!TYPE_COLORS[mv.type]) errs.push('type inconnu : ' + mv.type);
+  M.forEach((row, j) => { if (row.length !== MAP_W) errs.push('carte ligne ' + j); });
+  for (const n of NPCS) { const t = tileAt(n.x, n.y); if (t === '#' || t === '~') errs.push('PNJ mal placé : ' + n.id); }
+  for (const p of PICKUPS) { const t = tileAt(p.x, p.y); if (t === '#' || t === '~' || t === '=') errs.push('objet mal placé : ' + p.x + ',' + p.y); }
+  for (const key of Object.keys(SIGNS)) {
+    const [x, y] = key.split(',').map(Number);
+    if (tileAt(x, y) !== 'S') errs.push('panneau sans tuile S : ' + key);
+  }
+  for (const tbl of [encounterTable(5), encounterTable(30)])
+    for (const [sp] of tbl) if (!SPECIES[sp]) errs.push('rencontre inconnue : ' + sp);
+  return errs;
+}
+
+function frame() {
+  G.animT++;
+  if (G.state === 'world') { updateWorld(); drawWorld(); }
+  else if (G.state === 'battle') drawBattle();
+  else if (G.state === 'starter') drawStarter();
+  else drawTitle();
+  drawDialogUI();
+  drawMenuUI();
+  drawToastUI();
+  requestAnimationFrame(frame);
+}
+
+function boot() {
+  cv = document.getElementById('screen');
+  ctx = cv.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  window.addEventListener('keydown', onKeyDown);
+  window.addEventListener('keyup', onKeyUp);
+  const errs = validateData();
+  if (errs.length) console.warn('Données du jeu :', errs);
+  runScript(titleFlow);
+  requestAnimationFrame(frame);
+}
+
+if (typeof window !== 'undefined') {
+  if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', boot);
+  else boot();
+} else {
+  // auto-test sous Node
+  const errs = validateData();
+  const a = makeMon('pyrouf', 5);
+  if (a.hp <= 0 || !a.moves.length) errs.push('makeMon cassé');
+  if (typeMult('Eau', ['Feu']) !== 2) errs.push('table des types cassée');
+  if (typeMult('Électrik', ['Sol']) !== 0) errs.push('immunité Sol cassée');
+  if (xpTotalFor(5) !== 125) errs.push('courbe XP cassée');
+  if (isBlocked(25, 53)) errs.push('case de départ bloquée !');
+  if (isBlocked(19, 45) || isBlocked(19, 17)) errs.push('passage entre zones bloqué !');
+  console.log(errs.length ? 'ERREURS :\n' + errs.join('\n') : 'AUTO-TEST OK');
+  if (errs.length) process.exit(1);
+}
+
+</script>
+</body>
+</html>
