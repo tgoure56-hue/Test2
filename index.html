@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Version Noire — mini-RPG de créatures</title>
+<title>Version Noire — RPG de créatures, Édition Complète</title>
 <style>
   html, body {
     margin: 0; padding: 0; height: 100%;
@@ -273,6 +273,18 @@ const PAL_NURSE  = humanPal('#e88bb4', '#ff9fc4', '#f4f4f8');
 const PAL_RIVAL  = humanPal('#2d5fbe', '#3aa3d8', '#37374a');
 const PAL_ZOE    = humanPal('#b8302a', '#e8e84a', '#7a2a52');
 const PAL_VILLAGER = humanPal('#6a4a26', '#4a9a4e', '#8a6a3a');
+const PAL_OMBRE  = humanPal('#2a2a36', '#3a3a4e', '#1e1e2a');
+const PAL_GUARD  = humanPal('#4a3a2a', '#8a4a2a', '#3a3a4a');
+const PAL_MERCH  = humanPal('#3a2a1a', '#e8a838', '#5a4a3a');
+const PAL_L1 = humanPal('#3a7a3e', '#58b048', '#e8e8d8');   // Lina
+const PAL_L2 = humanPal('#6a5a3a', '#b8a058', '#4a4238');   // Bloc
+const PAL_L3 = humanPal('#1a4a8a', '#3890f0', '#e8e8f0');   // Marina
+const PAL_L4 = humanPal('#8a7a1a', '#f0c020', '#3a3a3a');   // Volta
+const PAL_L5 = humanPal('#7a5a2a', '#d0a048', '#e8d8b8');   // Sahir
+const PAL_L6 = humanPal('#cfe8f4', '#78c8e0', '#e8f0f8');   // Neva
+const PAL_L7 = humanPal('#3a2a52', '#7058a8', '#2a2238');   // Morgane
+const PAL_L8 = humanPal('#8a2a1a', '#f05030', '#4a2a22');   // Ignis
+const PAL_M  = humanPal('#2a2a2a', '#8a8a98', '#3a3a44');   // Maîtres
 
 function humanSprite(dir) {
   if (dir === 'up') return { mat: HUMAN_UP, flip: false };
@@ -459,21 +471,21 @@ SPR.chenivert = { pal: { k:'#14240f', g:'#78d048', d:'#48a030', y:'#f8e048', e:'
 ]};
 
 SPR.voltichat = { pal: { k:'#1c1c10', y:'#f8d838', d:'#caa020', b:'#3a3a2a', w:'#ffffff', e:'#141408' }, mat: [
-'...k.......k....',
-'..kyk.....kyk...',
-'..kyyk...kyyk...',
-'.kyyyykkkyyyyk..',
-'.kyyyyyyyyyyyk..',
-'.kyewyyyyyweyk..',
-'.kyyyyyyyyyyyk..',
-'.kyybyyyybyyyk..',
-'..kyyyyyyyyyk...',
-'..kyyyyyyyyyk...',
-'.kyyyyyyyyyyykb.',
-'.kyybyyyybyyykbb',
-'.kyyyyyyyyyyyk.b',
-'.kyykyyyykyyyk..',
-'..kk..kk..kk....',
+'...k........k...',
+'..kyk......kyk..',
+'..kyyk....kyyk..',
+'..kyyykkkkyyyk..',
+'..kyyyyyyyyyyk..',
+'..kyewyyyyweyk..',
+'..kyyyyykyyyyk..',
+'...kyyyyyyyyk...',
+'...kybbyybbyk...',
+'...kyyyyyyyyk...',
+'..kyyyyyyyyykd..',
+'..kybbyyybbykdd.',
+'..kyyyyyyyyyk.d.',
+'..kyykyyyykyyk..',
+'...kk..kk..kk...',
 '................',
 ]};
 
@@ -534,6 +546,466 @@ SPR.noctyran = { pal: { k:'#000000', n:'#2a2a36', d:'#16161e', r:'#e8283a', g:'#
 '................',
 ]};
 
+/* ---- sprites : évolutions des sauvages ---- */
+SPR.aigleroc = { pal: { k:'#241812', b:'#9a5e2e', r:'#e84c30', c:'#f8e8d0', w:'#ffffff', e:'#161014', y:'#f8c838', d:'#6a4222' }, mat: [
+'......kkkk......',
+'.....kbbbbk.....',
+'....kbbbbbbk....',
+'...kbkewbkbbk...',
+'...kbbbbbyyyk...',
+'..kbbrrrbbyyk...',
+'..kbbrrrrbbbk...',
+'.kbbrrrrrbdbk...',
+'.kbbrrrrrbddbk..',
+'.kbbrrrrrbbdbk..',
+'..kbrrrrrbbbk...',
+'..kbbrrrbbbbk...',
+'...kbbbbbbbk....',
+'....kbbbbbk.....',
+'....yy..yy......',
+'................',
+]};
+SPR.ratagriffe = { pal: { k:'#1a1a20', m:'#8a7a6a', c:'#e8d8c8', e:'#14101a', w:'#ffffff', p:'#e8a0a0', g:'#c8c8d0' }, mat: [
+'...kk......kk...',
+'..kppk....kppk..',
+'..kpppk..kpppk..',
+'...kmmkkkkmmk...',
+'..kmmmmmmmmmmk..',
+'..kmewmmmmwemk..',
+'..kmmmmppmmmmk..',
+'...kmmkppkmmk...',
+'..kmmmmmmmmmmk..',
+'.kgmmmmmmmmmmgk.',
+'.kggmmmmmmmmggk.',
+'..kmccccccccmk..',
+'..kmccccccccmk.k',
+'...kmmmmmmmmk.kk',
+'....kkmmkkmmkk..',
+'................',
+]};
+SPR.papivol = { pal: { k:'#14240f', g:'#78d048', w:'#f4f0ff', r:'#e85a8a', e:'#101a0c', v:'#9a78d8' }, mat: [
+'..kkkk....kkkk..',
+'.kwwwwk..kwwwwk.',
+'kwwrrwwkkwwrrwwk',
+'kwwrrwwwwwwrrwwk',
+'.kwwwwgggwwwwk..',
+'..kwwkgggkwwk...',
+'...kkgewegkk....',
+'....kggggggk....',
+'....kgggggk.....',
+'..kwwkgggkwwk...',
+'.kwwwwgggwwwwk..',
+'kwwvvwwwwwvvwwk.',
+'kwwvvwwkkwvvwwk.',
+'.kwwwwk..kwwwk..',
+'..kkkk....kkk...',
+'................',
+]};
+SPR.tigrevolt = { pal: { k:'#1c1c10', y:'#f8d838', b:'#3a3a2a', w:'#ffffff', e:'#141408', d:'#caa020' }, mat: [
+'...k.......k....',
+'..kyk.....kyk...',
+'..kyybkkkbyyk...',
+'..kyyyyyyyyyk...',
+'..kyewyyyywek...',
+'..kyyyybkyyyk...',
+'...kyyyyyyyk....',
+'..kybbyyyybbyk..',
+'.kyyyyyyyyyyyyk.',
+'.kybbyyyyyybbyk.',
+'.kyyyyyyyyyyyykd',
+'.kybyyyybyyyykdd',
+'.kyyyyyyyyyyyk.d',
+'.kyykyyyykyyyk..',
+'..kk..kk..kk....',
+'................',
+]};
+SPR.forator = { pal: { k:'#1a1410', t:'#7a5a3e', d:'#5e4630', p:'#f0a0a0', w:'#ffffff', e:'#120e0a', g:'#d8d8e0' }, mat: [
+'................',
+'....kkkkkkkk....',
+'...kttttttttk...',
+'..kttttttttttk..',
+'..ktewttttwetk..',
+'..ktttkppktttk..',
+'.kttttkppkttttk.',
+'.kttttttttttttk.',
+'kgggkttttttkgggk',
+'kgggkttttttkgggk',
+'.kggkttttttkggk.',
+'.kgkttttttttkgk.',
+'..kttttttttttk..',
+'...kttttttttk...',
+'....kkkkkkkk....',
+'................',
+]};
+SPR.crapotaure = { pal: { k:'#102820', g:'#3a9a6e', d:'#267650', c:'#d8f8e8', w:'#ffffff', e:'#0c1a14', b:'#68d8f8' }, mat: [
+'...kk......kk...',
+'..kdgk....kgdk..',
+'..kgwegkkgewgk..',
+'.kgggggggggggk..',
+'.kgcgggggggcgk..',
+'.kgccgggggccgk..',
+'.kgggkkkkkgggk..',
+'..kgggggggggk...',
+'.kbggggggggggbk.',
+'.kggkggggggkggk.',
+'kggggggggggggggk',
+'kgkggggggggggkgk',
+'.kggkkggggkkggk.',
+'..kgk.kggk.kgk..',
+'...k...kk...k...',
+'................',
+]};
+
+/* ---- sprites : lignées Feu/Plante/Roche ---- */
+SPR.braisillon = { pal: { k:'#241410', o:'#f07838', c:'#f8d8a8', f:'#ffd23a', r:'#f25c2a', w:'#ffffff', e:'#161014', y:'#f8c838', d:'#c05a20' }, mat: [
+'.......f........',
+'......kfk.......',
+'.....kffrk......',
+'.....kook.......',
+'....koooook.....',
+'....koewook.....',
+'...koooooyyk....',
+'...kocccooyk....',
+'..kocccccook....',
+'..kocccccodk....',
+'..kocccccddk....',
+'...koooooddk....',
+'....koooodk.....',
+'.....kkookk.....',
+'......y.y.......',
+'................',
+]};
+SPR.pyrovol = { pal: { k:'#241410', o:'#e8642e', c:'#f8d8a8', f:'#ffd23a', r:'#f23c1a', w:'#ffffff', e:'#161014', y:'#f8c838', d:'#b04a18' }, mat: [
+'......kff.......',
+'.....kfrfk......',
+'....kforok......',
+'....koooook.....',
+'...kowewook.....',
+'...koooooyyyk...',
+'..kfoooooooyk...',
+'.kffocccoook....',
+'kfrfoccccook....',
+'kfrfocccooodk...',
+'.kffooooooddk...',
+'..kfooooooddk...',
+'...koooooodk....',
+'....koookok.....',
+'.....yy..yy.....',
+'................',
+]};
+SPR.fleurnette = { pal: { k:'#14240f', g:'#58b848', p:'#f088b8', w:'#ffffff', e:'#101a0c', c:'#d8f8c0', l:'#8ae060' }, mat: [
+'......kppk......',
+'....kpkppkpk....',
+'...kpppkkpppk...',
+'...kpppkkpppk...',
+'....kpkggkpk....',
+'.....kggggk.....',
+'....kggewggk....',
+'....kggggggk....',
+'...kgcggggcgk...',
+'...kggggggggk...',
+'....kggggggk....',
+'..lkkgggggkkl...',
+'.klgkggggkglk...',
+'..kgggggggggk...',
+'...kkkkkkkkk....',
+'................',
+]};
+SPR.floravia = { pal: { k:'#14240f', g:'#48a848', p:'#f088b8', w:'#ffffff', e:'#101a0c', c:'#d8f8c0', l:'#8ae060' }, mat: [
+'....kpppppk.....',
+'..kppwpppwppk...',
+'.kppppkkkppppk..',
+'.kpwpkgggkpwpk..',
+'.kpppkgggkpppk..',
+'..kkpkewekpkk...',
+'....kggggggk....',
+'...kgggggggk....',
+'.lkkgcggggckkl..',
+'klgkggggggkglk..',
+'.lkggggggggkl...',
+'...kgggggggk....',
+'..kggkggggkgk...',
+'..kgk.kggk.kgk..',
+'...k...kk...k...',
+'................',
+]};
+SPR.rocailloux = { pal: { k:'#2a241c', r:'#9a948a', d:'#6e6a60', w:'#ffffff', e:'#14120e' }, mat: [
+'................',
+'.....kkkkkk.....',
+'....krrrrrrk....',
+'...krrdrrdrrk...',
+'..krrrrrrrrrrk..',
+'..krewrrrrwerk..',
+'..krrrrkkrrrrk..',
+'.krrrrrrrrrrrrk.',
+'krrkrrrdddrrkrrk',
+'krkrrrrrrrrrrkrk',
+'.kkrrdrrrrdrrkk.',
+'..krrrrrrrrrrk..',
+'...krrrrrrrrk...',
+'....kkrrrrkk....',
+'......kkkk......',
+'................',
+]};
+SPR.golemoss = { pal: { k:'#2a241c', r:'#8a847a', d:'#5e5a50', m:'#4a8a3e', w:'#ffffff', e:'#14120e' }, mat: [
+'....kkkkkkkk....',
+'...kmmrrrrmmk...',
+'..kmmrrrrrrmmk..',
+'.krrrewrrwerrk..',
+'.krrrrrkkrrrrk..',
+'kmmkrrrrrrrrkmmk',
+'kmmkrrdddrrrkmmk',
+'krrkrrrrrrrrkrrk',
+'.kkrrrdrrdrrrkk.',
+'..krrrrrrrrrrk..',
+'..krrdrrrrdrrk..',
+'...krrrrrrrrk...',
+'...krrkrrkrrk...',
+'..krrk.kk.krrk..',
+'..kkk......kkk..',
+'................',
+]};
+
+/* ---- sprites : chauves-souris, fantômes, glace ---- */
+SPR.chauvenuit = { pal: { k:'#181024', v:'#6a4a9a', w:'#ffffff', e:'#e83a4a' }, mat: [
+'................',
+'.k....k..k....k.',
+'kvk..kvvkvk..kvk',
+'kvvkkvvvvvvkkvvk',
+'kvvvvvvvvvvvvvvk',
+'.kvvkvvvvvvkvvk.',
+'..kvkevvvekvk...',
+'...kvvwvvwvvk...',
+'....kvvvvvvk....',
+'.....kvvvvk.....',
+'....kvkvvkvk....',
+'....kk.kk.kk....',
+'................',
+'................',
+'................',
+'................',
+]};
+SPR.vampiryx = { pal: { k:'#181024', v:'#553a8a', w:'#ffffff', e:'#e8283a', d:'#3a2a62' }, mat: [
+'kk.....kk.....kk',
+'kvk...kvvk...kvk',
+'kvvk.kvvvvk.kvvk',
+'kvvvkvvvvvvkvvvk',
+'kvvvvvvvvvvvvvvk',
+'.kvvkevvvvekvvk.',
+'..kvvvwvvwvvvk..',
+'...kvvvvvvvvk...',
+'....kdvvvvdk....',
+'...kvvvvvvvvk...',
+'....kvkvvkvk....',
+'.....k.kk.k.....',
+'................',
+'................',
+'................',
+'................',
+]};
+SPR.spectrelle = { pal: { k:'#241a3a', s:'#cfc8e8', d:'#9a8ec8', w:'#ffffff', e:'#3a2a62' }, mat: [
+'................',
+'.....kkkkkk.....',
+'....kssssssk....',
+'...kssssssssk...',
+'..kssewsswesk...',
+'..kssssssssssk..',
+'..ksskssksssk...',
+'..kssssssssssk..',
+'.kssssssssssssk.',
+'.kssksssskssssk.',
+'.kssskssskssssk.',
+'..ks.kss.kss.k..',
+'..k..ks...ks....',
+'................',
+'................',
+'................',
+]};
+SPR.fantomare = { pal: { k:'#241a3a', s:'#bfb8e0', d:'#8a7ec0', w:'#ffffff', e:'#2a1a52' }, mat: [
+'.....kkkkkk.....',
+'...kssssssssk...',
+'..kssssssssssk..',
+'.kssewsssswessk.',
+'.kssssssssssssk.',
+'.kssswwwwwssssk.',
+'.ksswkkkkwssssk.',
+'.kssssssssssssk.',
+'kssssssssssssssk',
+'kssksssssskssssk',
+'.kssskssssksssk.',
+'.kss.kss.kss.k..',
+'..k..ks...ks....',
+'.....k.....k....',
+'................',
+'................',
+]};
+SPR.glacouille = { pal: { k:'#1a2430', c:'#eef6ff', d:'#b8d8f0', b:'#58a8e0', w:'#ffffff', e:'#16202c' }, mat: [
+'....kk....kk....',
+'...kcdk..kdck...',
+'...kcccccccck...',
+'..kcccccccccck..',
+'..kcewccccweck..',
+'..kccccbbcccck..',
+'...kcccbbccck...',
+'..kcccccccccck..',
+'.kccccccccccck..',
+'.kcckcccccccck..',
+'.kccccccccccck..',
+'..kcckccckcck...',
+'...kk.kk..kk....',
+'................',
+'................',
+'................',
+]};
+SPR.givrelou = { pal: { k:'#1a2430', c:'#e4f0fc', b:'#78b8e8', d:'#a8cce8', w:'#ffffff', e:'#16202c' }, mat: [
+'...kk......kk...',
+'..kcbk....kbck..',
+'..kccbkkkkbcck..',
+'..kccccccccck...',
+'.kccewccccweck..',
+'.kccccbbccccck..',
+'..kccckbbkccck..',
+'...kcccccccck...',
+'..kccccccccck...',
+'.kbcccccccccbk..',
+'.kbbcccccccbbkc.',
+'.kcccccccccckcc.',
+'.kcckcccckcck.c.',
+'.kck.kcck.kck...',
+'..k...kk...k....',
+'................',
+]};
+
+/* ---- sprites : désert, eau, feu, lumière ---- */
+SPR.sablizard = { pal: { k:'#2a2010', s:'#d8b868', d:'#a88840', w:'#ffffff', e:'#1a1408' }, mat: [
+'......kkkk......',
+'.....ksssdk.....',
+'....kssssssk....',
+'....ksewsssk....',
+'....kssssdsk....',
+'...kssskkssk....',
+'...kdsssssdk....',
+'..kssssssssk....',
+'..kdsskssssdk...',
+'.kssssksssssk.k.',
+'.kdssskssssdkkk.',
+'..kssskssssskk..',
+'...ksskssssk....',
+'....kskkssk.....',
+'....kk..kk......',
+'................',
+]};
+SPR.dunodrake = { pal: { k:'#2a2010', s:'#caa850', d:'#8a6828', w:'#ffffff', e:'#1a1408' }, mat: [
+'....k......kkk..',
+'...kdk....kdddk.',
+'...ksdk..kdssdk.',
+'..kssssskkssssk.',
+'..ksewssssssk...',
+'..kssssssddk....',
+'.kdsssssssdk....',
+'.ksskssssssdk...',
+'ksssksssssssk...',
+'kdsskssssssdk.k.',
+'.kssksssssssdkk.',
+'..kskssssssskk..',
+'...ksskssssk....',
+'....kskksssk....',
+'....kk...kk.....',
+'................',
+]};
+SPR.poissonor = { pal: { k:'#241c08', o:'#f0a838', c:'#f8e0a0', f:'#e87828', w:'#ffffff', e:'#161204', b:'#9adef8' }, mat: [
+'................',
+'......kkkk....b.',
+'....kkooook..bb.',
+'...koooooook....',
+'..koewooooofk...',
+'.koooooooooffk..',
+'.kooocccoooofk..',
+'.koooccccooofk..',
+'..koooooooofk...',
+'...koooooofk....',
+'....kkoookk.....',
+'.....kffk.......',
+'....kff.ffk.....',
+'.....k...k......',
+'................',
+'................',
+]};
+SPR.requinox = { pal: { k:'#10202e', b:'#5888b8', c:'#cfe8f8', w:'#ffffff', e:'#0a141e' }, mat: [
+'.......kk.......',
+'......kbbk......',
+'.....kbbbbk.....',
+'....kbbbbbbkk...',
+'...kbbbbbbbbbk..',
+'..kbewbbbbbbbbk.',
+'.kbbbbbbbbbbbbk.',
+'.kbwwwwwbbbkbbk.',
+'..kwkwkwbbbbk.b.',
+'...kbbbbbbbbkbb.',
+'....kbbbbbbbkb..',
+'.....kbcccbk....',
+'......kbbbk.....',
+'.......kbk......',
+'........k.......',
+'................',
+]};
+SPR.magmou = { pal: { k:'#241210', m:'#4a3a36', r:'#f86838', w:'#ffffff', e:'#160c0a' }, mat: [
+'................',
+'......kkkk......',
+'....kkmmmmkk....',
+'...kmmrrrrmmk...',
+'..kmrrmmmmrrmk..',
+'..kmewmmmmwemk..',
+'.kmmmmrrrrmmmmk.',
+'.kmrrmmmmmmrrmk.',
+'.kmmmmmrrmmmmmk.',
+'kmmrrmmmmmmrrmmk',
+'kmmmmmmrrmmmmmmk',
+'.kmmrrmmmmrrmmk.',
+'..kmmmmmmmmmmk..',
+'...kkmmmmmmkk...',
+'.....kkkkkk.....',
+'................',
+]};
+SPR.volcanus = { pal: { k:'#241210', m:'#5a4a42', r:'#f85828', f:'#ffd23a', s:'#caa050', w:'#ffffff', e:'#160c0a' }, mat: [
+'......kff.......',
+'.....kfrfk......',
+'....kkrrkk......',
+'...kmmrrmmk.....',
+'..kmmmmmmmmk....',
+'.kmmrrmmrrmmk...',
+'.kmmmmmmmmmmk...',
+'kmmrrmmmmrrmmk..',
+'kmmmmmmmmmmmmk..',
+'.kkkkkkkkkkkk...',
+'.ksewsssssssk...',
+'kssssssssssssk..',
+'kskksskssskssk..',
+'.k.kk.kk.kk.k...',
+'................',
+'................',
+]};
+SPR.lumiole = { pal: { k:'#16161e', n:'#2a2a36', v:'#8a78c8', y:'#f8e048', w:'#ffffff', e:'#101018' }, mat: [
+'....k......k....',
+'.....k....k.....',
+'......kkkk......',
+'.....knnnnk.....',
+'....knewwenk....',
+'....knnnnnnk....',
+'...kvknnnnkvk...',
+'..kvvknnnnkvvk..',
+'..kvkynnnykvk...',
+'...kkyyyyyykk...',
+'....kyywyyyk....',
+'....kyyyywyk....',
+'.....kyyyyk.....',
+'......kkkk......',
+'................',
+'................',
+]};
+// Auryon : la légende blanche, miroir clair de Noctyran
+SPR.auryon = { pal: { k:'#4a4230', n:'#f4ead0', d:'#d8c8a0', r:'#3890f0', g:'#f0c020', w:'#ffffff' }, mat: SPR.noctyran.mat };
+
 /* ============================================================
    DONNÉES DE JEU — attaques, types, espèces
    ============================================================ */
@@ -543,33 +1015,54 @@ const MOVES = {
   morsure:     { name:'Morsure',        type:'Normal',   pow:60, acc:100 },
   plaquage:    { name:'Plaquage',       type:'Normal',   pow:85, acc:95 },
   vifsprint:   { name:'Sprint Éclair',  type:'Normal',   pow:40, acc:100, prio:1 },
-  flammette:   { name:'Flammette',      type:'Feu',      pow:40, acc:100 },
-  brasier:     { name:'Brasier',        type:'Feu',      pow:65, acc:100 },
-  fournaise:   { name:'Fournaise',      type:'Feu',      pow:95, acc:95 },
+  flammette:   { name:'Flammette',      type:'Feu',      pow:40, acc:100, st:{ k:'brn', p:0.1 } },
+  brasier:     { name:'Brasier',        type:'Feu',      pow:65, acc:100, st:{ k:'brn', p:0.1 } },
+  fournaise:   { name:'Fournaise',      type:'Feu',      pow:95, acc:95, st:{ k:'brn', p:0.2 } },
   jetdo:       { name:"Jet d'Eau",      type:'Eau',      pow:40, acc:100 },
   torrent:     { name:'Torrent',        type:'Eau',      pow:65, acc:100 },
   raz:         { name:'Raz-de-Marée',   type:'Eau',      pow:95, acc:95 },
   feuillelame: { name:'Feuille Lame',   type:'Plante',   pow:45, acc:100 },
   lianes:      { name:'Fouet Végétal',  type:'Plante',   pow:65, acc:100 },
   tempeteverte:{ name:'Tempête Verte',  type:'Plante',   pow:95, acc:95 },
-  etincelle:   { name:'Étincelle',      type:'Électrik', pow:40, acc:100 },
-  foudre:      { name:'Foudre',         type:'Électrik', pow:80, acc:95 },
+  etincelle:   { name:'Étincelle',      type:'Électrik', pow:40, acc:100, st:{ k:'par', p:0.2 } },
+  foudre:      { name:'Foudre',         type:'Électrik', pow:80, acc:95, st:{ k:'par', p:0.2 } },
   picorage:    { name:'Picorage',       type:'Vol',      pow:35, acc:100 },
   rafale:      { name:"Rafale d'Ailes", type:'Vol',      pow:60, acc:100 },
   boue:        { name:'Jet de Boue',    type:'Sol',      pow:40, acc:100 },
   seisme:      { name:'Secousse',       type:'Sol',      pow:80, acc:100 },
   crochenuit:  { name:'Croc Nocturne',  type:'Ténèbres', pow:70, acc:100 },
   aileombre:   { name:"Aile d'Ombre",   type:'Ténèbres', pow:95, acc:95 },
+  orbeobscur:  { name:'Orbe Obscur',    type:'Ténèbres', pow:95, acc:95 },
+  vampirisme:  { name:'Vampirisme',     type:'Ténèbres', pow:60, acc:100, drain:true },
+  boulneige:   { name:'Boule de Neige', type:'Glace',    pow:40, acc:100 },
+  ventglace:   { name:'Vent Glacial',   type:'Glace',    pow:65, acc:100 },
+  avalanche:   { name:'Avalanche',      type:'Glace',    pow:95, acc:90 },
+  jetpierre:   { name:'Jet de Pierres', type:'Roche',    pow:45, acc:100 },
+  eboulement:  { name:'Éboulement',     type:'Roche',    pow:75, acc:95 },
+  lameroche:   { name:'Lame Rocheuse',  type:'Roche',    pow:95, acc:90 },
+  spectrale:   { name:'Frappe Spectrale', type:'Spectre', pow:65, acc:100 },
+  grifantome:  { name:'Griffe Fantôme', type:'Spectre',  pow:90, acc:100 },
+  dardvenin:   { name:'Dard Venimeux',  type:'Plante',   pow:35, acc:100, st:{ k:'psn', p:0.35 } },
+  nuagetoxik:  { name:'Nuage Toxique',  type:'Plante',   pow:55, acc:100, st:{ k:'psn', p:0.3 } },
+  ailerasoir:  { name:'Aile Rasoir',    type:'Vol',      pow:80, acc:100 },
+  pique:       { name:'Piqué',          type:'Vol',      pow:90, acc:95 },
+  tremterre:   { name:'Tremblement',    type:'Sol',      pow:95, acc:100 },
+  ultracharge: { name:'Ultra-Charge',   type:'Normal',   pow:100, acc:90 },
 };
 
 // multiplicateurs : TYPE_CHART[attaque][défense] (1 si absent)
 const TYPE_CHART = {
-  Feu:      { Plante:2, Feu:0.5, Eau:0.5 },
-  Eau:      { Feu:2, Sol:2, Eau:0.5, Plante:0.5 },
-  Plante:   { Eau:2, Sol:2, Feu:0.5, Plante:0.5, Vol:0.5 },
+  Normal:   { Spectre:0 },
+  Feu:      { Plante:2, Glace:2, Feu:0.5, Eau:0.5, Roche:0.5 },
+  Eau:      { Feu:2, Sol:2, Roche:2, Eau:0.5, Plante:0.5 },
+  Plante:   { Eau:2, Sol:2, Roche:2, Feu:0.5, Plante:0.5, Vol:0.5 },
   Électrik: { Eau:2, Vol:2, Sol:0, Plante:0.5, Électrik:0.5 },
-  Sol:      { Feu:2, Électrik:2, Vol:0, Plante:0.5 },
-  Vol:      { Plante:2, Électrik:0.5 },
+  Sol:      { Feu:2, Électrik:2, Roche:2, Vol:0, Plante:0.5 },
+  Vol:      { Plante:2, Électrik:0.5, Roche:0.5 },
+  Glace:    { Plante:2, Sol:2, Vol:2, Eau:0.5, Feu:0.5, Glace:0.5 },
+  Roche:    { Feu:2, Vol:2, Glace:2, Sol:0.5 },
+  Spectre:  { Spectre:2, Normal:0 },
+  'Ténèbres': { Spectre:2 },
 };
 function typeMult(atkType, defTypes) {
   let m = 1;
@@ -580,38 +1073,108 @@ function typeMult(atkType, defTypes) {
 const TYPE_COLORS = {
   Normal:'#a8a090', Feu:'#f05030', Eau:'#3890f0', Plante:'#58b048',
   'Électrik':'#f0c020', Vol:'#8098f0', Sol:'#d0a048', 'Ténèbres':'#605068',
+  Glace:'#78c8e0', Roche:'#b8a058', Spectre:'#7058a8',
 };
+const ST_NAMES = { psn:'PSN', brn:'BRÛ', par:'PAR' };
+const ST_COLORS = { psn:'#a040a0', brn:'#f08030', par:'#f0c020' };
 
 const SPECIES = {
   pyrouf:    { name:'Pyrouf',    types:['Feu'],          base:{hp:44,atk:52,def:43,spe:65}, catch:45,  exp:64,
                evolveAt:11, evolveTo:'pyrenard',
-               learn:[[1,'charge'],[1,'flammette'],[5,'vifsprint'],[8,'brasier'],[13,'morsure'],[17,'fournaise']] },
+               learn:[[1,'charge'],[1,'flammette'],[5,'vifsprint'],[8,'brasier'],[13,'morsure'],[17,'fournaise'],[26,'ultracharge']] },
   pyrenard:  { name:'Pyrenard',  types:['Feu'],          base:{hp:58,atk:68,def:56,spe:80}, catch:45,  exp:142,
-               learn:[[1,'charge'],[1,'flammette'],[5,'vifsprint'],[8,'brasier'],[13,'morsure'],[17,'fournaise']] },
+               learn:[[1,'charge'],[1,'flammette'],[5,'vifsprint'],[8,'brasier'],[13,'morsure'],[17,'fournaise'],[26,'ultracharge']] },
   aquanou:   { name:'Aquanou',   types:['Eau'],          base:{hp:48,atk:50,def:48,spe:55}, catch:45,  exp:64,
                evolveAt:11, evolveTo:'loutrazur',
-               learn:[[1,'charge'],[1,'jetdo'],[5,'vifsprint'],[8,'torrent'],[13,'morsure'],[17,'raz']] },
+               learn:[[1,'charge'],[1,'jetdo'],[5,'vifsprint'],[8,'torrent'],[13,'morsure'],[17,'raz'],[26,'ultracharge']] },
   loutrazur: { name:'Loutrazur', types:['Eau'],          base:{hp:62,atk:66,def:62,spe:68}, catch:45,  exp:142,
-               learn:[[1,'charge'],[1,'jetdo'],[5,'vifsprint'],[8,'torrent'],[13,'morsure'],[17,'raz']] },
+               learn:[[1,'charge'],[1,'jetdo'],[5,'vifsprint'],[8,'torrent'],[13,'morsure'],[17,'raz'],[26,'ultracharge']] },
   verdylis:  { name:'Verdylis',  types:['Plante'],       base:{hp:45,atk:49,def:49,spe:63}, catch:45,  exp:64,
                evolveAt:11, evolveTo:'vipelia',
-               learn:[[1,'charge'],[1,'feuillelame'],[5,'vifsprint'],[8,'lianes'],[13,'morsure'],[17,'tempeteverte']] },
+               learn:[[1,'charge'],[1,'feuillelame'],[5,'vifsprint'],[8,'lianes'],[13,'morsure'],[17,'tempeteverte'],[26,'ultracharge']] },
   vipelia:   { name:'Vipélia',   types:['Plante'],       base:{hp:60,atk:63,def:65,spe:76}, catch:45,  exp:142,
-               learn:[[1,'charge'],[1,'feuillelame'],[5,'vifsprint'],[8,'lianes'],[13,'morsure'],[17,'tempeteverte']] },
+               learn:[[1,'charge'],[1,'feuillelame'],[5,'vifsprint'],[8,'lianes'],[13,'morsure'],[17,'tempeteverte'],[26,'ultracharge']] },
   roupiaf:   { name:'Roupiaf',   types:['Normal','Vol'], base:{hp:40,atk:45,def:38,spe:58}, catch:200, exp:50,
-               learn:[[1,'charge'],[4,'picorage'],[7,'vifsprint'],[10,'rafale']] },
+               evolveAt:16, evolveTo:'aigleroc',
+               learn:[[1,'charge'],[4,'picorage'],[7,'vifsprint'],[10,'rafale'],[18,'ailerasoir'],[26,'pique']] },
   mulotin:   { name:'Mulotin',   types:['Normal'],       base:{hp:38,atk:48,def:35,spe:52}, catch:230, exp:45,
-               learn:[[1,'charge'],[6,'morsure'],[9,'vifsprint'],[13,'plaquage']] },
+               evolveAt:15, evolveTo:'ratagriffe',
+               learn:[[1,'charge'],[6,'morsure'],[9,'vifsprint'],[13,'plaquage'],[19,'crochenuit']] },
   chenivert: { name:'Chenivert', types:['Plante'],       base:{hp:45,atk:35,def:50,spe:30}, catch:240, exp:40,
+               evolveAt:10, evolveTo:'papivol',
                learn:[[1,'charge'],[4,'feuillelame'],[9,'lianes']] },
   voltichat: { name:'Voltichat', types:['Électrik'],     base:{hp:42,atk:50,def:40,spe:70}, catch:150, exp:60,
+               evolveAt:22, evolveTo:'tigrevolt',
                learn:[[1,'griffure'],[1,'etincelle'],[7,'vifsprint'],[12,'foudre']] },
   taupix:    { name:'Taupix',    types:['Sol'],          base:{hp:45,atk:55,def:50,spe:40}, catch:160, exp:58,
+               evolveAt:20, evolveTo:'forator',
                learn:[[1,'griffure'],[5,'boue'],[9,'morsure'],[14,'seisme']] },
   grenouilla:{ name:'Grenouilla',types:['Eau'],          base:{hp:44,atk:46,def:44,spe:56}, catch:170, exp:55,
+               evolveAt:21, evolveTo:'crapotaure',
                learn:[[1,'charge'],[4,'jetdo'],[8,'vifsprint'],[12,'torrent']] },
-  noctyran:  { name:'Noctyran',  types:['Ténèbres'],     base:{hp:75,atk:85,def:70,spe:85}, catch:20,  exp:220,
-               learn:[[1,'crochenuit'],[1,'aileombre'],[1,'vifsprint'],[1,'plaquage']] },
+  noctyran:  { name:'Noctyran',  types:['Ténèbres'],     base:{hp:85,atk:95,def:80,spe:95}, catch:20,  exp:240,
+               learn:[[1,'crochenuit'],[1,'aileombre'],[1,'vifsprint'],[1,'plaquage'],[52,'orbeobscur']] },
+  auryon:    { name:'Auryon',    types:['Glace','Vol'],  base:{hp:80,atk:90,def:78,spe:98}, catch:15,  exp:240,
+               learn:[[1,'ventglace'],[1,'ailerasoir'],[1,'vifsprint'],[1,'avalanche']] },
+  aigleroc:  { name:'Aigleroc',  types:['Normal','Vol'], base:{hp:65,atk:75,def:60,spe:85}, catch:90,  exp:150,
+               learn:[[1,'charge'],[4,'picorage'],[7,'vifsprint'],[10,'rafale'],[18,'ailerasoir'],[26,'pique'],[34,'ultracharge']] },
+  ratagriffe:{ name:'Ratagriffe',types:['Normal'],       base:{hp:60,atk:78,def:55,spe:72}, catch:110, exp:140,
+               learn:[[1,'charge'],[6,'morsure'],[9,'vifsprint'],[13,'plaquage'],[19,'crochenuit'],[27,'ultracharge']] },
+  papivol:   { name:'Papivol',   types:['Plante','Vol'], base:{hp:55,atk:55,def:60,spe:75}, catch:120, exp:130,
+               learn:[[1,'charge'],[4,'feuillelame'],[9,'lianes'],[12,'rafale'],[18,'nuagetoxik'],[24,'tempeteverte']] },
+  tigrevolt: { name:'Tigrevolt', types:['Électrik'],     base:{hp:65,atk:80,def:60,spe:100},catch:80,  exp:160,
+               learn:[[1,'griffure'],[1,'etincelle'],[7,'vifsprint'],[12,'foudre'],[24,'plaquage'],[30,'ultracharge']] },
+  forator:   { name:'Forator',   types:['Sol'],          base:{hp:70,atk:90,def:75,spe:55}, catch:80,  exp:160,
+               learn:[[1,'griffure'],[5,'boue'],[9,'morsure'],[14,'seisme'],[22,'eboulement'],[30,'tremterre']] },
+  crapotaure:{ name:'Crapotaure',types:['Eau'],          base:{hp:70,atk:75,def:70,spe:70}, catch:90,  exp:155,
+               learn:[[1,'charge'],[4,'jetdo'],[8,'vifsprint'],[12,'torrent'],[22,'plaquage'],[28,'raz']] },
+  braisillon:{ name:'Braisillon',types:['Feu','Vol'],    base:{hp:40,atk:58,def:40,spe:68}, catch:190, exp:56,
+               evolveAt:18, evolveTo:'pyrovol',
+               learn:[[1,'picorage'],[1,'flammette'],[8,'vifsprint'],[14,'brasier'],[20,'ailerasoir'],[28,'fournaise'],[34,'pique']] },
+  pyrovol:   { name:'Pyrovol',   types:['Feu','Vol'],    base:{hp:62,atk:82,def:58,spe:95}, catch:70,  exp:158,
+               learn:[[1,'picorage'],[1,'flammette'],[8,'vifsprint'],[14,'brasier'],[20,'ailerasoir'],[28,'fournaise'],[34,'pique']] },
+  fleurnette:{ name:'Fleurnette',types:['Plante'],       base:{hp:48,atk:45,def:52,spe:38}, catch:200, exp:52,
+               evolveAt:19, evolveTo:'floravia',
+               learn:[[1,'charge'],[1,'feuillelame'],[7,'dardvenin'],[13,'lianes'],[20,'nuagetoxik'],[28,'tempeteverte']] },
+  floravia:  { name:'Floravia',  types:['Plante'],       base:{hp:68,atk:70,def:72,spe:55}, catch:80,  exp:152,
+               learn:[[1,'charge'],[1,'feuillelame'],[7,'dardvenin'],[13,'lianes'],[20,'nuagetoxik'],[28,'tempeteverte']] },
+  rocailloux:{ name:'Rocailloux',types:['Roche'],        base:{hp:55,atk:65,def:80,spe:25}, catch:180, exp:60,
+               evolveAt:24, evolveTo:'golemoss',
+               learn:[[1,'charge'],[1,'jetpierre'],[9,'boue'],[16,'eboulement'],[24,'plaquage'],[32,'lameroche']] },
+  golemoss:  { name:'Golemoss',  types:['Roche'],        base:{hp:80,atk:95,def:100,spe:35},catch:60,  exp:170,
+               learn:[[1,'charge'],[1,'jetpierre'],[9,'boue'],[16,'eboulement'],[24,'plaquage'],[32,'lameroche']] },
+  chauvenuit:{ name:'Chauvenuit',types:['Vol','Ténèbres'],base:{hp:38,atk:50,def:35,spe:75},catch:200, exp:54,
+               evolveAt:22, evolveTo:'vampiryx',
+               learn:[[1,'morsure'],[5,'picorage'],[10,'vampirisme'],[16,'rafale'],[24,'crochenuit'],[32,'pique']] },
+  vampiryx:  { name:'Vampiryx',  types:['Vol','Ténèbres'],base:{hp:65,atk:75,def:60,spe:95},catch:70,  exp:160,
+               learn:[[1,'morsure'],[5,'picorage'],[10,'vampirisme'],[16,'rafale'],[24,'crochenuit'],[32,'pique']] },
+  spectrelle:{ name:'Spectrelle',types:['Spectre'],      base:{hp:35,atk:60,def:35,spe:80}, catch:160, exp:62,
+               evolveAt:26, evolveTo:'fantomare',
+               learn:[[1,'spectrale'],[6,'vifsprint'],[12,'crochenuit'],[20,'vampirisme'],[28,'grifantome']] },
+  fantomare: { name:'Fantomare', types:['Spectre'],      base:{hp:60,atk:88,def:55,spe:95}, catch:60,  exp:165,
+               learn:[[1,'spectrale'],[6,'vifsprint'],[12,'crochenuit'],[20,'vampirisme'],[28,'grifantome']] },
+  glacouille:{ name:'Glaçouille',types:['Glace'],        base:{hp:45,atk:55,def:45,spe:60}, catch:180, exp:58,
+               evolveAt:25, evolveTo:'givrelou',
+               learn:[[1,'charge'],[1,'boulneige'],[8,'vifsprint'],[14,'ventglace'],[22,'morsure'],[30,'avalanche']] },
+  givrelou:  { name:'Givrelou',  types:['Glace'],        base:{hp:70,atk:80,def:65,spe:85}, catch:70,  exp:162,
+               learn:[[1,'charge'],[1,'boulneige'],[8,'vifsprint'],[14,'ventglace'],[22,'morsure'],[30,'avalanche']] },
+  sablizard: { name:'Sablizard', types:['Sol'],          base:{hp:48,atk:62,def:50,spe:55}, catch:170, exp:60,
+               evolveAt:26, evolveTo:'dunodrake',
+               learn:[[1,'griffure'],[1,'boue'],[9,'morsure'],[15,'seisme'],[23,'brasier'],[31,'tremterre']] },
+  dunodrake: { name:'Dunodrake', types:['Sol'],          base:{hp:75,atk:92,def:70,spe:72}, catch:60,  exp:168,
+               learn:[[1,'griffure'],[1,'boue'],[9,'morsure'],[15,'seisme'],[23,'brasier'],[31,'tremterre']] },
+  poissonor: { name:'Poissonor', types:['Eau'],          base:{hp:40,atk:45,def:40,spe:70}, catch:210, exp:50,
+               evolveAt:23, evolveTo:'requinox',
+               learn:[[1,'charge'],[1,'jetdo'],[9,'vifsprint'],[14,'torrent'],[23,'morsure'],[30,'raz']] },
+  requinox:  { name:'Requinox',  types:['Eau'],          base:{hp:65,atk:90,def:60,spe:88}, catch:70,  exp:162,
+               learn:[[1,'charge'],[1,'jetdo'],[9,'vifsprint'],[14,'torrent'],[23,'morsure'],[30,'raz']] },
+  magmou:    { name:'Magmou',    types:['Feu'],          base:{hp:50,atk:68,def:55,spe:35}, catch:160, exp:64,
+               evolveAt:28, evolveTo:'volcanus',
+               learn:[[1,'flammette'],[6,'boue'],[12,'brasier'],[18,'jetpierre'],[26,'eboulement'],[32,'fournaise']] },
+  volcanus:  { name:'Volcanus',  types:['Feu','Roche'],  base:{hp:80,atk:95,def:80,spe:45}, catch:50,  exp:172,
+               learn:[[1,'flammette'],[6,'boue'],[12,'brasier'],[18,'jetpierre'],[26,'eboulement'],[32,'fournaise']] },
+  lumiole:   { name:'Lumiole',   types:['Électrik'],     base:{hp:60,atk:65,def:55,spe:90}, catch:100, exp:120,
+               learn:[[1,'etincelle'],[10,'vifsprint'],[16,'foudre'],[24,'spectrale']] },
 };
 
 // ---------- instances de créatures ----------
@@ -628,7 +1191,7 @@ function movesAtLevel(spId, level) {
 function makeMon(spId, level) {
   const sp = SPECIES[spId];
   const m = {
-    sp: spId, level,
+    sp: spId, level, st: null,
     xp: xpTotalFor(level),
     moves: movesAtLevel(spId, level),
     hp: 0, maxhp: 0, atk: 0, def: 0, spe: 0,
@@ -651,7 +1214,7 @@ function monName(m) { return SPECIES[m.sp].name; }
    '#' arbre  '.' herbe  ',' fleurs  ':' chemin  ';' hautes herbes
    '~' eau  '=' barrière  'S' panneau
    ============================================================ */
-const MAP_W = 40, MAP_H = 60;
+const MAP_W = 512, MAP_H = 60;
 const M = Array.from({ length: MAP_H }, () => Array(MAP_W).fill('.'));
 function mrect(x, y, w, h, ch) {
   for (let j = y; j < y + h; j++)
@@ -700,7 +1263,21 @@ function mrect(x, y, w, h, ch) {
   mrect(4, 54, 3, 2, ','); mrect(31, 47, 4, 2, ','); mrect(13, 47, 3, 1, ',');
   mrect(33, 53, 4, 3, '#'); mrect(2, 46, 2, 3, '#');
   M[53][22] = 'S';                          // panneau du bourg
+
+  // mur est de la région d'origine, passage vers l'est en (39,33-34)
+  mrect(39, 1, 1, 59, '#');
+  M[33][39] = ':'; M[34][39] = ':';
+  M[32][37] = 'S';                          // panneau du passage
 })();
+
+/* ---- helpers de construction des nouvelles zones ---- */
+function vwall(x, openRows) {
+  mrect(x, 1, 1, 58, '#');
+  for (const r of openRows) M[r][x] = ':';
+}
+function hpath(x0, x1, rows) {
+  for (const r of rows) for (let x = x0; x <= x1; x++) M[r][x] = ':';
+}
 
 const SIGNS = {
   '22,53': 'BOURG SÉPIA — « Là où les aventures commencent. »',
@@ -735,18 +1312,341 @@ const PICKUPS = [
   { x:25, y:9,  item:'pot',  n:2 },
 ];
 
-function zoneName(y) { return y < 18 ? 'LAC ONYX' : (y < 46 ? 'ROUTE 1' : 'BOURG SÉPIA'); }
+/* ============================================================
+   CONSTRUCTION DE L'EST — 11 zones jusqu'à la Ligue
+   ============================================================ */
+function addTown(x0, opts) {
+  // gabarit : bâtiments au nord, place, allée reliant la route principale
+  mrect(x0 + 4, 20, 28, 3, ':');                      // place
+  mrect(x0 + 14, 23, 2, 11, ':');                     // allée vers la route
+  if (opts.clinic) {
+    BUILDINGS.push({ x: x0 + 5, y: 15, w: 5, h: 4, roof: '#d85a64', wall: '#efe2cc', door: x0 + 7, emblem: 'heart', name: 'CLINIQUE' });
+    mrect(x0 + 6, 19, 3, 1, ':');
+  }
+  if (opts.shop) {
+    BUILDINGS.push({ x: x0 + 12, y: 15, w: 5, h: 4, roof: '#4a8ad8', wall: '#e9e4d2', door: x0 + 14, emblem: 'shop', name: 'BOUTIQUE' });
+    mrect(x0 + 13, 19, 3, 1, ':');
+  }
+  if (opts.arena) {
+    BUILDINGS.push({ x: x0 + 20, y: 13, w: 9, h: 6, roof: opts.arenaColor || '#3a3a52', wall: '#ddd8c8', door: x0 + 24, emblem: 'arena', name: 'ARÈNE' });
+    mrect(x0 + 23, 19, 3, 1, ':');
+  }
+  BUILDINGS.push({ x: x0 + 6, y: 25, w: 4, h: 3, roof: '#7a9a54', wall: '#efe2cc', door: x0 + 7, emblem: null, name: '' });
+  BUILDINGS.push({ x: x0 + 24, y: 25, w: 4, h: 3, roof: '#a07a54', wall: '#efe2cc', door: x0 + 25, emblem: null, name: '' });
+}
 
+(function buildEast() {
+  hpath(40, 510, [33, 34]);                            // la grande route de la région
+
+  // ---- VILLEFLORE (40-75) ----
+  addTown(40, { clinic: true, shop: true, arena: true, arenaColor: '#4a9a4e' });
+  mrect(44, 40, 12, 6, ';'); mrect(60, 42, 10, 5, ';');
+  mrect(42, 38, 2, 2, ','); mrect(68, 39, 3, 2, ','); mrect(46, 24, 3, 2, ',');
+  mrect(56, 46, 3, 3, '#'); mrect(70, 24, 3, 8, '#');
+  M[21][58] = 'S'; SIGNS['58,21'] = 'VILLEFLORE — La cité des pétales.\nArène de LINA, experte Plante.';
+  M[32][73] = 'S'; SIGNS['73,32'] = 'EST : Forêt Murmure — il faut le Badge Sève (1).';
+  PICKUPS.push({ x: 47, y: 42, item: 'pot', n: 2 }, { x: 66, y: 44, item: 'caps', n: 3 });
+  vwall(75, [33]);
+
+  // ---- FORÊT MURMURE (76-111) ----
+  mrect(78, 22, 30, 6, ';'); mrect(78, 37, 30, 6, ';');
+  mrect(76, 1, 36, 18, '#'); mrect(76, 46, 36, 13, '#');
+  mrect(84, 33, 4, 1, '#'); mrect(94, 34, 4, 1, '#'); mrect(102, 33, 3, 1, '#');
+  mrect(80, 28, 3, 4, '#'); mrect(98, 28, 4, 5, '#'); mrect(88, 40, 4, 5, '#');
+  M[32][78] = 'S'; SIGNS['78,32'] = 'FORÊT MURMURE — On entend des battements\nd’ailes à la nuit tombée...';
+  PICKUPS.push({ x: 82, y: 25, item: 'caps', n: 3 }, { x: 104, y: 39, item: 'guer', n: 2 }, { x: 96, y: 24, item: 'pot', n: 2 });
+  vwall(111, [33]);
+
+  // ---- ROCHE-BOURG (112-147) ----
+  addTown(112, { clinic: true, shop: false, arena: true, arenaColor: '#8a7a58' });
+  mrect(116, 40, 10, 5, ';'); mrect(132, 42, 9, 4, ';');
+  mrect(128, 44, 3, 3, '#'); mrect(140, 24, 4, 6, '#'); mrect(114, 28, 3, 3, '#');
+  M[21][130] = 'S'; SIGNS['130,21'] = 'ROCHE-BOURG — Taillée dans la falaise.\nArène de BLOC, expert Roche.';
+  M[32][145] = 'S'; SIGNS['145,32'] = 'EST : Grotte Écho — il faut le Badge Roc (2).';
+  PICKUPS.push({ x: 120, y: 42, item: 'spot', n: 1 }, { x: 137, y: 44, item: 'caps', n: 3 });
+  vwall(147, [33]);
+
+  // ---- GROTTE ÉCHO (148-183) ----
+  mrect(148, 1, 36, 58, '#');
+  mrect(150, 30, 33, 8, '.');                          // grande galerie
+  hpath(148, 183, [33, 34]);
+  mrect(154, 18, 10, 12, '.'); mrect(156, 20, 6, 4, ';');   // salle nord
+  mrect(170, 38, 10, 10, '.'); mrect(172, 44, 6, 3, ';');   // salle sud
+  mrect(160, 24, 2, 7, '.'); mrect(174, 36, 2, 3, '.');     // tunnels
+  M[32][152] = 'S'; SIGNS['152,32'] = 'GROTTE ÉCHO — Chaque pas résonne deux fois.';
+  PICKUPS.push({ x: 158, y: 21, item: 'spot', n: 1 }, { x: 175, y: 45, item: 'caps', n: 4 }, { x: 161, y: 25, item: 'guer', n: 1 });
+  vwall(183, [33]);
+
+  // ---- PORT-AZUR (184-219) ----
+  addTown(184, { clinic: true, shop: true, arena: true, arenaColor: '#3878c8' });
+  mrect(184, 42, 36, 17, '~');
+  mrect(196, 42, 2, 7, 'b'); mrect(208, 42, 2, 5, 'b');     // pontons
+  mrect(188, 38, 8, 3, ';'); mrect(204, 38, 9, 3, ';');
+  M[21][202] = 'S'; SIGNS['202,21'] = 'PORT-AZUR — Le sel et les embruns.\nArène de MARINA, experte Eau.';
+  M[32][217] = 'S'; SIGNS['217,32'] = 'EST : Route Côtière — il faut le Badge Vague (3).';
+  PICKUPS.push({ x: 197, y: 47, item: 'caps', n: 3 }, { x: 191, y: 39, item: 'pot', n: 2 });
+  vwall(219, [33]);
+
+  // ---- ROUTE CÔTIÈRE (220-255) ----
+  mrect(220, 1, 36, 16, '~');                          // mer du nord
+  mrect(220, 44, 36, 15, '~');                         // mer du sud
+  mrect(224, 22, 8, 6, ';'); mrect(246, 24, 8, 5, ';'); mrect(228, 38, 9, 4, ';');
+  mrect(234, 17, 12, 42, '~');                         // détroit
+  mrect(234, 33, 12, 2, 'b');                          // LE GRAND PONT
+  M[32][226] = 'S'; SIGNS['226,32'] = 'LE GRAND PONT — Mer d’Azur à perte de vue.';
+  PICKUPS.push({ x: 250, y: 26, item: 'spot', n: 1 }, { x: 230, y: 40, item: 'caps', n: 3 });
+  vwall(255, [33]);
+
+  // ---- VOLTCITÉ (256-291) ----
+  addTown(256, { clinic: true, shop: true, arena: true, arenaColor: '#caa020' });
+  BUILDINGS.push({ x: 268, y: 25, w: 5, h: 4, roof: '#6a6a7a', wall: '#d8d8e0', door: 270, emblem: null, name: 'CENTRALE' });
+  mrect(262, 40, 9, 5, ';'); mrect(278, 41, 9, 5, ';');
+  mrect(258, 38, 1, 8, '='); mrect(288, 38, 1, 8, '=');
+  M[21][274] = 'S'; SIGNS['274,21'] = 'VOLTCITÉ — La ville qui ne dort jamais.\nArène de VOLTA, expert Électrik.';
+  M[32][289] = 'S'; SIGNS['289,32'] = 'EST : Plaines Dorées — il faut le Badge Volt (4).';
+  PICKUPS.push({ x: 265, y: 42, item: 'guer', n: 2 }, { x: 282, y: 43, item: 'caps', n: 4 });
+  vwall(291, [33]);
+
+  // ---- PLAINES DORÉES (292-327) ----
+  mrect(294, 20, 30, 10, ';'); mrect(296, 38, 28, 8, ';');
+  mrect(300, 30, 8, 1, '='); mrect(314, 30, 8, 1, '=');
+  mrect(310, 14, 4, 4, '#'); mrect(298, 48, 4, 4, '#');
+  M[32][296] = 'S'; SIGNS['296,32'] = 'PLAINES DORÉES — L’herbe y chante sous le vent.';
+  PICKUPS.push({ x: 300, y: 24, item: 'bonbon', n: 1 }, { x: 318, y: 41, item: 'spot', n: 2 }, { x: 306, y: 44, item: 'caps', n: 4 });
+  vwall(327, [33]);
+
+  // ---- DÉSERT OCRE / OASIS (328-363) ----
+  addTown(328, { clinic: true, shop: true, arena: true, arenaColor: '#c89038' });
+  mrect(332, 40, 12, 6, ';'); mrect(350, 39, 9, 6, ';');
+  mrect(346, 24, 5, 3, '~'); mrect(345, 23, 1, 1, ','); mrect(352, 24, 1, 2, ',');   // l'oasis
+  mrect(338, 47, 4, 3, '#'); mrect(354, 28, 4, 4, '#');
+  M[21][346] = 'S'; SIGNS['346,21'] = 'OASIS D’OCRE — L’eau au milieu des dunes.\nArène de SAHIR, expert Sol.';
+  M[32][361] = 'S'; SIGNS['361,32'] = 'EST : Mont Givre — il faut le Badge Dune (5).';
+  PICKUPS.push({ x: 336, y: 42, item: 'spot', n: 2 }, { x: 353, y: 41, item: 'guer', n: 2 });
+  vwall(363, [33]);
+
+  // ---- MONT GIVRE (364-399) ----
+  addTown(364, { clinic: true, shop: false, arena: true, arenaColor: '#78c8e0' });
+  mrect(368, 40, 10, 6, ';'); mrect(384, 41, 10, 5, ';');
+  mrect(382, 4, 2, 16, ':');                           // sentier du sommet
+  mrect(380, 2, 8, 3, ':');                            // plateau sommital
+  mrect(376, 6, 4, 4, '#'); mrect(390, 8, 4, 5, '#'); mrect(372, 14, 3, 4, '#');
+  mrect(382, 20, 2, 9, ':');                            // jonction vers la place
+  M[21][382] = 'S'; SIGNS['382,21'] = 'GIVREBOURG — Village sous la neige éternelle.\nArène de NEVA, experte Glace.';
+  M[5][379] = 'S'; SIGNS['379,5'] = 'SOMMET DU MONT GIVRE — Par temps clair, on\ndit qu’une lumière y plane...';
+  M[32][397] = 'S'; SIGNS['397,32'] = 'EST : Tour Sombre — il faut le Badge Flocon (6).';
+  PICKUPS.push({ x: 372, y: 42, item: 'guer', n: 2 }, { x: 388, y: 43, item: 'bonbon', n: 1 }, { x: 386, y: 3, item: 'spot', n: 2 });
+  vwall(399, [33]);
+
+  // ---- TOUR SOMBRE (400-435) ----
+  mrect(404, 36, 8, 6, ';'); mrect(424, 38, 8, 5, ';');
+  mrect(408, 6, 20, 20, '#');                          // la tour
+  mrect(410, 8, 16, 16, '.');                          // intérieur
+  mrect(412, 10, 4, 4, ';'); mrect(420, 18, 4, 4, ';');
+  mrect(417, 24, 2, 2, '.');                            // porche
+  mrect(417, 26, 2, 7, ':');                            // entrée vers la route
+  M[32][404] = 'S'; SIGNS['404,32'] = 'TOUR SOMBRE — Les ombres y montent la garde.\nL’ÉQUIPE OMBRE rôde !';
+  PICKUPS.push({ x: 412, y: 12, item: 'guer', n: 2 }, { x: 422, y: 20, item: 'bonbon', n: 1 }, { x: 428, y: 40, item: 'spot', n: 2 });
+  vwall(435, [33]);
+
+  // ---- VOLCAN BRAISE (436-471) ----
+  addTown(436, { clinic: true, shop: true, arena: true, arenaColor: '#c84028' });
+  mrect(444, 8, 14, 8, 'l');                           // lac de lave
+  mrect(442, 40, 10, 5, ';'); mrect(458, 41, 9, 5, ';');
+  mrect(460, 8, 5, 5, '#'); mrect(437, 24, 2, 3, '#');
+  M[21][458] = 'S'; SIGNS['458,21'] = 'BOURG-BRAISE — Bâti sur la roche tiède.\nArène d’IGNIS, expert Feu.';
+  M[32][469] = 'S'; SIGNS['469,32'] = 'EST : Route Victoire — il faut le Badge Magma (8) !';
+  PICKUPS.push({ x: 446, y: 42, item: 'spot', n: 2 }, { x: 462, y: 43, item: 'guer', n: 2 });
+  vwall(471, [33]);
+
+  // ---- ROUTE VICTOIRE & LIGUE (472-511) ----
+  mrect(474, 24, 14, 8, ';'); mrect(476, 38, 16, 7, ';');
+  BUILDINGS.push({ x: 476, y: 15, w: 5, h: 4, roof: '#d85a64', wall: '#efe2cc', door: 478, emblem: 'heart', name: 'CLINIQUE' });
+  mrect(477, 19, 3, 1, ':'); mrect(478, 20, 2, 13, ':');
+  mrect(493, 8, 1, 25, '#'); mrect(495, 8, 1, 25, '#');     // le couloir de la Ligue
+  mrect(494, 9, 1, 24, ':');
+  mrect(490, 5, 9, 4, ':');                                  // l'esplanade du Conseil
+  BUILDINGS.push({ x: 490, y: 1, w: 9, h: 4, roof: '#f8d048', wall: '#e8e4f0', door: 494, emblem: 'arena', name: 'PANTHÉON' });
+  M[32][490] = 'S'; SIGNS['490,32'] = 'LIGUE DE LA RÉGION — Quatre Maîtres, puis\nle Champion. Point de non-retour !';
+  PICKUPS.push({ x: 480, y: 26, item: 'spot', n: 3 }, { x: 484, y: 41, item: 'guer', n: 2 }, { x: 488, y: 28, item: 'bonbon', n: 1 });
+})();
+
+(function populateEast() {
+  const T = (id, x, y, pal, name, team, prize, intro, win, lose, after, extra) =>
+    NPCS.push(Object.assign({ id, x, y, dir: 'down', pal,
+      trainer: { flag: 'tr_' + id, name, team, prize, intro, win, lose, after } }, extra || {}));
+
+  // infirmières et marchands
+  for (const x0 of [40, 112, 184, 256, 328, 364, 436]) NPCS.push({ id: 'nurse_' + x0, x: x0 + 7, y: 19, dir: 'down', pal: PAL_NURSE, nurse: true });
+  NPCS.push({ id: 'nurse_ligue', x: 478, y: 19, dir: 'down', pal: PAL_NURSE, nurse: true });
+  for (const x0 of [40, 184, 256, 328, 436]) NPCS.push({ id: 'shop_' + x0, x: x0 + 14, y: 19, dir: 'down', pal: PAL_MERCH, shop: true });
+
+  // gardes des portes (badge requis pour passer à l'est)
+  const GATES = [[75, 1, 'Sève'], [147, 2, 'Roc'], [219, 3, 'Vague'], [291, 4, 'Volt'], [363, 5, 'Dune'], [399, 6, 'Flocon'], [435, 7, 'Spectre'], [471, 8, 'Magma']];
+  for (const [x, n, bn] of GATES)
+    NPCS.push({ id: 'guard' + n, x, y: 33, dir: 'left', pal: PAL_GUARD, guard: { need: n, badge: bn } });
+
+  // champions d'arène
+  T('lina',    64, 19, PAL_L1, 'LINA',    [['fleurnette',11],['papivol',12]], 1200,
+    'LINA : Bienvenue au jardin de Villeflore. Mes fleurs ont des épines !',
+    'LINA : Magnifique... Le BADGE SÈVE est à toi !',
+    'LINA : Reviens quand tes créatures auront mûri.',
+    'LINA : Le Badge Sève te va si bien !', { badge: 1, badgeName: 'SÈVE' });
+  T('bloc',   136, 19, PAL_L2, 'BLOC',    [['taupix',14],['rocailloux',16]], 1600,
+    'BLOC : Ici, on parle peu. On cogne dur. En garde !',
+    'BLOC : Solide. Très solide. Prends le BADGE ROC.',
+    'BLOC : Trop tendre. Reviens plus dur.',
+    'BLOC : ... (il hoche la tête avec respect)', { badge: 2, badgeName: 'ROC' });
+  T('marina', 208, 19, PAL_L3, 'MARINA',  [['poissonor',19],['grenouilla',19],['crapotaure',21]], 2000,
+    'MARINA : La marée monte... sauras-tu garder la tête hors de l’eau ?',
+    'MARINA : Quelle vague ! Le BADGE VAGUE est à toi.',
+    'MARINA : Glou glou... tu coules !',
+    'MARINA : Le grand large t’attend, marin d’eau douce !', { badge: 3, badgeName: 'VAGUE' });
+  T('volta',  280, 19, PAL_L4, 'VOLTA',   [['voltichat',23],['lumiole',24],['tigrevolt',25]], 2400,
+    'VOLTA : 10 000 volts dans mes circuits ! Prêt à griller ?',
+    'VOLTA : Court-circuit total... Le BADGE VOLT te revient !',
+    'VOLTA : Bzzt ! Retourne te recharger.',
+    'VOLTA : Tu m’électrises encore !', { badge: 4, badgeName: 'VOLT' });
+  T('sahir',  352, 19, PAL_L5, 'SAHIR',   [['sablizard',27],['forator',28],['dunodrake',29]], 2800,
+    'SAHIR : Le désert engloutit les imprudents. Montre-moi ta soif de victoire.',
+    'SAHIR : Tu as dompté les dunes. Le BADGE DUNE est tien.',
+    'SAHIR : Le sable t’a englouti...',
+    'SAHIR : Que les vents te soient doux.', { badge: 5, badgeName: 'DUNE' });
+  T('neva',   388, 19, PAL_L6, 'NEVA',    [['glacouille',31],['requinox',31],['givrelou',33]], 3200,
+    'NEVA : Le froid mord, petit dresseur. Espérons que tu ne gèles pas sur place.',
+    'NEVA : Brrr... brûlant ! Le BADGE FLOCON est à toi.',
+    'NEVA : Gelé sur place, comme prévu.',
+    'NEVA : Le sommet t’observe...', { badge: 6, badgeName: 'FLOCON' });
+  T('morgane',417, 10, PAL_L7, 'MORGANE', [['spectrelle',34],['vampiryx',35],['fantomare',37]], 3600,
+    'MORGANE : Tu as traversé les ombres pour me trouver... Voyons si tu leur survis.',
+    'MORGANE : Les esprits t’acceptent. Voici le BADGE SPECTRE.',
+    'MORGANE : Les ombres te recrachent. Pour l’instant.',
+    'MORGANE : Les esprits chuchotent ton nom.', { badge: 7, badgeName: 'SPECTRE' });
+  T('ignis',  460, 19, PAL_L8, 'IGNIS',   [['pyrovol',38],['magmou',38],['volcanus',40]], 4000,
+    'IGNIS : HAHA ! Le volcan lui-même craint mes flammes ! Approche !',
+    'IGNIS : QUEL BRASIER ! Le BADGE MAGMA est à toi, champion !',
+    'IGNIS : Réduit en cendres ! HAHA !',
+    'IGNIS : La Ligue n’a qu’à bien se tenir !', { badge: 8, badgeName: 'MAGMA' });
+
+  // dresseurs des routes
+  T('flore',  88, 30, PAL_L1, 'BOTANISTE FLORE', [['fleurnette',10],['chenivert',10]], 300,
+    'FLORE : Mes protégées adorent les visiteurs... pour le goûter !',
+    'FLORE : Oh ! Mes pauvres chéries.', 'FLORE : La forêt est à nous !', 'FLORE : Les papillons reviennent en été.');
+  T('tim',   104, 35, PAL_VILLAGER, 'SCOUT TIM', [['roupiaf',11],['mulotin',11]], 320,
+    'TIM : Toujours prêt ! Surtout pour un duel !',
+    'TIM : Wow, t’es trop fort !', 'TIM : Hé hé, trop facile !', 'TIM : Un scout sait perdre avec honneur.');
+  T('paco',  124, 36, PAL_L2, 'MINEUR PACO', [['rocailloux',14],['taupix',14]], 450,
+    'PACO : Ma pioche et mes cailloux ne font qu’un !',
+    'PACO : Nom d’un gisement !', 'PACO : Retourne au charbon !', 'PACO : La grotte est pleine de surprises.');
+  T('lena',  165, 30, PAL_ZOE, 'SPÉLÉO LÉNA', [['chauvenuit',17],['rocailloux',17]], 550,
+    'LÉNA : Dans le noir, mes amies voient mieux que toi !',
+    'LÉNA : Échooo... j’ai perduuu...', 'LÉNA : Perdu dans le noir !', 'LÉNA : Écoute l’écho, il ne ment jamais.');
+  T('lou',   197, 40, PAL_L3, 'PÊCHEUR LOU', [['poissonor',19],['poissonor',20]], 600,
+    'LOU : Ça mord aujourd’hui ! Et pas que les poissons !',
+    'LOU : Belle prise... c’est moi le poisson.', 'LOU : Et hop, dans l’épuisette !', 'LOU : Le gros spécimen rôde sous le pont.');
+  T('jo',    228, 36, PAL_L3, 'MARIN JO', [['grenouilla',21],['poissonor',21]], 650,
+    'JO : Le pont est à ceux qui savent se battre !',
+    'JO : Par tous les flots !', 'JO : À la baille, moussaillon !', 'JO : Bon vent, capitaine.');
+  T('gus',   248, 31, PAL_VILLAGER, 'PÊCHEUR GUS', [['requinox',23]], 700,
+    'GUS : T’as vu ma bête ? Sortie des abysses !',
+    'GUS : Ma terreur des mers !!', 'GUS : GLOUPS.', 'GUS : Les abysses en cachent d’autres...');
+  T('eva',   272, 30, PAL_L4, 'INGÉNIEURE EVA', [['voltichat',24],['lumiole',24]], 800,
+    'EVA : Mes prototypes ont besoin d’un test grandeur nature !',
+    'EVA : Données... fascinantes.', 'EVA : Expérience concluante !', 'EVA : La centrale alimente toute la région.');
+  T('max',   304, 31, PAL_VILLAGER, 'FERMIER MAX', [['mulotin',26],['aigleroc',26]], 850,
+    'MAX : Mes bêtes des champs valent tous tes badges !',
+    'MAX : Ah, sacrebleu !', 'MAX : Et que ça saute !', 'MAX : L’herbe dorée nourrit bien.');
+  T('rim',   316, 36, PAL_ZOE, 'DRESSEUSE RIM', [['fleurnette',26],['floravia',27]], 900,
+    'RIM : Les plaines chantent... et moi je gagne !',
+    'RIM : La chanson s’arrête...', 'RIM : Tralala~ !', 'RIM : Écoute le vent dans les herbes.');
+  T('karim', 348, 36, PAL_L5, 'NOMADE KARIM', [['sablizard',29],['taupix',29]], 950,
+    'KARIM : Le désert éprouve les corps et les âmes.',
+    'KARIM : Le sable s’incline.', 'KARIM : Bois un coup et reviens.', 'KARIM : L’oasis est un miracle quotidien.');
+  T('lea',   378, 30, PAL_L6, 'SKIEUSE LÉA', [['glacouille',32],['glacouille',32]], 1000,
+    'LÉA : Descente express vers ta défaite !',
+    'LÉA : Chute spectaculaire !', 'LÉA : Slalom parfait !', 'LÉA : Le sommet brille parfois la nuit...');
+  T('nox',   414, 38, PAL_L7, 'MÉDIUM NOX', [['spectrelle',34],['chauvenuit',34]], 1100,
+    'NOX : Les esprits m’ont annoncé ta venue... et ta défaite.',
+    'NOX : Les esprits... se sont trompés ?!', 'NOX : Tout était écrit.', 'NOX : La tour garde un secret indicible.');
+  T('bram',  456, 36, PAL_L8, 'FORGERON BRAM', [['magmou',37],['rocailloux',37]], 1200,
+    'BRAM : Forgé dans la lave, trempé dans la sueur !',
+    'BRAM : Belle trempe, gamin !', 'BRAM : Retourne à l’enclume !', 'BRAM : Ignis forge les meilleurs.');
+  T('kira',  480, 30, PAL_ZOE, 'AS KIRA', [['tigrevolt',41],['givrelou',41]], 1500,
+    'KIRA : Seuls les meilleurs foulent cette route. Prouve ta place.',
+    'KIRA : Va... le Conseil t’attend.', 'KIRA : La Ligue n’est pas pour toi.', 'KIRA : Donne tout, championne en herbe !');
+  T('drake', 486, 35, PAL_RIVAL, 'AS DRAKE', [['dunodrake',42],['aigleroc',42]], 1500,
+    'DRAKE : Dernier obstacle avant le Panthéon. Et le plus coriace.',
+    'DRAKE : File... ils t’attendent.', 'DRAKE : Comme tous les autres.', 'DRAKE : Le Champion est d’un autre niveau.');
+
+  // l'Équipe Ombre
+  T('krow', 417, 17, PAL_OMBRE, 'COMMANDANT KROW', [['vampiryx',35],['fantomare',36],['dunodrake',36]], 3000,
+    'KROW : L’ÉQUIPE OMBRE réveillera la légende du lac... et toi, tu vas dormir.',
+    'KROW : Impossible... Repli ! Le sceau du Lac Onyx tiendra sans nous !',
+    'KROW : Dors bien, gamin.',
+    null, { vanish: true });
+
+  // les 4 Maîtres et le Champion
+  T('aeria',  494, 28, PAL_M, 'MAÎTRE AERIA',  [['papivol',41],['pyrovol',42],['aigleroc',43]], 3000,
+    'AERIA : Maîtresse des cieux. Le vent décidera.',
+    'AERIA : Le vent a choisi... Passe.', 'AERIA : Envolé !', null, { vanish: true });
+  T('terros', 494, 24, PAL_M, 'MAÎTRE TERROS', [['forator',42],['dunodrake',43],['golemoss',44]], 3000,
+    'TERROS : La terre ne plie jamais. Moi non plus.',
+    'TERROS : ... La montagne s’incline.', 'TERROS : Enterré.', null, { vanish: true });
+  T('glacia', 494, 20, PAL_M, 'MAÎTRE GLACIA', [['requinox',43],['crapotaure',44],['givrelou',45]], 3000,
+    'GLACIA : Le froid des profondeurs va figer ton élan.',
+    'GLACIA : Quelle flamme... Va.', 'GLACIA : Statufié.', null, { vanish: true });
+  T('ombrys', 494, 16, PAL_M, 'MAÎTRE OMBRYS', [['vampiryx',44],['dunodrake',45],['fantomare',46]], 3000,
+    'OMBRYS : Dernier Maître. Première vraie peur.',
+    'OMBRYS : L’ombre s’écarte devant toi...', 'OMBRYS : La peur a gagné.', null, { vanish: true });
+  NPCS.push({ id: 'champion', x: 494, y: 11, dir: 'down', pal: PAL_RIVAL, champion: true });
+
+  // la légende du Mont Givre (post-Champion)
+  NPCS.push({ id: 'auryon', x: 384, y: 3, dir: 'down', dragon: 'auryon' });
+})();
+
+// zones de la région (x0 inclus, x1 exclus) — la 1re qui correspond gagne
+const ZONES = [
+  { x1: 40, name: null },  // région d'origine : gérée par bandes verticales
+  { x1: 76,  name: 'VILLEFLORE',     table: [['fleurnette',30,[4,7]],['chenivert',25,[4,7]],['roupiaf',25,[4,7]],['mulotin',20,[5,8]]] },
+  { x1: 112, name: 'FORÊT MURMURE',  table: [['chenivert',25,[8,12]],['fleurnette',25,[8,12]],['chauvenuit',25,[9,13]],['papivol',15,[10,13]],['lumiole',10,[10,14]]] },
+  { x1: 148, name: 'ROCHE-BOURG',    table: [['rocailloux',35,[12,16]],['taupix',30,[12,16]],['roupiaf',20,[13,17]],['mulotin',15,[13,16]]] },
+  { x1: 184, name: 'GROTTE ÉCHO',    table: [['chauvenuit',35,[15,19]],['rocailloux',30,[15,19]],['taupix',20,[16,20]],['spectrelle',15,[16,20]]] },
+  { x1: 220, name: 'PORT-AZUR',      table: [['poissonor',35,[17,21]],['grenouilla',30,[17,21]],['roupiaf',20,[18,22]],['voltichat',15,[18,22]]] },
+  { x1: 256, name: 'ROUTE CÔTIÈRE',  table: [['poissonor',30,[19,23]],['voltichat',25,[19,23]],['mulotin',25,[20,24]],['lumiole',10,[20,24]],['requinox',10,[22,25]]] },
+  { x1: 292, name: 'VOLTCITÉ',       table: [['voltichat',35,[22,26]],['lumiole',25,[22,26]],['mulotin',25,[22,26]],['fleurnette',15,[23,26]]] },
+  { x1: 328, name: 'PLAINES DORÉES', table: [['mulotin',25,[24,28]],['aigleroc',20,[25,29]],['voltichat',20,[24,28]],['fleurnette',20,[24,28]],['lumiole',15,[25,29]]] },
+  { x1: 364, name: 'DÉSERT OCRE',    table: [['sablizard',35,[27,31]],['taupix',25,[27,31]],['rocailloux',25,[27,31]],['forator',15,[29,33]]] },
+  { x1: 400, name: 'MONT GIVRE',     table: [['glacouille',40,[30,34]],['roupiaf',20,[30,33]],['rocailloux',20,[30,34]],['givrelou',20,[32,36]]] },
+  { x1: 436, name: 'TOUR SOMBRE',    table: [['spectrelle',35,[33,37]],['chauvenuit',30,[33,37]],['vampiryx',20,[34,38]],['fantomare',15,[35,39]]] },
+  { x1: 472, name: 'VOLCAN BRAISE',  table: [['magmou',35,[35,39]],['sablizard',25,[35,39]],['rocailloux',20,[35,39]],['braisillon',20,[36,40]]] },
+  { x1: 512, name: 'ROUTE VICTOIRE', table: [['aigleroc',20,[39,43]],['givrelou',20,[39,43]],['fantomare',20,[39,43]],['dunodrake',20,[40,44]],['tigrevolt',20,[40,44]]] },
+];
+function zoneAt(x, y) {
+  if (x < 40) return y < 18 ? 'LAC ONYX' : (y < 46 ? 'ROUTE 1' : 'BOURG SÉPIA');
+  for (const z of ZONES) if (x < z.x1) return z.name;
+  return '???';
+}
 // tables de rencontres : [espèce, poids, [nivMin, nivMax]]
-function encounterTable(y) {
-  if (y < 18) return [
-    ['grenouilla', 30, [5, 8]], ['voltichat', 25, [5, 8]],
-    ['taupix', 25, [5, 8]], ['roupiaf', 20, [6, 9]],
-  ];
-  return [
-    ['mulotin', 30, [2, 4]], ['roupiaf', 30, [2, 4]],
-    ['chenivert', 25, [2, 4]], ['voltichat', 10, [3, 5]], ['taupix', 5, [3, 5]],
-  ];
+function encounterTable(x, y) {
+  if (x < 40) {
+    if (y < 18) {
+      // le Lac Onyx s'éveille en fin d'aventure
+      if (badgeCount() >= 8) return [
+        ['crapotaure', 30, [40, 44]], ['tigrevolt', 25, [40, 44]],
+        ['forator', 25, [40, 44]], ['aigleroc', 20, [41, 45]],
+      ];
+      return [
+        ['grenouilla', 30, [5, 8]], ['voltichat', 25, [5, 8]],
+        ['taupix', 25, [5, 8]], ['roupiaf', 20, [6, 9]],
+      ];
+    }
+    return [
+      ['mulotin', 30, [2, 4]], ['roupiaf', 30, [2, 4]],
+      ['chenivert', 25, [2, 4]], ['voltichat', 10, [3, 5]], ['taupix', 5, [3, 5]],
+    ];
+  }
+  for (const z of ZONES) if (x < z.x1) return z.table;
+  return [['mulotin', 1, [2, 4]]];
 }
 
 function tileAt(x, y) {
@@ -760,12 +1660,15 @@ function npcAt(x, y) {
   return NPCS.find(n => n.x === x && n.y === y && npcVisible(n));
 }
 function npcVisible(n) {
+  if (n.dragon === 'auryon') return G.flags.champion && !G.flags.auryonDone;
   if (n.dragon) return G.flags.zoeBeaten && !G.flags.dragonDone;
+  if (n.guard) return badgeCount() < n.guard.need;
+  if (n.trainer && n.vanish && G.flags[n.trainer.flag]) return false;
   return true;
 }
 function isBlocked(x, y) {
   const t = tileAt(x, y);
-  if (t === '#' || t === '~' || t === '=' || t === 'S') return true;
+  if (t === '#' || t === '~' || t === '=' || t === 'S' || t === 'l') return true;
   if (buildingAt(x, y)) return true;
   if (npcAt(x, y)) return true;
   return false;
@@ -779,17 +1682,24 @@ const G = {
   px: 25, py: 53, dir: 'down',
   moving: null,             // { tx, ty, t } progression du pas (0..1)
   animT: 0,
-  team: [], bag: { caps: 5, pot: 3 },
+  team: [], bag: { caps: 5, pot: 3, spot: 0, guer: 0, bonbon: 0 },
+  money: 600,
+  seen: [], caught: [],
+  heal: { x: 9, y: 53 },
   flags: { pickups: {} },
   stored: [],
   zone: '',
 };
+function markSeen(sp) { if (!G.seen.includes(sp)) G.seen.push(sp); }
+function markCaught(sp) { markSeen(sp); if (!G.caught.includes(sp)) G.caught.push(sp); }
+function badgeCount() { let n = 0; for (let i = 1; i <= 8; i++) if (G.flags['badge' + i]) n++; return n; }
 const SAVE_KEY = 'version-noire-save-v1';
 function saveGame() {
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify({
       px: G.px, py: G.py, dir: G.dir, team: G.team, bag: G.bag,
-      flags: G.flags, stored: G.stored,
+      flags: G.flags, stored: G.stored, money: G.money, heal: G.heal,
+      seen: G.seen, caught: G.caught,
     }));
     return true;
   } catch (e) { return false; }
@@ -799,8 +1709,13 @@ function loadGame() {
     const d = JSON.parse(localStorage.getItem(SAVE_KEY));
     if (!d || !d.team || !d.team.length) return false;
     Object.assign(G, { px: d.px, py: d.py, dir: d.dir, team: d.team,
-      bag: d.bag, flags: d.flags || { pickups: {} }, stored: d.stored || [] });
+      bag: Object.assign({ caps: 5, pot: 3, spot: 0, guer: 0, bonbon: 0 }, d.bag),
+      flags: d.flags || { pickups: {} }, stored: d.stored || [],
+      money: d.money == null ? 600 : d.money,
+      heal: d.heal || { x: 9, y: 53 },
+      seen: d.seen || [], caught: d.caught || [] });
     if (!G.flags.pickups) G.flags.pickups = {};
+    G.team.forEach(m => { if (m.st === undefined) m.st = null; });
     return true;
   } catch (e) { return false; }
 }
@@ -835,6 +1750,7 @@ async function say(text) {
     }, 28);
     while (true) {
       const k = await waitKey();
+      if (!UI.dialog) break;
       if (UI.dialog.shown < chunk.length) { UI.dialog.shown = chunk.length; continue; }
       if (k === 'ok' || k === 'cancel') break;
     }
@@ -884,8 +1800,33 @@ function playerPixelPos() {
   return { x, y };
 }
 
+// thèmes visuels par région : sol, mouchetures, hautes herbes, obstacle
+const THEMES = {
+  grass:  { g:'#8cc66e', gs:'#7cb55e', t1:'#4f9a44', t2:'#3d8136', solid:'tree',  tr:'#256e35', th:'#3a9a4c', path:'#dfc48e', ps:'#c9ad74' },
+  forest: { g:'#6cae5e', gs:'#5c9a4e', t1:'#3a7e36', t2:'#2c632a', solid:'tree',  tr:'#1e5c2c', th:'#2e7a3c', path:'#cdb27e', ps:'#b79c64' },
+  cave:   { g:'#7a7068', gs:'#6a6058', t1:'#5e5448', t2:'#4a4238', solid:'rock',  tr:'#4e463e', th:'#6e645a', path:'#9a8e80', ps:'#867a6c' },
+  gold:   { g:'#c2b860', gs:'#b0a650', t1:'#9a8e3a', t2:'#7e7430', solid:'tree',  tr:'#6e6428', th:'#8e8238', path:'#e0cf96', ps:'#c6b276' },
+  sand:   { g:'#dfc88c', gs:'#cdb678', t1:'#b09a58', t2:'#947e42', solid:'rock',  tr:'#a08858', th:'#c0a878', path:'#efe0ae', ps:'#d3c28e' },
+  snow:   { g:'#e8f0f6', gs:'#d4e2ec', t1:'#a8c4d8', t2:'#88a8c0', solid:'pine',  tr:'#2e5e48', th:'#e8f4fa', path:'#c8d8e4', ps:'#aabccc' },
+  dark:   { g:'#5a546e', gs:'#4c4660', t1:'#3e3856', t2:'#2e2a44', solid:'pillar',tr:'#262238', th:'#4a4464', path:'#7a7290', ps:'#665e7e' },
+  volcano:{ g:'#6e5048', gs:'#5e423a', t1:'#4e362e', t2:'#3e2a24', solid:'rock',  tr:'#3a2c26', th:'#564038', path:'#8e6e5e', ps:'#7a5c4c' },
+};
+function themeAt(x) {
+  if (x < 76) return THEMES.grass;
+  if (x < 112) return THEMES.forest;
+  if (x < 184) return THEMES.cave;
+  if (x < 256) return THEMES.grass;
+  if (x < 292) return THEMES.grass;
+  if (x < 328) return THEMES.gold;
+  if (x < 364) return THEMES.sand;
+  if (x < 400) return THEMES.snow;
+  if (x < 436) return THEMES.dark;
+  if (x < 472) return THEMES.volcano;
+  return THEMES.grass;
+}
+
 function drawTile(t, sx, sy, wx, wy) {
-  // herbe de base sous tout sauf eau/chemin
+  const th = themeAt(wx);
   if (t === '~') {
     ctx.fillStyle = '#3a7ed0'; ctx.fillRect(sx, sy, TILE, TILE);
     ctx.fillStyle = '#5f9fe8';
@@ -894,36 +1835,72 @@ function drawTile(t, sx, sy, wx, wy) {
     ctx.fillRect(sx + 8 - ph, sy + 11, 5, 1);
     return;
   }
+  if (t === 'l') { // lave
+    ctx.fillStyle = '#d83a18'; ctx.fillRect(sx, sy, TILE, TILE);
+    ctx.fillStyle = '#f8782a';
+    const ph = Math.floor(G.animT / 20 + (wx * 3 + wy)) % 4;
+    ctx.fillRect(sx + 1 + ph, sy + 5, 5, 2);
+    ctx.fillRect(sx + 9 - ph, sy + 11, 4, 2);
+    ctx.fillStyle = '#ffd23a';
+    if (thash(wx, wy) > 0.6) ctx.fillRect(sx + 6 + ph, sy + 8, 2, 1);
+    return;
+  }
+  if (t === 'b') { // pont de planches
+    ctx.fillStyle = '#3a7ed0'; ctx.fillRect(sx, sy, TILE, TILE);
+    ctx.fillStyle = '#b08a50'; ctx.fillRect(sx, sy + 1, TILE, 14);
+    ctx.fillStyle = '#8e6c3a';
+    for (const oy of [1, 5, 9, 13]) ctx.fillRect(sx, sy + oy, TILE, 1);
+    ctx.fillStyle = '#c8a060'; ctx.fillRect(sx, sy + 2, TILE, 1);
+    return;
+  }
   if (t === ':') {
-    ctx.fillStyle = '#dfc48e'; ctx.fillRect(sx, sy, TILE, TILE);
-    ctx.fillStyle = '#c9ad74';
+    ctx.fillStyle = th.path; ctx.fillRect(sx, sy, TILE, TILE);
+    ctx.fillStyle = th.ps;
     if (thash(wx, wy) > 0.5) ctx.fillRect(sx + 3, sy + 5, 2, 2);
     if (thash(wx + 7, wy) > 0.5) ctx.fillRect(sx + 10, sy + 10, 2, 2);
     return;
   }
-  // base herbeuse
-  ctx.fillStyle = '#8cc66e'; ctx.fillRect(sx, sy, TILE, TILE);
-  ctx.fillStyle = '#7cb55e';
+  // sol de base du thème
+  ctx.fillStyle = th.g; ctx.fillRect(sx, sy, TILE, TILE);
+  ctx.fillStyle = th.gs;
   if (thash(wx, wy) > 0.55) ctx.fillRect(sx + 4, sy + 3, 2, 1);
   if (thash(wx + 3, wy + 5) > 0.55) ctx.fillRect(sx + 11, sy + 9, 2, 1);
   if (t === '.') return;
 
-  if (t === ';') { // hautes herbes
-    ctx.fillStyle = '#4f9a44';
+  if (t === ';') { // hautes herbes (ou broussailles thématiques)
+    ctx.fillStyle = th.t1;
     for (const ox of [1, 6, 11]) {
       ctx.fillRect(sx + ox, sy + 6, 1, 8); ctx.fillRect(sx + ox + 2, sy + 6, 1, 8);
       ctx.fillRect(sx + ox + 1, sy + 4, 1, 10);
     }
-    ctx.fillStyle = '#3d8136';
+    ctx.fillStyle = th.t2;
     for (const ox of [3, 8, 13]) ctx.fillRect(sx + ox, sy + 9, 1, 5);
     return;
   }
-  if (t === '#') { // arbre
-    ctx.fillStyle = '#6e4a28'; ctx.fillRect(sx + 6, sy + 9, 4, 6);
-    ctx.fillStyle = '#256e35';
-    ctx.fillRect(sx + 2, sy + 2, 12, 9); ctx.fillRect(sx + 1, sy + 4, 14, 5);
-    ctx.fillStyle = '#3a9a4c';
-    ctx.fillRect(sx + 3, sy + 2, 5, 3); ctx.fillRect(sx + 2, sy + 5, 3, 2);
+  if (t === '#') { // obstacle du thème : arbre / rocher / sapin / pilier
+    if (th.solid === 'rock') {
+      ctx.fillStyle = th.tr; ctx.fillRect(sx + 1, sy + 4, 14, 11);
+      ctx.fillRect(sx + 3, sy + 2, 10, 4);
+      ctx.fillStyle = th.th; ctx.fillRect(sx + 3, sy + 3, 5, 3); ctx.fillRect(sx + 2, sy + 6, 3, 3);
+      ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(sx + 2, sy + 12, 12, 3);
+    } else if (th.solid === 'pine') {
+      ctx.fillStyle = '#6e4a28'; ctx.fillRect(sx + 7, sy + 11, 3, 4);
+      ctx.fillStyle = th.tr;
+      ctx.fillRect(sx + 5, sy + 1, 6, 3); ctx.fillRect(sx + 3, sy + 4, 10, 4); ctx.fillRect(sx + 2, sy + 8, 12, 4);
+      ctx.fillStyle = th.th;
+      ctx.fillRect(sx + 4, sy + 4, 8, 1); ctx.fillRect(sx + 3, sy + 8, 10, 1); ctx.fillRect(sx + 5, sy + 1, 6, 1);
+    } else if (th.solid === 'pillar') {
+      ctx.fillStyle = th.tr; ctx.fillRect(sx + 4, sy, 8, 16);
+      ctx.fillStyle = '#161226'; ctx.fillRect(sx + 5, sy + 2, 6, 12);
+      ctx.fillStyle = th.th; ctx.fillRect(sx + 4, sy, 8, 2); ctx.fillRect(sx + 4, sy + 14, 8, 2);
+      ctx.fillStyle = '#8a78c8'; if (thash(wx, wy) > 0.5) ctx.fillRect(sx + 7, sy + 6, 2, 2);
+    } else {
+      ctx.fillStyle = '#6e4a28'; ctx.fillRect(sx + 6, sy + 9, 4, 6);
+      ctx.fillStyle = th.tr;
+      ctx.fillRect(sx + 2, sy + 2, 12, 9); ctx.fillRect(sx + 1, sy + 4, 14, 5);
+      ctx.fillStyle = th.th;
+      ctx.fillRect(sx + 3, sy + 2, 5, 3); ctx.fillRect(sx + 2, sy + 5, 3, 2);
+    }
     return;
   }
   if (t === ',') { // fleurs
@@ -974,6 +1951,18 @@ function drawBuilding(b, camX, camY) {
     ctx.fillStyle = '#3a6ad8';
     ctx.fillRect(ex + 3, ey, 1, 3); ctx.fillRect(ex + 2, ey + 3, 3, 4);
     ctx.fillRect(ex + 1, ey + 5, 5, 2);
+  } else if (b.emblem === 'shop') {
+    ctx.fillStyle = '#fff'; ctx.fillRect(ex - 2, ey - 2, 11, 11);
+    ctx.fillStyle = '#e8a818';
+    ctx.fillRect(ex + 1, ey + 1, 5, 5);
+    ctx.fillStyle = '#b07808'; ctx.fillRect(ex + 2, ey + 2, 3, 3);
+    ctx.fillStyle = '#ffe070'; ctx.fillRect(ex + 2, ey + 1, 1, 1);
+  } else if (b.emblem === 'arena') {
+    ctx.fillStyle = '#2a2a36'; ctx.fillRect(ex - 2, ey - 2, 11, 11);
+    ctx.fillStyle = '#f8d048';
+    ctx.fillRect(ex + 3, ey, 1, 7); ctx.fillRect(ex, ey + 3, 7, 1);
+    ctx.fillRect(ex + 1, ey + 1, 1, 1); ctx.fillRect(ex + 5, ey + 1, 1, 1);
+    ctx.fillRect(ex + 1, ey + 5, 1, 1); ctx.fillRect(ex + 5, ey + 5, 1, 1);
   }
 }
 
@@ -1011,9 +2000,10 @@ function drawWorld() {
       const ex = n.x * TILE - camX, ey = n.y * TILE - camY;
       if (n.dragon) {
         const hov = Math.floor(G.animT / 25) % 2;
-        ctx.fillStyle = 'rgba(20,10,40,0.45)';
+        const ds = SPR[n.dragon] || SPR.noctyran;
+        ctx.fillStyle = n.dragon === 'auryon' ? 'rgba(255,240,180,0.4)' : 'rgba(20,10,40,0.45)';
         ctx.beginPath(); ctx.ellipse(ex + 8, ey + 14, 8, 3, 0, 0, Math.PI * 2); ctx.fill();
-        drawSprite(ctx, SPR.noctyran.mat, SPR.noctyran.pal, ex, ey - 4 - hov, 1, false);
+        drawSprite(ctx, ds.mat, ds.pal, ex, ey - 4 - hov, 1, false);
       } else {
         drawHumanAt(ex, ey, n.dir, n.pal, false);
       }
@@ -1035,7 +2025,7 @@ function drawText(t, x, y, color, font) {
   ctx.fillText(t, x, y);
 }
 function drawBox(x, y, w, h) {
-  ctx.fillStyle = 'rgba(12,12,18,0.94)'; ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#0c0c12'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = '#f2f2f4'; ctx.lineWidth = 1;
   ctx.strokeRect(x + 1.5, y + 1.5, w - 3, h - 3);
   ctx.strokeStyle = '#6a6a78';
@@ -1106,7 +2096,8 @@ function drawTitle() {
   ctx.textAlign = 'center';
   drawText('CRÉATURES', 128, 130, '#9a9aae', 'bold 12px monospace');
   drawText('VERSION NOIRE', 128, 144, '#f2f2f4', 'bold 18px monospace');
-  drawText('Hommage non officiel, fait main', 128, 170, '#6a6a78', '8px monospace');
+  drawText('— Édition Complète : 8 badges, Ligue, 39 créatures —', 128, 168, '#9a9aae', '8px monospace');
+  drawText('Hommage non officiel, fait main', 128, 180, '#6a6a78', '8px monospace');
   if (Math.floor(G.animT / 35) % 2 === 0)
     drawText('— Appuie sur ENTRÉE —', 128, 192, '#f8d048', '10px monospace');
   drawText('Flèches/ZQSD bouger · E parler · Entrée menu · M musique', 128, 212, '#55555f', '7px monospace');
@@ -1144,7 +2135,7 @@ function updateWorld() {
 }
 
 function onStepEnd() {
-  const zn = zoneName(G.py);
+  const zn = zoneAt(G.px, G.py);
   if (zn !== G.zone) { G.zone = zn; toast(zn); }
   // objets au sol
   PICKUPS.forEach((p, i) => {
@@ -1152,19 +2143,22 @@ function onStepEnd() {
       G.flags.pickups[i] = true;
       G.bag[p.item] += p.n;
       SFX.confirm();
-      runScript(async () => {
-        await say('Tu trouves ' + p.n + ' ' + (p.item === 'caps' ? 'Capsule(s)' : 'Potion(s)') + ' !');
-      });
+      const NOMS = { caps: 'Capsule(s)', pot: 'Potion(s)', spot: 'Super Potion(s)', guer: 'Guérison(s)', bonbon: 'Bonbon(s) Rare(s)' };
+      runScript(async () => { await say('Tu trouves ' + p.n + ' ' + NOMS[p.item] + ' !'); });
       return;
     }
   });
   if (busy) return;
-  // dresseurs embusqués
-  if (!G.flags.rivalBeaten && G.py >= 29 && G.py <= 31 && G.px >= 17 && G.px <= 22) { rivalBattle(); return; }
-  if (!G.flags.zoeBeaten && G.py >= 14 && G.py <= 16 && G.px >= 18 && G.px <= 21) { zoeBattle(); return; }
+  // dresseurs embusqués et évènements
+  if (!G.flags.rivalBeaten && G.px >= 17 && G.px <= 22 && G.py >= 29 && G.py <= 31) { rivalBattle(); return; }
+  if (!G.flags.zoeBeaten && G.px >= 18 && G.px <= 21 && G.py >= 14 && G.py <= 16) { zoeBattle(); return; }
+  if (!G.flags.ombreForet && G.px >= 98 && G.px <= 101 && G.py >= 32 && G.py <= 35) { runScript(ombreForetFight); return; }
+  if (!G.flags.rival2 && G.px >= 238 && G.px <= 241 && G.py >= 33 && G.py <= 34) { runScript(rival2Fight); return; }
+  if (!G.flags.ombreVolt && G.px >= 268 && G.px <= 273 && G.py >= 28 && G.py <= 30) { runScript(ombreVoltFight); return; }
+  if (!G.flags.rival3 && G.px >= 450 && G.px <= 453 && G.py >= 33 && G.py <= 34) { runScript(rival3Fight); return; }
   // rencontres dans les hautes herbes
   if (tileAt(G.px, G.py) === ';' && chance(0.12) && G.team.some(m => m.hp > 0)) {
-    const table = encounterTable(G.py);
+    const table = encounterTable(G.px, G.py);
     const total = table.reduce((s, e) => s + e[1], 0);
     let r = Math.random() * total, entry = table[0];
     for (const e of table) { r -= e[1]; if (r <= 0) { entry = e; break; } }
@@ -1193,55 +2187,192 @@ function interact() {
   const b = buildingAt(fx, fy);
   if (b) {
     runScript(async () => {
-      if (b.name === 'CLINIQUE') await say("CLINIQUE DU BOURG — L'infirmière Joline se tient devant l'entrée.");
+      if (b.name === 'CLINIQUE') await say('CLINIQUE — L’infirmière devant l’entrée soigne ton équipe et gère la Boîte PC.');
       else if (b.name === 'LABO') await say('LABORATOIRE du Pr Karoubin — « Parti observer les créatures, parlez-moi dehors ! »');
-      else await say("C'est verrouillé. Les habitants doivent dormir.");
+      else if (b.name === 'BOUTIQUE') await say('BOUTIQUE — Le marchand devant l’entrée vend objets et Capsules.');
+      else if (b.name === 'ARÈNE') await say('ARÈNE OFFICIELLE — Bats son champion (devant l’entrée) pour gagner le badge !');
+      else if (b.name === 'CENTRALE') await say('CENTRALE DE VOLTCITÉ — « Accès réservé. Production : 100 %. »');
+      else if (b.name === 'PANTHÉON') await say('PANTHÉON DE LA LIGUE — Les noms des Champions y sont gravés à jamais.');
+      else await say('C’est verrouillé. Les habitants doivent dormir.');
     });
   }
 }
 
 function npcTalk(n) {
+  if (n.dragon === 'auryon') { auryonBattle(); return; }
   if (n.dragon) { dragonBattle(); return; }
   // le PNJ se tourne vers le joueur
   n.dir = G.dir === 'up' ? 'down' : G.dir === 'down' ? 'up' : G.dir === 'left' ? 'right' : 'left';
   runScript(async () => {
-    if (n.id === 'nurse') {
-      await say('JOLINE : Bonjour ! Je soigne tes créatures, ça ne prend qu’un instant...');
-      SFX.heal();
-      G.team.forEach(m => { m.hp = m.maxhp; });
-      await sleep(600);
-      await say('Et voilà ! Toute ton équipe est en pleine forme. Reviens quand tu veux !');
-      if (G.bag.caps === 0) { G.bag.caps = 3; await say('Tiens, prends aussi 3 Capsules, tu n’en avais plus !'); }
-      saveGame(); toast('Partie sauvegardée');
-    } else if (n.id === 'prof') {
-      if (!G.flags.zoeBeaten) {
-        await say('PR KAROUBIN : Les créatures évoluent vers le niveau 11, ne lâche rien !');
-        await say('Au nord, la dresseuse Zoé garde le Lac Onyx. Montre-lui ce que tu vaux !');
-      } else if (!G.flags.dragonDone) {
-        await say('PR KAROUBIN : Tu as battu Zoé ?! Alors la rumeur est vraie...');
-        await say("Une OMBRE est apparue sur la rive nord du lac. Affaiblis-la avant de lancer tes Capsules !");
+    if (n.nurse || n.id === 'nurse') { await nurseTalk(); return; }
+    if (n.shop) { await shopMenu(); return; }
+    if (n.guard) {
+      await say('GARDE : Halte ! Seuls les porteurs de ' + n.guard.need + ' badge(s) passent ici.');
+      await say('GARDE : Il te manque le Badge ' + n.guard.badge + '. L’arène la plus proche est à l’ouest.');
+      return;
+    }
+    if (n.champion) { await championFight(); return; }
+    if (n.trainer) { await trainerFight(n); return; }
+    if (n.id === 'prof') {
+      if (G.flags.champion && G.flags.dragonDone && G.flags.auryonDone) {
+        await say('PR KAROUBIN : Champion, les DEUX légendes à tes côtés... Tu es l’étoffe des Maîtres de région. Mon carnet est comblé !');
+      } else if (G.flags.champion) {
+        await say('PR KAROUBIN : CHAMPION ! Tout le bourg parle de toi !');
+        await say('PR KAROUBIN : Écoute... le sceau du Lac Onyx faiblit, et une lumière plane sur le Mont Givre. Les DEUX légendes t’attendent.');
+      } else if (badgeCount() === 0) {
+        await say('PR KAROUBIN : Huit arènes jalonnent la région, jusqu’à la Ligue tout à l’est. La première est à VILLEFLORE, passé la Route 1 !');
+        await say('PR KAROUBIN : Les créatures évoluent avec les niveaux. Capture, entraîne, et reviens me voir en Champion !');
       } else {
-        await say('PR KAROUBIN : Noctyran t’a choisi... Incroyable. Tu as fini la démo, bravo !');
+        await say('PR KAROUBIN : ' + badgeCount() + ' badge(s) déjà ! La Ligue est au bout de la grande route, à l’est.');
+        await say('PR KAROUBIN : Méfie-toi de l’ÉQUIPE OMBRE : ils cherchent à briser le sceau du Lac Onyx...');
       }
     } else if (n.id === 'villager') {
-      await say('HABITANT : Feu > Plante > Eau > Feu... Connaître les types, c’est gagner !');
-      await say('Et pour capturer : affaiblis la créature, PUIS lance une Capsule !');
+      await say('HABITANT : Feu > Plante > Eau > Feu... et le Sol stoppe l’Électrik ! Connaître les types, c’est gagner.');
+      await say('HABITANT : Les boutiques vendent des Capsules, des Potions... et même des Bonbons Rares, paraît-il !');
     } else if (n.id === 'rival') {
-      if (G.flags.rivalBeaten) await say('LÉO : Pff, je t’ai laissé gagner ! La prochaine fois, entraîne-toi au lac.');
+      if (G.flags.rivalBeaten) await say('LÉO : Pff, je t’ai laissé gagner ! On se retrouve sur le GRAND PONT, à l’est !');
       else { await rivalFight(); }
     } else if (n.id === 'zoe') {
-      if (G.flags.zoeBeaten) await say('ZOÉ : Le lac est à toi. Mais méfie-toi de la rive nord...');
-      else { await zoeFight(); }
+      await zoeTalk();
     }
   });
 }
 
+async function nurseTalk() {
+  while (true) {
+    const c = await menu(['SOIGNER', 'BOÎTE PC', 'RETOUR'], { title: 'CLINIQUE' });
+    if (c === 0) {
+      await say('INFIRMIÈRE : Je m’occupe de ton équipe, un instant...');
+      SFX.heal();
+      G.team.forEach(m => { m.hp = m.maxhp; m.st = null; });
+      await sleep(600);
+      G.heal = { x: G.px, y: G.py };
+      await say('Et voilà ! Toute ton équipe est en pleine forme.');
+      if (G.bag.caps === 0) { G.bag.caps = 3; await say('Tiens, prends aussi 3 Capsules, tu n’en avais plus !'); }
+      saveGame(); toast('Partie sauvegardée');
+    } else if (c === 1) await pcMenu();
+    else break;
+  }
+}
+
+async function pcMenu() {
+  while (true) {
+    const c = await menu(['RETIRER (' + G.stored.length + ' en boîte)', 'DÉPOSER', 'RETOUR'], { title: 'BOÎTE PC' });
+    if (c === 0) {
+      if (!G.stored.length) { await say('La boîte est vide.'); continue; }
+      if (G.team.length >= 6) { await say('Ton équipe est pleine ! Dépose d’abord quelqu’un.'); continue; }
+      const labels = G.stored.map(m => monName(m) + ' N.' + m.level).concat(['ANNULER']);
+      const i = await menu(labels, { x: 4, y: 4, title: 'Retirer qui ?' });
+      if (i >= 0 && i < G.stored.length) {
+        const m = G.stored.splice(i, 1)[0];
+        G.team.push(m); SFX.confirm();
+        await say(monName(m) + ' rejoint l’équipe !');
+      }
+    } else if (c === 1) {
+      if (G.team.length <= 1) { await say('Tu dois garder au moins une créature !'); continue; }
+      const labels = G.team.map(monLabel).concat(['ANNULER']);
+      const i = await menu(labels, { x: 4, y: 4, title: 'Déposer qui ?' });
+      if (i >= 0 && i < G.team.length) {
+        const m = G.team.splice(i, 1)[0];
+        G.stored.push(m); SFX.confirm();
+        await say(monName(m) + ' est envoyé dans la boîte PC.');
+      }
+    } else break;
+  }
+}
+
+const SHOP_STOCK = [['caps','Capsule',200],['pot','Potion',250],['spot','Super Potion',600],['guer','Guérison',350],['bonbon','Bonbon Rare',4000]];
+async function shopMenu() {
+  await say('MARCHAND : Bienvenue ! Regarde mes merveilles.');
+  while (true) {
+    const opts = SHOP_STOCK.map(([k, nm, p]) => nm + ' — ' + p + ' ₽ (x' + G.bag[k] + ')').concat(['PARTIR']);
+    const c = await menu(opts, { title: 'BOUTIQUE — ₽ ' + G.money, x: 4, y: 4 });
+    if (c < 0 || c === SHOP_STOCK.length) break;
+    const [k, nm, p] = SHOP_STOCK[c];
+    if (G.money < p) { await say('MARCHAND : Hé, il te manque des sous !'); continue; }
+    G.money -= p; G.bag[k]++; SFX.confirm();
+  }
+  await say('MARCHAND : Merci, reviens quand tu veux !');
+  saveGame();
+}
+
+async function trainerFight(n) {
+  const t = n.trainer;
+  if (G.flags[t.flag]) { if (t.after) await say(t.after); return; }
+  if (t.intro) await say(t.intro);
+  const team = t.team.map(([sp, lv]) => makeMon(sp, lv));
+  const won = await battle(null, { name: t.name, team, winMsg: t.win, loseMsg: t.lose, prize: t.prize });
+  if (won) {
+    G.flags[t.flag] = true;
+    if (n.badge) {
+      G.flags['badge' + n.badge] = true;
+      SFX.catchOk();
+      await say('★ Tu obtiens le BADGE ' + n.badgeName + ' (' + badgeCount() + '/8) ! ★');
+      if (badgeCount() === 8) await say('Les 8 badges !! La ROUTE VICTOIRE et la Ligue te sont ouvertes... et le sceau du Lac Onyx frémit.');
+    }
+    saveGame();
+  }
+}
+
+async function championFight() {
+  const starter = G.flags.starter || 'pyrouf';
+  const counterEvo = { pyrouf: 'loutrazur', aquanou: 'vipelia', verdylis: 'pyrenard' }[starter] || 'loutrazur';
+  if (!G.flags.champion) {
+    await say('LÉO : ... Te voilà enfin. Depuis le Bourg Sépia, je savais qu’on se retrouverait ici.');
+    await say('LÉO : Je suis devenu CHAMPION pour t’attendre au sommet. Donne-moi tout !');
+  } else {
+    await say('LÉO : Le trône te va bien. Un match pour l’honneur ?');
+  }
+  const team = [makeMon('aigleroc', 47), makeMon('tigrevolt', 47), makeMon('golemoss', 48),
+                makeMon('fantomare', 48), makeMon('givrelou', 49), makeMon(counterEvo, 50)];
+  const won = await battle(null, { name: 'CHAMPION LÉO', team, prize: 10000,
+    winMsg: 'LÉO : ... C’est toi. Ça a toujours été toi. Félicitations, CHAMPION.',
+    loseMsg: 'LÉO : Le sommet se mérite ! Reviens plus fort.' });
+  if (won && !G.flags.champion) {
+    G.flags.champion = true;
+    await say('★ ★ ★  TU ES LE NOUVEAU CHAMPION DE LA RÉGION  ★ ★ ★');
+    await say('Ton nom est gravé au Panthéon, aux côtés de ' + G.team.map(monName).join(', ') + '.');
+    await say('VERSION NOIRE — un hommage fait main. Merci d’avoir joué !');
+    await say('LÉO : Au fait... le Pr Karoubin te cherche. Une histoire de LÉGENDES qui s’éveillent. File au bourg !');
+    G.team.forEach(m => { m.hp = m.maxhp; m.st = null; });
+    G.px = 25; G.py = 53; G.dir = 'down'; G.moving = null;
+    G.heal = { x: 9, y: 53 };
+    setTrack('world');
+    saveGame();
+  } else if (won) saveGame();
+}
+
+async function zoeTalk() {
+  if (G.flags.zoeBeaten) { await say('ZOÉ : Le lac est à toi... mais la rive nord garde son ombre.'); return; }
+  if (badgeCount() < 8) {
+    await say('ZOÉ : Halte ! Le Lac Onyx est scellé. Une OMBRE ancienne y sommeille.');
+    await say('ZOÉ : Reviens avec les 8 BADGES de la région, et je m’écarterai.');
+    if (G.py <= 16) { G.py = 17; G.moving = null; }   // elle te raccompagne hors du lac
+    return;
+  }
+  await say('ZOÉ : Les 8 badges... Alors c’est toi que le lac attendait.');
+  await say('ZOÉ : Une dernière épreuve : moi. EN GARDE !');
+  const won = await battle(null, { name: 'GARDIENNE ZOÉ', team: [makeMon('tigrevolt', 44), makeMon('crapotaure', 45)], prize: 6000,
+    winMsg: 'ZOÉ : Magnifique... Le sceau est levé. Prends ces 5 Capsules — l’OMBRE t’attend sur la rive nord.',
+    loseMsg: 'ZOÉ : Le lac reste scellé !' });
+  if (won) {
+    G.flags.zoeBeaten = true; G.bag.caps += 5; saveGame();
+    await say('Au loin, un CRI déchirant résonne depuis la rive nord du lac...');
+  }
+}
+
 function rivalBattle() { runScript(async () => { await rivalFight(); }); }
-function zoeBattle()   { runScript(async () => { await zoeFight(); }); }
+function zoeBattle() { runScript(zoeTalk); }
 function dragonBattle() {
   runScript(async () => {
-    await say('L’ombre se dresse devant toi... Ses yeux rouges te transpercent !');
-    await battle(makeMon('noctyran', 15), null, { legendary: true });
+    await say('L’ombre du lac se dresse devant toi... Ses yeux rouges te transpercent !');
+    await battle(makeMon('noctyran', 50), null, { legendary: true });
+  });
+}
+function auryonBattle() {
+  runScript(async () => {
+    await say('Une lumière aveuglante descend du ciel... AURYON, la légende du givre !');
+    const won = await battle(makeMon('auryon', 50), null, { legendary: true, auryon: true });
   });
 }
 
@@ -1250,20 +2381,53 @@ async function rivalFight() {
   await say('LÉO : Alors voyons laquelle de nos équipes est la plus forte !');
   const counter = { pyrouf: 'aquanou', pyrenard: 'aquanou', aquanou: 'verdylis', loutrazur: 'verdylis', verdylis: 'pyrouf', vipelia: 'pyrouf' };
   const sp = counter[G.team[0].sp] || 'mulotin';
-  const won = await battle(null, { name: 'LÉO', team: [makeMon(sp, 6)], pal: PAL_RIVAL,
-    winMsg: 'LÉO : Quoi ?! Bon... t’es pas si nul. Tiens, 3 Capsules, et file vers le lac !',
+  const won = await battle(null, { name: 'LÉO', team: [makeMon(sp, 6)], prize: 500,
+    winMsg: 'LÉO : Quoi ?! Bon... t’es pas si nul. Tiens, 3 Capsules. L’arène de VILLEFLORE est à l’est, première arrivée !',
     loseMsg: 'LÉO : Ha ! Retourne t’entraîner dans les herbes !' });
   if (won) { G.flags.rivalBeaten = true; G.bag.caps += 3; saveGame(); }
 }
-async function zoeFight() {
-  await say('ZOÉ : Halte ! Le Lac Onyx est sous ma protection.');
-  await say('ZOÉ : Seuls les dresseurs aguerris passent. En garde !');
-  const won = await battle(null, { name: 'ZOÉ', team: [makeMon('voltichat', 9), makeMon('grenouilla', 10)], pal: PAL_ZOE,
-    winMsg: 'ZOÉ : Magnifique...! Prends ces 5 Capsules et 2 Potions. Le lac est à toi.',
-    loseMsg: 'ZOÉ : Reviens quand ton équipe sera prête !' });
+async function rival2Fight() {
+  await say('LÉO : Pile à l’heure ! Le GRAND PONT, deux rivaux, zéro échappatoire.');
+  const starter = G.flags.starter || G.team[0].sp;
+  const cEvo = { pyrouf: 'loutrazur', aquanou: 'vipelia', verdylis: 'pyrenard' }[starter] || 'loutrazur';
+  const won = await battle(null, { name: 'LÉO', team: [makeMon('aigleroc', 19), makeMon(cEvo, 21)], prize: 1500,
+    winMsg: 'LÉO : Encore toi... Très bien ! Rendez-vous au VOLCAN, et ne traîne pas !',
+    loseMsg: 'LÉO : Le pont est à moi ! Reviens quand tu seras prêt.' });
+  if (won) { G.flags.rival2 = true; saveGame(); }
+}
+async function rival3Fight() {
+  await say('LÉO : Le volcan gronde... comme mon envie de te battre une bonne fois !');
+  await say('LÉO : Après ça, je file à la LIGUE. Le premier au sommet a gagné !');
+  const starter = G.flags.starter || G.team[0].sp;
+  const cEvo = { pyrouf: 'loutrazur', aquanou: 'vipelia', verdylis: 'pyrenard' }[starter] || 'loutrazur';
+  const won = await battle(null, { name: 'LÉO', team: [makeMon('aigleroc', 34), makeMon('vampiryx', 34), makeMon(cEvo, 36)], prize: 3000,
+    winMsg: 'LÉO : ... À la Ligue, je ne retiendrai aucun coup. Sois à la hauteur !',
+    loseMsg: 'LÉO : HAHA ! Le sommet sera à moi !' });
+  if (won) { G.flags.rival3 = true; saveGame(); }
+}
+async function ombreForetFight() {
+  await say('??? : Stop. Cette forêt appartient à l’ÉQUIPE OMBRE.');
+  await say('SBIRE OMBRE : Nos chefs cherchent l’OMBRE LÉGENDAIRE du Lac Onyx. Toi, tu n’as rien vu.');
+  const won = await battle(null, { name: 'SBIRE OMBRE', team: [makeMon('chauvenuit', 11), makeMon('spectrelle', 12)], prize: 400,
+    winMsg: 'SBIRE OMBRE : Aïe ! Les chefs vont m’entendre... Retiens bien : l’OMBRE se réveillera !',
+    loseMsg: 'SBIRE OMBRE : Et que je ne te revoie plus !' });
+  if (won) { G.flags.ombreForet = true; saveGame(); }
+}
+async function ombreVoltFight() {
+  await say('SBIRE OMBRE A : Hé ! On siphonne la CENTRALE tranquille, dégage !');
+  let won = await battle(null, { name: 'SBIRE OMBRE A', team: [makeMon('voltichat', 24), makeMon('chauvenuit', 24)], prize: 700,
+    winMsg: 'SBIRE OMBRE A : Argh ! B... à toi !', loseMsg: 'SBIRE OMBRE A : Ha ! File !' });
+  if (!won) return;
+  await say('SBIRE OMBRE B : Tu vas regretter ça !');
+  won = await battle(null, { name: 'SBIRE OMBRE B', team: [makeMon('spectrelle', 25), makeMon('ratagriffe', 25)], prize: 700,
+    winMsg: 'SBIRE OMBRE B : Repli ! L’énergie volée suffira pour la TOUR SOMBRE...',
+    loseMsg: 'SBIRE OMBRE B : L’OMBRE vaincra !' });
   if (won) {
-    G.flags.zoeBeaten = true; G.bag.caps += 5; G.bag.pot += 2; saveGame();
-    await say('Au loin, un CRI déchirant résonne depuis la rive nord du lac...');
+    G.flags.ombreVolt = true;
+    G.bag.guer += 2;
+    await say('Les sbires détalent vers l’est. Tu récupères 2 Guérisons dans leur sac abandonné.');
+    await say('VOLTA sort de l’arène : « Beau travail ! Ils parlaient d’une TOUR SOMBRE, après les plaines... »');
+    saveGame();
   }
 }
 
@@ -1271,18 +2435,80 @@ async function zoeFight() {
 function pauseMenu() {
   runScript(async () => {
     while (true) {
-      const c = await menu(['ÉQUIPE', 'SAC', 'SAUVER', 'FERMER'], { title: 'MENU' });
+      const c = await menu(['ÉQUIPE', 'SAC', 'CARNET', 'BADGES', 'SAUVER', 'FERMER'],
+        { title: 'MENU — ₽ ' + G.money });
       if (c === 0) await teamMenu(false);
       else if (c === 1) await bagMenuWorld();
-      else if (c === 2) { saveGame(); toast('Partie sauvegardée !'); SFX.confirm(); break; }
+      else if (c === 2) await dexMenu();
+      else if (c === 3) {
+        const noms = ['SÈVE', 'ROC', 'VAGUE', 'VOLT', 'DUNE', 'FLOCON', 'SPECTRE', 'MAGMA'];
+        const list = noms.map((nm, i) => (G.flags['badge' + (i + 1)] ? '★ ' : '· ') + nm).join('\n');
+        await say('BADGES (' + badgeCount() + '/8)\n' + noms.map((nm, i) => (G.flags['badge' + (i + 1)] ? '★' + nm : '·' + nm)).join('  '));
+      }
+      else if (c === 4) { saveGame(); toast('Partie sauvegardée !'); SFX.confirm(); break; }
       else break;
     }
   });
 }
 
+// carnet des créatures, paginé
+async function dexMenu() {
+  const ids = Object.keys(SPECIES);
+  let page = 0;
+  const PAGE = 10;
+  while (true) {
+    const slice = ids.slice(page * PAGE, (page + 1) * PAGE);
+    const opts = slice.map((id, i) => {
+      const num = String(page * PAGE + i + 1).padStart(2, '0');
+      if (G.caught.includes(id)) return num + ' ' + SPECIES[id].name + ' ●';
+      if (G.seen.includes(id)) return num + ' ' + SPECIES[id].name;
+      return num + ' ???';
+    });
+    opts.push('PAGE SUIVANTE', 'RETOUR');
+    const title = 'CARNET — vus ' + G.seen.length + ' · capturés ' + G.caught.length + ' / ' + ids.length;
+    const c = await menu(opts, { x: 4, y: 4, title });
+    if (c < 0 || c === opts.length - 1) break;
+    if (c === opts.length - 2) { page = (page + 1) % Math.ceil(ids.length / PAGE); continue; }
+    const id = slice[c];
+    if (G.seen.includes(id)) {
+      const sp = SPECIES[id];
+      await say(sp.name + ' — [' + sp.types.join('/') + ']' +
+        (G.caught.includes(id) ? '  (capturé)' : '  (aperçu)') +
+        (sp.evolveAt ? '\nÉvolue au niveau ' + sp.evolveAt + '.' : ''));
+    }
+  }
+}
+
 function monLabel(m) {
   const dead = m.hp <= 0 ? '✗ ' : '';
-  return dead + monName(m) + ' N.' + m.level + '  ' + m.hp + '/' + m.maxhp + ' PV';
+  const st = m.st ? ' [' + ST_NAMES[m.st] + ']' : '';
+  return dead + monName(m) + ' N.' + m.level + '  ' + m.hp + '/' + m.maxhp + ' PV' + st;
+}
+
+// soin générique par objet ; renvoie true si consommé
+async function useHealItem(m, kind) {
+  if (kind === 'pot' || kind === 'spot') {
+    const amount = kind === 'pot' ? 25 : 60;
+    if (m.hp <= 0) { await say('K.O. ! Seule la clinique peut le ranimer.'); return false; }
+    if (m.hp >= m.maxhp) { await say(monName(m) + ' a déjà tous ses PV.'); return false; }
+    G.bag[kind]--; m.hp = Math.min(m.maxhp, m.hp + amount); SFX.heal();
+    await say(monName(m) + ' récupère ' + amount + ' PV !');
+    return true;
+  }
+  if (kind === 'guer') {
+    if (!m.st) { await say(monName(m) + ' n’a aucun problème de statut.'); return false; }
+    G.bag.guer--; SFX.heal();
+    await say(monName(m) + ' est guéri de son ' + (m.st === 'psn' ? 'empoisonnement' : m.st === 'brn' ? 'sa brûlure' : 'sa paralysie') + ' !');
+    m.st = null;
+    return true;
+  }
+  if (kind === 'bonbon') {
+    if (m.level >= LEVEL_CAP) { await say(monName(m) + ' est déjà au niveau maximum.'); return false; }
+    G.bag.bonbon--; m.xp = xpTotalFor(m.level + 1);
+    await levelUpOnce(m);
+    return true;
+  }
+  return false;
 }
 
 // inBattle : true => sélection pour échange (renvoie l'indice ou -1)
@@ -1296,9 +2522,7 @@ async function teamMenu(inBattle) {
     const a = await menu(['SOIGNER (Potion x' + G.bag.pot + ')', 'METTRE EN TÊTE', 'INFOS', 'RETOUR'], { title: monName(m) });
     if (a === 0) {
       if (G.bag.pot <= 0) await say('Tu n’as plus de Potions !');
-      else if (m.hp <= 0) await say('K.O. ! Seule la clinique peut le ranimer.');
-      else if (m.hp >= m.maxhp) await say(monName(m) + ' a déjà tous ses PV.');
-      else { G.bag.pot--; m.hp = Math.min(m.maxhp, m.hp + 25); SFX.heal(); await say(monName(m) + ' récupère 25 PV !'); }
+      else await useHealItem(m, 'pot');
     } else if (a === 1) {
       if (c === 0) await say(monName(m) + ' est déjà en tête.');
       else { G.team.splice(c, 1); G.team.unshift(m); SFX.confirm(); await say(monName(m) + ' passe en première position !'); }
@@ -1312,18 +2536,16 @@ async function teamMenu(inBattle) {
 
 async function bagMenuWorld() {
   while (true) {
-    const c = await menu(['Capsules x' + G.bag.caps, 'Potions x' + G.bag.pot, 'RETOUR'], { title: 'SAC' });
+    const c = await menu(
+      ['Capsules x' + G.bag.caps, 'Potions x' + G.bag.pot, 'Super Pot. x' + G.bag.spot,
+       'Guérisons x' + G.bag.guer, 'Bonbons R. x' + G.bag.bonbon, 'RETOUR'], { title: 'SAC — ₽ ' + G.money });
     if (c === 0) await say('CAPSULE — Se lance en combat sur une créature sauvage affaiblie pour la capturer.');
-    else if (c === 1) {
-      if (G.bag.pot <= 0) { await say('Tu n’as plus de Potions !'); continue; }
+    else if (c >= 1 && c <= 4) {
+      const kind = ['pot', 'spot', 'guer', 'bonbon'][c - 1];
+      if (G.bag[kind] <= 0) { await say('Tu n’en as plus !'); continue; }
       const labels = G.team.map(monLabel).concat(['ANNULER']);
-      const t = await menu(labels, { title: 'Soigner qui ?', x: 4, y: 4 });
-      if (t >= 0 && t < G.team.length) {
-        const m = G.team[t];
-        if (m.hp <= 0) await say('K.O. ! Seule la clinique peut le ranimer.');
-        else if (m.hp >= m.maxhp) await say(monName(m) + ' a déjà tous ses PV.');
-        else { G.bag.pot--; m.hp = Math.min(m.maxhp, m.hp + 25); SFX.heal(); await say(monName(m) + ' récupère 25 PV !'); }
-      }
+      const t = await menu(labels, { title: 'Sur qui ?', x: 4, y: 4 });
+      if (t >= 0 && t < G.team.length) await useHealItem(G.team[t], kind);
     } else break;
   }
 }
@@ -1335,8 +2557,13 @@ let B = null;
 function bAlly() { return G.team[B.allyIdx]; }
 function setPrompt(t) { UI.dialog = { text: t, shown: t.length, more: false }; }
 
+const ST_IMMUNE = { brn: 'Feu', par: 'Électrik', psn: 'Plante' };
 async function execMove(att, def, mvId, attIsAlly) {
   const mv = MOVES[mvId];
+  if (att.st === 'par' && chance(0.25)) {
+    await say(monName(att) + ' est paralysé ! Il ne peut pas attaquer !');
+    return false;
+  }
   await say(monName(att) + ' utilise ' + mv.name + ' !');
   if (attIsAlly) B.offAlly = 7; else B.offFoe = 7;
   await sleep(130);
@@ -1346,7 +2573,8 @@ async function execMove(att, def, mvId, attIsAlly) {
   if (tm === 0) { await say('Ça n’affecte pas ' + monName(def) + '...'); return false; }
   const crit = chance(1 / 16);
   const stab = SPECIES[att.sp].types.includes(mv.type) ? 1.5 : 1;
-  let dmg = (((2 * att.level / 5 + 2) * mv.pow * att.atk / Math.max(1, def.def)) / 50 + 2);
+  const atkEff = att.atk * (att.st === 'brn' ? 0.5 : 1);
+  let dmg = (((2 * att.level / 5 + 2) * mv.pow * atkEff / Math.max(1, def.def)) / 50 + 2);
   dmg = Math.max(1, Math.floor(dmg * stab * tm * (crit ? 1.5 : 1) * (0.85 + Math.random() * 0.15)));
   SFX.hit();
   if (attIsAlly) B.flashFoe = 10; else B.flashAlly = 10;
@@ -1354,7 +2582,31 @@ async function execMove(att, def, mvId, attIsAlly) {
   if (crit) await say('Coup critique !');
   if (tm >= 2) await say('C’est super efficace !');
   else if (tm < 1) await say('Ce n’est pas très efficace...');
+  if (mv.drain && dmg > 0 && att.hp > 0) {
+    const heal = Math.max(1, Math.floor(dmg / 2));
+    await animHP(att, Math.min(att.maxhp, att.hp + heal));
+    await say(monName(att) + ' draine de l’énergie !');
+  }
+  if (mv.st && def.hp > 0 && !def.st && chance(mv.st.p)
+      && !SPECIES[def.sp].types.includes(ST_IMMUNE[mv.st.k])) {
+    def.st = mv.st.k;
+    const lib = { psn: 'est empoisonné !', brn: 'est brûlé !', par: 'est paralysé !' };
+    await say(monName(def) + ' ' + lib[def.st]);
+  }
   return def.hp <= 0;
+}
+
+// dégâts de fin de tour (poison, brûlure) ; renvoie un résultat de combat ou null
+async function endTurnTicks() {
+  for (const [m, isAlly] of [[bAlly(), true], [B.foe, false]]) {
+    if (m.hp <= 0 || (m.st !== 'psn' && m.st !== 'brn')) continue;
+    const dmg = Math.max(1, Math.floor(m.maxhp / 12));
+    await say(monName(m) + (m.st === 'psn' ? ' souffre du poison !' : ' souffre de sa brûlure !'));
+    SFX.faible();
+    await animHP(m, Math.max(0, m.hp - dmg));
+    if (m.hp <= 0) return await handleFaint(m, isAlly);
+  }
+  return null;
 }
 
 async function animHP(m, target) {
@@ -1365,39 +2617,42 @@ async function animHP(m, target) {
   await sleep(120);
 }
 
-async function gainXP(mon, foe) {
-  const amt = Math.max(1, Math.floor(SPECIES[foe.sp].exp * foe.level / 7 * (B.trainer ? 1.5 : 1)));
-  await say(monName(mon) + ' gagne ' + amt + ' points d’XP !');
-  mon.xp += amt;
-  while (mon.level < 30 && mon.xp >= xpTotalFor(mon.level + 1)) {
-    mon.level++;
-    const oldMax = mon.maxhp;
-    recalcStats(mon);
-    mon.hp = Math.min(mon.maxhp, mon.hp + (mon.maxhp - oldMax));
-    SFX.levelup();
-    await say(monName(mon) + ' passe au niveau ' + mon.level + ' !');
-    for (const [lv, mv] of SPECIES[mon.sp].learn) {
-      if (lv === mon.level && !mon.moves.includes(mv)) {
-        if (mon.moves.length < 4) { mon.moves.push(mv); await say(monName(mon) + ' apprend ' + MOVES[mv].name + ' !'); }
-        else {
-          const old = mon.moves.shift(); mon.moves.push(mv);
-          await say(monName(mon) + ' oublie ' + MOVES[old].name + ' et apprend ' + MOVES[mv].name + ' !');
-        }
+const LEVEL_CAP = 60;
+async function levelUpOnce(mon) {
+  mon.level++;
+  const oldMax = mon.maxhp;
+  recalcStats(mon);
+  mon.hp = Math.min(mon.maxhp, mon.hp + (mon.maxhp - oldMax));
+  SFX.levelup();
+  await say(monName(mon) + ' passe au niveau ' + mon.level + ' !');
+  for (const [lv, mv] of SPECIES[mon.sp].learn) {
+    if (lv === mon.level && !mon.moves.includes(mv)) {
+      if (mon.moves.length < 4) { mon.moves.push(mv); await say(monName(mon) + ' apprend ' + MOVES[mv].name + ' !'); }
+      else {
+        const old = mon.moves.shift(); mon.moves.push(mv);
+        await say(monName(mon) + ' oublie ' + MOVES[old].name + ' et apprend ' + MOVES[mv].name + ' !');
       }
     }
-    const sp = SPECIES[mon.sp];
-    if (sp.evolveAt && mon.level >= sp.evolveAt) {
-      await say('Quoi ?! ' + monName(mon) + ' frémit d’une lueur étrange...');
-      for (let i = 0; i < 8; i++) { B.flashAlly = 3; await sleep(90); }
-      const oldName = monName(mon);
-      mon.sp = sp.evolveTo;
-      const om = mon.maxhp;
-      recalcStats(mon);
-      mon.hp = Math.min(mon.maxhp, mon.hp + (mon.maxhp - om));
-      SFX.catchOk();
-      await say('Félicitations ! ' + oldName + ' évolue en ' + monName(mon) + ' !');
-    }
   }
+  const sp = SPECIES[mon.sp];
+  if (sp.evolveAt && mon.level >= sp.evolveAt) {
+    await say('Quoi ?! ' + monName(mon) + ' frémit d’une lueur étrange...');
+    if (B) for (let i = 0; i < 8; i++) { B.flashAlly = 3; await sleep(90); }
+    const oldName = monName(mon);
+    mon.sp = sp.evolveTo;
+    markCaught(mon.sp);
+    const om = mon.maxhp;
+    recalcStats(mon);
+    mon.hp = Math.min(mon.maxhp, mon.hp + (mon.maxhp - om));
+    SFX.catchOk();
+    await say('Félicitations ! ' + oldName + ' évolue en ' + monName(mon) + ' !');
+  }
+}
+async function gainXP(mon, foe) {
+  const amt = Math.max(1, Math.floor(SPECIES[foe.sp].exp * foe.level / 7 * (B.trainer ? 2 : 1)));
+  await say(monName(mon) + ' gagne ' + amt + ' points d’XP !');
+  mon.xp += amt;
+  while (mon.level < LEVEL_CAP && mon.xp >= xpTotalFor(mon.level + 1)) await levelUpOnce(mon);
 }
 
 async function handleFaint(mon, isAllySide) {
@@ -1430,7 +2685,8 @@ async function bothMoves(allyMv) {
   const a = bAlly(), f = B.foe;
   const fMv = pick(f.moves);
   const ap = MOVES[allyMv].prio || 0, fp = MOVES[fMv].prio || 0;
-  const allyFirst = ap !== fp ? ap > fp : (a.spe === f.spe ? chance(0.5) : a.spe > f.spe);
+  const aSpe = a.spe * (a.st === 'par' ? 0.5 : 1), fSpe = f.spe * (f.st === 'par' ? 0.5 : 1);
+  const allyFirst = ap !== fp ? ap > fp : (aSpe === fSpe ? chance(0.5) : aSpe > fSpe);
   const seq = allyFirst
     ? [[a, f, allyMv, true], [f, a, fMv, false]]
     : [[f, a, fMv, false], [a, f, allyMv, true]];
@@ -1480,7 +2736,8 @@ async function tryCapture() {
   }
   SFX.catchOk();
   await say('Et hop ! ' + monName(f) + ' a été capturé !');
-  if (B.legendary) G.flags.dragonDone = true;
+  markCaught(f.sp);
+  if (B.legendary) { if (B.auryon) G.flags.auryonDone = true; else G.flags.dragonDone = true; }
   if (G.team.length < 6) { G.team.push(f); await say(monName(f) + ' rejoint ton équipe !'); }
   else { G.stored.push(f); await say('Ton équipe est pleine : ' + monName(f) + ' est envoyé au labo du Pr Karoubin.'); }
   saveGame();
@@ -1498,10 +2755,13 @@ async function chooseAction() {
       const mc = await menu(mvs, { x: 4, y: SCR_H - 52 - mvs.length * 13 - 14, title: 'ATTAQUES' });
       if (mc >= 0) return { kind: 'move', mv: bAlly().moves[mc] };
     } else if (c === 1) {
-      const bc = await menu(['Capsule x' + G.bag.caps, 'Potion x' + G.bag.pot, 'RETOUR'],
-        { x: 4, y: SCR_H - 52 - 3 * 13 - 14, title: 'SAC' });
+      const bc = await menu(
+        ['Capsule x' + G.bag.caps, 'Potion x' + G.bag.pot, 'Super Pot. x' + G.bag.spot, 'Guérison x' + G.bag.guer, 'RETOUR'],
+        { x: 4, y: SCR_H - 52 - 5 * 13 - 14, title: 'SAC' });
       if (bc === 0) return { kind: 'caps' };
       if (bc === 1) return { kind: 'pot' };
+      if (bc === 2) return { kind: 'spot' };
+      if (bc === 3) return { kind: 'guer' };
     } else if (c === 2) {
       const t = await teamMenu(true);
       if (t >= 0) {
@@ -1524,11 +2784,12 @@ async function battle(wild, trainer, opts) {
     allyIdx: Math.max(0, G.team.findIndex(m => m.hp > 0)),
     intro: 26, ball: null, hideFoe: false, foeDown: false,
     offFoe: 0, offAlly: 0, flashFoe: 0, flashAlly: 0,
-    legendary: !!opts.legendary,
+    legendary: !!opts.legendary, auryon: !!opts.auryon,
   };
   B.foe = B.foes[0];
+  B.foes.forEach(f => markSeen(f.sp));
   if (trainer) { await say(trainer.name + ' veut se battre !'); await say(trainer.name + ' envoie ' + monName(B.foe) + ' !'); }
-  else if (B.legendary) await say('NOCTYRAN, l’ombre du Lac Onyx, fond sur toi !');
+  else if (B.legendary) await say(B.auryon ? 'AURYON, la lumière du Mont Givre, fond sur toi !' : 'NOCTYRAN, l’ombre du Lac Onyx, fond sur toi !');
   else await say('Un ' + monName(B.foe) + ' sauvage apparaît !');
   await say('À toi, ' + monName(bAlly()) + ' !');
 
@@ -1536,18 +2797,25 @@ async function battle(wild, trainer, opts) {
   while (!result) {
     const act = await chooseAction();
     UI.dialog = null;
-    if (act.kind === 'move') result = await bothMoves(act.mv);
+    let acted = false;
+    if (act.kind === 'move') { result = await bothMoves(act.mv); acted = true; }
     else if (act.kind === 'switch') {
       B.allyIdx = act.idx;
       await say('À toi, ' + monName(bAlly()) + ' !');
       result = await foeFreeAttack();
-    } else if (act.kind === 'pot') {
-      if (G.bag.pot <= 0) { await say('Tu n’as plus de Potions !'); continue; }
+    } else if (act.kind === 'pot' || act.kind === 'spot' || act.kind === 'guer') {
+      if (G.bag[act.kind] <= 0) { await say('Tu n’en as plus !'); acted = false; continue; }
       const m = bAlly();
-      if (m.hp >= m.maxhp) { await say('Ses PV sont déjà au maximum !'); continue; }
-      G.bag.pot--; SFX.heal();
-      await animHP(m, Math.min(m.maxhp, m.hp + 25));
-      await say(monName(m) + ' récupère des PV !');
+      if (act.kind === 'guer') {
+        if (!m.st) { await say(monName(m) + ' n’a aucun problème de statut.'); acted = false; continue; }
+        G.bag.guer--; m.st = null; SFX.heal();
+        await say(monName(m) + ' est guéri !');
+      } else {
+        if (m.hp >= m.maxhp) { await say('Ses PV sont déjà au maximum !'); acted = false; continue; }
+        G.bag[act.kind]--; SFX.heal();
+        await animHP(m, Math.min(m.maxhp, m.hp + (act.kind === 'pot' ? 25 : 60)));
+        await say(monName(m) + ' récupère des PV !');
+      }
       result = await foeFreeAttack();
     } else if (act.kind === 'caps') {
       const r = await tryCapture();
@@ -1561,27 +2829,39 @@ async function battle(wild, trainer, opts) {
       } else {
         await say('Impossible de fuir !');
         result = await foeFreeAttack();
+        acted = true;
       }
     }
+    if (act.kind === 'switch' || act.kind === 'pot' || act.kind === 'spot' || act.kind === 'guer' || act.kind === 'caps') acted = true;
+    if (!result && acted && G.state === 'battle') result = await endTurnTicks();
   }
 
-  if (result === 'win' && trainer) await say(trainer.winMsg);
-  if (result === 'win' && B.legendary) await say('L’ombre se disperse en volutes noires... Tu sens qu’elle reviendra hanter la rive.');
+  if (result === 'win' && trainer) {
+    await say(trainer.winMsg);
+    if (trainer.prize) { G.money += trainer.prize; SFX.confirm(); await say('Tu remportes ' + trainer.prize + ' ₽ !'); }
+  }
+  if (result === 'win' && B.legendary) await say(B.auryon ? 'La lumière se dissout en flocons dorés... Elle reviendra planer sur le sommet.' : 'L’ombre se disperse en volutes noires... Tu sens qu’elle reviendra hanter la rive.');
   if (result === 'lose') {
     if (trainer) await say(trainer.loseMsg);
     await say('Tu n’as plus de créatures en état de se battre...');
     await say('Tout devient noir. Tu te réveilles à la clinique du bourg.');
-    G.team.forEach(m => { m.hp = m.maxhp; });
-    G.px = 9; G.py = 53; G.dir = 'down'; G.moving = null;
+    G.team.forEach(m => { m.hp = m.maxhp; m.st = null; });
+    G.px = G.heal.x; G.py = G.heal.y; G.dir = 'down'; G.moving = null;
   }
   const caughtLegendary = result === 'caught' && B.legendary;
+  const caughtAuryon = caughtLegendary && B.auryon;
   B = null;
   G.state = 'world';
   setTrack('world');
   saveGame();
   if (caughtLegendary) {
-    await say('Incroyable... NOCTYRAN, la légende du Lac Onyx, est avec toi !');
-    await say('★ FÉLICITATIONS ! Tu as terminé la démo de VERSION NOIRE. ★\nContinue à explorer, capturer et monter tes niveaux à volonté !');
+    if (caughtAuryon) {
+      await say('Éblouissant... AURYON, la légende du givre, est avec toi !');
+      if (G.flags.dragonDone) await say('★ LES DEUX LÉGENDES RÉUNIES ! Va voir le Pr Karoubin, Maître de la région ! ★');
+    } else {
+      await say('Incroyable... NOCTYRAN, la légende du Lac Onyx, est avec toi !');
+      await say(G.flags.champion ? 'Il reste une lumière sur le MONT GIVRE...' : 'L’ombre apaisée, la région respire. Cap sur la LIGUE !');
+    }
   }
   return result === 'win' || result === 'caught';
 }
@@ -1628,12 +2908,14 @@ function drawBattle() {
   drawText(monName(foe), 14, 14, '#fff');
   drawText('N.' + foe.level, 92, 14, '#c8c8d0');
   drawHPBar(14, 30, 96, foe.hp / foe.maxhp);
+  if (foe.st) drawText(ST_NAMES[foe.st], 14, 20, ST_COLORS[foe.st], 'bold 7px monospace');
   // panneau allié
   drawBox(136, 112, 116, 52);
   drawText(monName(al), 144, 118, '#fff');
   drawText('N.' + al.level, 222, 118, '#c8c8d0');
   drawHPBar(144, 132, 96, al.hp / al.maxhp);
   drawText(al.hp + '/' + al.maxhp + ' PV', 144, 140, '#c8c8d0', '8px monospace');
+  if (al.st) drawText(ST_NAMES[al.st], 214, 140, ST_COLORS[al.st], 'bold 7px monospace');
   const xpCur = al.xp - xpTotalFor(al.level);
   const xpNeed = xpTotalFor(al.level + 1) - xpTotalFor(al.level);
   ctx.fillStyle = '#2a2a32'; ctx.fillRect(144, 154, 96, 3);
@@ -1693,7 +2975,7 @@ async function chooseStarter() {
     else if (k === 'ok') {
       SFX.confirm();
       const sp = STARTERS[starterUI.idx][0];
-      const c = await menu(['Je choisis ' + SPECIES[sp].name + ' !', 'Hmm, attends...'], { x: 60, y: 100 });
+      const c = await menu(['Je choisis ' + SPECIES[sp].name + ' !', 'Hmm, attends...'], { x: 56, y: 136 });
       if (c === 0) { starterUI = null; return sp; }
     }
   }
@@ -1719,26 +3001,31 @@ async function titleFlow() {
 
 async function newGame() {
   Object.assign(G, { px: 25, py: 53, dir: 'down', moving: null, team: [],
-    bag: { caps: 5, pot: 3 }, flags: { pickups: {} }, stored: [], zone: '' });
+    bag: { caps: 5, pot: 3, spot: 0, guer: 0, bonbon: 0 }, money: 600,
+    seen: [], caught: [], heal: { x: 9, y: 53 },
+    flags: { pickups: {} }, stored: [], zone: '' });
   G.state = 'world'; setTrack('world');
   await sleep(400);
   await say('PR KAROUBIN : Bienvenue dans le monde de VERSION NOIRE !');
-  await say('PR KAROUBIN : Des créatures fabuleuses peuplent les hautes herbes. Nous, dresseurs, les capturons et grandissons avec elles.');
+  await say('PR KAROUBIN : Des créatures fabuleuses peuplent cette région — 39 espèces recensées dans mon carnet !');
+  await say('PR KAROUBIN : Huit ARÈNES jalonnent la grande route de l’est, jusqu’à la LIGUE et son Champion.');
   await say('PR KAROUBIN : Pour commencer ton voyage, choisis ta première partenaire !');
   const sp = await chooseStarter();
   G.state = 'world';
   G.team = [makeMon(sp, 5)];
+  G.flags.starter = sp;
+  markCaught(sp);
   SFX.catchOk();
   await say(SPECIES[sp].name + ' (niveau 5) rejoint ton équipe !');
-  await say('PR KAROUBIN : Excellent choix ! J’ai glissé 5 Capsules et 3 Potions dans ton sac.');
-  await say('PR KAROUBIN : La ROUTE 1 est au nord du bourg. LÉO t’y attend de pied ferme... Bonne aventure !');
+  await say('PR KAROUBIN : Excellent choix ! 5 Capsules, 3 Potions et 600 ₽ : te voilà paré.');
+  await say('PR KAROUBIN : La ROUTE 1 est au nord, puis VILLEFLORE et sa première arène à l’EST. LÉO t’attend déjà... Bonne aventure !');
   saveGame();
   startWorld();
 }
 
 function startWorld() {
   G.state = 'world'; setTrack('world');
-  G.zone = zoneName(G.py);
+  G.zone = zoneAt(G.px, G.py);
   toast(G.zone);
 }
 
@@ -1765,7 +3052,34 @@ function validateData() {
     const [x, y] = key.split(',').map(Number);
     if (tileAt(x, y) !== 'S') errs.push('panneau sans tuile S : ' + key);
   }
-  for (const tbl of [encounterTable(5), encounterTable(30)])
+  for (const z of ZONES) if (z.table)
+    for (const [sp] of z.table) if (!SPECIES[sp]) errs.push('rencontre inconnue : ' + sp);
+  // atteignabilité : BFS depuis le départ en ignorant les PNJ (gardes inclus)
+  const open = new Set();
+  const blockedTile = t => t === '#' || t === '~' || t === '=' || t === 'S' || t === 'l';
+  const q = [[25, 53]];
+  open.add('25,53');
+  while (q.length) {
+    const [x, y] = q.pop();
+    for (const [dx, dy] of [[0,1],[0,-1],[1,0],[-1,0]]) {
+      const nx = x + dx, ny = y + dy, k = nx + ',' + ny;
+      if (open.has(k) || nx < 0 || ny < 0 || nx >= MAP_W || ny >= MAP_H) continue;
+      if (blockedTile(tileAt(nx, ny)) || buildingAt(nx, ny)) continue;
+      open.add(k); q.push([nx, ny]);
+    }
+  }
+  const mustReach = [];
+  for (const n of NPCS) mustReach.push([n.id, n.x, n.y]);
+  for (const p of PICKUPS) mustReach.push(['objet', p.x, p.y]);
+  for (const [id, x, y] of mustReach) {
+    const ok = open.has(x + ',' + y) ||
+      [[0,1],[0,-1],[1,0],[-1,0]].some(([dx,dy]) => open.has((x+dx) + ',' + (y+dy)));
+    if (!ok) errs.push('inatteignable : ' + id + ' en (' + x + ',' + y + ')');
+  }
+  for (const b of BUILDINGS) {
+    if (!open.has(b.door + ',' + (b.y + b.h))) errs.push('porte inatteignable : ' + (b.name || 'maison') + ' (' + b.door + ',' + (b.y + b.h) + ')');
+  }
+  for (const tbl of [encounterTable(5, 5), encounterTable(5, 30)])
     for (const [sp] of tbl) if (!SPECIES[sp]) errs.push('rencontre inconnue : ' + sp);
   return errs;
 }
