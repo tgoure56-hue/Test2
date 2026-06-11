@@ -86,7 +86,7 @@ function onKeyDown(e) {
     else if (d) sym = d;
     if (sym) { keyResolver = null; r(sym); e.preventDefault(); return; }
   }
-  if (pressQueue.length < 3) pressQueue.push(e.code);
+  if (G.state === 'world' && !busy && !UI.dialog && !UI.menu && pressQueue.length < 3) pressQueue.push(e.code);
   if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','Enter'].includes(e.code)) e.preventDefault();
 }
 function onKeyUp(e) { held.delete(e.code); }
@@ -825,7 +825,7 @@ function wrapText(text, maxChars) {
 
 // affiche un texte façon machine à écrire ; touche = accélérer puis fermer
 async function say(text) {
-  const lines = wrapText(text, 28);
+  const lines = wrapText(text, 38);
   // par paquets de 2 lignes
   for (let i = 0; i < lines.length; i += 2) {
     const chunk = lines.slice(i, i + 2).join('\n');
@@ -1175,7 +1175,12 @@ function onStepEnd() {
 
 function runScript(fn) {
   busy = true;
-  fn().catch(e => console.error(e)).finally(() => { busy = false; });
+  fn().catch(e => {
+    console.error(e);
+    // filet de sécurité : ne jamais rester coincé hors du monde
+    B = null; UI.dialog = null; UI.menu = null;
+    if (G.state !== 'title') { G.state = 'world'; setTrack('world'); }
+  }).finally(() => { busy = false; });
 }
 
 function interact() {

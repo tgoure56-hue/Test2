@@ -43,4 +43,17 @@ sauvegarde auto après les combats et les soins).
   nord du lac quand tu auras prouvé ta valeur…
 - Musique et bruitages chiptune (WebAudio)
 
+## ✅ Qualité
+
+Le jeu est couvert par des tests automatisés headless qui jouent de vraies parties :
+intro et choix du starter, rencontres sauvages, évolution en plein combat, victoire
+ET défaite (K.O. général → retour à la clinique), duel multi-créatures, capture
+réussie et ratée, équipe pleine (envoi au labo), soins, sauvegarde/rechargement
+fidèle, et toutes les opérations de menus.
+
+**Simplifications volontaires** par rapport aux jeux dont il s'inspire : pas de PP
+sur les attaques, pas de statuts (poison, paralysie…), pas d'attaques de soutien ni
+de talents/objets tenus, et un PC simplifié (les captures en surplus sont gardées au
+labo). Tout le reste du cœur de jeu est là.
+
 Bonne aventure, dresseur ! 🖤
