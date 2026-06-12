@@ -1,13 +1,14 @@
 # 🌑 VERSION NOIRE — Édition Complète
 
 Un RPG de capture de créatures **complet et jouable dans le navigateur** (Chrome,
-Firefox…), dans l'esprit des grands jeux du genre : exploration, hautes herbes,
-combats au tour par tour, capture, évolutions, **8 arènes**, une **Ligue** et son
-Champion, deux **légendaires** en post-game… le tout dans **un seul fichier
-`index.html`**, sans aucune dépendance.
+Firefox…) : exploration, hautes herbes, combats au tour par tour, capture,
+évolutions, **8 arènes**, une **Ligue** et son Champion, une **vraie histoire** avec
+antagoniste, **3 légendaires**, quêtes annexes et post-game… le tout dans **un seul
+fichier `index.html`**, sans aucune dépendance.
 
-> Hommage non officiel : toutes les créatures, sprites pixel-art, noms, cartes et
-> musiques sont des créations originales (aucun élément protégé de Nintendo / Game Freak).
+> Hommage non officiel : toutes les créatures, sprites pixel-art, noms, cartes,
+> musiques et l'histoire sont des créations originales (aucun élément protégé
+> de Nintendo / Game Freak).
 
 ## ▶️ Comment jouer
 
@@ -19,54 +20,66 @@ Champion, deux **légendaires** en post-game… le tout dans **un seul fichier
 Active *Settings → Pages → Deploy from branch* sur ce dépôt, et le jeu sera jouable
 en ligne à l'adresse fournie par GitHub.
 
+## 💾 Sauvegarde
+
+- **Sauvegarde automatique** en continu (tous les quelques pas, après chaque combat,
+  soin ou achat) — tu reprends toujours où tu en étais via **CONTINUER** au titre,
+  qui affiche ta progression (zone, badges, équipe).
+- Sauvegarde manuelle : menu Entrée → **SAUVER**.
+- **CODE SECRET** : exporte ta partie en un code copiable (menu pause ou écran
+  titre) pour la reprendre sur n'importe quel appareil ou navigateur, même si le
+  stockage local est bloqué.
+
 ## 🎮 Contrôles
 
 | Touche | Action |
 |---|---|
 | Flèches / ZQSD / WASD | Se déplacer |
 | E / Espace | Parler, valider |
-| Entrée | Menu (équipe, sac, carnet, badges, sauvegarde) |
+| Entrée | Menu (équipe, sac, carnet, quêtes, badges, sauvegarde, code) |
 | Échap / X | Annuler |
 | M | Couper / remettre la musique |
 
-La partie se **sauvegarde** dans le navigateur (menu → SAUVER, plus sauvegarde
-automatique après combats, soins et achats).
+## 📖 L'histoire
 
-## 🗺️ L'aventure
+*Il y a mille ans, deux dragons jumeaux veillaient sur la région : AURYON, la
+Mémoire, et NOCTYRAN, l'Oubli. Quand les hommes voulurent s'emparer de la Mémoire,
+l'Oubli engloutit leur cité sous un lac noir. Huit sages forgèrent huit badges,
+clés du sceau qui l'endormit. Puis, comme toujours… on oublia.*
 
-- **39 créatures** originales en pixel-art, avec **lignées d'évolution** (jusqu'au niveau 60)
-- **11 types** (Feu, Eau, Plante, Électrik, Vol, Sol, Normal, Glace, Roche, Spectre, Ténèbres)
-  avec table complète des forces/faiblesses/immunités
-- **Statuts de combat** : poison, brûlure, paralysie — et les objets pour les soigner
-- **14 zones** : Bourg Sépia, Route 1, Villeflore, Forêt Murmure, Roche-Bourg,
-  Grotte Écho, Port-Azur, le Grand Pont, Voltcité, Plaines Dorées, Désert Ocre,
-  Mont Givre, Tour Sombre, Volcan Braise, Route Victoire… chacune avec son ambiance
-  visuelle, ses créatures sauvages et ses dresseurs
-- **8 arènes** et leurs champions (badges Sève, Roc, Vague, Volt, Dune, Flocon,
-  Spectre, Magma) — chaque badge ouvre la route suivante
-- **La Ligue** : 4 Maîtres à la suite, puis le Champion… une vieille connaissance
-- Ton rival **Léo** (3 affrontements), la **gardienne Zoé**, et l'**Équipe Ombre**
-  qui complote pour réveiller la légende du Lac Onyx
-- **Économie** : gagne des ₽ contre les dresseurs, dépense-les en boutique
-  (Capsules, Potions, Super Potions, Guérisons, Bonbons Rares)
-- **Boîte PC** dans chaque clinique pour gérer plus de 6 créatures
-- **Carnet** des créatures vues/capturées (complétion du « dex »)
-- **Post-game** : le sceau du Lac Onyx se brise (NOCTYRAN niv. 50) et une lumière
-  plane sur le Mont Givre (AURYON niv. 50). Captureras-tu les deux légendes ?
-- Musique chiptune et bruitages (WebAudio), sprites et décors 100 % faits main
+Sur la route des 8 arènes, l'**Équipe Ombre** rôde, dirigée par **Érèbe**, un
+ancien chercheur brisé par un deuil, qui veut réveiller l'Oubli pour effacer la
+mémoire du monde. Tes propres badges sont les clés qu'il attendait… Rivalité avec
+**Léo** (4 affrontements jusqu'au trône de Champion), révélations à la **Tour
+Sombre**, confrontation finale au **Lac Onyx**, et après le générique : le
+**Sanctuaire des Légendes**, où **Mnémos**, la Mémoire du monde, jauge les âmes —
+jusqu'à la **fin véritable**.
+
+## 🗺️ Le contenu
+
+- **100 créatures** originales en pixel-art (lignées d'évolution, formes
+  régionales, 3 légendaires) — carnet de complétion intégré
+- **11 types**, table complète des forces/faiblesses, **statuts** (poison, brûlure,
+  paralysie), attaques drainantes, coups critiques, priorité, STAB
+- **17 zones** : du Bourg Sépia au Volcan Braise, plus le **Marais Brumeux**,
+  l'**Île du Phare** et le **Sanctuaire** accessibles en **ferry**
+- **8 arènes** + badges qui déverrouillent les routes, **30+ dresseurs**, 4 Maîtres
+  et le Champion
+- **6 quêtes annexes** (journal de quêtes intégré) avec récompenses uniques — dont
+  un **Dracotin** offert
+- Économie (₽, boutiques), **Boîte PC**, soins en clinique
+- **Post-game** : 3 légendaires à capturer, **Ligue Ronde 2** (+16 niveaux),
+  chasse aux 100 du carnet, fin véritable
+- Compte **10 à 20 h** pour la fin véritable et la complétion du carnet
+- Musique chiptune, ambiances lumineuses par région, effets de combat
+  (particules, tremblements), le tout 100 % fait main
 
 ## ✅ Qualité
 
-Le jeu est couvert par **4 bancs de tests automatisés headless** qui jouent de
-vraies parties : intro, évolutions en combat, victoires ET défaites (K.O. général),
-duels multi-créatures, capture réussie/ratée, équipe pleine, gardes à badges,
-arènes, boutique, Boîte PC, carnet, Champion, post-game et sauvegarde/rechargement
-à l'identique. Le rendu visuel a été vérifié écran par écran dans un vrai Chromium.
-Un auto-test interne valide en outre les données (39 sprites 16×16, tables de types,
-courbes d'XP) et **l'atteignabilité de chaque lieu** par parcours en largeur.
+Couvert par **5 bancs de tests automatisés** qui jouent de vraies parties dans un
+navigateur simulé (évolutions, défaites, captures ratées, ferry, quêtes, boss,
+Ligue Ronde 2, sauvegarde/rechargement à l'identique…), plus un auto-test interne
+des données (100 sprites validés pixel par pixel, atteignabilité de chaque lieu par
+parcours en largeur). Rendu vérifié écran par écran dans un vrai Chromium.
 
-**Simplifications assumées** par rapport aux jeux dont il s'inspire : pas de PP sur
-les attaques, pas de talents ni d'objets tenus, pas de reproduction/échanges, et des
-zones plus compactes. Tout le reste du cœur de jeu est là.
-
-Bonne aventure, dresseur ! 🖤
+Bonne aventure, dresseur. Et n'oublie pas. 🖤

@@ -1006,6 +1006,678 @@ SPR.lumiole = { pal: { k:'#16161e', n:'#2a2a36', v:'#8a78c8', y:'#f8e048', w:'#f
 // Auryon : la légende blanche, miroir clair de Noctyran
 SPR.auryon = { pal: { k:'#4a4230', n:'#f4ead0', d:'#d8c8a0', r:'#3890f0', g:'#f0c020', w:'#ffffff' }, mat: SPR.noctyran.mat };
 
+/* ---- sprites des espèces inédites (1/3) ---- */
+SPR.chouettin = { pal: { k:'#241a10', b:'#a8845c', c:'#e8d8b8', w:'#ffffff', e:'#181006', y:'#f8c838', d:'#7a5e3c' }, mat: [
+'................',
+'..kk........kk..',
+'.kbbk......kbbk.',
+'.kbbbkkkkkkbbbk.',
+'.kbbbbbbbbbbbbk.',
+'.kbwwbbbbbwwbbk.',
+'.kbwewbbbbwewbk.',
+'.kbbbbkyykbbbbk.',
+'..kbbbbyybbbbk..',
+'..kbccccccccbk..',
+'.kbbccccccccbbk.',
+'.kbbccccccccbbk.',
+'..kbbccccccbbk..',
+'...kbbbbbbbbk...',
+'....yy....yy....',
+'................',
+]};
+SPR.stryxnuit = { pal: { k:'#1c140c', b:'#8a6844', c:'#e8d8b8', w:'#ffffff', e:'#181006', y:'#f8c838', d:'#624a30' }, mat: [
+'.kk..........kk.',
+'.kbk........kbk.',
+'.kbbkkkkkkkkbbk.',
+'.kbbbbbbbbbbbbk.',
+'.kbwwbbbbbbwwbk.',
+'.kbwewbbbbbwewk.',
+'.kbbbbbkyykbbbk.',
+'..kbbbbbyybbbk..',
+'.kdbccccccccbdk.',
+'.kddccccccccddk.',
+'.kddccccccccddk.',
+'.kdbccccccccbdk.',
+'..kbbbbbbbbbbk..',
+'...kbbkbbkbbk...',
+'....yy....yy....',
+'................',
+]};
+SPR.faonelle = { pal: { k:'#241408', b:'#c89058', c:'#f0e0c8', w:'#ffffff', e:'#180e04', p:'#e8b888' }, mat: [
+'................',
+'....k......k....',
+'...kpk....kpk...',
+'...kbbkkkkbbk...',
+'..kbbbbbbbbbbk..',
+'..kbewbbbbwebk..',
+'..kbbbbccbbbbk..',
+'...kbbbccbbbk...',
+'....kbbbbbbk....',
+'...kbbbbbbbbk...',
+'..kbbccccccbbk..',
+'..kbcc.cc.ccbk..',
+'..kbbc.cc.cbbk..',
+'...kbk.kk.kbk...',
+'...kk......kk...',
+'................',
+]};
+SPR.cervidor = { pal: { k:'#1c1006', b:'#a87844', c:'#f0e0c8', w:'#ffffff', e:'#180e04', l:'#58b048', p:'#d8a878' }, mat: [
+'.l..k....k..l...',
+'.kl.kk..kk.lk...',
+'..klkbkkbklk....',
+'...kbbbbbbk.....',
+'..kbewbbwebk....',
+'..kbbbccbbbk....',
+'...kbbccbbk.....',
+'....kbbbbbbk....',
+'...kbbbbbbbbk...',
+'..kbbccccccbbk..',
+'..kbccccccccbk..',
+'..kbbccccccbbk..',
+'...kbk.kk.kbk...',
+'...kbk.kk.kbk...',
+'...kk......kk...',
+'................',
+]};
+SPR.tortibulle = { pal: { k:'#102420', g:'#48a890', s:'#8a6a42', d:'#6a4e2e', c:'#cfeee4', w:'#ffffff', e:'#0c1a14' }, mat: [
+'................',
+'......kkkk......',
+'....kkssssk.....',
+'...ksdsdsdsk....',
+'..ksdsdssdssk...',
+'..kssdsdsdssk...',
+'..kdssdssdsdk...',
+'...ksssssssk....',
+'.kkgggggggggkk..',
+'kgewgkkkkkgggk..',
+'kggggk...kgggk..',
+'.kggk.....kgk...',
+'..kgk.....kgk...',
+'..kk.......kk...',
+'................',
+'................',
+]};
+SPR.torticoral = { pal: { k:'#0c201c', g:'#3a9880', s:'#d86858', d:'#a84838', c:'#cfeee4', w:'#ffffff', e:'#0c1a14' }, mat: [
+'......k..k......',
+'.....kskks......',
+'....kkssssk.....',
+'...ksdsdsdsk....',
+'..ksdsddssdsk...',
+'..kssdsdsdssk...',
+'..kdssdssdsdk...',
+'...kssssssssk...',
+'.kkgggggggggkk..',
+'kgewggkkkkgggk..',
+'kggggk...kgggk..',
+'.kggk.....kgk...',
+'..kgk.....kgk...',
+'..kk.......kk...',
+'................',
+'................',
+]};
+SPR.bourdonbz = { pal: { k:'#1c1c0c', y:'#f0c838', b:'#2a2a1a', w:'#f4f4ff', e:'#14140a', g:'#78d048' }, mat: [
+'................',
+'..kww....kww....',
+'.kwwwk..kwwwk...',
+'.kwwwwkkwwwwk...',
+'..kwwkyykwwk....',
+'...kkyyyykk.....',
+'...kyewweyk.....',
+'...kyyyyyyk.....',
+'..kbbbbbbbbk....',
+'..kyyyyyyyyk....',
+'..kbbbbbbbbk....',
+'...kyyyyyyk.....',
+'....kbbbbk......',
+'.....kyyk.......',
+'......kk........',
+'................',
+]};
+SPR.apidame = { pal: { k:'#181808', y:'#e8b828', b:'#222212', w:'#f4f4ff', e:'#14140a', g:'#78d048', r:'#e85a8a' }, mat: [
+'.kww......kww...',
+'kwwwwk..kwwwwk..',
+'kwwwwwkkwwwwwk..',
+'.kwwwkyykwwwk...',
+'..kkyyyyyykk....',
+'...kyrwwryk.....',
+'...kyyyyyyk.....',
+'..kbbbbbbbbk....',
+'..kyyyyyyyyk....',
+'..kbbbbbbbbk....',
+'..kyyyyyyyyk....',
+'...kbbbbbbk.....',
+'....kyyyyk......',
+'.....kbbk.......',
+'......kk........',
+'................',
+]};
+SPR.champifou = { pal: { k:'#201410', r:'#d85a4a', s:'#f0e8d8', c:'#f8f4ec', w:'#ffffff', e:'#161008' }, mat: [
+'................',
+'.....kkkkkk.....',
+'...kkrrrrrrkk...',
+'..krrwwrrwwrrk..',
+'..krrrrrrrrrrk..',
+'.krrwwrrrrwwrrk.',
+'.krrrrrrrrrrrrk.',
+'..kkkkkkkkkkkk..',
+'...kssssssssk...',
+'...ksewsswesk...',
+'...kssssssssk...',
+'...kssksskssk...',
+'....kssssssk....',
+'.....kskksk.....',
+'................',
+'................',
+]};
+SPR.mycorage = { pal: { k:'#1a1020', r:'#9a58c8', s:'#d8c8e8', c:'#f0e8f8', w:'#ffffff', e:'#160e1c' }, mat: [
+'.....kkkkkk.....',
+'...kkrrrrrrkk...',
+'..krrwwrrwwrrk..',
+'..krrrrrrrrrrk..',
+'.krrwwrrrrwwrrk.',
+'.krrrrrrrrrrrrk.',
+'.krrrrwwwwrrrrk.',
+'..kkkkkkkkkkkk..',
+'...kssssssssk...',
+'...ksewsswesk...',
+'..kssswwwsssck..',
+'..kssksssskssk..',
+'...kssssssssk...',
+'....ksk..ksk....',
+'................',
+'................',
+]};
+SPR.minetou = { pal: { k:'#221a14', b:'#d8b088', c:'#f4e8d8', w:'#ffffff', e:'#181208', p:'#e8a0a0', d:'#b89068' }, mat: [
+'................',
+'...k.......k....',
+'..kbk.....kbk...',
+'..kbbkkkkkbbk...',
+'..kbbbbbbbbbk...',
+'..kbewbbbwebk...',
+'..kbbbpppbbbk...',
+'...kbbbbbbbk....',
+'...kbbbbbbbk....',
+'..kbbbbbbbbbk...',
+'..kbbbbbbbbbkd..',
+'..kbbbbbbbbbkdd.',
+'..kbbkbbbkbbk.d.',
+'...kk.kkk.kk....',
+'................',
+'................',
+]};
+SPR.felinox = { pal: { k:'#16161e', b:'#3a3a4e', c:'#8a8aa4', w:'#ffffff', e:'#f8d048', d:'#26262f' }, mat: [
+'...k.......k....',
+'..kbk.....kbk...',
+'..kbbk...kbbk...',
+'..kbbbkkkbbbk...',
+'..kbbbbbbbbbk...',
+'..kbewbbbwebk...',
+'..kbbbcccbbbk...',
+'...kbbbbbbbk....',
+'..kbbbbbbbbbk...',
+'.kbbbbbbbbbbbk..',
+'.kbbbbbbbbbbbkd.',
+'.kbbbbbbbbbbbkdd',
+'.kbbkbbbbkbbk.d.',
+'..kk..kk..kk....',
+'................',
+'................',
+]};
+SPR.oursonin = { pal: { k:'#20140c', b:'#a87848', c:'#e8d0a8', w:'#ffffff', e:'#160e06' }, mat: [
+'................',
+'..kkk....kkk....',
+'.kbbbk..kbbbk...',
+'.kbbbbkkbbbbk...',
+'..kbbbbbbbbk....',
+'.kbbewbbwebbk...',
+'.kbbbbccbbbbk...',
+'.kbbbkcckbbbk...',
+'..kbbbbbbbbk....',
+'.kbbbbbbbbbbk...',
+'kbbbbbbbbbbbbk..',
+'kbbkbbbbbbkbbk..',
+'kbbbbbbbbbbbbk..',
+'.kbbkbb.bbkbk...',
+'..kk.k...k.kk...',
+'................',
+]};
+SPR.grizzlor = { pal: { k:'#180e06', b:'#7a5430', c:'#d8bc90', w:'#ffffff', e:'#160e06', g:'#c8c8d0' }, mat: [
+'.kkk........kkk.',
+'kbbbk......kbbbk',
+'kbbbbk....kbbbbk',
+'.kbbbbkkkkbbbbk.',
+'..kbbbbbbbbbbk..',
+'.kbbewbbbbwebbk.',
+'.kbbbbbccbbbbbk.',
+'.kbbbkccckbbbk..',
+'..kbbbbbbbbbbk..',
+'.kbbbbbbbbbbbbk.',
+'kbbbbbbbbbbbbbbk',
+'kgbkbbbbbbbbkbgk',
+'kgbbbbbbbbbbbbgk',
+'.kbbkbbbbbbkbk..',
+'..kkk.k..k.kkk..',
+'................',
+]};
+SPR.pinglace = { pal: { k:'#141e2a', b:'#2e4a6a', c:'#f0f6fc', w:'#ffffff', e:'#101822', y:'#f8b838' }, mat: [
+'................',
+'.....kkkkkk.....',
+'....kbbbbbbk....',
+'...kbbbbbbbbk...',
+'...kbewbbwebk...',
+'...kbbbyybbbk...',
+'...kbbcyycbbk...',
+'..kbbccccccbbk..',
+'..kbccccccccbk..',
+'.kbbccccccccbbk.',
+'.kbbccccccccbbk.',
+'..kbccccccccbk..',
+'...kbccccccbk...',
+'....kkkkkkkk....',
+'....kyy..yyk....',
+'................',
+]};
+SPR.empeglace = { pal: { k:'#101a26', b:'#1e3a5a', c:'#e8f2fa', w:'#ffffff', e:'#101822', y:'#f0a828', g:'#78c8e0' }, mat: [
+'......kkkk......',
+'.....kbbbbk.....',
+'....kbbbbbbk....',
+'...kbewbbwebk...',
+'...kbbbyybbbk...',
+'..kbbbcyycbbbk..',
+'..kbbccccccbbk..',
+'.kbbccgccgccbbk.',
+'.kbccccccccccbk.',
+'kbbcccgccgcccbbk',
+'kbbccccccccccbbk',
+'.kbbccgccgccbbk.',
+'..kbccccccccbk..',
+'...kbkkkkkkbk...',
+'...kyy....yyk...',
+'................',
+]};
+
+/* ---- sprites des espèces inédites (2/3) ---- */
+SPR.scarabronze = { pal: { k:'#1c160a', b:'#b08a3e', d:'#7e6228', c:'#e0c878', w:'#ffffff', e:'#141006' }, mat: [
+'................',
+'..k..........k..',
+'...k........k...',
+'....kkkkkkkk....',
+'...kbcbbbbcbk...',
+'..kbbewbbwebbk..',
+'..kbbbbbbbbbbk..',
+'.kbdddddddddbk..',
+'.kbdcdddddcdbk..',
+'.kbdddkkddddbk..',
+'.kbdcdddddcdbk..',
+'..kbdddddddbk...',
+'...kbbbbbbbk....',
+'..kk.kk.kk.kk...',
+'................',
+'................',
+]};
+SPR.scarathor = { pal: { k:'#160e04', b:'#9a7228', d:'#6a4e18', c:'#e8d088', w:'#ffffff', e:'#141006' }, mat: [
+'.k.....kk.....k.',
+'..k...kcck...k..',
+'...kkkbccbkkk...',
+'...kbbbbbbbbk...',
+'..kbcewbbwecbk..',
+'..kbbbbbbbbbbk..',
+'.kbbddddddddbbk.',
+'.kbdcdddddcdbk..',
+'.kbdddkkddddbk..',
+'.kbddkddkdddbk..',
+'.kbdcdddddcdbk..',
+'..kbdddddddbk...',
+'...kbbbbbbbk....',
+'..kk.kk.kk.kk...',
+'................',
+'................',
+]};
+SPR.medusette = { pal: { k:'#16203a', b:'#7a9ae8', c:'#cfe0ff', w:'#ffffff', e:'#101830', p:'#b8c8f8' }, mat: [
+'................',
+'.....kkkkkk.....',
+'...kkbbbbbbkk...',
+'..kbbbbbbbbbbk..',
+'..kbewbbbbwebk..',
+'..kbbbbbbbbbbk..',
+'.kbbcbbbbbbcbbk.',
+'.kkbbbbbbbbbbkk.',
+'..kpkpkppkpkpk..',
+'..kp.kp..pk.pk..',
+'..kp.kp..pk.pk..',
+'...p..p..p..p...',
+'...p..p..p..p...',
+'....p.p..p.p....',
+'................',
+'................',
+]};
+SPR.abyssine = { pal: { k:'#121a32', b:'#5878d8', c:'#cfe0ff', w:'#ffffff', e:'#e83a6a', p:'#98aef0' }, mat: [
+'.....kkkkkk.....',
+'...kkbbbbbbkk...',
+'..kbbbbbbbbbbk..',
+'.kbbewbbbbwebbk.',
+'.kbbbbbbbbbbbbk.',
+'.kbbcbbkkbbcbbk.',
+'.kbbbbbbbbbbbbk.',
+'.kkbbbbbbbbbbkk.',
+'..kpkpkppkpkpk..',
+'..kp.kp..pk.pk..',
+'.kp..kp..pk..pk.',
+'.kp..p....p..pk.',
+'..p..p....p..p..',
+'..p.p......p.p..',
+'................',
+'................',
+]};
+SPR.dracotin = { pal: { k:'#181024', n:'#4a3a6e', d:'#32264e', c:'#9a86c8', w:'#ffffff', e:'#e8485a', g:'#b8b8d0' }, mat: [
+'................',
+'..kg......gk....',
+'.kngk....kgnk...',
+'.knnkkkkkknnk...',
+'..knnnnnnnnk....',
+'..knewnnwenk....',
+'..knnnnnnnnk....',
+'...kncnncnk.....',
+'..knnnnnnnnk....',
+'.knnnnnnnnnnk...',
+'.knnknnnnknnk.k.',
+'.knnnnnnnnnnkkk.',
+'..knnknnknnkk...',
+'...kk.kk.kk.....',
+'................',
+'................',
+]};
+SPR.drakefer = { pal: { k:'#120c1c', n:'#3a2c58', d:'#261c40', c:'#8a76b8', w:'#ffffff', e:'#f04858', g:'#c8c8e0' }, mat: [
+'kg.....kk.....gk',
+'kngk..knnk..kgnk',
+'knnnk.knnk.knnnk',
+'.knnnkknnkknnnk.',
+'..knnnnnnnnnnk..',
+'..knewnnnnwenk..',
+'..knnnnnnnnnnk..',
+'...knncccnnk....',
+'..knnnnnnnnnnk..',
+'.knnnnnnnnnnnnk.',
+'.knnknnnnnnknnk.',
+'.knnnnnnnnnnnk..',
+'..knnknnnnknk...',
+'...kgk.kk.kgk...',
+'................',
+'................',
+]};
+SPR.lapidou = { pal: { k:'#221a14', b:'#e8d8c0', c:'#f8f0e0', w:'#ffffff', e:'#181208', p:'#e8a0a0' }, mat: [
+'....k.....k.....',
+'...kbk...kbk....',
+'...kbbk.kbbk....',
+'...kbpk.kpbk....',
+'...kbbkkkbbk....',
+'..kbbbbbbbbbk...',
+'..kbewbbbwebk...',
+'..kbbbpppbbbk...',
+'...kbbbbbbbk....',
+'..kbbbbbbbbbk...',
+'.kbbbbbbbbbbbk..',
+'.kbbbbbbbbbbbk..',
+'..kbkbbbbbkbk...',
+'...kk.kbk.kk....',
+'......kkk.......',
+'................',
+]};
+SPR.lapinvif = { pal: { k:'#1c1c10', b:'#f0e048', c:'#f8f4d0', w:'#ffffff', e:'#181208', p:'#caa020' }, mat: [
+'...k.......k....',
+'..kbk.....kbk...',
+'..kbbk...kbbk...',
+'..kbpk...kpbk...',
+'..kbbk...kbbk...',
+'...kbbkkkbbk....',
+'..kbbbbbbbbbk...',
+'..kbewbbbwebk...',
+'..kbbbpppbbbk...',
+'...kbbbbbbbk....',
+'..kbbbbbbbbbk...',
+'.kbbbbbbbbbbbk..',
+'..kbkbbbbbkbk...',
+'...kk..kk.kk....',
+'................',
+'................',
+]};
+SPR.crocplante = { pal: { k:'#142208', g:'#58b048', d:'#3a8a30', r:'#d85a6a', w:'#ffffff', e:'#101a0c', l:'#8ae060' }, mat: [
+'................',
+'.....kkkkk......',
+'....krrrrrk.....',
+'...krrwwrrrk....',
+'..krrrrrrrrk....',
+'..krwkwkwkrk....',
+'..krrrrrrrrk....',
+'...krrkkrrk.....',
+'....kggggk......',
+'.....kggk.......',
+'.lk..kggk..kl...',
+'klgk.kggk.kglk..',
+'.klgkgggkglk....',
+'...kgggggk......',
+'....kkkkk.......',
+'................',
+]};
+SPR.voraplante = { pal: { k:'#101c06', g:'#48a038', d:'#2e7a24', r:'#c84858', w:'#ffffff', e:'#101a0c', l:'#8ae060' }, mat: [
+'....kkkkkk......',
+'...krrrrrrk.....',
+'..krrwwrrrrk....',
+'.krrrrrrrrrrk...',
+'.krwkwkwkwkrk...',
+'.krrrrrrrrrrk...',
+'..krrkkkrrrk....',
+'..krrrrrrrk.....',
+'....kggggk......',
+'.lk..kggk..kl...',
+'klgk.kggk.kglk..',
+'.klgkgggkgglk...',
+'..kkgggggkk.....',
+'...kgggggk......',
+'....kkkkk.......',
+'................',
+]};
+SPR.salambre = { pal: { k:'#241008', o:'#e87838', d:'#b85418', c:'#f8d8a8', w:'#ffffff', e:'#180a04', f:'#ffd23a' }, mat: [
+'................',
+'.....kkkk.......',
+'....kooook......',
+'....kewook......',
+'....koooofk.....',
+'...kooookff.....',
+'...kdooook......',
+'..koooooook.....',
+'..kdoocooodk....',
+'.kooocccooook.k.',
+'.kdoocoooodkkk..',
+'..koookoooookk..',
+'...kookooook....',
+'....kk..kk......',
+'................',
+'................',
+]};
+SPR.pyrosaure = { pal: { k:'#1c0c04', o:'#d86428', d:'#a84410', c:'#f8d8a8', w:'#ffffff', e:'#180a04', f:'#ffd23a' }, mat: [
+'.....kkkk...f...',
+'....koooook.ff..',
+'....kewoook.kf..',
+'....kooooofkff..',
+'...koooookfff...',
+'...kdoooock.....',
+'..kooooooook....',
+'..kdoocccoodk...',
+'.koooccccooook..',
+'.kdoocccooodk.k.',
+'.koooooooookkk..',
+'..koookooooookk.',
+'...kookooook....',
+'....kk...kk.....',
+'................',
+'................',
+]};
+
+/* ---- sprites des espèces inédites (3/3) ---- */
+SPR.piquedou = { pal: { k:'#1a1606', g:'#6a9a3a', d:'#4a7424', c:'#e8d8b0', w:'#ffffff', e:'#141004', b:'#a8845c' }, mat: [
+'................',
+'...k.k.k.k.k....',
+'..kgkgkgkgkgk...',
+'.kgggggggggggk..',
+'.kgdgdgdgdgdgk..',
+'kgggggggggggggk.',
+'kgdgdgdgdgdgdgk.',
+'kgggggggggggggk.',
+'.kkbbbbbbbbbkk..',
+'..kbewbbbbbbk...',
+'..kbbbccbbbbk...',
+'..kbbbccbbbk....',
+'...kbbbbbbbk....',
+'....kk.kk.kk....',
+'................',
+'................',
+]};
+SPR.heripik = { pal: { k:'#161202', g:'#588a2a', d:'#3a661a', c:'#e8d8b0', w:'#ffffff', e:'#141004', b:'#98744c' }, mat: [
+'..k.k.k.k.k.k...',
+'.kgkgkgkgkgkgk..',
+'kgggggggggggggk.',
+'kgdgdgdgdgdgdgk.',
+'kgggggggggggggk.',
+'kgdgdgdgdgdgdgk.',
+'kgggggggggggggk.',
+'kgdgdgdgdgdgdgk.',
+'.kkbbbbbbbbbkk..',
+'..kbewbbbbbbbk..',
+'..kbbbccbbbbbk..',
+'..kbbbccbbbbk...',
+'...kbbbbbbbbk...',
+'...kbk.kk.kbk...',
+'....k......k....',
+'................',
+]};
+SPR.nimbules = { pal: { k:'#1e2430', c:'#e8eef6', d:'#b8c4d4', w:'#ffffff', e:'#161c26', b:'#78a8e0' }, mat: [
+'................',
+'................',
+'.....kkkkk......',
+'...kkccccckk....',
+'..kccccccccck...',
+'.kccewccwecck...',
+'.kcccccccccck...',
+'kcccccccccccck..',
+'kccdcccccdccck..',
+'.kkdddcdddkk....',
+'...kkdddkk......',
+'....b..b........',
+'...b..b..b......',
+'....b...b.......',
+'................',
+'................',
+]};
+SPR.orageon = { pal: { k:'#181c2a', c:'#c8d2e0', d:'#8a96ac', w:'#ffffff', e:'#e84858', y:'#f8e048' }, mat: [
+'....kkkkkk......',
+'..kkcccccckk....',
+'.kcccccccccck...',
+'.kccewccwecck...',
+'kcccccccccccck..',
+'kcccdccccdccck..',
+'kccdddccdddcck..',
+'.kkdddddddkk....',
+'...kkdddkk......',
+'....y..y........',
+'...yy.yy........',
+'..yy..y..y......',
+'...y.yy.yy......',
+'......y..y......',
+'................',
+'................',
+]};
+SPR.crabouille = { pal: { k:'#240e08', r:'#e86848', d:'#b84828', c:'#f8d8b8', w:'#ffffff', e:'#180a04' }, mat: [
+'................',
+'..kk........kk..',
+'.krrk......krrk.',
+'.krrrk....krrrk.',
+'..krk......krk..',
+'...k..kkkk..k...',
+'..kkkrrrrrkkk...',
+'.krrrrrrrrrrrk..',
+'.krewrrrrwerk...',
+'.krrrrrrrrrrrk..',
+'..krrcccccrrk...',
+'...krrrrrrrk....',
+'..kr.kr.rk.rk...',
+'..k...k..k..k...',
+'................',
+'................',
+]};
+SPR.pincelord = { pal: { k:'#1c0a04', r:'#d05028', d:'#983818', c:'#f0d0a8', w:'#ffffff', e:'#180a04' }, mat: [
+'.kkk........kkk.',
+'krrrk......krrrk',
+'krrrrk....krrrrk',
+'.krrk......krrk.',
+'..krk......krk..',
+'...kk.kkkk.kk...',
+'..kkkrrrrrkkk...',
+'.krrrrrrrrrrrk..',
+'.krewrrrrwerrk..',
+'.krrrrrrrrrrrk..',
+'.krrcccccccrrk..',
+'..krrrrrrrrrk...',
+'..krk.rr.krk....',
+'..kk..kk..kk....',
+'................',
+'................',
+]};
+SPR.anguilune = { pal: { k:'#101c2e', b:'#4888c8', c:'#cfe4f8', w:'#ffffff', e:'#0c1422', y:'#f8e048' }, mat: [
+'................',
+'....kkkk........',
+'...kbbbbk.......',
+'..kbewbbbk......',
+'..kbbbbbbk......',
+'..kybbbbyk......',
+'...kbbbbbk......',
+'....kbbbbk......',
+'.....kbbbbk.....',
+'......kbbbbk....',
+'....kbbbbbbk....',
+'...kbbbbbbk.....',
+'..kbbbbbbk......',
+'...kbbbbbbky....',
+'....kkkkkky.....',
+'................',
+]};
+SPR.stellune = { pal: { k:'#142036', b:'#88b8e8', c:'#e8f2fc', w:'#ffffff', e:'#101a2c', y:'#f8e048' }, mat: [
+'.......kk.......',
+'......kbbk......',
+'......kbbk......',
+'.....kbbbbk.....',
+'.kkkkbbbbbbkkkk.',
+'.kbbbbewwebbbbk.',
+'..kkbbbbbbbbk...',
+'....kbbccbbk....',
+'....kbbbbbbk....',
+'...kbbbkkbbbk...',
+'...kbbk..kbbk...',
+'..kbbk....kbbk..',
+'..kbk......kbk..',
+'...k........k...',
+'................',
+'................',
+]};
+SPR.mnemos = { pal: { k:'#0c0c14', n:'#3a3450', d:'#221e36', r:'#58c8e8', g:'#b8b8d0', w:'#ffffff' }, mat: [
+'.g....g..g....g.',
+'kgk..kgk.kgk.kgk',
+'knnk.knnknnk.knk',
+'.knnkknnnnkknnk.',
+'..knnnnnnnnnnk..',
+'..knrwnnnnwrnk..',
+'..knnnnnnnnnnk..',
+'...knnkrrknnk...',
+'..knnnnrrnnnnk..',
+'.knnnknnnnknnnk.',
+'.knnknnnnnnknnk.',
+'..kknnnnnnnnkk..',
+'...knnkkkknnk...',
+'....knk..knk....',
+'.....k....k.....',
+'................',
+]};
+
 /* ============================================================
    DONNÉES DE JEU — attaques, types, espèces
    ============================================================ */
@@ -1175,7 +1847,188 @@ const SPECIES = {
                learn:[[1,'flammette'],[6,'boue'],[12,'brasier'],[18,'jetpierre'],[26,'eboulement'],[32,'fournaise']] },
   lumiole:   { name:'Lumiole',   types:['Électrik'],     base:{hp:60,atk:65,def:55,spe:90}, catch:100, exp:120,
                learn:[[1,'etincelle'],[10,'vifsprint'],[16,'foudre'],[24,'spectrale']] },
+
+  /* ---- formes régionales (variantes) ---- */
+  cendrilla: { name:'Cendrilla', types:['Ténèbres'],     base:{hp:44,atk:54,def:42,spe:66}, catch:120, exp:66,
+               evolveAt:24, evolveTo:'cendrenard',
+               learn:[[1,'griffure'],[1,'crochenuit'],[7,'vifsprint'],[14,'morsure'],[22,'vampirisme'],[30,'orbeobscur']] },
+  cendrenard:{ name:'Cendrenard',types:['Ténèbres','Feu'],base:{hp:60,atk:72,def:56,spe:84}, catch:60, exp:150,
+               learn:[[1,'griffure'],[1,'crochenuit'],[7,'vifsprint'],[14,'morsure'],[22,'vampirisme'],[30,'orbeobscur'],[34,'fournaise']] },
+  boulgom:   { name:'Boulgom',   types:['Normal'],       base:{hp:60,atk:42,def:42,spe:40}, catch:190, exp:58,
+               evolveAt:20, evolveTo:'gomastar',
+               learn:[[1,'charge'],[6,'vifsprint'],[12,'plaquage'],[24,'ultracharge']] },
+  gomastar:  { name:'Gomastar',  types:['Normal'],       base:{hp:85,atk:62,def:60,spe:55}, catch:80, exp:148,
+               learn:[[1,'charge'],[6,'vifsprint'],[12,'plaquage'],[24,'ultracharge']] },
+  vipersand: { name:'Vipersand', types:['Sol'],          base:{hp:44,atk:52,def:46,spe:62}, catch:140, exp:62,
+               evolveAt:23, evolveTo:'cobradune',
+               learn:[[1,'charge'],[1,'boue'],[8,'morsure'],[15,'seisme'],[24,'dardvenin'],[31,'tremterre']] },
+  cobradune: { name:'Cobradune', types:['Sol'],          base:{hp:62,atk:70,def:62,spe:78}, catch:60, exp:154,
+               learn:[[1,'charge'],[1,'boue'],[8,'morsure'],[15,'seisme'],[24,'dardvenin'],[31,'tremterre']] },
+  corvol:    { name:'Corvol',    types:['Ténèbres','Vol'],base:{hp:42,atk:50,def:38,spe:62}, catch:160, exp:58,
+               evolveAt:21, evolveTo:'corbynx',
+               learn:[[1,'picorage'],[5,'crochenuit'],[10,'rafale'],[18,'vampirisme'],[26,'pique'],[32,'aileombre']] },
+  corbynx:   { name:'Corbynx',   types:['Ténèbres','Vol'],base:{hp:62,atk:78,def:58,spe:88}, catch:70, exp:156,
+               learn:[[1,'picorage'],[5,'crochenuit'],[10,'rafale'],[18,'vampirisme'],[26,'pique'],[32,'aileombre']] },
+  azurat:    { name:'Azurat',    types:['Eau'],          base:{hp:40,atk:46,def:38,spe:56}, catch:200, exp:48,
+               evolveAt:17, evolveTo:'razurak',
+               learn:[[1,'charge'],[5,'jetdo'],[9,'vifsprint'],[14,'morsure'],[22,'torrent'],[30,'raz']] },
+  razurak:   { name:'Razurak',   types:['Eau'],          base:{hp:60,atk:74,def:56,spe:80}, catch:90, exp:144,
+               learn:[[1,'charge'],[5,'jetdo'],[9,'vifsprint'],[14,'morsure'],[22,'torrent'],[30,'raz']] },
+  chenibraise:{name:'Chenibraise',types:['Feu'],         base:{hp:44,atk:40,def:48,spe:34}, catch:200, exp:46,
+               evolveAt:12, evolveTo:'papiflam',
+               learn:[[1,'charge'],[5,'flammette'],[10,'brasier']] },
+  papiflam:  { name:'Papiflam',  types:['Feu','Vol'],    base:{hp:56,atk:62,def:56,spe:80}, catch:90, exp:140,
+               learn:[[1,'charge'],[5,'flammette'],[10,'brasier'],[14,'rafale'],[20,'ailerasoir'],[28,'fournaise']] },
+  glacachat: { name:'Glaçachat', types:['Glace'],        base:{hp:42,atk:50,def:42,spe:72}, catch:130, exp:62,
+               evolveAt:24, evolveTo:'tigregivre',
+               learn:[[1,'griffure'],[1,'boulneige'],[8,'vifsprint'],[14,'ventglace'],[26,'avalanche']] },
+  tigregivre:{ name:'Tigregivre',types:['Glace'],        base:{hp:64,atk:80,def:62,spe:98}, catch:60, exp:162,
+               learn:[[1,'griffure'],[1,'boulneige'],[8,'vifsprint'],[14,'ventglace'],[26,'avalanche'],[32,'ultracharge']] },
+  taupelec:  { name:'Taupelec',  types:['Électrik','Sol'],base:{hp:44,atk:56,def:50,spe:48}, catch:130, exp:62,
+               evolveAt:23, evolveTo:'forazap',
+               learn:[[1,'griffure'],[1,'etincelle'],[8,'boue'],[15,'foudre'],[24,'seisme'],[32,'tremterre']] },
+  forazap:   { name:'Forazap',   types:['Électrik','Sol'],base:{hp:68,atk:88,def:72,spe:62}, catch:60, exp:164,
+               learn:[[1,'griffure'],[1,'etincelle'],[8,'boue'],[15,'foudre'],[24,'seisme'],[32,'tremterre']] },
+  toxouille: { name:'Toxouille', types:['Plante'],       base:{hp:46,atk:48,def:44,spe:52}, catch:150, exp:58,
+               evolveAt:23, evolveTo:'crapotoxe',
+               learn:[[1,'charge'],[4,'dardvenin'],[10,'feuillelame'],[16,'nuagetoxik'],[26,'tempeteverte']] },
+  crapotoxe: { name:'Crapotoxe', types:['Plante'],       base:{hp:70,atk:74,def:68,spe:64}, catch:70, exp:158,
+               learn:[[1,'charge'],[4,'dardvenin'],[10,'feuillelame'],[16,'nuagetoxik'],[26,'tempeteverte']] },
+  rocgivre:  { name:'Rocgivre',  types:['Roche','Glace'],base:{hp:54,atk:62,def:84,spe:24}, catch:140, exp:64,
+               evolveAt:27, evolveTo:'bergedos',
+               learn:[[1,'charge'],[1,'jetpierre'],[9,'boulneige'],[17,'eboulement'],[26,'ventglace'],[34,'avalanche']] },
+  bergedos:  { name:'Bergedos',  types:['Roche','Glace'],base:{hp:78,atk:90,def:105,spe:32}, catch:55, exp:176,
+               learn:[[1,'charge'],[1,'jetpierre'],[9,'boulneige'],[17,'eboulement'],[26,'ventglace'],[34,'avalanche'],[38,'lameroche']] },
+  fulgave:   { name:'Fulgave',   types:['Électrik','Vol'],base:{hp:40,atk:52,def:36,spe:80}, catch:160, exp:58,
+               evolveAt:24, evolveTo:'fulgyx',
+               learn:[[1,'picorage'],[1,'etincelle'],[9,'vifsprint'],[16,'rafale'],[24,'foudre'],[32,'pique']] },
+  fulgyx:    { name:'Fulgyx',    types:['Électrik','Vol'],base:{hp:62,atk:76,def:58,spe:102},catch:60, exp:164,
+               learn:[[1,'picorage'],[1,'etincelle'],[9,'vifsprint'],[16,'rafale'],[24,'foudre'],[32,'pique']] },
+  feuflotte: { name:'Feuflotte', types:['Feu','Spectre'],base:{hp:36,atk:62,def:36,spe:82}, catch:130, exp:66,
+               evolveAt:28, evolveTo:'pyrospectre',
+               learn:[[1,'flammette'],[1,'spectrale'],[8,'vifsprint'],[16,'brasier'],[24,'vampirisme'],[32,'grifantome']] },
+  pyrospectre:{name:'Pyrospectre',types:['Feu','Spectre'],base:{hp:58,atk:92,def:56,spe:98}, catch:50, exp:172,
+               learn:[[1,'flammette'],[1,'spectrale'],[8,'vifsprint'],[16,'brasier'],[24,'vampirisme'],[32,'grifantome'],[36,'fournaise']] },
+
+  /* ---- espèces inédites ---- */
+  chouettin: { name:'Chouettin', types:['Normal','Vol'], base:{hp:42,atk:44,def:42,spe:60}, catch:190, exp:54,
+               evolveAt:19, evolveTo:'stryxnuit',
+               learn:[[1,'charge'],[1,'picorage'],[8,'vifsprint'],[14,'rafale'],[24,'ailerasoir'],[32,'pique']] },
+  stryxnuit: { name:'Stryxnuit', types:['Normal','Vol'], base:{hp:62,atk:70,def:60,spe:86}, catch:80, exp:152,
+               learn:[[1,'charge'],[1,'picorage'],[8,'vifsprint'],[14,'rafale'],[24,'ailerasoir'],[32,'pique']] },
+  faonelle:  { name:'Faonelle',  types:['Normal'],       base:{hp:46,atk:46,def:42,spe:62}, catch:180, exp:56,
+               evolveAt:21, evolveTo:'cervidor',
+               learn:[[1,'charge'],[6,'vifsprint'],[12,'feuillelame'],[20,'plaquage'],[28,'tempeteverte']] },
+  cervidor:  { name:'Cervidor',  types:['Normal','Plante'],base:{hp:68,atk:74,def:62,spe:82}, catch:70, exp:158,
+               learn:[[1,'charge'],[6,'vifsprint'],[12,'feuillelame'],[20,'plaquage'],[28,'tempeteverte'],[34,'ultracharge']] },
+  tortibulle:{ name:'Tortibulle',types:['Eau'],          base:{hp:50,atk:44,def:58,spe:34}, catch:180, exp:58,
+               evolveAt:22, evolveTo:'torticoral',
+               learn:[[1,'charge'],[1,'jetdo'],[10,'morsure'],[18,'torrent'],[26,'eboulement'],[32,'raz']] },
+  torticoral:{ name:'Torticoral',types:['Eau','Roche'],  base:{hp:74,atk:66,def:92,spe:38}, catch:70, exp:166,
+               learn:[[1,'charge'],[1,'jetdo'],[10,'morsure'],[18,'torrent'],[26,'eboulement'],[32,'raz'],[36,'lameroche']] },
+  bourdonbz: { name:'Bourdonbz', types:['Plante','Vol'], base:{hp:40,atk:50,def:38,spe:66}, catch:180, exp:56,
+               evolveAt:20, evolveTo:'apidame',
+               learn:[[1,'charge'],[1,'dardvenin'],[9,'rafale'],[16,'feuillelame'],[24,'nuagetoxik'],[30,'ailerasoir']] },
+  apidame:   { name:'Apidame',   types:['Plante','Vol'], base:{hp:60,atk:74,def:58,spe:88}, catch:70, exp:156,
+               learn:[[1,'charge'],[1,'dardvenin'],[9,'rafale'],[16,'feuillelame'],[24,'nuagetoxik'],[30,'ailerasoir']] },
+  champifou: { name:'Champifou', types:['Plante'],       base:{hp:48,atk:44,def:50,spe:30}, catch:170, exp:58,
+               evolveAt:24, evolveTo:'mycorage',
+               learn:[[1,'charge'],[1,'dardvenin'],[10,'feuillelame'],[18,'nuagetoxik'],[28,'tempeteverte']] },
+  mycorage:  { name:'Mycorage',  types:['Plante','Spectre'],base:{hp:66,atk:78,def:68,spe:46}, catch:60, exp:164,
+               learn:[[1,'charge'],[1,'dardvenin'],[10,'feuillelame'],[18,'nuagetoxik'],[28,'tempeteverte'],[32,'grifantome']] },
+  minetou:   { name:'Minetou',   types:['Normal'],       base:{hp:42,atk:48,def:40,spe:66}, catch:190, exp:52,
+               evolveAt:20, evolveTo:'felinox',
+               learn:[[1,'griffure'],[6,'vifsprint'],[12,'morsure'],[20,'crochenuit'],[28,'ultracharge']] },
+  felinox:   { name:'Felinox',   types:['Normal','Ténèbres'],base:{hp:62,atk:74,def:58,spe:92}, catch:75, exp:154,
+               learn:[[1,'griffure'],[6,'vifsprint'],[12,'morsure'],[20,'crochenuit'],[28,'ultracharge'],[32,'orbeobscur']] },
+  oursonin:  { name:'Oursonin',  types:['Normal'],       base:{hp:55,atk:55,def:45,spe:40}, catch:150, exp:62,
+               evolveAt:25, evolveTo:'grizzlor',
+               learn:[[1,'charge'],[1,'griffure'],[10,'morsure'],[18,'plaquage'],[28,'seisme'],[34,'ultracharge']] },
+  grizzlor:  { name:'Grizzlor',  types:['Normal','Sol'], base:{hp:85,atk:95,def:72,spe:52}, catch:55, exp:178,
+               learn:[[1,'charge'],[1,'griffure'],[10,'morsure'],[18,'plaquage'],[28,'seisme'],[34,'ultracharge'],[38,'tremterre']] },
+  pinglace:  { name:'Pinglace',  types:['Glace','Eau'],  base:{hp:48,atk:46,def:48,spe:50}, catch:170, exp:58,
+               evolveAt:24, evolveTo:'empeglace',
+               learn:[[1,'charge'],[1,'boulneige'],[9,'jetdo'],[16,'ventglace'],[24,'torrent'],[32,'avalanche']] },
+  empeglace: { name:'Empeglace', types:['Glace','Eau'],  base:{hp:72,atk:72,def:74,spe:60}, catch:65, exp:166,
+               learn:[[1,'charge'],[1,'boulneige'],[9,'jetdo'],[16,'ventglace'],[24,'torrent'],[32,'avalanche'],[36,'raz']] },
+  scarabronze:{name:'Scarabronze',types:['Roche','Vol'], base:{hp:44,atk:52,def:62,spe:44}, catch:160, exp:60,
+               evolveAt:25, evolveTo:'scarathor',
+               learn:[[1,'charge'],[1,'jetpierre'],[10,'rafale'],[18,'eboulement'],[28,'ailerasoir'],[34,'lameroche']] },
+  scarathor: { name:'Scarathor', types:['Roche','Vol'],  base:{hp:64,atk:84,def:84,spe:58}, catch:55, exp:170,
+               learn:[[1,'charge'],[1,'jetpierre'],[10,'rafale'],[18,'eboulement'],[28,'ailerasoir'],[34,'lameroche']] },
+  medusette: { name:'Medusette', types:['Eau','Spectre'],base:{hp:44,atk:46,def:42,spe:58}, catch:160, exp:60,
+               evolveAt:26, evolveTo:'abyssine',
+               learn:[[1,'jetdo'],[1,'spectrale'],[10,'vifsprint'],[18,'torrent'],[26,'vampirisme'],[34,'grifantome']] },
+  abyssine:  { name:'Abyssine',  types:['Eau','Spectre'],base:{hp:66,atk:80,def:62,spe:84}, catch:55, exp:168,
+               learn:[[1,'jetdo'],[1,'spectrale'],[10,'vifsprint'],[18,'torrent'],[26,'vampirisme'],[34,'grifantome'],[38,'raz']] },
+  dracotin:  { name:'Dracotin',  types:['Ténèbres','Vol'],base:{hp:46,atk:52,def:46,spe:54}, catch:60, exp:70,
+               evolveAt:30, evolveTo:'drakefer',
+               learn:[[1,'charge'],[1,'morsure'],[12,'crochenuit'],[20,'rafale'],[30,'aileombre'],[38,'pique']] },
+  drakefer:  { name:'Drakefer',  types:['Ténèbres','Vol'],base:{hp:76,atk:92,def:76,spe:86}, catch:40, exp:190,
+               learn:[[1,'charge'],[1,'morsure'],[12,'crochenuit'],[20,'rafale'],[30,'aileombre'],[38,'pique'],[42,'orbeobscur']] },
+  lapidou:   { name:'Lapidou',   types:['Normal'],       base:{hp:44,atk:42,def:40,spe:74}, catch:190, exp:52,
+               evolveAt:21, evolveTo:'lapinvif',
+               learn:[[1,'charge'],[5,'vifsprint'],[12,'plaquage'],[22,'etincelle'],[30,'foudre']] },
+  lapinvif:  { name:'Lapinvif',  types:['Électrik'],     base:{hp:62,atk:68,def:56,spe:104},catch:75, exp:156,
+               learn:[[1,'charge'],[5,'vifsprint'],[12,'plaquage'],[22,'etincelle'],[30,'foudre'],[34,'ultracharge']] },
+  crocplante:{ name:'Crocplante',types:['Plante'],       base:{hp:48,atk:56,def:44,spe:42}, catch:150, exp:60,
+               evolveAt:26, evolveTo:'voraplante',
+               learn:[[1,'morsure'],[1,'feuillelame'],[10,'dardvenin'],[18,'lianes'],[28,'tempeteverte']] },
+  voraplante:{ name:'Voraplante',types:['Plante'],       base:{hp:72,atk:90,def:66,spe:54}, catch:55, exp:170,
+               learn:[[1,'morsure'],[1,'feuillelame'],[10,'dardvenin'],[18,'lianes'],[28,'tempeteverte'],[34,'plaquage']] },
+  salambre:  { name:'Salambre',  types:['Feu'],          base:{hp:44,atk:52,def:42,spe:58}, catch:160, exp:58,
+               evolveAt:25, evolveTo:'pyrosaure',
+               learn:[[1,'griffure'],[1,'flammette'],[10,'morsure'],[18,'brasier'],[28,'fournaise']] },
+  pyrosaure: { name:'Pyrosaure', types:['Feu'],          base:{hp:70,atk:86,def:64,spe:74}, catch:55, exp:168,
+               learn:[[1,'griffure'],[1,'flammette'],[10,'morsure'],[18,'brasier'],[28,'fournaise'],[34,'tremterre']] },
+  piquedou:  { name:'Piquedou',  types:['Plante','Sol'], base:{hp:46,atk:48,def:54,spe:38}, catch:170, exp:58,
+               evolveAt:23, evolveTo:'heripik',
+               learn:[[1,'charge'],[1,'dardvenin'],[9,'boue'],[16,'feuillelame'],[24,'seisme'],[32,'tempeteverte']] },
+  heripik:   { name:'Heripik',   types:['Plante','Sol'], base:{hp:66,atk:76,def:78,spe:48}, catch:60, exp:164,
+               learn:[[1,'charge'],[1,'dardvenin'],[9,'boue'],[16,'feuillelame'],[24,'seisme'],[32,'tempeteverte']] },
+  nimbules:  { name:'Nimbules',  types:['Vol','Eau'],    base:{hp:44,atk:44,def:42,spe:64}, catch:170, exp:56,
+               evolveAt:24, evolveTo:'orageon',
+               learn:[[1,'charge'],[1,'jetdo'],[10,'rafale'],[18,'torrent'],[26,'etincelle'],[34,'foudre']] },
+  orageon:   { name:'Orageon',   types:['Vol','Électrik'],base:{hp:64,atk:78,def:58,spe:92}, catch:60, exp:166,
+               learn:[[1,'charge'],[1,'jetdo'],[10,'rafale'],[18,'torrent'],[26,'etincelle'],[34,'foudre'],[38,'pique']] },
+  crabouille:{ name:'Crabouille',types:['Eau','Roche'],  base:{hp:46,atk:56,def:62,spe:36}, catch:160, exp:60,
+               evolveAt:25, evolveTo:'pincelord',
+               learn:[[1,'griffure'],[1,'jetdo'],[10,'jetpierre'],[18,'torrent'],[26,'eboulement'],[34,'lameroche']] },
+  pincelord: { name:'Pincelord', types:['Eau','Roche'],  base:{hp:68,atk:88,def:84,spe:44}, catch:55, exp:172,
+               learn:[[1,'griffure'],[1,'jetdo'],[10,'jetpierre'],[18,'torrent'],[26,'eboulement'],[34,'lameroche'],[38,'raz']] },
+  anguilune: { name:'Anguilune', types:['Eau','Électrik'],base:{hp:60,atk:70,def:56,spe:84}, catch:90, exp:150,
+               learn:[[1,'jetdo'],[1,'etincelle'],[12,'morsure'],[20,'torrent'],[28,'foudre'],[36,'raz']] },
+  stellune:  { name:'Stellune',  types:['Eau','Glace'],  base:{hp:64,atk:62,def:64,spe:78}, catch:80, exp:155,
+               learn:[[1,'jetdo'],[1,'boulneige'],[12,'vifsprint'],[20,'ventglace'],[28,'torrent'],[36,'avalanche']] },
+  mnemos:    { name:'Mnémos',    types:['Spectre','Ténèbres'],base:{hp:82,atk:92,def:82,spe:92}, catch:15, exp:240,
+               learn:[[1,'spectrale'],[1,'crochenuit'],[1,'vampirisme'],[1,'grifantome'],[54,'orbeobscur']] },
 };
+
+/* sprites des formes régionales : même silhouette, palette propre */
+SPR.cendrilla  = { pal: { k:'#1c1c22', o:'#7a7a8a', d:'#4e4e5e', c:'#c8c8d4', e:'#101016', w:'#ffffff', f:'#b03050', r:'#e84a6a' }, mat: SPR.pyrouf.mat };
+SPR.cendrenard = { pal: { k:'#16161c', o:'#62626f', d:'#3e3e4c', c:'#c8c8d4', e:'#101016', w:'#ffffff', f:'#c83858', r:'#f05878' }, mat: SPR.pyrenard.mat };
+SPR.boulgom    = { pal: { k:'#2a1a22', b:'#f0a0c0', d:'#d87aa2', c:'#ffe2ee', e:'#1c1016', w:'#ffffff' }, mat: SPR.aquanou.mat };
+SPR.gomastar   = { pal: { k:'#241620', b:'#e88ab4', d:'#c46492', c:'#ffe2ee', e:'#1c1016', w:'#ffffff' }, mat: SPR.loutrazur.mat };
+SPR.vipersand  = { pal: { k:'#2a2010', g:'#d8b868', d:'#a88840', c:'#f4e4b8', e:'#1a1408', w:'#ffffff', l:'#e8d088', y:'#c87838' }, mat: SPR.verdylis.mat };
+SPR.cobradune  = { pal: { k:'#241c0c', g:'#caa850', d:'#8a6828', c:'#f4e4b8', e:'#1a1408', w:'#ffffff', l:'#e8d088', y:'#c87838' }, mat: SPR.vipelia.mat };
+SPR.corvol     = { pal: { k:'#14141e', b:'#3a3a52', r:'#5a5a78', c:'#9a9ab4', w:'#ffffff', e:'#e8283a', y:'#caa030', d:'#26263a' }, mat: SPR.roupiaf.mat };
+SPR.corbynx    = { pal: { k:'#101018', b:'#32324a', r:'#52527a', c:'#9a9ab4', w:'#ffffff', e:'#e8283a', y:'#caa030', d:'#1e1e30' }, mat: SPR.aigleroc.mat };
+SPR.azurat     = { pal: { k:'#101c2a', m:'#5a8ac8', c:'#cfe4f8', e:'#0a141e', w:'#ffffff', p:'#9ac4e8' }, mat: SPR.mulotin.mat };
+SPR.razurak    = { pal: { k:'#0c1824', m:'#4a7ab8', c:'#cfe4f8', e:'#0a141e', w:'#ffffff', p:'#9ac4e8', g:'#d8e8f4' }, mat: SPR.ratagriffe.mat };
+SPR.chenibraise= { pal: { k:'#241008', g:'#e86838', d:'#b84818', y:'#ffd23a', e:'#180a04', w:'#ffffff', r:'#f8e048' }, mat: SPR.chenivert.mat };
+SPR.papiflam   = { pal: { k:'#240f08', g:'#e86838', w:'#f8ddc0', r:'#f25c2a', e:'#180a04', v:'#ffd23a' }, mat: SPR.papivol.mat };
+SPR.glacachat  = { pal: { k:'#1a2430', y:'#d8ecf8', d:'#a8cce8', b:'#58a8e0', w:'#ffffff', e:'#16202c' }, mat: SPR.voltichat.mat };
+SPR.tigregivre = { pal: { k:'#16202c', y:'#cfe6f6', b:'#4a98d0', w:'#ffffff', e:'#121a24', d:'#98c0e0' }, mat: SPR.tigrevolt.mat };
+SPR.taupelec   = { pal: { k:'#1c1c0e', t:'#d8c040', d:'#a89020', p:'#f8f0a0', c:'#f0e088', w:'#ffffff', e:'#14140a', g:'#e8e8f0' }, mat: SPR.taupix.mat };
+SPR.forazap    = { pal: { k:'#18180c', t:'#caa830', d:'#8a7818', p:'#f8f0a0', w:'#ffffff', e:'#14140a', g:'#e8e8f0' }, mat: SPR.forator.mat };
+SPR.toxouille  = { pal: { k:'#1e1426', g:'#9a68c8', d:'#6e448e', c:'#e0ccf4', w:'#ffffff', e:'#160e1c', b:'#c898f0' }, mat: SPR.grenouilla.mat };
+SPR.crapotoxe  = { pal: { k:'#1a1222', g:'#8a58b8', d:'#5e3a80', c:'#e0ccf4', w:'#ffffff', e:'#160e1c', b:'#c898f0' }, mat: SPR.crapotaure.mat };
+SPR.rocgivre   = { pal: { k:'#1e2630', r:'#b8d0e0', d:'#88a8c0', w:'#ffffff', e:'#121a22' }, mat: SPR.rocailloux.mat };
+SPR.bergedos   = { pal: { k:'#1a222c', r:'#a8c4d8', d:'#7898b4', m:'#e8f4fc', w:'#ffffff', e:'#121a22' }, mat: SPR.golemoss.mat };
+SPR.fulgave    = { pal: { k:'#1c1c10', v:'#caa820', w:'#ffffff', e:'#f8e048' }, mat: SPR.chauvenuit.mat };
+SPR.fulgyx     = { pal: { k:'#18180c', v:'#b89818', w:'#ffffff', e:'#f8e048', d:'#8a7010' }, mat: SPR.vampiryx.mat };
+SPR.feuflotte  = { pal: { k:'#2a1410', s:'#f8b87a', d:'#e8783a', w:'#ffffff', e:'#f25c2a' }, mat: SPR.spectrelle.mat };
+SPR.pyrospectre= { pal: { k:'#240f0c', s:'#f0a860', d:'#d86028', w:'#ffffff', e:'#f24c1a' }, mat: SPR.fantomare.mat };
 
 // ---------- instances de créatures ----------
 function statOf(base, level, isHp) {
@@ -1214,7 +2067,7 @@ function monName(m) { return SPECIES[m.sp].name; }
    '#' arbre  '.' herbe  ',' fleurs  ':' chemin  ';' hautes herbes
    '~' eau  '=' barrière  'S' panneau
    ============================================================ */
-const MAP_W = 512, MAP_H = 60;
+const MAP_W = 624, MAP_H = 60;
 const M = Array.from({ length: MAP_H }, () => Array(MAP_W).fill('.'));
 function mrect(x, y, w, h, ch) {
   for (let j = y; j < y + h; j++)
@@ -1469,6 +2322,41 @@ function addTown(x0, opts) {
   BUILDINGS.push({ x: 490, y: 1, w: 9, h: 4, roof: '#f8d048', wall: '#e8e4f0', door: 494, emblem: 'arena', name: 'PANTHÉON' });
   M[32][490] = 'S'; SIGNS['490,32'] = 'LIGUE DE LA RÉGION — Quatre Maîtres, puis\nle Champion. Point de non-retour !';
   PICKUPS.push({ x: 480, y: 26, item: 'spot', n: 3 }, { x: 484, y: 41, item: 'guer', n: 2 }, { x: 488, y: 28, item: 'bonbon', n: 1 });
+
+  // ---- LA MER ORIENTALE ET SES ÎLES (ferry depuis Port-Azur) ----
+  mrect(511, 1, 1, 58, '#');                 // fin de la terre ferme
+  mrect(512, 1, 111, 58, '~');               // la mer
+
+  // MARAIS BRUMEUX (512-547)
+  mrect(515, 8, 30, 44, '.');
+  mrect(520, 14, 8, 5, '~'); mrect(534, 32, 7, 5, '~');
+  mrect(517, 22, 10, 8, ';'); mrect(531, 12, 9, 6, ';'); mrect(529, 42, 12, 6, ';');
+  mrect(522, 34, 4, 4, '#'); mrect(538, 20, 4, 5, '#'); mrect(518, 44, 3, 4, '#');
+  mrect(512, 33, 3, 2, 'b'); mrect(515, 33, 4, 2, ':');
+  M[31][516] = 'S'; SIGNS['516,31'] = 'MARAIS BRUMEUX — La brume avale les pas\net les souvenirs.';
+  PICKUPS.push({ x: 519, y: 24, item: 'guer', n: 2 }, { x: 536, y: 44, item: 'bonbon', n: 1 }, { x: 532, y: 14, item: 'spot', n: 2 });
+
+  // ÎLE DU PHARE (548-583)
+  mrect(552, 10, 27, 40, '.');
+  mrect(556, 16, 8, 5, ';'); mrect(566, 38, 9, 6, ';'); mrect(570, 22, 6, 4, ';');
+  mrect(554, 42, 4, 4, '#'); mrect(574, 14, 4, 4, '#');
+  mrect(548, 33, 4, 2, 'b'); mrect(552, 33, 5, 2, ':');
+  BUILDINGS.push({ x: 562, y: 12, w: 6, h: 9, roof: '#d84a3a', wall: '#f0e8e0', door: 564, emblem: 'arena', name: 'PHARE' });
+  mrect(563, 21, 3, 1, ':'); mrect(564, 22, 2, 11, ':');
+  M[31][554] = 'S'; SIGNS['554,31'] = 'ÎLE DU PHARE — Sa lumière guidait autrefois\nles pèlerins vers le Sanctuaire.';
+  PICKUPS.push({ x: 558, y: 18, item: 'spot', n: 2 }, { x: 570, y: 40, item: 'caps', n: 5 });
+
+  // SANCTUAIRE DES LÉGENDES (584-623)
+  mrect(588, 6, 32, 44, '.');
+  mrect(584, 33, 4, 2, 'b'); mrect(588, 33, 6, 2, ':');
+  mrect(594, 10, 2, 24, ':'); mrect(596, 33, 8, 2, ':');
+  mrect(592, 8, 18, 2, '#'); mrect(592, 10, 2, 4, '#'); mrect(608, 10, 2, 4, '#');
+  mrect(596, 10, 10, 8, ':');                 // le parvis
+  mrect(598, 20, 2, 2, ','); mrect(604, 20, 2, 2, ',');
+  mrect(590, 38, 10, 8, ';'); mrect(606, 40, 10, 8, ';');
+  mrect(612, 22, 4, 4, '#'); mrect(590, 26, 3, 4, '#');
+  M[31][590] = 'S'; SIGNS['590,31'] = 'SANCTUAIRE DES LÉGENDES — « Ici dort la\nMémoire du monde. » ';
+  PICKUPS.push({ x: 598, y: 21, item: 'bonbon', n: 2 }, { x: 610, y: 42, item: 'guer', n: 2 }, { x: 604, y: 16, item: 'spot', n: 3 });
 })();
 
 (function populateEast() {
@@ -1602,24 +2490,72 @@ function addTown(x0, opts) {
 
   // la légende du Mont Givre (post-Champion)
   NPCS.push({ id: 'auryon', x: 384, y: 3, dir: 'down', dragon: 'auryon' });
+
+  // capitaines du ferry
+  const PAL_CAPT = humanPal('#e8e8f0', '#2e4a8a', '#e8e4d8');
+  NPCS.push({ id: 'capt_port',       x: 196, y: 45, dir: 'right', pal: PAL_CAPT, captain: 'port' });
+  NPCS.push({ id: 'capt_marais',     x: 513, y: 34, dir: 'right', pal: PAL_CAPT, captain: 'marais' });
+  NPCS.push({ id: 'capt_phare',      x: 549, y: 34, dir: 'right', pal: PAL_CAPT, captain: 'phare' });
+  NPCS.push({ id: 'capt_sanctuaire', x: 585, y: 34, dir: 'right', pal: PAL_CAPT, captain: 'sanctuaire' });
+
+  // l'histoire : Érèbe au bord du lac, Mnémos au Sanctuaire
+  NPCS.push({ id: 'erebe', x: 13, y: 3, dir: 'down', pal: humanPal('#d8d8e0', '#16161e', '#2a2a36'), erebe: true });
+  NPCS.push({ id: 'mnemos', x: 600, y: 13, dir: 'down', dragon: 'mnemos' });
+
+  // personnages de quêtes
+  NPCS.push({ id: 'fillette',  x: 50,  y: 24, dir: 'down', pal: humanPal('#c8762a', '#f0a8c0', '#f4e8d8'), quest: 1 });
+  NPCS.push({ id: 'eleveur',   x: 300, y: 31, dir: 'down', pal: humanPal('#b8b8c4', '#7a5e3a', '#4a4238'), quest: 2 });
+  NPCS.push({ id: 'gardien',   x: 564, y: 21, dir: 'down', pal: humanPal('#d8d8e0', '#caa040', '#3a3a4a'), quest: 3 });
+  NPCS.push({ id: 'sculpteur', x: 374, y: 21, dir: 'down', pal: humanPal('#8a8a96', '#78c8e0', '#5a5a66'), quest: 4 });
+
+  // objets de quête au sol
+  PICKUPS.push({ x: 94, y: 26, item: 'qruban', n: 1 });
+  PICKUPS.push({ x: 157, y: 22, item: 'qlentille', n: 1 });
 })();
+
+// liaisons du ferry (le BFS de validation les connaît aussi)
+const FERRY = [
+  { id: 'port',       name: 'Port-Azur',               x: 197, y: 44, need: 0 },
+  { id: 'marais',     name: 'Marais Brumeux',          x: 516, y: 34, need: 3 },
+  { id: 'phare',      name: 'Île du Phare',            x: 553, y: 34, need: 5 },
+  { id: 'sanctuaire', name: 'Sanctuaire des Légendes', x: 589, y: 34, flag: 'dragonDone' },
+];
+
+// quêtes annexes : état 0 = à découvrir, 1 = en cours, 2 = terminée
+const QUESTS = [
+  { name: 'Le ruban perdu',       state: () => G.flags.q1Done ? 2 : (G.flags.q1 ? 1 : 0),
+    hint: 'La fillette de Villeflore a perdu son ruban dans la Forêt Murmure.' },
+  { name: 'L’œuf du vieil éleveur', state: () => G.flags.q2Done ? 2 : (badgeCount() >= 3 ? 1 : 0),
+    hint: 'Un éleveur des Plaines Dorées cherche un dresseur à 4 badges digne de son Dracotin.' },
+  { name: 'La lumière du phare',  state: () => G.flags.q3Done ? 2 : (G.flags.q3 ? 1 : 0),
+    hint: 'Le gardien du phare attend une Lentille de cristal, perdue dans la Grotte Écho.' },
+  { name: 'Le sculpteur de givre', state: () => G.flags.q4Done ? 2 : (badgeCount() >= 6 ? 1 : 0),
+    hint: 'Le sculpteur de Givrebourg rêve de voir un GIVRELOU de près.' },
+  { name: 'La séance du médium',  state: () => G.flags.q5Done ? 2 : (G.flags.tr_nox ? 1 : 0),
+    hint: 'Le médium Nox veut communier avec un FANTOMARE apprivoisé.' },
+  { name: 'L’épreuve du forgeron', state: () => G.flags.q6Done ? 2 : (G.flags.badge8 ? 1 : 0),
+    hint: 'Le forgeron Bram veut contempler un VOLCANUS avant de fermer sa forge.' },
+];
 
 // zones de la région (x0 inclus, x1 exclus) — la 1re qui correspond gagne
 const ZONES = [
   { x1: 40, name: null },  // région d'origine : gérée par bandes verticales
-  { x1: 76,  name: 'VILLEFLORE',     table: [['fleurnette',30,[4,7]],['chenivert',25,[4,7]],['roupiaf',25,[4,7]],['mulotin',20,[5,8]]] },
-  { x1: 112, name: 'FORÊT MURMURE',  table: [['chenivert',25,[8,12]],['fleurnette',25,[8,12]],['chauvenuit',25,[9,13]],['papivol',15,[10,13]],['lumiole',10,[10,14]]] },
-  { x1: 148, name: 'ROCHE-BOURG',    table: [['rocailloux',35,[12,16]],['taupix',30,[12,16]],['roupiaf',20,[13,17]],['mulotin',15,[13,16]]] },
-  { x1: 184, name: 'GROTTE ÉCHO',    table: [['chauvenuit',35,[15,19]],['rocailloux',30,[15,19]],['taupix',20,[16,20]],['spectrelle',15,[16,20]]] },
-  { x1: 220, name: 'PORT-AZUR',      table: [['poissonor',35,[17,21]],['grenouilla',30,[17,21]],['roupiaf',20,[18,22]],['voltichat',15,[18,22]]] },
-  { x1: 256, name: 'ROUTE CÔTIÈRE',  table: [['poissonor',30,[19,23]],['voltichat',25,[19,23]],['mulotin',25,[20,24]],['lumiole',10,[20,24]],['requinox',10,[22,25]]] },
-  { x1: 292, name: 'VOLTCITÉ',       table: [['voltichat',35,[22,26]],['lumiole',25,[22,26]],['mulotin',25,[22,26]],['fleurnette',15,[23,26]]] },
-  { x1: 328, name: 'PLAINES DORÉES', table: [['mulotin',25,[24,28]],['aigleroc',20,[25,29]],['voltichat',20,[24,28]],['fleurnette',20,[24,28]],['lumiole',15,[25,29]]] },
-  { x1: 364, name: 'DÉSERT OCRE',    table: [['sablizard',35,[27,31]],['taupix',25,[27,31]],['rocailloux',25,[27,31]],['forator',15,[29,33]]] },
-  { x1: 400, name: 'MONT GIVRE',     table: [['glacouille',40,[30,34]],['roupiaf',20,[30,33]],['rocailloux',20,[30,34]],['givrelou',20,[32,36]]] },
-  { x1: 436, name: 'TOUR SOMBRE',    table: [['spectrelle',35,[33,37]],['chauvenuit',30,[33,37]],['vampiryx',20,[34,38]],['fantomare',15,[35,39]]] },
-  { x1: 472, name: 'VOLCAN BRAISE',  table: [['magmou',35,[35,39]],['sablizard',25,[35,39]],['rocailloux',20,[35,39]],['braisillon',20,[36,40]]] },
-  { x1: 512, name: 'ROUTE VICTOIRE', table: [['aigleroc',20,[39,43]],['givrelou',20,[39,43]],['fantomare',20,[39,43]],['dunodrake',20,[40,44]],['tigrevolt',20,[40,44]]] },
+  { x1: 76,  name: 'VILLEFLORE',     table: [['fleurnette',25,[4,7]],['chenivert',20,[4,7]],['roupiaf',20,[4,7]],['lapidou',15,[4,7]],['faonelle',10,[5,8]],['piquedou',10,[5,8]]] },
+  { x1: 112, name: 'FORÊT MURMURE',  table: [['chenivert',15,[8,12]],['champifou',15,[9,13]],['fleurnette',12,[8,12]],['chauvenuit',14,[9,13]],['bourdonbz',14,[9,13]],['oursonin',10,[10,13]],['faonelle',10,[9,12]],['papivol',6,[10,13]],['lumiole',4,[10,14]]] },
+  { x1: 148, name: 'ROCHE-BOURG',    table: [['rocailloux',25,[12,16]],['taupix',20,[12,16]],['minetou',20,[12,16]],['scarabronze',15,[13,17]],['roupiaf',12,[13,17]],['mulotin',8,[13,16]]] },
+  { x1: 184, name: 'GROTTE ÉCHO',    table: [['chauvenuit',25,[15,19]],['rocailloux',20,[15,19]],['scarabronze',18,[16,20]],['taupix',15,[16,20]],['spectrelle',12,[16,20]],['feuflotte',10,[17,21]]] },
+  { x1: 220, name: 'PORT-AZUR',      table: [['poissonor',22,[17,21]],['crabouille',20,[17,21]],['azurat',18,[17,21]],['grenouilla',15,[17,21]],['medusette',13,[18,22]],['tortibulle',12,[18,22]]] },
+  { x1: 256, name: 'ROUTE CÔTIÈRE',  table: [['poissonor',18,[19,23]],['nimbules',17,[19,23]],['azurat',15,[19,23]],['crabouille',15,[20,24]],['anguilune',13,[20,24]],['voltichat',12,[19,23]],['requinox',10,[22,25]]] },
+  { x1: 292, name: 'VOLTCITÉ',       table: [['voltichat',20,[22,26]],['taupelec',18,[22,26]],['lumiole',16,[22,26]],['lapidou',16,[22,26]],['fulgave',15,[23,27]],['minetou',15,[22,26]]] },
+  { x1: 328, name: 'PLAINES DORÉES', table: [['boulgom',16,[24,28]],['faonelle',15,[24,28]],['chouettin',15,[24,28]],['aigleroc',14,[25,29]],['toxouille',14,[24,28]],['lapidou',13,[24,28]],['lumiole',13,[25,29]]] },
+  { x1: 364, name: 'DÉSERT OCRE',    table: [['sablizard',22,[27,31]],['vipersand',20,[27,31]],['salambre',18,[27,31]],['taupix',15,[27,31]],['rocailloux',13,[27,31]],['forator',8,[29,33]],['cobradune',4,[30,34]]] },
+  { x1: 400, name: 'MONT GIVRE',     table: [['glacouille',20,[30,34]],['pinglace',20,[30,34]],['glacachat',18,[30,34]],['rocgivre',16,[31,35]],['roupiaf',12,[30,33]],['givrelou',10,[32,36]],['stellune',4,[32,36]]] },
+  { x1: 436, name: 'TOUR SOMBRE',    table: [['spectrelle',20,[33,37]],['corvol',18,[33,37]],['chauvenuit',16,[33,37]],['mycorage',16,[34,38]],['vampiryx',12,[34,38]],['feuflotte',10,[34,38]],['fantomare',8,[35,39]]] },
+  { x1: 472, name: 'VOLCAN BRAISE',  table: [['magmou',20,[35,39]],['salambre',18,[35,39]],['chenibraise',16,[35,39]],['cendrilla',16,[36,40]],['sablizard',12,[35,39]],['rocailloux',10,[35,39]],['braisillon',8,[36,40]]] },
+  { x1: 512, name: 'ROUTE VICTOIRE', table: [['aigleroc',16,[39,43]],['felinox',15,[39,43]],['orageon',14,[40,44]],['givrelou',14,[39,43]],['scarathor',14,[40,44]],['dunodrake',14,[40,44]],['tigrevolt',13,[40,44]]] },
+  { x1: 548, name: 'MARAIS BRUMEUX', table: [['toxouille',20,[24,28]],['crocplante',20,[25,29]],['medusette',16,[24,28]],['champifou',16,[24,28]],['grenouilla',14,[24,28]],['nimbules',14,[25,29]]] },
+  { x1: 584, name: 'ÎLE DU PHARE',   table: [['crabouille',18,[30,35]],['anguilune',17,[30,35]],['stellune',15,[31,36]],['nimbules',15,[30,34]],['pinglace',14,[30,34]],['tortibulle',12,[30,34]],['poissonor',9,[30,34]]] },
+  { x1: 624, name: 'SANCTUAIRE DES LÉGENDES', table: [['abyssine',18,[45,50]],['pyrospectre',17,[45,50]],['corbynx',16,[45,50]],['mycorage',15,[45,49]],['fantomare',14,[45,49]],['drakefer',8,[47,51]],['cendrenard',12,[45,49]]] },
 ];
 function zoneAt(x, y) {
   if (x < 40) return y < 18 ? 'LAC ONYX' : (y < 46 ? 'ROUTE 1' : 'BOURG SÉPIA');
@@ -1632,8 +2568,9 @@ function encounterTable(x, y) {
     if (y < 18) {
       // le Lac Onyx s'éveille en fin d'aventure
       if (badgeCount() >= 8) return [
-        ['crapotaure', 30, [40, 44]], ['tigrevolt', 25, [40, 44]],
-        ['forator', 25, [40, 44]], ['aigleroc', 20, [41, 45]],
+        ['crapotaure', 20, [40, 44]], ['anguilune', 18, [40, 44]],
+        ['abyssine', 16, [41, 45]], ['tigrevolt', 16, [40, 44]],
+        ['forator', 15, [40, 44]], ['aigleroc', 15, [41, 45]],
       ];
       return [
         ['grenouilla', 30, [5, 8]], ['voltichat', 25, [5, 8]],
@@ -1641,8 +2578,9 @@ function encounterTable(x, y) {
       ];
     }
     return [
-      ['mulotin', 30, [2, 4]], ['roupiaf', 30, [2, 4]],
-      ['chenivert', 25, [2, 4]], ['voltichat', 10, [3, 5]], ['taupix', 5, [3, 5]],
+      ['mulotin', 24, [2, 4]], ['roupiaf', 24, [2, 4]],
+      ['chenivert', 18, [2, 4]], ['minetou', 14, [2, 4]],
+      ['lapidou', 10, [3, 5]], ['voltichat', 6, [3, 5]], ['taupix', 4, [3, 5]],
     ];
   }
   for (const z of ZONES) if (x < z.x1) return z.table;
@@ -1661,7 +2599,9 @@ function npcAt(x, y) {
 }
 function npcVisible(n) {
   if (n.dragon === 'auryon') return G.flags.champion && !G.flags.auryonDone;
-  if (n.dragon) return G.flags.zoeBeaten && !G.flags.dragonDone;
+  if (n.dragon === 'mnemos') return G.flags.dragonDone && !G.flags.mnemosDone;
+  if (n.dragon) return G.flags.erebeBeaten && !G.flags.dragonDone;
+  if (n.erebe) return G.flags.zoeBeaten;
   if (n.guard) return badgeCount() < n.guard.need;
   if (n.trainer && n.vanish && G.flags[n.trainer.flag]) return false;
   return true;
@@ -1694,32 +2634,61 @@ function markSeen(sp) { if (!G.seen.includes(sp)) G.seen.push(sp); }
 function markCaught(sp) { markSeen(sp); if (!G.caught.includes(sp)) G.caught.push(sp); }
 function badgeCount() { let n = 0; for (let i = 1; i <= 8; i++) if (G.flags['badge' + i]) n++; return n; }
 const SAVE_KEY = 'version-noire-save-v1';
+let memSave = null;            // repli si le stockage du navigateur est bloqué
+let storageWarned = false;
+function saveBlob() {
+  return JSON.stringify({
+    px: G.px, py: G.py, dir: G.dir, team: G.team, bag: G.bag,
+    flags: G.flags, stored: G.stored, money: G.money, heal: G.heal,
+    seen: G.seen, caught: G.caught,
+  });
+}
 function saveGame() {
-  try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify({
-      px: G.px, py: G.py, dir: G.dir, team: G.team, bag: G.bag,
-      flags: G.flags, stored: G.stored, money: G.money, heal: G.heal,
-      seen: G.seen, caught: G.caught,
-    }));
-    return true;
-  } catch (e) { return false; }
+  const blob = saveBlob();
+  memSave = blob;
+  try { localStorage.setItem(SAVE_KEY, blob); return true; }
+  catch (e) {
+    if (!storageWarned) { storageWarned = true; toast('Stockage bloqué — utilise CODE SECRET !'); }
+    return false;
+  }
+}
+function readSave() {
+  try { const s = localStorage.getItem(SAVE_KEY); if (s) return s; } catch (e) {}
+  return memSave;
+}
+function applySaveData(d) {
+  if (!d || !d.team || !d.team.length) return false;
+  Object.assign(G, { px: d.px, py: d.py, dir: d.dir, team: d.team,
+    bag: Object.assign({ caps: 5, pot: 3, spot: 0, guer: 0, bonbon: 0 }, d.bag),
+    flags: d.flags || { pickups: {} }, stored: d.stored || [],
+    money: d.money == null ? 600 : d.money,
+    heal: d.heal || { x: 9, y: 53 },
+    seen: d.seen || [], caught: d.caught || [] });
+  if (!G.flags.pickups) G.flags.pickups = {};
+  G.team.forEach(m => { if (m.st === undefined) m.st = null; });
+  G.moving = null;
+  return true;
 }
 function loadGame() {
-  try {
-    const d = JSON.parse(localStorage.getItem(SAVE_KEY));
-    if (!d || !d.team || !d.team.length) return false;
-    Object.assign(G, { px: d.px, py: d.py, dir: d.dir, team: d.team,
-      bag: Object.assign({ caps: 5, pot: 3, spot: 0, guer: 0, bonbon: 0 }, d.bag),
-      flags: d.flags || { pickups: {} }, stored: d.stored || [],
-      money: d.money == null ? 600 : d.money,
-      heal: d.heal || { x: 9, y: 53 },
-      seen: d.seen || [], caught: d.caught || [] });
-    if (!G.flags.pickups) G.flags.pickups = {};
-    G.team.forEach(m => { if (m.st === undefined) m.st = null; });
-    return true;
-  } catch (e) { return false; }
+  try { return applySaveData(JSON.parse(readSave())); } catch (e) { return false; }
 }
-function hasSave() { try { return !!localStorage.getItem(SAVE_KEY); } catch (e) { return false; } }
+function hasSave() { return !!readSave(); }
+// code secret : sauvegarde encodée en base64, copiable d'un appareil à l'autre
+function exportCode() {
+  try { return btoa(unescape(encodeURIComponent(saveBlob()))); } catch (e) { return null; }
+}
+function importCode(code) {
+  try { return applySaveData(JSON.parse(decodeURIComponent(escape(atob(code.trim()))))); }
+  catch (e) { return false; }
+}
+function saveSummary() {
+  try {
+    const d = JSON.parse(readSave());
+    if (!d || !d.team || !d.team.length) return null;
+    let badges = 0; for (let i = 1; i <= 8; i++) if (d.flags && d.flags['badge' + i]) badges++;
+    return { zone: zoneAt(d.px, d.py), badges, team: d.team.length, lvl: Math.max(...d.team.map(m => m.level)) };
+  } catch (e) { return null; }
+}
 
 // ---------- interface ----------
 const UI = { dialog: null, menu: null, toast: null };
@@ -1788,7 +2757,7 @@ function toast(text) { UI.toast = { text, t: 130 }; }
 /* ============================================================
    RENDU — tuiles, monde, personnages
    ============================================================ */
-let cv = null, ctx = null;
+let cv = null, ctx = null, titleSum = null;
 
 function playerPixelPos() {
   let x = G.px * TILE, y = G.py * TILE;
@@ -1810,6 +2779,7 @@ const THEMES = {
   snow:   { g:'#e8f0f6', gs:'#d4e2ec', t1:'#a8c4d8', t2:'#88a8c0', solid:'pine',  tr:'#2e5e48', th:'#e8f4fa', path:'#c8d8e4', ps:'#aabccc' },
   dark:   { g:'#5a546e', gs:'#4c4660', t1:'#3e3856', t2:'#2e2a44', solid:'pillar',tr:'#262238', th:'#4a4464', path:'#7a7290', ps:'#665e7e' },
   volcano:{ g:'#6e5048', gs:'#5e423a', t1:'#4e362e', t2:'#3e2a24', solid:'rock',  tr:'#3a2c26', th:'#564038', path:'#8e6e5e', ps:'#7a5c4c' },
+  marsh:  { g:'#647e54', gs:'#566e48', t1:'#3a5e38', t2:'#2c482a', solid:'tree',  tr:'#26422e', th:'#356242', path:'#a89870', ps:'#8c7c58' },
 };
 function themeAt(x) {
   if (x < 76) return THEMES.grass;
@@ -1822,150 +2792,243 @@ function themeAt(x) {
   if (x < 400) return THEMES.snow;
   if (x < 436) return THEMES.dark;
   if (x < 472) return THEMES.volcano;
-  return THEMES.grass;
+  if (x < 512) return THEMES.grass;
+  if (x < 548) return THEMES.marsh;
+  if (x < 584) return THEMES.grass;
+  return THEMES.dark;
 }
 
+const isGroundPath = t => t === ':' || t === 'b';
+const isWater = t => t === '~' || t === 'l';
+function shade(hex, f) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = clamp(Math.round(((n >> 16) & 255) * f), 0, 255);
+  const g = clamp(Math.round(((n >> 8) & 255) * f), 0, 255);
+  const b = clamp(Math.round((n & 255) * f), 0, 255);
+  return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
 function drawTile(t, sx, sy, wx, wy) {
   const th = themeAt(wx);
-  if (t === '~') {
-    ctx.fillStyle = '#3a7ed0'; ctx.fillRect(sx, sy, TILE, TILE);
-    ctx.fillStyle = '#5f9fe8';
-    const ph = Math.floor(G.animT / 30 + (wx + wy) ) % 4;
-    ctx.fillRect(sx + 2 + ph, sy + 4, 6, 1);
-    ctx.fillRect(sx + 8 - ph, sy + 11, 5, 1);
+  const h1 = thash(wx, wy), h2 = thash(wx + 31, wy + 17);
+
+  if (t === '~' || t === 'l') {
+    const lava = t === 'l';
+    const base = lava ? '#c83410' : '#3a7ed0';
+    const deep = lava ? '#a02408' : '#2e68b8';
+    ctx.fillStyle = base; ctx.fillRect(sx, sy, TILE, TILE);
+    ctx.fillStyle = deep;
+    if ((wx + wy) % 2) ctx.fillRect(sx, sy + 8, TILE, 8);
+    ctx.fillStyle = lava ? '#f8782a' : '#5f9fe8';
+    const ph = Math.floor(G.animT / (lava ? 22 : 30) + (wx * 3 + wy)) % 4;
+    ctx.fillRect(sx + 1 + ph, sy + 4, 6, 1);
+    ctx.fillRect(sx + 9 - ph, sy + 11, 5, 1);
+    if (lava && h1 > 0.6) { ctx.fillStyle = '#ffd23a'; ctx.fillRect(sx + 5 + ph, sy + 8, 2, 1); }
+    // écume / croûte sur les rives
+    ctx.fillStyle = lava ? '#5e3424' : 'rgba(255,255,255,0.75)';
+    const fo = Math.floor(G.animT / 26) % 2;
+    if (!isWater(tileAt(wx, wy - 1))) { ctx.fillRect(sx, sy, TILE, 2); ctx.fillRect(sx + 2 + fo * 4, sy + 2, 3, 1); ctx.fillRect(sx + 9 + fo * 2, sy + 2, 2, 1); }
+    if (!isWater(tileAt(wx, wy + 1))) ctx.fillRect(sx, sy + TILE - 2, TILE, 2);
+    if (!isWater(tileAt(wx - 1, wy))) ctx.fillRect(sx, sy, 2, TILE);
+    if (!isWater(tileAt(wx + 1, wy))) ctx.fillRect(sx + TILE - 2, sy, 2, TILE);
     return;
   }
-  if (t === 'l') { // lave
-    ctx.fillStyle = '#d83a18'; ctx.fillRect(sx, sy, TILE, TILE);
-    ctx.fillStyle = '#f8782a';
-    const ph = Math.floor(G.animT / 20 + (wx * 3 + wy)) % 4;
-    ctx.fillRect(sx + 1 + ph, sy + 5, 5, 2);
-    ctx.fillRect(sx + 9 - ph, sy + 11, 4, 2);
-    ctx.fillStyle = '#ffd23a';
-    if (thash(wx, wy) > 0.6) ctx.fillRect(sx + 6 + ph, sy + 8, 2, 1);
-    return;
-  }
-  if (t === 'b') { // pont de planches
-    ctx.fillStyle = '#3a7ed0'; ctx.fillRect(sx, sy, TILE, TILE);
+
+  if (t === 'b') { // pont de planches avec rambardes
+    ctx.fillStyle = '#2e68b8'; ctx.fillRect(sx, sy, TILE, TILE);
     ctx.fillStyle = '#b08a50'; ctx.fillRect(sx, sy + 1, TILE, 14);
     ctx.fillStyle = '#8e6c3a';
-    for (const oy of [1, 5, 9, 13]) ctx.fillRect(sx, sy + oy, TILE, 1);
-    ctx.fillStyle = '#c8a060'; ctx.fillRect(sx, sy + 2, TILE, 1);
+    for (const oy of [4, 8, 12]) ctx.fillRect(sx, sy + oy, TILE, 1);
+    ctx.fillStyle = '#caa468'; ctx.fillRect(sx, sy + 1, TILE, 1);
+    ctx.fillStyle = '#6e5026';
+    if (tileAt(wx, wy - 1) !== 'b') ctx.fillRect(sx, sy, TILE, 2);
+    if (tileAt(wx, wy + 1) !== 'b') ctx.fillRect(sx, sy + TILE - 2, TILE, 2);
     return;
   }
-  if (t === ':') {
+
+  if (t === ':') { // chemin avec lisières adoucies
     ctx.fillStyle = th.path; ctx.fillRect(sx, sy, TILE, TILE);
     ctx.fillStyle = th.ps;
-    if (thash(wx, wy) > 0.5) ctx.fillRect(sx + 3, sy + 5, 2, 2);
-    if (thash(wx + 7, wy) > 0.5) ctx.fillRect(sx + 10, sy + 10, 2, 2);
+    if (h1 > 0.55) ctx.fillRect(sx + 3, sy + 5, 2, 1);
+    if (h2 > 0.55) ctx.fillRect(sx + 10, sy + 10, 2, 1);
+    ctx.fillStyle = shade(th.path, 1.12);
+    if (h1 > 0.8) ctx.fillRect(sx + 8, sy + 3, 2, 1);
+    const edge = shade(th.path, 0.72);
+    ctx.fillStyle = edge;
+    if (!isGroundPath(tileAt(wx, wy - 1))) ctx.fillRect(sx, sy, TILE, 2);
+    if (!isGroundPath(tileAt(wx, wy + 1))) ctx.fillRect(sx, sy + TILE - 2, TILE, 2);
+    if (!isGroundPath(tileAt(wx - 1, wy))) ctx.fillRect(sx, sy, 2, TILE);
+    if (!isGroundPath(tileAt(wx + 1, wy))) ctx.fillRect(sx + TILE - 2, sy, 2, TILE);
     return;
   }
-  // sol de base du thème
+
+  // ---- sol de base : 2 tons + détails épars ----
   ctx.fillStyle = th.g; ctx.fillRect(sx, sy, TILE, TILE);
   ctx.fillStyle = th.gs;
-  if (thash(wx, wy) > 0.55) ctx.fillRect(sx + 4, sy + 3, 2, 1);
-  if (thash(wx + 3, wy + 5) > 0.55) ctx.fillRect(sx + 11, sy + 9, 2, 1);
+  if ((wx + wy) % 2 === 0) { ctx.fillRect(sx + 2, sy + 6, 3, 1); ctx.fillRect(sx + 10, sy + 12, 3, 1); }
+  if (h1 > 0.62) { ctx.fillRect(sx + 4, sy + 3, 2, 1); ctx.fillRect(sx + 5, sy + 4, 1, 1); }
+  if (h2 > 0.62) ctx.fillRect(sx + 11, sy + 8, 2, 1);
+  if (h1 > 0.93) { ctx.fillStyle = shade(th.gs, 0.8); ctx.fillRect(sx + 8, sy + 5, 2, 2); ctx.fillRect(sx + 9, sy + 4, 1, 1); }
   if (t === '.') return;
 
-  if (t === ';') { // hautes herbes (ou broussailles thématiques)
-    ctx.fillStyle = th.t1;
-    for (const ox of [1, 6, 11]) {
-      ctx.fillRect(sx + ox, sy + 6, 1, 8); ctx.fillRect(sx + ox + 2, sy + 6, 1, 8);
-      ctx.fillRect(sx + ox + 1, sy + 4, 1, 10);
-    }
+  if (t === ';') { // hautes herbes en couches
+    ctx.fillStyle = 'rgba(0,0,0,0.12)'; ctx.fillRect(sx, sy + 13, TILE, 3);
     ctx.fillStyle = th.t2;
-    for (const ox of [3, 8, 13]) ctx.fillRect(sx + ox, sy + 9, 1, 5);
+    for (const ox of [0, 5, 10]) {
+      ctx.fillRect(sx + ox + 1, sy + 5, 1, 9); ctx.fillRect(sx + ox + 3, sy + 6, 1, 8);
+      ctx.fillRect(sx + ox + 2, sy + 3, 1, 11);
+    }
+    ctx.fillStyle = th.t1;
+    for (const ox of [2, 7, 12]) { ctx.fillRect(sx + ox, sy + 7, 1, 7); ctx.fillRect(sx + ox + 1, sy + 5, 1, 9); }
+    ctx.fillStyle = shade(th.t1, 1.25);
+    for (const ox of [3, 8, 13]) ctx.fillRect(sx + ox, sy + 6, 1, 3);
     return;
   }
-  if (t === '#') { // obstacle du thème : arbre / rocher / sapin / pilier
+
+  if (t === '#') {
     if (th.solid === 'rock') {
-      ctx.fillStyle = th.tr; ctx.fillRect(sx + 1, sy + 4, 14, 11);
-      ctx.fillRect(sx + 3, sy + 2, 10, 4);
-      ctx.fillStyle = th.th; ctx.fillRect(sx + 3, sy + 3, 5, 3); ctx.fillRect(sx + 2, sy + 6, 3, 3);
-      ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(sx + 2, sy + 12, 12, 3);
+      ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.fillRect(sx + 2, sy + 12, 13, 3);
+      ctx.fillStyle = shade(th.tr, 0.75); ctx.fillRect(sx + 1, sy + 4, 14, 11);
+      ctx.fillStyle = th.tr; ctx.fillRect(sx + 2, sy + 3, 12, 10); ctx.fillRect(sx + 4, sy + 1, 8, 4);
+      ctx.fillStyle = th.th; ctx.fillRect(sx + 4, sy + 2, 5, 3); ctx.fillRect(sx + 3, sy + 5, 3, 3);
+      ctx.fillStyle = shade(th.tr, 0.6);
+      ctx.fillRect(sx + 8, sy + 6, 1, 5); ctx.fillRect(sx + 9, sy + 8, 2, 1); ctx.fillRect(sx + 5, sy + 10, 1, 3);
     } else if (th.solid === 'pine') {
-      ctx.fillStyle = '#6e4a28'; ctx.fillRect(sx + 7, sy + 11, 3, 4);
+      ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fillRect(sx + 3, sy + 13, 11, 3);
+      ctx.fillStyle = '#5e3e20'; ctx.fillRect(sx + 7, sy + 11, 3, 4);
+      ctx.fillStyle = shade(th.tr, 0.8);
+      ctx.fillRect(sx + 2, sy + 9, 12, 4); ctx.fillRect(sx + 3, sy + 5, 10, 4); ctx.fillRect(sx + 5, sy + 1, 6, 4);
       ctx.fillStyle = th.tr;
-      ctx.fillRect(sx + 5, sy + 1, 6, 3); ctx.fillRect(sx + 3, sy + 4, 10, 4); ctx.fillRect(sx + 2, sy + 8, 12, 4);
+      ctx.fillRect(sx + 2, sy + 9, 12, 2); ctx.fillRect(sx + 3, sy + 5, 10, 2); ctx.fillRect(sx + 5, sy + 1, 6, 2);
       ctx.fillStyle = th.th;
-      ctx.fillRect(sx + 4, sy + 4, 8, 1); ctx.fillRect(sx + 3, sy + 8, 10, 1); ctx.fillRect(sx + 5, sy + 1, 6, 1);
+      ctx.fillRect(sx + 5, sy + 1, 6, 1); ctx.fillRect(sx + 3, sy + 5, 4, 1); ctx.fillRect(sx + 2, sy + 9, 5, 1);
     } else if (th.solid === 'pillar') {
+      ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(sx + 3, sy + 14, 11, 2);
       ctx.fillStyle = th.tr; ctx.fillRect(sx + 4, sy, 8, 16);
-      ctx.fillStyle = '#161226'; ctx.fillRect(sx + 5, sy + 2, 6, 12);
-      ctx.fillStyle = th.th; ctx.fillRect(sx + 4, sy, 8, 2); ctx.fillRect(sx + 4, sy + 14, 8, 2);
-      ctx.fillStyle = '#8a78c8'; if (thash(wx, wy) > 0.5) ctx.fillRect(sx + 7, sy + 6, 2, 2);
-    } else {
-      ctx.fillStyle = '#6e4a28'; ctx.fillRect(sx + 6, sy + 9, 4, 6);
+      ctx.fillStyle = shade(th.tr, 0.55); ctx.fillRect(sx + 9, sy + 2, 3, 12);
+      ctx.fillStyle = th.th; ctx.fillRect(sx + 3, sy, 10, 2); ctx.fillRect(sx + 3, sy + 13, 10, 2);
+      ctx.fillStyle = shade(th.th, 1.2); ctx.fillRect(sx + 5, sy + 3, 1, 10);
+      const gl = 0.45 + 0.3 * Math.sin(G.animT / 18 + wx);
+      ctx.fillStyle = 'rgba(150,120,230,' + gl.toFixed(2) + ')';
+      if (h1 > 0.45) ctx.fillRect(sx + 7, sy + 6, 2, 2);
+    } else { // arbre feuillu
+      ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fillRect(sx + 2, sy + 13, 12, 3);
+      ctx.fillStyle = '#5e3e20'; ctx.fillRect(sx + 6, sy + 10, 4, 5);
+      ctx.fillStyle = '#4a3016'; ctx.fillRect(sx + 8, sy + 10, 2, 5);
+      ctx.fillStyle = shade(th.tr, 0.75);
+      ctx.fillRect(sx + 1, sy + 5, 14, 7); ctx.fillRect(sx + 3, sy + 2, 10, 5);
       ctx.fillStyle = th.tr;
-      ctx.fillRect(sx + 2, sy + 2, 12, 9); ctx.fillRect(sx + 1, sy + 4, 14, 5);
+      ctx.fillRect(sx + 2, sy + 4, 12, 6); ctx.fillRect(sx + 4, sy + 1, 8, 4);
       ctx.fillStyle = th.th;
-      ctx.fillRect(sx + 3, sy + 2, 5, 3); ctx.fillRect(sx + 2, sy + 5, 3, 2);
+      ctx.fillRect(sx + 4, sy + 2, 5, 2); ctx.fillRect(sx + 3, sy + 5, 3, 2); ctx.fillRect(sx + 9, sy + 3, 2, 1);
+      if (h2 > 0.8) { ctx.fillStyle = '#e85a7a'; ctx.fillRect(sx + 10, sy + 6, 1, 1); ctx.fillRect(sx + 5, sy + 8, 1, 1); }
     }
     return;
   }
-  if (t === ',') { // fleurs
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(sx + 3, sy + 4, 3, 3); ctx.fillRect(sx + 10, sy + 9, 3, 3);
-    ctx.fillStyle = '#f8d048'; ctx.fillRect(sx + 4, sy + 5, 1, 1); ctx.fillRect(sx + 11, sy + 10, 1, 1);
-    ctx.fillStyle = '#e86a8a'; ctx.fillRect(sx + 11, sy + 3, 2, 2);
+
+  if (t === ',') { // parterre fleuri varié
+    const colors = ['#ffffff', '#f8d048', '#e86a8a'];
+    const c1 = colors[Math.floor(h1 * 3) % 3], c2 = colors[Math.floor(h2 * 3) % 3];
+    const sway = Math.floor(G.animT / 40 + h1 * 4) % 2;
+    ctx.fillStyle = shade(th.g, 0.85);
+    ctx.fillRect(sx + 4, sy + 7, 1, 3); ctx.fillRect(sx + 11, sy + 11, 1, 3);
+    ctx.fillStyle = c1;
+    ctx.fillRect(sx + 3 + sway, sy + 4, 3, 3); ctx.fillRect(sx + 4 + sway, sy + 3, 1, 1);
+    ctx.fillStyle = '#b88a18'; ctx.fillRect(sx + 4 + sway, sy + 5, 1, 1);
+    ctx.fillStyle = c2;
+    ctx.fillRect(sx + 10 - sway, sy + 8, 3, 3);
+    ctx.fillStyle = '#b88a18'; ctx.fillRect(sx + 11 - sway, sy + 9, 1, 1);
     return;
   }
-  if (t === '=') { // barrière
+
+  if (t === '=') { // barrière reliée
+    const L = tileAt(wx - 1, wy) === '=', R = tileAt(wx + 1, wy) === '=';
+    ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(sx + 1, sy + 12, 14, 2);
     ctx.fillStyle = '#b08a50';
-    ctx.fillRect(sx, sy + 6, TILE, 2); ctx.fillRect(sx + 2, sy + 4, 2, 9); ctx.fillRect(sx + 12, sy + 4, 2, 9);
+    ctx.fillRect(sx + (L ? 0 : 2), sy + 6, TILE - (L ? 0 : 2) - (R ? 0 : 2), 2);
+    ctx.fillRect(sx + (L ? 0 : 2), sy + 10, TILE - (L ? 0 : 2) - (R ? 0 : 2), 1);
+    ctx.fillStyle = '#8e6c3a'; ctx.fillRect(sx + 2, sy + 4, 2, 9); ctx.fillRect(sx + 12, sy + 4, 2, 9);
+    ctx.fillStyle = '#d8b478'; ctx.fillRect(sx + 2, sy + 4, 2, 1); ctx.fillRect(sx + 12, sy + 4, 2, 1);
     return;
   }
+
   if (t === 'S') { // panneau
-    ctx.fillStyle = '#7a5230'; ctx.fillRect(sx + 7, sy + 8, 2, 7);
-    ctx.fillStyle = '#c8a05a'; ctx.fillRect(sx + 2, sy + 2, 12, 7);
-    ctx.fillStyle = '#8a6a3a'; ctx.fillRect(sx + 4, sy + 4, 8, 1); ctx.fillRect(sx + 4, sy + 6, 6, 1);
+    ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fillRect(sx + 3, sy + 13, 11, 2);
+    ctx.fillStyle = '#6e4a28'; ctx.fillRect(sx + 7, sy + 8, 2, 7);
+    ctx.fillStyle = '#caa05c'; ctx.fillRect(sx + 2, sy + 2, 12, 7);
+    ctx.fillStyle = '#e8c684'; ctx.fillRect(sx + 2, sy + 2, 12, 1); ctx.fillRect(sx + 2, sy + 2, 1, 7);
+    ctx.fillStyle = '#8a6a3a';
+    ctx.fillRect(sx + 4, sy + 4, 8, 1); ctx.fillRect(sx + 4, sy + 6, 6, 1);
+    ctx.fillStyle = '#5a4424'; ctx.fillRect(sx + 3, sy + 3, 1, 1); ctx.fillRect(sx + 12, sy + 3, 1, 1);
     return;
   }
 }
-
 function drawBuilding(b, camX, camY) {
   const x = b.x * TILE - camX, y = b.y * TILE - camY;
   const w = b.w * TILE, h = b.h * TILE, roofH = Math.floor(h * 0.45);
+  // ombre portée
+  ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(x + 2, y + h - 1, w + 2, 4);
   ctx.fillStyle = '#1a1a22'; ctx.fillRect(x - 1, y - 1, w + 2, h + 2);
+  // murs : bandeau clair sous le toit, plinthe sombre
   ctx.fillStyle = b.wall; ctx.fillRect(x, y + roofH, w, h - roofH);
-  ctx.fillStyle = b.roof; ctx.fillRect(x - 2, y, w + 4, roofH);
-  ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(x - 2, y, w + 4, 3);
-  // porte
+  ctx.fillStyle = shade(b.wall, 1.1); ctx.fillRect(x, y + roofH, w, 2);
+  ctx.fillStyle = shade(b.wall, 0.7); ctx.fillRect(x, y + h - 3, w, 3);
+  // toit : faîte clair, pente, gouttière sombre + débord
+  ctx.fillStyle = shade(b.roof, 0.65); ctx.fillRect(x - 2, y, w + 4, roofH);
+  ctx.fillStyle = b.roof; ctx.fillRect(x - 2, y, w + 4, roofH - 3);
+  ctx.fillStyle = shade(b.roof, 1.25); ctx.fillRect(x - 2, y, w + 4, 3);
+  ctx.fillStyle = shade(b.roof, 0.85);
+  for (let rx = x - 2 + 6; rx < x + w + 2; rx += 8) ctx.fillRect(rx, y + 3, 1, roofH - 6);
+  ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(x, y + roofH, w, 2);
+  // cheminée sur les maisons sans emblème
+  if (!b.emblem) {
+    ctx.fillStyle = '#8a6a52'; ctx.fillRect(x + w - 12, y - 5, 6, 8);
+    ctx.fillStyle = '#6a4a36'; ctx.fillRect(x + w - 12, y - 5, 6, 2);
+  }
+  // porte : auvent, encadrement, vantail, perron
   const dx = b.door * TILE - camX;
+  ctx.fillStyle = shade(b.roof, 0.9); ctx.fillRect(dx + 1, y + h - 14, 14, 2);
   ctx.fillStyle = '#5a4632'; ctx.fillRect(dx + 3, y + h - 12, 10, 12);
   ctx.fillStyle = '#3a2e20'; ctx.fillRect(dx + 4, y + h - 11, 8, 11);
-  // fenêtres
-  ctx.fillStyle = '#9fd8f0';
-  ctx.fillRect(x + 5, y + roofH + 4, 8, 7);
-  ctx.fillRect(x + w - 13, y + roofH + 4, 8, 7);
-  // emblème
-  const ex = x + Math.floor(w / 2) - 3, ey = y + Math.floor(roofH / 2) - 3;
+  ctx.fillStyle = '#2a2014'; ctx.fillRect(dx + 4, y + h - 11, 8, 1);
+  ctx.fillStyle = '#caa05c'; ctx.fillRect(dx + 10, y + h - 6, 1, 2);
+  ctx.fillStyle = shade(b.wall, 0.8); ctx.fillRect(dx + 2, y + h - 1, 12, 1);
+  // fenêtres : cadre, vitre, reflet, appui
+  for (const wx2 of [x + 5, x + w - 13]) {
+    ctx.fillStyle = shade(b.wall, 0.75); ctx.fillRect(wx2 - 1, y + roofH + 3, 10, 9);
+    ctx.fillStyle = '#9fd8f0'; ctx.fillRect(wx2, y + roofH + 4, 8, 7);
+    ctx.fillStyle = '#cfeefc'; ctx.fillRect(wx2 + 1, y + roofH + 5, 2, 2); ctx.fillRect(wx2 + 4, y + roofH + 8, 2, 1);
+    ctx.fillStyle = shade(b.wall, 1.15); ctx.fillRect(wx2 - 1, y + roofH + 12, 10, 1);
+  }
+  // emblème sur plaque
+  const ex = x + Math.floor(w / 2) - 3, ey = y + Math.floor(roofH / 2) - 4;
   if (b.emblem === 'heart') {
     ctx.fillStyle = '#fff'; ctx.fillRect(ex - 2, ey - 2, 11, 11);
+    ctx.fillStyle = '#d8d8e0'; ctx.fillRect(ex - 2, ey + 8, 11, 1);
     ctx.fillStyle = '#e83a4a';
     ctx.fillRect(ex + 1, ey + 1, 2, 2); ctx.fillRect(ex + 4, ey + 1, 2, 2);
     ctx.fillRect(ex, ey + 2, 7, 2); ctx.fillRect(ex + 1, ey + 4, 5, 1);
     ctx.fillRect(ex + 2, ey + 5, 3, 1); ctx.fillRect(ex + 3, ey + 6, 1, 1);
   } else if (b.emblem === 'flask') {
     ctx.fillStyle = '#fff'; ctx.fillRect(ex - 2, ey - 2, 11, 11);
+    ctx.fillStyle = '#d8d8e0'; ctx.fillRect(ex - 2, ey + 8, 11, 1);
     ctx.fillStyle = '#3a6ad8';
-    ctx.fillRect(ex + 3, ey, 1, 3); ctx.fillRect(ex + 2, ey + 3, 3, 4);
-    ctx.fillRect(ex + 1, ey + 5, 5, 2);
+    ctx.fillRect(ex + 3, ey, 1, 3); ctx.fillRect(ex + 2, ey + 3, 3, 4); ctx.fillRect(ex + 1, ey + 5, 5, 2);
   } else if (b.emblem === 'shop') {
     ctx.fillStyle = '#fff'; ctx.fillRect(ex - 2, ey - 2, 11, 11);
-    ctx.fillStyle = '#e8a818';
-    ctx.fillRect(ex + 1, ey + 1, 5, 5);
+    ctx.fillStyle = '#d8d8e0'; ctx.fillRect(ex - 2, ey + 8, 11, 1);
+    ctx.fillStyle = '#e8a818'; ctx.fillRect(ex + 1, ey + 1, 5, 5);
     ctx.fillStyle = '#b07808'; ctx.fillRect(ex + 2, ey + 2, 3, 3);
     ctx.fillStyle = '#ffe070'; ctx.fillRect(ex + 2, ey + 1, 1, 1);
   } else if (b.emblem === 'arena') {
     ctx.fillStyle = '#2a2a36'; ctx.fillRect(ex - 2, ey - 2, 11, 11);
-    ctx.fillStyle = '#f8d048';
+    ctx.fillStyle = '#4a4a5c'; ctx.fillRect(ex - 2, ey - 2, 11, 1);
+    const gl = 0.75 + 0.25 * Math.sin(G.animT / 20);
+    ctx.fillStyle = 'rgba(248,208,72,' + gl.toFixed(2) + ')';
     ctx.fillRect(ex + 3, ey, 1, 7); ctx.fillRect(ex, ey + 3, 7, 1);
     ctx.fillRect(ex + 1, ey + 1, 1, 1); ctx.fillRect(ex + 5, ey + 1, 1, 1);
     ctx.fillRect(ex + 1, ey + 5, 1, 1); ctx.fillRect(ex + 5, ey + 5, 1, 1);
   }
 }
-
 function drawPickup(p, camX, camY) {
   const x = p.x * TILE - camX + 4, y = p.y * TILE - camY + 5;
   ctx.fillStyle = '#1a1a22'; ctx.fillRect(x - 1, y - 1, 9, 9);
@@ -1976,6 +3039,8 @@ function drawPickup(p, camX, camY) {
 
 function drawHumanAt(px, py, dir, pal, bob) {
   const s = humanSprite(dir);
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.beginPath(); ctx.ellipse(Math.round(px) + 8, Math.round(py) + 13, 6, 2.5, 0, 0, Math.PI * 2); ctx.fill();
   drawSprite(ctx, s.mat, pal, Math.round(px), Math.round(py) - 4 - (bob ? 1 : 0), 1, s.flip);
 }
 
@@ -2013,6 +3078,20 @@ function drawWorld() {
   ents.push({ y: pp.y, draw: () => drawHumanAt(pp.x - camX, pp.y - camY, G.dir, PAL_PLAYER, bob) });
   ents.sort((a, b) => a.y - b.y);
   for (const e of ents) e.draw();
+
+  // ambiance lumineuse de la région
+  const th = themeAt(G.px);
+  let vig = 0.16;
+  if (th === THEMES.cave) vig = 0.5;
+  else if (th === THEMES.dark) vig = 0.55;
+  else if (th === THEMES.volcano) vig = 0.34;
+  else if (th === THEMES.forest) vig = 0.26;
+  const gradV = ctx.createRadialGradient(128, 112, 70, 128, 112, 190);
+  gradV.addColorStop(0, 'rgba(0,0,0,0)');
+  gradV.addColorStop(1, 'rgba(4,4,18,' + vig + ')');
+  ctx.fillStyle = gradV; ctx.fillRect(0, 0, SCR_W, SCR_H);
+  if (th === THEMES.snow) { ctx.fillStyle = 'rgba(210,235,255,0.07)'; ctx.fillRect(0, 0, SCR_W, SCR_H); }
+  if (th === THEMES.volcano) { ctx.fillStyle = 'rgba(255,90,30,0.05)'; ctx.fillRect(0, 0, SCR_W, SCR_H); }
 }
 
 /* ============================================================
@@ -2021,15 +3100,21 @@ function drawWorld() {
 function drawText(t, x, y, color, font) {
   ctx.font = font || '9px monospace';
   ctx.textBaseline = 'top';
+  ctx.fillStyle = 'rgba(6,6,12,0.85)';
+  ctx.fillText(t, x + 1, y + 1);
   ctx.fillStyle = color || '#f2f2f4';
   ctx.fillText(t, x, y);
 }
 function drawBox(x, y, w, h) {
-  ctx.fillStyle = '#0c0c12'; ctx.fillRect(x, y, w, h);
-  ctx.strokeStyle = '#f2f2f4'; ctx.lineWidth = 1;
-  ctx.strokeRect(x + 1.5, y + 1.5, w - 3, h - 3);
-  ctx.strokeStyle = '#6a6a78';
-  ctx.strokeRect(x + 3.5, y + 3.5, w - 7, h - 7);
+  ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(x + 2, y + 3, w, h);
+  ctx.fillStyle = '#12121c'; ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#34344a'; ctx.fillRect(x, y, w, 2); ctx.fillRect(x, y, 2, h);
+  ctx.fillStyle = '#050508'; ctx.fillRect(x, y + h - 2, w, 2); ctx.fillRect(x + w - 2, y, 2, h);
+  ctx.strokeStyle = '#d8d8e8'; ctx.lineWidth = 1;
+  ctx.strokeRect(x + 2.5, y + 2.5, w - 5, h - 5);
+  ctx.fillStyle = '#12121c';
+  ctx.fillRect(x, y, 1, 1); ctx.fillRect(x + w - 1, y, 1, 1);
+  ctx.fillRect(x, y + h - 1, 1, 1); ctx.fillRect(x + w - 1, y + h - 1, 1, 1);
 }
 function drawDialogUI() {
   if (!UI.dialog) return;
@@ -2079,28 +3164,69 @@ function drawToastUI() {
 }
 function drawHPBar(x, y, w, ratio, showBg) {
   ratio = clamp(ratio, 0, 1);
-  if (showBg !== false) { ctx.fillStyle = '#2a2a32'; ctx.fillRect(x - 1, y - 1, w + 2, 5); }
-  ctx.fillStyle = '#46464e'; ctx.fillRect(x, y, w, 3);
-  ctx.fillStyle = ratio > 0.5 ? '#48d860' : (ratio > 0.2 ? '#f8c030' : '#f04038');
-  ctx.fillRect(x, y, Math.round(w * ratio), 3);
+  if (showBg !== false) { ctx.fillStyle = '#0a0a10'; ctx.fillRect(x - 1, y - 1, w + 2, 6); }
+  ctx.fillStyle = '#33333e'; ctx.fillRect(x, y, w, 4);
+  const col = ratio > 0.5 ? '#48d860' : (ratio > 0.2 ? '#f8c030' : '#f04038');
+  const fw = Math.round(w * ratio);
+  ctx.fillStyle = col; ctx.fillRect(x, y, fw, 4);
+  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.fillRect(x, y, fw, 1);
+  ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(x, y + 3, fw, 1);
 }
 
+let titleParts = null;
 function drawTitle() {
-  ctx.fillStyle = '#08080c'; ctx.fillRect(0, 0, SCR_W, SCR_H);
-  // halo
-  const g = ctx.createRadialGradient(128, 88, 8, 128, 88, 90);
-  g.addColorStop(0, 'rgba(120,40,160,0.35)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = '#07070c'; ctx.fillRect(0, 0, SCR_W, SCR_H);
+  // étoiles fixes
+  for (let i = 0; i < 40; i++) {
+    const hx = thash(i, 7), hy = thash(i, 13);
+    const tw = 0.25 + 0.55 * Math.abs(Math.sin(G.animT / 30 + i));
+    ctx.fillStyle = 'rgba(200,200,255,' + (tw * (0.25 + hy * 0.4)).toFixed(2) + ')';
+    ctx.fillRect(Math.floor(hx * 256), Math.floor(hy * 150), 1, 1);
+  }
+  // halo du dragon
+  const g = ctx.createRadialGradient(128, 78, 6, 128, 78, 95);
+  g.addColorStop(0, 'rgba(140,50,190,0.5)');
+  g.addColorStop(0.6, 'rgba(80,30,120,0.22)');
+  g.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = g; ctx.fillRect(0, 0, SCR_W, SCR_H);
-  const hov = Math.floor(G.animT / 30) % 2;
-  drawSprite(ctx, SPR.noctyran.mat, SPR.noctyran.pal, 128 - 40, 40 - hov, 5, false);
+  // braises montantes
+  if (!titleParts) {
+    titleParts = [];
+    for (let i = 0; i < 26; i++) titleParts.push({ x: Math.random() * 256, y: Math.random() * 224,
+      v: 0.15 + Math.random() * 0.4, c: Math.random() < 0.6 ? '#9a5af0' : '#f0784a', s: Math.random() < 0.3 ? 2 : 1 });
+  }
+  for (const p of titleParts) {
+    p.y -= p.v; p.x += Math.sin((G.animT + p.y) / 40) * 0.18;
+    if (p.y < -2) { p.y = 226; p.x = Math.random() * 256; }
+    ctx.globalAlpha = 0.35 + 0.3 * Math.sin(G.animT / 20 + p.x);
+    ctx.fillStyle = p.c; ctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s);
+    ctx.globalAlpha = 1;
+  }
+  // la légende plane
+  const hov = Math.sin(G.animT / 26) * 3;
+  ctx.fillStyle = 'rgba(20,8,40,0.5)';
+  ctx.beginPath(); ctx.ellipse(128, 122, 30, 6, 0, 0, Math.PI * 2); ctx.fill();
+  drawSprite(ctx, SPR.noctyran.mat, SPR.noctyran.pal, 128 - 40, 38 + hov, 5, false);
+  // yeux qui s'allument par instant
+  if (Math.floor(G.animT / 90) % 3 === 0) {
+    ctx.fillStyle = 'rgba(255,60,80,0.8)';
+    ctx.fillRect(128 - 40 + 3 * 5, 38 + hov + 6 * 5, 5, 5);
+    ctx.fillRect(128 - 40 + 10 * 5, 38 + hov + 6 * 5, 5, 5);
+  }
   ctx.textAlign = 'center';
-  drawText('CRÉATURES', 128, 130, '#9a9aae', 'bold 12px monospace');
-  drawText('VERSION NOIRE', 128, 144, '#f2f2f4', 'bold 18px monospace');
-  drawText('— Édition Complète : 8 badges, Ligue, 39 créatures —', 128, 168, '#9a9aae', '8px monospace');
-  drawText('Hommage non officiel, fait main', 128, 180, '#6a6a78', '8px monospace');
+  drawText('CRÉATURES', 128, 128, '#8a8aa0', 'bold 12px monospace');
+  const pulse = 0.85 + 0.15 * Math.sin(G.animT / 22);
+  ctx.save();
+  ctx.shadowColor = 'rgba(160,80,220,' + pulse.toFixed(2) + ')';
+  ctx.shadowBlur = 12;
+  drawText('VERSION NOIRE', 128, 142, '#f4f4fa', 'bold 19px monospace');
+  ctx.restore();
+  drawText('— Édition Complète —', 128, 166, '#9a9aae', '9px monospace');
   if (Math.floor(G.animT / 35) % 2 === 0)
-    drawText('— Appuie sur ENTRÉE —', 128, 192, '#f8d048', '10px monospace');
-  drawText('Flèches/ZQSD bouger · E parler · Entrée menu · M musique', 128, 212, '#55555f', '7px monospace');
+    drawText('Appuie sur ENTRÉE', 128, 186, '#f8d048', 'bold 10px monospace');
+  const sum = G.animT % 90 === 1 ? (titleSum = saveSummary()) : titleSum;
+  if (sum) drawText('Partie en cours : ' + sum.zone + ' · ' + sum.badges + '/8 badges · équipe de ' + sum.team + ' (N.' + sum.lvl + ')', 128, 202, '#8a8a9e', '7px monospace');
+  drawText('Flèches/ZQSD bouger · E parler · Entrée menu · M musique', 128, 214, '#50505c', '7px monospace');
   ctx.textAlign = 'left';
 }
 
@@ -2134,17 +3260,25 @@ function updateWorld() {
   }
 }
 
+let stepSaveTick = 0;
 function onStepEnd() {
   const zn = zoneAt(G.px, G.py);
   if (zn !== G.zone) { G.zone = zn; toast(zn); }
+  if (G.team.length && ++stepSaveTick % 4 === 0) saveGame();   // reprise possible à tout moment
   // objets au sol
   PICKUPS.forEach((p, i) => {
     if (!G.flags.pickups[i] && p.x === G.px && p.y === G.py) {
       G.flags.pickups[i] = true;
-      G.bag[p.item] += p.n;
       SFX.confirm();
-      const NOMS = { caps: 'Capsule(s)', pot: 'Potion(s)', spot: 'Super Potion(s)', guer: 'Guérison(s)', bonbon: 'Bonbon(s) Rare(s)' };
-      runScript(async () => { await say('Tu trouves ' + p.n + ' ' + NOMS[p.item] + ' !'); });
+      if (p.item[0] === 'q') {
+        G.flags[p.item] = true;
+        const QNOMS = { qruban: 'le RUBAN DE SOIE de la fillette', qlentille: 'la LENTILLE DE CRISTAL du phare' };
+        runScript(async () => { await say('Tu trouves ' + QNOMS[p.item] + ' !'); });
+      } else {
+        G.bag[p.item] += p.n;
+        const NOMS = { caps: 'Capsule(s)', pot: 'Potion(s)', spot: 'Super Potion(s)', guer: 'Guérison(s)', bonbon: 'Bonbon(s) Rare(s)' };
+        runScript(async () => { await say('Tu trouves ' + p.n + ' ' + NOMS[p.item] + ' !'); });
+      }
       return;
     }
   });
@@ -2200,25 +3334,30 @@ function interact() {
 
 function npcTalk(n) {
   if (n.dragon === 'auryon') { auryonBattle(); return; }
+  if (n.dragon === 'mnemos') { mnemosBattle(); return; }
   if (n.dragon) { dragonBattle(); return; }
   // le PNJ se tourne vers le joueur
   n.dir = G.dir === 'up' ? 'down' : G.dir === 'down' ? 'up' : G.dir === 'left' ? 'right' : 'left';
   runScript(async () => {
-    if (n.nurse || n.id === 'nurse') { await nurseTalk(); return; }
+    if (n.nurse || n.id === 'nurse') { await nurseTalk(n); return; }
     if (n.shop) { await shopMenu(); return; }
+    if (n.captain) { await ferryMenu(n); return; }
+    if (n.erebe) { await erebeTalk(); return; }
+    if (n.quest) { await questTalk(n); return; }
     if (n.guard) {
       await say('GARDE : Halte ! Seuls les porteurs de ' + n.guard.need + ' badge(s) passent ici.');
       await say('GARDE : Il te manque le Badge ' + n.guard.badge + '. L’arène la plus proche est à l’ouest.');
       return;
     }
     if (n.champion) { await championFight(); return; }
-    if (n.trainer) { await trainerFight(n); return; }
+    if (n.trainer) { await trainerFight(n); await questFollowUp(n); return; }
     if (n.id === 'prof') {
       if (G.flags.champion && G.flags.dragonDone && G.flags.auryonDone) {
         await say('PR KAROUBIN : Champion, les DEUX légendes à tes côtés... Tu es l’étoffe des Maîtres de région. Mon carnet est comblé !');
       } else if (G.flags.champion) {
         await say('PR KAROUBIN : CHAMPION ! Tout le bourg parle de toi !');
-        await say('PR KAROUBIN : Écoute... le sceau du Lac Onyx faiblit, et une lumière plane sur le Mont Givre. Les DEUX légendes t’attendent.');
+        await say('PR KAROUBIN : Mais écoute : le sceau du Lac Onyx se meurt, et un homme en noir rôde sur la rive. Zoé monte la garde — rejoins-la !');
+        await say('PR KAROUBIN : ... Un homme en noir. Si c’est bien lui... Érèbe... alors fais très attention.');
       } else if (badgeCount() === 0) {
         await say('PR KAROUBIN : Huit arènes jalonnent la région, jusqu’à la Ligue tout à l’est. La première est à VILLEFLORE, passé la Route 1 !');
         await say('PR KAROUBIN : Les créatures évoluent avec les niveaux. Capture, entraîne, et reviens me voir en Champion !');
@@ -2238,9 +3377,24 @@ function npcTalk(n) {
   });
 }
 
-async function nurseTalk() {
+async function nurseTalk(n) {
   while (true) {
-    const c = await menu(['SOIGNER', 'BOÎTE PC', 'RETOUR'], { title: 'CLINIQUE' });
+    const opts = ['SOIGNER', 'BOÎTE PC', 'RETOUR'];
+    const ligue2Ready = n && n.id === 'nurse_ligue' && G.flags.champion;
+    if (ligue2Ready) opts.splice(2, 0, 'LIGUE RONDE 2');
+    const c = await menu(opts, { title: 'CLINIQUE' });
+    if (ligue2Ready && c === 2) {
+      if (G.flags.ligue2) { await say('INFIRMIÈRE : La Ronde 2 est en cours ! Les Maîtres t’attendent, plus forts que jamais (+16 niveaux).'); continue; }
+      const s = await menu(['OUI, que la Ronde 2 commence !', 'Pas encore'], { title: 'Défier à nouveau la Ligue ?' });
+      if (s === 0) {
+        G.flags.ligue2 = true;
+        for (const id of ['aeria', 'terros', 'glacia', 'ombrys']) delete G.flags['tr_' + id];
+        SFX.catchOk(); saveGame();
+        await say('INFIRMIÈRE : Les Maîtres reprennent leur poste, l’œil noir et l’équipe gonflée à bloc. Bonne chance, Champion !');
+      }
+      continue;
+    }
+    if (ligue2Ready && c === 3) break;
     if (c === 0) {
       await say('INFIRMIÈRE : Je m’occupe de ton équipe, un instant...');
       SFX.heal();
@@ -2281,6 +3435,133 @@ async function pcMenu() {
   }
 }
 
+async function checkTrueEnd() {
+  if (G.flags.trueEnd) return;
+  if (G.flags.champion && G.flags.dragonDone && G.flags.auryonDone && G.flags.mnemosDone) {
+    G.flags.trueEnd = true;
+    SFX.catchOk();
+    await say('★ ★ ★   FIN VÉRITABLE   ★ ★ ★');
+    await say('L’Oubli apaisé. La Mémoire gardée. La Lumière retrouvée. La région se souviendra de toi, pour toujours.');
+    await say('Il reste des défis : la LIGUE RONDE 2 (infirmière de la Ligue), les 6 quêtes, et le CARNET des 100 créatures !');
+    saveGame();
+  }
+}
+
+async function ferryMenu(n) {
+  await say('CAPITAINE : Le vent est bon ! Où met-on le cap ?');
+  while (true) {
+    const dests = FERRY.filter(f => f.id !== n.captain);
+    const opts = dests.map(f => f.name).concat(['RESTER À QUAI']);
+    const c = await menu(opts, { title: 'FERRY', x: 4, y: 4 });
+    if (c < 0 || c >= dests.length) { await say('CAPITAINE : Comme tu voudras, moussaillon !'); return; }
+    const d = dests[c];
+    if (d.need && badgeCount() < d.need) { await say('CAPITAINE : Les courants y sont traîtres... Reviens avec ' + d.need + ' badges et on en reparle !'); continue; }
+    if (d.flag && !G.flags[d.flag]) { await say('CAPITAINE : Le Sanctuaire ? Personne n’accoste là-bas : une brume noire le voile depuis mille ans...'); continue; }
+    SFX.flee();
+    await say('CAPITAINE : En route pour ' + d.name + ' ! Accroche-toi !');
+    G.px = d.x; G.py = d.y; G.dir = 'down'; G.moving = null; G.zone = '';
+    saveGame();
+    return;
+  }
+}
+
+async function erebeTalk() {
+  if (G.flags.dragonDone) {
+    await say('ÉRÈBE : Je me souviens, maintenant. D’elle. De tout. Merci de ne pas m’avoir laissé oublier.');
+    await say('ÉRÈBE : Va au SANCTUAIRE — le ferry acceptera, la brume est levée. Dis à MNÉMOS... que je me souviens.');
+    return;
+  }
+  if (G.flags.erebeBeaten) {
+    await say('ÉRÈBE : L’Oubli t’attend dans la brume, là... Apaise-le. Fais ce que je n’ai pas su faire.');
+    return;
+  }
+  await say('??? : Ainsi c’est toi. Huit badges... huit clés du sceau. Tu as fait tout le travail à ma place.');
+  await say('ÉRÈBE : Je suis ÉRÈBE. Chercheur, jadis, aux côtés de Karoubin... jusqu’au naufrage qui m’a tout pris.');
+  await say('ÉRÈBE : NOCTYRAN, l’Oubli, effacera ma douleur — celle du monde entier ! Plus de souvenirs, plus de deuils.');
+  await say('ÉRÈBE : L’Équipe Ombre, la Tour, ton propre voyage : tout menait ici. Écarte-toi... ou tombe !');
+  const won = await battle(null, { name: 'ÉRÈBE', prize: 8000,
+    team: [makeMon('corbynx', 51), makeMon('pyrospectre', 52), makeMon('fantomare', 51), makeMon('drakefer', 53)],
+    winMsg: 'ÉRÈBE : ... Même ma colère, tu l’as balayée...',
+    loseMsg: 'ÉRÈBE : L’Oubli est une miséricorde. Un jour, tu comprendras.' });
+  if (won) {
+    G.flags.erebeBeaten = true;
+    saveGame();
+    await say('Érèbe tombe à genoux. Son médaillon s’ouvre : le portrait d’une enfant, à demi effacé.');
+    await say('ÉRÈBE : Trop tard... Le rituel était lancé avant ton arrivée. LE LAC S’OUVRE !');
+    SFX.faint();
+    await say('Les eaux noires se fendent. Une OMBRE immense émerge, deux braises rouges en guise de regard...');
+  }
+}
+
+function mnemosBattle() {
+  runScript(async () => {
+    await say('Le parvis s’embrase de glyphes anciens. MNÉMOS, la Mémoire du monde, se déploie devant toi.');
+    await say('Une voix sans bouche : « TU PORTES L’OUBLI APAISÉ. MONTRE-TOI DIGNE DU SOUVENIR. »');
+    await battle(makeMon('mnemos', 55), null, { legendary: true, mnemos: true });
+  });
+}
+
+async function questTalk(n) {
+  if (n.quest === 1) {
+    if (G.flags.q1Done) { await say('FILLETTE : Mon ruban ! Je ne le perdrai plus jamais, promis-juré.'); return; }
+    if (G.flags.qruban) {
+      G.flags.q1Done = true; G.bag.spot += 3; SFX.catchOk();
+      await say('FILLETTE : MON RUBAN ! Tu es mon héros ! Tiens, maman dit que ça soigne très fort. (+3 Super Potions)');
+      saveGame(); return;
+    }
+    G.flags.q1 = true;
+    await say('FILLETTE : Snif... Le vent a emporté mon beau ruban vers la FORÊT MURMURE. Tu me le retrouverais ?');
+    return;
+  }
+  if (n.quest === 2) {
+    if (G.flags.q2Done) { await say('ÉLEVEUR : Prends soin du petit. Son aïeul veillait sur les cols du Mont Givre, autrefois.'); return; }
+    if (badgeCount() >= 4) {
+      G.flags.q2Done = true;
+      const m = makeMon('dracotin', 20); markCaught('dracotin');
+      if (G.team.length < 6) { G.team.push(m); await say('ÉLEVEUR : Quatre badges... C’est toi que j’attendais. Ce petit DRACOTIN est à toi — élève-le mieux que moi.'); }
+      else { G.stored.push(m); await say('ÉLEVEUR : C’est toi que j’attendais. Ton DRACOTIN t’attend dans la Boîte PC — élève-le bien.'); }
+      SFX.catchOk(); saveGame(); return;
+    }
+    await say('ÉLEVEUR : J’ai un compagnon rare à confier... mais seulement à un dresseur portant 4 badges. Reviens-me voir.');
+    return;
+  }
+  if (n.quest === 3) {
+    if (G.flags.q3Done) { await say('GARDIEN : Le phare brille à nouveau jusqu’au Sanctuaire. Regarde-moi ce faisceau !'); return; }
+    if (G.flags.qlentille) {
+      G.flags.q3Done = true; G.bag.bonbon += 2; SFX.catchOk();
+      await say('GARDIEN : Ma lentille ! Taillée dans le cristal de la Grotte Écho... Prends 2 Bonbons Rares de ma réserve, gamin.');
+      saveGame(); return;
+    }
+    G.flags.q3 = true;
+    await say('GARDIEN : Le phare est aveugle. Sa LENTILLE DE CRISTAL a été volée par l’Équipe Ombre... puis perdue dans la GROTTE ÉCHO, à ce qu’on dit.');
+    return;
+  }
+  if (n.quest === 4) {
+    if (G.flags.q4Done) { await say('SCULPTEUR : Mon chef-d’œuvre avance... Un Givrelou de glace éternelle, pour la place du village.'); return; }
+    if (G.team.some(m => m.sp === 'givrelou')) {
+      G.flags.q4Done = true; G.money += 3000; SFX.catchOk();
+      await say('SCULPTEUR : Ce port de tête... magnifique ! Tiens, 3000 ₽. On murmure qu’AURYON, la Mémoire, niche au sommet par temps clair.');
+      saveGame(); return;
+    }
+    await say('SCULPTEUR : Je sculpte la légende du sommet, mais il me faut un modèle : montre-moi un GIVRELOU en chair et en glace !');
+    return;
+  }
+}
+
+async function questFollowUp(n) {
+  if (n.id === 'nox' && G.flags.tr_nox && !G.flags.q5Done && G.team.some(m => m.sp === 'fantomare')) {
+    G.flags.q5Done = true; G.bag.guer += 2; SFX.catchOk();
+    await say('NOX : Attends... ce FANTOMARE porte une mémoire ancienne. Je vois un homme en noir... un médaillon... une enfant...');
+    await say('NOX : « ÉRÈBE ». Retiens ce nom, il pèse sur la région. Prends ces 2 Guérisons — les esprits te suivent.');
+    saveGame();
+  }
+  if (n.id === 'bram' && G.flags.tr_bram && !G.flags.q6Done && G.flags.badge8 && G.team.some(m => m.sp === 'volcanus')) {
+    G.flags.q6Done = true; G.money += 5000; SFX.catchOk();
+    await say('BRAM : Un VOLCANUS, ici, dans ma forge... Elle peut s’éteindre en paix. 5000 ₽, et que le feu t’accompagne !');
+    saveGame();
+  }
+}
+
 const SHOP_STOCK = [['caps','Capsule',200],['pot','Potion',250],['spot','Super Potion',600],['guer','Guérison',350],['bonbon','Bonbon Rare',4000]];
 async function shopMenu() {
   await say('MARCHAND : Bienvenue ! Regarde mes merveilles.');
@@ -2296,12 +3577,14 @@ async function shopMenu() {
   saveGame();
 }
 
+const MASTER_IDS = ['aeria', 'terros', 'glacia', 'ombrys'];
 async function trainerFight(n) {
   const t = n.trainer;
   if (G.flags[t.flag]) { if (t.after) await say(t.after); return; }
   if (t.intro) await say(t.intro);
-  const team = t.team.map(([sp, lv]) => makeMon(sp, lv));
-  const won = await battle(null, { name: t.name, team, winMsg: t.win, loseMsg: t.lose, prize: t.prize });
+  const boost = G.flags.ligue2 && MASTER_IDS.includes(n.id) ? 16 : 0;
+  const team = t.team.map(([sp, lv]) => makeMon(sp, lv + boost));
+  const won = await battle(null, { name: t.name, team, winMsg: t.win, loseMsg: t.lose, prize: t.prize * (boost ? 2 : 1) });
   if (won) {
     G.flags[t.flag] = true;
     if (n.badge) {
@@ -2323,9 +3606,10 @@ async function championFight() {
   } else {
     await say('LÉO : Le trône te va bien. Un match pour l’honneur ?');
   }
-  const team = [makeMon('aigleroc', 47), makeMon('tigrevolt', 47), makeMon('golemoss', 48),
-                makeMon('fantomare', 48), makeMon('givrelou', 49), makeMon(counterEvo, 50)];
-  const won = await battle(null, { name: 'CHAMPION LÉO', team, prize: 10000,
+  const boost = G.flags.ligue2 ? 16 : 0;
+  const team = [makeMon('aigleroc', 47 + boost), makeMon('tigrevolt', 47 + boost), makeMon('golemoss', 48 + boost),
+                makeMon('fantomare', 48 + boost), makeMon('givrelou', 49 + boost), makeMon(counterEvo, 50 + boost)];
+  const won = await battle(null, { name: 'CHAMPION LÉO', team, prize: 10000 + boost * 625,
     winMsg: 'LÉO : ... C’est toi. Ça a toujours été toi. Félicitations, CHAMPION.',
     loseMsg: 'LÉO : Le sommet se mérite ! Reviens plus fort.' });
   if (won && !G.flags.champion) {
@@ -2358,6 +3642,7 @@ async function zoeTalk() {
   if (won) {
     G.flags.zoeBeaten = true; G.bag.caps += 5; saveGame();
     await say('Au loin, un CRI déchirant résonne depuis la rive nord du lac...');
+    await say('Et dans la brume, une silhouette en noir se découpe, immobile, qui t’attend.');
   }
 }
 
@@ -2366,7 +3651,7 @@ function zoeBattle() { runScript(zoeTalk); }
 function dragonBattle() {
   runScript(async () => {
     await say('L’ombre du lac se dresse devant toi... Ses yeux rouges te transpercent !');
-    await battle(makeMon('noctyran', 50), null, { legendary: true });
+    await battle(makeMon('noctyran', 52), null, { legendary: true });
   });
 }
 function auryonBattle() {
@@ -2435,17 +3720,31 @@ async function ombreVoltFight() {
 function pauseMenu() {
   runScript(async () => {
     while (true) {
-      const c = await menu(['ÉQUIPE', 'SAC', 'CARNET', 'BADGES', 'SAUVER', 'FERMER'],
+      const c = await menu(['ÉQUIPE', 'SAC', 'CARNET', 'QUÊTES', 'BADGES', 'SAUVER', 'CODE SECRET', 'FERMER'],
         { title: 'MENU — ₽ ' + G.money });
       if (c === 0) await teamMenu(false);
       else if (c === 1) await bagMenuWorld();
       else if (c === 2) await dexMenu();
       else if (c === 3) {
+        while (true) {
+          const labels = QUESTS.map(q => { const s = q.state(); return (s === 2 ? '✔ ' : s === 1 ? '➤ ' : '· ') + q.name; }).concat(['RETOUR']);
+          const qc = await menu(labels, { x: 4, y: 4, title: 'QUÊTES (' + QUESTS.filter(q => q.state() === 2).length + '/6 terminées)' });
+          if (qc < 0 || qc >= QUESTS.length) break;
+          await say(QUESTS[qc].hint + (QUESTS[qc].state() === 2 ? '\n— Terminée ! —' : ''));
+        }
+      }
+      else if (c === 4) {
         const noms = ['SÈVE', 'ROC', 'VAGUE', 'VOLT', 'DUNE', 'FLOCON', 'SPECTRE', 'MAGMA'];
         const list = noms.map((nm, i) => (G.flags['badge' + (i + 1)] ? '★ ' : '· ') + nm).join('\n');
         await say('BADGES (' + badgeCount() + '/8)\n' + noms.map((nm, i) => (G.flags['badge' + (i + 1)] ? '★' + nm : '·' + nm)).join('  '));
       }
-      else if (c === 4) { saveGame(); toast('Partie sauvegardée !'); SFX.confirm(); break; }
+      else if (c === 5) { saveGame() ? toast('Partie sauvegardée !') : toast('Stockage bloqué — note ton CODE SECRET !'); SFX.confirm(); break; }
+      else if (c === 6) {
+        saveGame();
+        const code = exportCode();
+        if (code && window.prompt) window.prompt('Copie ce code pour reprendre ta partie n’importe où :', code);
+        else await say('Ton code : ' + (code ? code.slice(0, 40) + '…' : 'indisponible'));
+      }
       else break;
     }
   });
@@ -2578,6 +3877,8 @@ async function execMove(att, def, mvId, attIsAlly) {
   dmg = Math.max(1, Math.floor(dmg * stab * tm * (crit ? 1.5 : 1) * (0.85 + Math.random() * 0.15)));
   SFX.hit();
   if (attIsAlly) B.flashFoe = 10; else B.flashAlly = 10;
+  B.shake = crit ? 12 : 7;
+  spawnHitParts(attIsAlly, TYPE_COLORS[mv.type] || '#fff', crit);
   await animHP(def, Math.max(0, def.hp - dmg));
   if (crit) await say('Coup critique !');
   if (tm >= 2) await say('C’est super efficace !');
@@ -2737,7 +4038,11 @@ async function tryCapture() {
   SFX.catchOk();
   await say('Et hop ! ' + monName(f) + ' a été capturé !');
   markCaught(f.sp);
-  if (B.legendary) { if (B.auryon) G.flags.auryonDone = true; else G.flags.dragonDone = true; }
+  if (B.legendary) {
+    if (B.auryon) G.flags.auryonDone = true;
+    else if (B.mnemos) G.flags.mnemosDone = true;
+    else G.flags.dragonDone = true;
+  }
   if (G.team.length < 6) { G.team.push(f); await say(monName(f) + ' rejoint ton équipe !'); }
   else { G.stored.push(f); await say('Ton équipe est pleine : ' + monName(f) + ' est envoyé au labo du Pr Karoubin.'); }
   saveGame();
@@ -2784,12 +4089,13 @@ async function battle(wild, trainer, opts) {
     allyIdx: Math.max(0, G.team.findIndex(m => m.hp > 0)),
     intro: 26, ball: null, hideFoe: false, foeDown: false,
     offFoe: 0, offAlly: 0, flashFoe: 0, flashAlly: 0,
-    legendary: !!opts.legendary, auryon: !!opts.auryon,
+    legendary: !!opts.legendary, auryon: !!opts.auryon, mnemos: !!opts.mnemos,
+    theme: themeAt(G.px), slide: 26, shake: 0, parts: [],
   };
   B.foe = B.foes[0];
   B.foes.forEach(f => markSeen(f.sp));
   if (trainer) { await say(trainer.name + ' veut se battre !'); await say(trainer.name + ' envoie ' + monName(B.foe) + ' !'); }
-  else if (B.legendary) await say(B.auryon ? 'AURYON, la lumière du Mont Givre, fond sur toi !' : 'NOCTYRAN, l’ombre du Lac Onyx, fond sur toi !');
+  else if (B.legendary) await say(B.mnemos ? 'MNÉMOS, la Mémoire du monde, jauge ton âme !' : B.auryon ? 'AURYON, la lumière du Mont Givre, fond sur toi !' : 'NOCTYRAN, l’ombre du Lac Onyx, fond sur toi !');
   else await say('Un ' + monName(B.foe) + ' sauvage apparaît !');
   await say('À toi, ' + monName(bAlly()) + ' !');
 
@@ -2840,7 +4146,7 @@ async function battle(wild, trainer, opts) {
     await say(trainer.winMsg);
     if (trainer.prize) { G.money += trainer.prize; SFX.confirm(); await say('Tu remportes ' + trainer.prize + ' ₽ !'); }
   }
-  if (result === 'win' && B.legendary) await say(B.auryon ? 'La lumière se dissout en flocons dorés... Elle reviendra planer sur le sommet.' : 'L’ombre se disperse en volutes noires... Tu sens qu’elle reviendra hanter la rive.');
+  if (result === 'win' && B.legendary) await say(B.mnemos ? 'Les glyphes pâlissent... « REVIENS QUAND TU SERAS PRÊT À TE SOUVENIR. »' : B.auryon ? 'La lumière se dissout en flocons dorés... Elle reviendra planer sur le sommet.' : 'L’ombre se disperse en volutes noires... Tu sens qu’elle reviendra hanter la rive.');
   if (result === 'lose') {
     if (trainer) await say(trainer.loseMsg);
     await say('Tu n’as plus de créatures en état de se battre...');
@@ -2850,17 +4156,21 @@ async function battle(wild, trainer, opts) {
   }
   const caughtLegendary = result === 'caught' && B.legendary;
   const caughtAuryon = caughtLegendary && B.auryon;
+  const caughtMnemos = caughtLegendary && B.mnemos;
   B = null;
   G.state = 'world';
   setTrack('world');
   saveGame();
   if (caughtLegendary) {
-    if (caughtAuryon) {
-      await say('Éblouissant... AURYON, la légende du givre, est avec toi !');
-      if (G.flags.dragonDone) await say('★ LES DEUX LÉGENDES RÉUNIES ! Va voir le Pr Karoubin, Maître de la région ! ★');
+    if (caughtMnemos) {
+      await say('MNÉMOS s’incline : « JE TE CONFIE LA MÉMOIRE DU MONDE. QU’ELLE NE S’ÉTEIGNE JAMAIS. »');
+      await checkTrueEnd();
+    } else if (caughtAuryon) {
+      await say('Éblouissant... AURYON, la Mémoire ailée, est avec toi !');
+      await checkTrueEnd();
     } else {
-      await say('Incroyable... NOCTYRAN, la légende du Lac Onyx, est avec toi !');
-      await say(G.flags.champion ? 'Il reste une lumière sur le MONT GIVRE...' : 'L’ombre apaisée, la région respire. Cap sur la LIGUE !');
+      await say('L’Oubli s’apaise entre tes mains... NOCTYRAN est avec toi !');
+      await say('Érèbe murmure : « Le Sanctuaire... va au Sanctuaire. MNÉMOS doit savoir. » Le ferry t’y mènera.');
     }
   }
   return result === 'win' || result === 'caught';
@@ -2873,55 +4183,126 @@ function fillEllipse(x, y, rx, ry, color) {
   ctx.fillStyle = color;
   ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
 }
+function spawnHitParts(onFoe, color, big) {
+  const cx = onFoe ? 184 : 58, cy = onFoe ? 54 : 132;
+  for (let i = 0; i < (big ? 16 : 10); i++) {
+    B.parts.push({ x: cx + rndi(-8, 8), y: cy + rndi(-8, 8),
+      vx: (Math.random() - 0.5) * 3.2, vy: -Math.random() * 2.6 - 0.4,
+      life: rndi(12, 24), color });
+  }
+}
+const BATTLE_SKIES = new Map();
+function battleSky(th) {
+  if (th === THEMES.cave)    return ['#2a2420', '#4a4038', '#5e5448'];
+  if (th === THEMES.dark)    return ['#171226', '#322a4e', '#3e3856'];
+  if (th === THEMES.volcano) return ['#2a1210', '#5e2a1e', '#4e362e'];
+  if (th === THEMES.snow)    return ['#8fb4d8', '#cfe2f2', '#a8c4d8'];
+  if (th === THEMES.sand)    return ['#88b0d8', '#e8d8a8', '#b09a58'];
+  if (th === THEMES.gold)    return ['#88a8c8', '#d8cf96', '#9a8e3a'];
+  if (th === THEMES.forest)  return ['#3a5e4a', '#6cae5e', '#3a7e36'];
+  return ['#78aadc', '#a8d49a', '#4f9a44'];
+}
 function drawBattle() {
-  const grd = ctx.createLinearGradient(0, 0, 0, SCR_H);
-  if (B && B.legendary) { grd.addColorStop(0, '#16101e'); grd.addColorStop(1, '#3a2a4e'); }
-  else { grd.addColorStop(0, '#23233a'); grd.addColorStop(1, '#46466a'); }
-  ctx.fillStyle = grd; ctx.fillRect(0, 0, SCR_W, SCR_H);
-  fillEllipse(184, 88, 48, 12, 'rgba(255,255,255,0.12)');
-  fillEllipse(58, 164, 52, 12, 'rgba(255,255,255,0.12)');
-  if (!B) return;
+  if (!B) { ctx.fillStyle = '#10101a'; ctx.fillRect(0, 0, SCR_W, SCR_H); return; }
+  ctx.save();
+  if (B.shake > 0) { B.shake--; ctx.translate(rndi(-2, 2), rndi(-2, 2)); }
+  const [skyA, skyB, ground] = battleSky(B.theme || THEMES.grass);
+  const grd = ctx.createLinearGradient(0, 0, 0, 110);
+  grd.addColorStop(0, skyA); grd.addColorStop(1, skyB);
+  ctx.fillStyle = grd; ctx.fillRect(-3, -3, SCR_W + 6, 116);
+  // silhouettes du décor à l'horizon
+  ctx.fillStyle = 'rgba(20,20,40,0.25)';
+  const sil = B.theme === THEMES.dark ? 'pillar' : (B.theme && B.theme.solid) || 'tree';
+  for (let i = 0; i < 7; i++) {
+    const bx = 10 + i * 38, by = 96;
+    if (sil === 'rock') { ctx.beginPath(); ctx.ellipse(bx, by + 4, 16, 9, 0, Math.PI, 0); ctx.fill(); }
+    else if (sil === 'pillar') ctx.fillRect(bx - 3, by - 18, 7, 24);
+    else { ctx.beginPath(); ctx.ellipse(bx, by - 6, 9, 12, 0, 0, Math.PI * 2); ctx.fill(); ctx.fillRect(bx - 1, by, 3, 8); }
+  }
+  // sol
+  ctx.fillStyle = ground; ctx.fillRect(-3, 108, SCR_W + 6, SCR_H - 105);
+  ctx.fillStyle = shade(ground, 0.85); ctx.fillRect(-3, 108, SCR_W + 6, 4);
+  ctx.fillStyle = shade(ground, 0.9);
+  for (let i = 0; i < 9; i++) ctx.fillRect(8 + i * 30, 130 + (i % 3) * 18, 12, 2);
+  // plateformes
+  const pf = (x, y, rx, ry) => {
+    ctx.fillStyle = shade(ground, 0.7);
+    ctx.beginPath(); ctx.ellipse(x, y + 2, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = shade(ground, 1.18);
+    ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = shade(ground, 1.05);
+    ctx.beginPath(); ctx.ellipse(x, y + 1, rx - 6, ry - 2, 0, 0, Math.PI * 2); ctx.fill();
+  };
+  pf(184, 90, 50, 12);
+  pf(58, 166, 54, 13);
+
   const foe = B.foe, al = bAlly();
+  if (B.slide > 0) B.slide--;
+  const slideF = B.slide * 5, slideA = -B.slide * 5;
   // adversaire
   if (B.flashFoe > 0) B.flashFoe--;
   if (!B.hideFoe && !(B.flashFoe % 2)) {
     if (B.foeDown) ctx.globalAlpha = 0.45;
-    const fy = 22 + (B.foeDown ? 26 : 0);
-    drawSprite(ctx, SPR[foe.sp].mat, SPR[foe.sp].pal, 152 - B.offFoe * 2, fy, 4, false);
+    const fy = 24 + (B.foeDown ? 26 : 0);
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath(); ctx.ellipse(184 + slideF, 88, 26, 6, 0, 0, Math.PI * 2); ctx.fill();
+    drawSprite(ctx, SPR[foe.sp].mat, SPR[foe.sp].pal, 152 - B.offFoe * 2 + slideF, fy, 4, false);
     ctx.globalAlpha = 1;
   }
-  // allié (de dos : miroir)
+  // allié (vu de dos : miroir)
   if (B.flashAlly > 0) B.flashAlly--;
-  if (!(B.flashAlly % 2))
-    drawSprite(ctx, SPR[al.sp].mat, SPR[al.sp].pal, 26 + B.offAlly * 2, 100, 4, true);
+  if (!(B.flashAlly % 2)) {
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath(); ctx.ellipse(58 + slideA, 164, 30, 7, 0, 0, Math.PI * 2); ctx.fill();
+    drawSprite(ctx, SPR[al.sp].mat, SPR[al.sp].pal, 26 + B.offAlly * 2 + slideA, 100, 4, true);
+  }
+  // particules d'impact
+  for (let i = B.parts.length - 1; i >= 0; i--) {
+    const p = B.parts[i];
+    p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.life--;
+    if (p.life <= 0) { B.parts.splice(i, 1); continue; }
+    ctx.globalAlpha = Math.min(1, p.life / 10);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(Math.round(p.x), Math.round(p.y), p.life > 14 ? 3 : 2, p.life > 14 ? 3 : 2);
+    ctx.globalAlpha = 1;
+  }
   // capsule lancée
   if (B.ball) {
     const t = B.ball.t;
     const bx = 64 + (184 - 64) * t + (B.ball.shake || 0);
     const by = (148 + (76 - 148) * t) - Math.sin(Math.PI * t) * 46;
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath(); ctx.ellipse(184, 88, 7, 2.5, 0, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#1a1a22'; ctx.fillRect(bx - 5, by - 5, 10, 10);
     ctx.fillStyle = '#e83a4a'; ctx.fillRect(bx - 4, by - 4, 8, 4);
     ctx.fillStyle = '#f4f4f8'; ctx.fillRect(bx - 4, by, 8, 4);
+    ctx.fillStyle = '#fff'; ctx.fillRect(bx - 1, by - 1, 2, 2);
   }
   // panneau adversaire
-  drawBox(6, 8, 116, 34);
+  drawBox(6, 8, 118, 36);
   drawText(monName(foe), 14, 14, '#fff');
-  drawText('N.' + foe.level, 92, 14, '#c8c8d0');
-  drawHPBar(14, 30, 96, foe.hp / foe.maxhp);
-  if (foe.st) drawText(ST_NAMES[foe.st], 14, 20, ST_COLORS[foe.st], 'bold 7px monospace');
+  drawText('N.' + foe.level, 94, 14, '#c8c8d0');
+  ctx.fillStyle = TYPE_COLORS[SPECIES[foe.sp].types[0]] || '#888';
+  ctx.fillRect(14, 24, 30, 2);
+  drawHPBar(14, 30, 98, foe.hp / foe.maxhp);
+  if (foe.st) drawText(ST_NAMES[foe.st], 96, 22, ST_COLORS[foe.st], 'bold 7px monospace');
   // panneau allié
-  drawBox(136, 112, 116, 52);
-  drawText(monName(al), 144, 118, '#fff');
-  drawText('N.' + al.level, 222, 118, '#c8c8d0');
-  drawHPBar(144, 132, 96, al.hp / al.maxhp);
-  drawText(al.hp + '/' + al.maxhp + ' PV', 144, 140, '#c8c8d0', '8px monospace');
-  if (al.st) drawText(ST_NAMES[al.st], 214, 140, ST_COLORS[al.st], 'bold 7px monospace');
+  drawBox(134, 110, 118, 54);
+  drawText(monName(al), 142, 116, '#fff');
+  drawText('N.' + al.level, 222, 116, '#c8c8d0');
+  ctx.fillStyle = TYPE_COLORS[SPECIES[al.sp].types[0]] || '#888';
+  ctx.fillRect(142, 126, 30, 2);
+  drawHPBar(142, 131, 98, al.hp / al.maxhp);
+  drawText(al.hp + '/' + al.maxhp + ' PV', 142, 138, '#c8c8d0', '8px monospace');
+  if (al.st) drawText(ST_NAMES[al.st], 214, 138, ST_COLORS[al.st], 'bold 7px monospace');
   const xpCur = al.xp - xpTotalFor(al.level);
   const xpNeed = xpTotalFor(al.level + 1) - xpTotalFor(al.level);
-  ctx.fillStyle = '#2a2a32'; ctx.fillRect(144, 154, 96, 3);
-  ctx.fillStyle = '#48a8f8'; ctx.fillRect(144, 154, Math.round(96 * clamp(xpCur / xpNeed, 0, 1)), 3);
+  ctx.fillStyle = '#23232e'; ctx.fillRect(142, 152, 98, 4);
+  ctx.fillStyle = '#48a8f8'; ctx.fillRect(142, 152, Math.round(98 * clamp(xpCur / xpNeed, 0, 1)), 4);
+  ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fillRect(142, 152, Math.round(98 * clamp(xpCur / xpNeed, 0, 1)), 1);
   // cadre de message permanent
   drawBox(4, SCR_H - 52, SCR_W - 8, 48);
+  ctx.restore();
   // fondu d'introduction
   if (B.intro > 0) {
     B.intro--;
@@ -2987,16 +4368,27 @@ async function titleFlow() {
   SFX.confirm();
   while (true) {
     if (hasSave()) {
-      const c = await menu(['CONTINUER', 'NOUVELLE PARTIE'], { x: 84, y: 116, cancelable: false });
+      const c = await menu(['CONTINUER', 'NOUVELLE PARTIE', 'CODE SECRET'], { x: 80, y: 110, cancelable: false });
       if (c === 0) {
         if (loadGame()) { startWorld(); return; }
-        localStorage.removeItem(SAVE_KEY);
+        try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
         continue;
       }
+      if (c === 2) { if (await codePrompt()) { startWorld(); return; } continue; }
       const s = await menu(['NON, garder ma partie', 'OUI, tout effacer'], { title: 'Effacer la sauvegarde ?', x: 44, y: 110, cancelable: false });
-      if (s === 1) { localStorage.removeItem(SAVE_KEY); await newGame(); return; }
-    } else { await newGame(); return; }
+      if (s === 1) { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} memSave = null; await newGame(); return; }
+    } else {
+      const c = await menu(['NOUVELLE PARTIE', 'CODE SECRET'], { x: 80, y: 116, cancelable: false });
+      if (c === 1) { if (await codePrompt()) { startWorld(); return; } continue; }
+      await newGame(); return;
+    }
   }
+}
+async function codePrompt() {
+  const code = window.prompt ? window.prompt('Colle ton CODE SECRET de sauvegarde :', '') : null;
+  if (code && importCode(code)) { toast('Partie restaurée !'); return true; }
+  if (code !== null) await say('Ce code est invalide ou incomplet...');
+  return false;
 }
 
 async function newGame() {
@@ -3006,6 +4398,9 @@ async function newGame() {
     flags: { pickups: {} }, stored: [], zone: '' });
   G.state = 'world'; setTrack('world');
   await sleep(400);
+  await say('— Il y a mille ans, deux dragons jumeaux veillaient sur la région : AURYON, la Mémoire... et NOCTYRAN, l’Oubli. —');
+  await say('— Quand les hommes voulurent s’emparer de la Mémoire, l’Oubli engloutit leur cité sous un lac noir. —');
+  await say('— Huit sages forgèrent huit BADGES, les clés du sceau qui endormit l’Oubli. Puis, comme toujours... on oublia. —');
   await say('PR KAROUBIN : Bienvenue dans le monde de VERSION NOIRE !');
   await say('PR KAROUBIN : Des créatures fabuleuses peuplent cette région — 39 espèces recensées dans mon carnet !');
   await say('PR KAROUBIN : Huit ARÈNES jalonnent la grande route de l’est, jusqu’à la LIGUE et son Champion.');
@@ -3043,6 +4438,9 @@ function validateData() {
   for (const [name, s] of Object.entries(SPR)) {
     if (s.mat.length !== 16) errs.push(name + ' : ' + s.mat.length + ' lignes');
     s.mat.forEach((r, i) => { if (r.length !== 16) errs.push(name + ' ligne ' + i + ' : ' + r.length + ' px'); });
+    const unk = new Set();
+    for (const r of s.mat) for (const ch of r) if (ch !== '.' && !s.pal[ch]) unk.add(ch);
+    if (unk.size) errs.push(name + ' : pixels sans couleur [' + [...unk].join(' ') + ']');
   }
   for (const mv of Object.values(MOVES)) if (!TYPE_COLORS[mv.type]) errs.push('type inconnu : ' + mv.type);
   M.forEach((row, j) => { if (row.length !== MAP_W) errs.push('carte ligne ' + j); });
@@ -3059,6 +4457,7 @@ function validateData() {
   const blockedTile = t => t === '#' || t === '~' || t === '=' || t === 'S' || t === 'l';
   const q = [[25, 53]];
   open.add('25,53');
+  for (const f of FERRY) { q.push([f.x, f.y]); open.add(f.x + ',' + f.y); }
   while (q.length) {
     const [x, y] = q.pop();
     for (const [dx, dy] of [[0,1],[0,-1],[1,0],[-1,0]]) {
