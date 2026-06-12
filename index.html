@@ -2198,7 +2198,7 @@ function addTown(x0, opts) {
   mrect(56, 46, 3, 3, '#'); mrect(70, 24, 3, 8, '#');
   M[21][58] = 'S'; SIGNS['58,21'] = 'VILLEFLORE — La cité des pétales.\nArène de LINA, experte Plante.';
   M[32][73] = 'S'; SIGNS['73,32'] = 'EST : Forêt Murmure — il faut le Badge Sève (1).';
-  PICKUPS.push({ x: 47, y: 42, item: 'pot', n: 2 }, { x: 66, y: 44, item: 'caps', n: 3 });
+  PICKUPS.push({ x: 47, y: 42, item: 'pot', n: 2 }, { x: 66, y: 44, item: 'caps', n: 3 }, { x: 44, y: 38, item: 'caps', n: 2 }, { x: 71, y: 40, item: 'pot', n: 2 });
   vwall(75, [33]);
 
   // ---- FORÊT MURMURE (76-111) ----
@@ -2466,6 +2466,50 @@ function addTown(x0, opts) {
     'DRAKE : Dernier obstacle avant le Panthéon. Et le plus coriace.',
     'DRAKE : File... ils t’attendent.', 'DRAKE : Comme tous les autres.', 'DRAKE : Le Champion est d’un autre niveau.');
 
+  // dresseurs supplémentaires : la montée en niveau se fait en route
+  T('titou',   5, 44, PAL_VILLAGER, 'GAMIN TITOU', [['mulotin',4],['roupiaf',4]], 120,
+    'TITOU : Mon papi dit que je suis trop petit pour les duels. Prouve-lui le contraire !',
+    'TITOU : Ouiiin ! ... C’était super.', 'TITOU : Vu ? Même pas petit !', 'TITOU : Un jour j’aurai 8 badges, comme toi !');
+  T('polly',  27, 36, PAL_ZOE, 'FILLETTE POLLY', [['chenivert',5],['fleurnette',5]], 150,
+    'POLLY : Mes fleurs et moi, on ne laisse passer personne !',
+    'POLLY : Oh ! Mes pétales...', 'POLLY : Na ! Repassez demain !', 'POLLY : La porte de l’est demande un badge, tu sais.');
+  T('nino',   47, 42, PAL_VILLAGER, 'GAMIN NINO', [['lapidou',8],['minetou',8]], 250,
+    'NINO : Les hautes herbes du sud, c’est MON terrain d’entraînement !',
+    'NINO : Pfff... t’es du niveau de LINA, toi.', 'NINO : Trop facile !', 'NINO : LINA monte à 11-12, prépare-toi bien.');
+  T('margot', 63, 44, PAL_L1, 'BOTANISTE MARGOT', [['piquedou',9],['fleurnette',9]], 280,
+    'MARGOT : Avant l’arène, tout le monde passe par moi. Tradition de Villeflore !',
+    'MARGOT : Tu es prêt pour LINA, sans aucun doute.', 'MARGOT : La tradition est sauve !', 'MARGOT : Va, LINA t’attend à l’arène.');
+  T('lise',   86, 25, PAL_ZOE, 'SCOUTE LISE', [['chouettin',10],['bourdonbz',10]], 300,
+    'LISE : Chut... tu vas faire fuir les chouettes ! Tant pis pour toi.',
+    'LISE : Hou hou... bien joué.', 'LISE : La forêt veille !', 'LISE : Un SBIRE OMBRE rôde plus à l’est, fais gaffe.');
+  T('pierre',122, 41, PAL_L2, 'GÉOLOGUE PIERRE', [['rocailloux',13],['scarabronze',13]], 420,
+    'PIERRE : Chaque caillou a une histoire ! Celle-ci finit par un duel.',
+    'PIERRE : Sédimentaire, mon cher !', 'PIERRE : Dur comme la roche !', 'PIERRE : BLOC est coriace : vise ses faiblesses Plante ou Eau.');
+  T('hugo',  158, 31, PAL_VILLAGER, 'CHERCHEUR HUGO', [['taupix',17],['chauvenuit',17]], 560,
+    'HUGO : L’écho a porté tes pas jusqu’à moi. Voyons ta valeur !',
+    'HUGO : ... écho... écho...', 'HUGO : La grotte garde ses secrets !', 'HUGO : On murmure qu’une LENTILLE de cristal dort ici.');
+  T('anna',  206, 39, PAL_L3, 'MATELOTE ANNA', [['azurat',20],['tortibulle',20]], 640,
+    'ANNA : Le quart est calme... un duel pour passer le temps ?',
+    'ANNA : Belle manœuvre, capitaine !', 'ANNA : À fond de cale !', 'ANNA : Le ferry t’ouvrira des îles entières, plus tard.');
+  T('kai',   228, 25, PAL_RIVAL, 'SURFEUR KAI', [['grenouilla',22],['nimbules',22]], 700,
+    'KAI : La vague parfaite attendra : un challenger d’abord !',
+    'KAI : Wipeout total...', 'KAI : Cowabunga !', 'KAI : Le GRAND PONT est à deux pas, prudence.');
+  T('maya',  312, 24, PAL_L1, 'APICULTRICE MAYA', [['bourdonbz',26],['apidame',27]], 880,
+    'MAYA : Mes ruches bourdonnent d’impatience !',
+    'MAYA : Quel dard, dis donc !', 'MAYA : Bzzz-victoire !', 'MAYA : Les plaines regorgent d’espèces rares, ouvre l’œil.');
+  T('ida',   338, 42, PAL_L5, 'ARCHÉOLOGUE IDA', [['sablizard',29],['vipersand',29]], 980,
+    'IDA : Tu marches sur des ruines millénaires. Montre un peu de respect... et de niveau !',
+    'IDA : Une découverte majeure : toi.', 'IDA : Retourne au musée !', 'IDA : Les fresques parlent de DEUX dragons jumeaux...');
+  T('tom',   372, 43, PAL_L6, 'ALPINISTE TOM', [['glacachat',32],['pinglace',32]], 1050,
+    'TOM : Le froid pince ? Attends de voir mes partenaires !',
+    'TOM : Brrr... bien grimpé.', 'TOM : Redescends au camp de base !', 'TOM : Par temps clair, une lumière plane au sommet.');
+  T('vera',  426, 40, PAL_L7, 'EXORCISTE VERA', [['feuflotte',35],['mycorage',35]], 1150,
+    'VERA : Les esprits de la tour réclament un tribut. Toi, par exemple.',
+    'VERA : Les esprits... approuvent.', 'VERA : Le tribut est payé !', 'VERA : KROW occupe la tour. L’ÉQUIPE OMBRE prépare un coup.');
+  T('niels', 444, 43, PAL_L8, 'VULCANOLOGUE NIELS', [['magmou',38],['salambre',38]], 1250,
+    'NIELS : Activité sismique... et duellistique en hausse !',
+    'NIELS : Éruption de talent !', 'NIELS : Mes relevés ne mentent jamais !', 'NIELS : IGNIS n’a jamais perdu chez lui. Jamais.');
+
   // l'Équipe Ombre
   T('krow', 417, 17, PAL_OMBRE, 'COMMANDANT KROW', [['vampiryx',35],['fantomare',36],['dunodrake',36]], 3000,
     'KROW : L’ÉQUIPE OMBRE réveillera la légende du lac... et toi, tu vas dormir.',
@@ -2501,6 +2545,21 @@ function addTown(x0, opts) {
   // l'histoire : Érèbe au bord du lac, Mnémos au Sanctuaire
   NPCS.push({ id: 'erebe', x: 13, y: 3, dir: 'down', pal: humanPal('#d8d8e0', '#16161e', '#2a2a36'), erebe: true });
   NPCS.push({ id: 'mnemos', x: 600, y: 13, dir: 'down', dragon: 'mnemos' });
+
+  // Mordu Max : sparring-partner infini, son niveau suit tes badges
+  NPCS.push({ id: 'mordu', x: 60, y: 36, dir: 'left', pal: humanPal('#2a2a2a', '#e8542a', '#3a3a44'), mordu: true });
+
+  // villageois bavards (conseils et rumeurs)
+  NPCS.push({ id: 'v_ville', x: 52, y: 22, dir: 'down', pal: PAL_VILLAGER, lines: [
+    'HABITANTE : LINA est niveau 11-12. Les dresseurs des champs au sud te feront grandir !',
+    'HABITANTE : Et MORDU MAX, le fou en rouge près de la grande route, accepte les revanches À VOLONTÉ. Son niveau suit tes badges !',
+  ] });
+  NPCS.push({ id: 'v_roche', x: 124, y: 22, dir: 'down', pal: PAL_VILLAGER, lines: [
+    'HABITANT : La Grotte Écho rend fou : chaque pas résonne deux fois. On y a perdu une lentille de cristal, paraît-il.',
+  ] });
+  NPCS.push({ id: 'v_volt', x: 266, y: 22, dir: 'down', pal: PAL_VILLAGER, lines: [
+    'HABITANTE : Des types en noir tournent autour de la CENTRALE... La police ne fait rien. Toi, peut-être ?',
+  ] });
 
   // personnages de quêtes
   NPCS.push({ id: 'fillette',  x: 50,  y: 24, dir: 'down', pal: humanPal('#c8762a', '#f0a8c0', '#f4e8d8'), quest: 1 });
@@ -3344,9 +3403,12 @@ function npcTalk(n) {
     if (n.captain) { await ferryMenu(n); return; }
     if (n.erebe) { await erebeTalk(); return; }
     if (n.quest) { await questTalk(n); return; }
+    if (n.mordu) { await morduFight(); return; }
+    if (n.lines) { for (const l of n.lines) await say(l); return; }
     if (n.guard) {
       await say('GARDE : Halte ! Seuls les porteurs de ' + n.guard.need + ' badge(s) passent ici.');
       await say('GARDE : Il te manque le Badge ' + n.guard.badge + '. L’arène la plus proche est à l’ouest.');
+      if (n.guard.need === 1) await say('GARDE : Un conseil : les dresseurs des champs du sud et MORDU MAX, l’énergumène en rouge, forgent les champions.');
       return;
     }
     if (n.champion) { await championFight(); return; }
@@ -3360,7 +3422,7 @@ function npcTalk(n) {
         await say('PR KAROUBIN : ... Un homme en noir. Si c’est bien lui... Érèbe... alors fais très attention.');
       } else if (badgeCount() === 0) {
         await say('PR KAROUBIN : Huit arènes jalonnent la région, jusqu’à la Ligue tout à l’est. La première est à VILLEFLORE, passé la Route 1 !');
-        await say('PR KAROUBIN : Les créatures évoluent avec les niveaux. Capture, entraîne, et reviens me voir en Champion !');
+        await say('PR KAROUBIN : Ne fonce pas tête baissée : affronte les dresseurs en chemin, capture, entraîne. À Villeflore, un certain MORDU MAX accepte les revanches à volonté !');
       } else {
         await say('PR KAROUBIN : ' + badgeCount() + ' badge(s) déjà ! La Ligue est au bout de la grande route, à l’est.');
         await say('PR KAROUBIN : Méfie-toi de l’ÉQUIPE OMBRE : ils cherchent à briser le sceau du Lac Onyx...');
@@ -3546,6 +3608,24 @@ async function questTalk(n) {
     await say('SCULPTEUR : Je sculpte la légende du sommet, mais il me faut un modèle : montre-moi un GIVRELOU en chair et en glace !');
     return;
   }
+}
+
+// sparring illimité : niveau = 6 + 4 par badge, petite prime à chaque victoire
+async function morduFight() {
+  const lvl = Math.min(LEVEL_CAP - 2, 6 + badgeCount() * 4 + (G.flags.champion ? 6 : 0));
+  if (!G.flags.morduMet) {
+    G.flags.morduMet = true;
+    await say('MORDU MAX : Moi ? Je vis pour le combat. Matin, midi, soir : COMBAT !');
+    await say('MORDU MAX : Reviens me défier autant que tu veux — mes partenaires grandiront avec tes badges. L’entraînement idéal !');
+  } else {
+    await say('MORDU MAX : REVANCHE ! Mes partenaires sont montés au niveau ' + lvl + ' rien que pour toi !');
+  }
+  const sp1 = lvl < 15 ? 'mulotin' : 'ratagriffe';
+  const sp2 = lvl < 16 ? 'roupiaf' : 'aigleroc';
+  await battle(null, { name: 'MORDU MAX', team: [makeMon(sp1, lvl), makeMon(sp2, lvl)],
+    prize: 100 + badgeCount() * 80,
+    winMsg: 'MORDU MAX : ENCORE ! Enfin... d’abord une sieste. Reviens vite !',
+    loseMsg: 'MORDU MAX : HA ! Le secret, c’est l’entraînement. Justement, j’en connais un pas mal : MOI !' });
 }
 
 async function questFollowUp(n) {
