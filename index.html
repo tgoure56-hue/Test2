@@ -216,7 +216,7 @@ const TOOLS={
   mirror:{name:"Miroir magique",type:"mirror"}, rod:{name:"Canne à pêche",type:"rod"},
 };
 const ACC={ cloud:{name:"Bottes nuage",eff:"djump"}, boots:{name:"Bottes véloces",eff:"speed"}, band:{name:"Brassard de force",eff:"def",def:5},
-  talisman:{name:"Talisman de régénération",eff:"regen"}, amulet:{name:"Amulette de mana",eff:"manaregen"}, wings:{name:"Ailes de cristal",eff:"fly"}, lavaboots:{name:"Bottes de lave",eff:"lava"}, headlamp:{name:"Lampe frontale",eff:"glow"} };
+  talisman:{name:"Talisman de régénération",eff:"regen"}, amulet:{name:"Amulette de mana",eff:"manaregen"}, wings:{name:"Ailes de cristal",eff:"fly"}, lavaboots:{name:"Bottes de lave",eff:"lava"}, headlamp:{name:"Lampe frontale",eff:"glow"}, tackle:{name:"Boîte à pêche",eff:"angler"} };
 const THROWS={ glowstick:{name:"Bâton lumineux",col:"#7fff9f"} };
 const ARMOR={
   wood_h:{name:"Casque bois",slot:"head",def:1}, wood_c:{name:"Plastron bois",slot:"chest",def:2}, wood_l:{name:"Jambières bois",slot:"legs",def:1},
@@ -231,14 +231,16 @@ const ARMOR={
 const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Barre fer",col:"#c9c9d4"},
   silver_bar:{name:"Barre argent",col:"#dfe3ea"}, gold_bar:{name:"Barre or",col:"#e8c33a"}, lens:{name:"Lentille",col:"#7fd6e0"},
   mushroom:{name:"Champignon",col:"#d83a3a"}, hellstone_bar:{name:"Barre d'enfer",col:"#e8632a"},
-  fish:{name:"Poisson",col:"#7fb0c8"}, mythril_bar:{name:"Barre de mythril",col:"#5fc9b0"}, adamantite_bar:{name:"Barre d'adamantite",col:"#d0506a"}, crystal_bar:{name:"Barre de cristal",col:"#7fe0ff"} };
+  fish:{name:"Poisson",col:"#7fb0c8"}, tuna:{name:"Thon",col:"#4a7a9a"}, salmon:{name:"Saumon",col:"#e08a6a"}, swordfish:{name:"Espadon",col:"#9ab0c0"},
+  mythril_bar:{name:"Barre de mythril",col:"#5fc9b0"}, adamantite_bar:{name:"Barre d'adamantite",col:"#d0506a"}, crystal_bar:{name:"Barre de cristal",col:"#7fe0ff"} };
 const AMMO={ arrow:{name:"Flèche",col:"#caa15a",dmg:5} };
 const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenbee:{name:"Larve royale"}, golem:{name:"Noyau de golem"}, worm:{name:"Nourriture maudite"}, moon:{name:"Tablette céleste"} };
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
   hp_potion:{name:"Potion de soin",col:"#e23a4a"}, mp_potion:{name:"Potion de mana",col:"#3a6ae2"},
   cooked_fish:{name:"Poisson grillé",col:"#d8a25a"}, mushroom_soup:{name:"Soupe de champignons",col:"#c87a3a"},
-  swift_potion:{name:"Potion de hâte",col:"#5ad6e0"}, ironskin_potion:{name:"Potion de fer",col:"#c9c9d4"}, pet_egg:{name:"Œuf de familier",col:"#8ad6a0"}, shine_potion:{name:"Potion de lumière",col:"#ffe27a"} };
-const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"}, shine:{name:"Lumière",col:"#ffe27a"} };
+  swift_potion:{name:"Potion de hâte",col:"#5ad6e0"}, ironskin_potion:{name:"Potion de fer",col:"#c9c9d4"}, pet_egg:{name:"Œuf de familier",col:"#8ad6a0"}, shine_potion:{name:"Potion de lumière",col:"#ffe27a"},
+  fishing_potion:{name:"Potion de pêche",col:"#3a9ad6"}, crate:{name:"Caisse en bois",col:"#a87a48"} };
+const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"}, shine:{name:"Lumière",col:"#ffe27a"}, fishing:{name:"Pêche chanceuse",col:"#3a9ad6"} };
 
 // ---- recettes ----
 const R=(out,ins,station)=>({out,ins,station});
@@ -302,6 +304,9 @@ const RECIPES=[
   // phase 6
   R({kind:"tool",id:"rod"},[ti(PLANK,8)],"table"),
   R({kind:"use",id:"cooked_fish",n:1},[ma("fish",1)],"furnace"),
+  R({kind:"use",id:"cooked_fish",n:1},[ma("salmon",1)],"furnace"),
+  R({kind:"use",id:"cooked_fish",n:2},[ma("tuna",1)],"furnace"),
+  R({kind:"use",id:"fishing_potion",n:1},[ma("fish",2),ma("mushroom",1)],"furnace"),
   R({kind:"use",id:"mushroom_soup",n:1},[ma("mushroom",3)],"table"),
   R({kind:"use",id:"swift_potion",n:1},[ma("mushroom",1),ti(EMERALD,1)],"table"),
   R({kind:"use",id:"ironskin_potion",n:1},[ma("iron_bar",1),ma("mushroom",1)],"table"),
@@ -582,6 +587,7 @@ let inv=new Array(36).fill(null);
 let cursor=null, selected=0, gameTime=0.30, frameCount=0;
 let enemies=[], projectiles=[], particles=[], boss=null, npcs=[];
 let coins=0, merchantArrived=false, bossKills=0, nurseArrived=false;
+let anglerArrived=false, fishCaught=0, anglerQuest=null;
 let raining=false, weatherT=80, showMap=false, bloodMoon=false, eclipse=false;
 let invOpen=false, chestOpen=false, shopOpen=false, curChestKey=null, dead=false, autosaveT=0;
 const mining={x:-1,y:-1,prog:0};
@@ -711,7 +717,7 @@ function handleActions(dt){
   if(mouse.right&&inReach){
     const tt=getT(mouse.tx,mouse.ty);
     let npc=null; for(const n of npcs) if(mouse.wx>n.x&&mouse.wx<n.x+n.w&&mouse.wy>n.y&&mouse.wy<n.y+n.h){npc=n;break;}
-    if(npc){ if(npc.type==="merchant")openShop(SHOP); else if(npc.type==="wizard")openShop(WIZARD_SHOP); else if(npc.type==="blacksmith")openShop(BLACKSMITH_SHOP); else if(npc.type==="dryad")openShop(DRYAD_SHOP); else if(npc.type==="nurse")nurseHeal(); else flash(guideTip()); mouse.right=false; }
+    if(npc){ if(npc.type==="merchant")openShop(SHOP); else if(npc.type==="wizard")openShop(WIZARD_SHOP); else if(npc.type==="blacksmith")openShop(BLACKSMITH_SHOP); else if(npc.type==="dryad")openShop(DRYAD_SHOP); else if(npc.type==="angler")anglerInteract(); else if(npc.type==="nurse")nurseHeal(); else flash(guideTip()); mouse.right=false; }
     else if(tt===BED){ player.spawnX=mouse.tx*T; player.spawnY=(mouse.ty-2)*T; if(isNight()){gameTime=0.27;player.hp=Math.min(player.maxHp,player.hp+20);flash("Vous dormez jusqu'au matin");}else flash("Point de réapparition défini"); mouse.right=false; }
     else if(isDoor(tt)){ if(player.placeCd<=0){ toggleDoor(mouse.tx,mouse.ty); player.placeCd=0.2; } }
     else if(tt===CHEST){ openChest(mouse.tx,mouse.ty); mouse.right=false; }
@@ -792,7 +798,9 @@ function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("
   else if(sel.id==="swift_potion"){ player.buffs.swift=45; removeItem("use","swift_potion",1); flash("💨 Hâte (45s)"); }
   else if(sel.id==="ironskin_potion"){ player.buffs.iron=45; removeItem("use","ironskin_potion",1); flash("🛡️ Peau de fer (45s)"); }
   else if(sel.id==="pet_egg"){ player.pet=true; removeItem("use","pet_egg",1); flash("🐾 Un familier te suit !"); }
-  else if(sel.id==="shine_potion"){ player.buffs.shine=120; removeItem("use","shine_potion",1); flash("✨ Lumière (120s)"); } }
+  else if(sel.id==="shine_potion"){ player.buffs.shine=120; removeItem("use","shine_potion",1); flash("✨ Lumière (120s)"); }
+  else if(sel.id==="fishing_potion"){ player.buffs.fishing=120; removeItem("use","fishing_potion",1); flash("🎣 Pêche chanceuse (120s)"); }
+  else if(sel.id==="crate"){ openCrate(); } }
 function meleeAttack(dmg){ const dir=player.face,ax=player.x+PW/2+dir*12,ay=player.y+PH/2;
   const list=boss?enemies.concat([boss]):enemies;
   for(const e of list){ const ex=e.x+e.w/2,ey=e.y+e.h/2; if(Math.hypot(ex-ax,ey-ay)<48){e.hp-=dmg;e.vx=dir*6;e.vy=-4;spawnParticles(ex,ey,"#ff5555",6);} } }
@@ -817,14 +825,48 @@ function spearAttack(dmg){ const dir=player.face,ax=player.x+PW/2,ay=player.y+PH
 function throwBoomerang(dmg,type){ const pcx=player.x+PW/2,pcy=player.y+PH/2; let dx=mouse.wx-pcx,dy=mouse.wy-pcy; const d=Math.hypot(dx,dy)||1; const fl=type==="flail";
   projectiles.push({x:pcx,y:pcy,vx:dx/d*(fl?11:9),vy:dy/d*(fl?11:9),type:type||"boomerang",dmg,t:0,turn:fl?0.32:0.5,returning:false,life:fl?3:6,friendly:true,hitSet:new Set()}); }
 function castRod(){ if(player.fishing){ player.fishing=null; flash("Ligne retirée"); return; }
-  if(getT(mouse.tx,mouse.ty)===WATER){ player.fishing={tx:mouse.tx,ty:mouse.ty,t:2.5+Math.random()*5}; flash("Ligne lancée..."); } else flash("Vise un point d'eau"); }
+  if(getT(mouse.tx,mouse.ty)===WATER){ const fast=(player.buffs.fishing>0||hasAcc("angler"))?0.5:1; player.fishing={tx:mouse.tx,ty:mouse.ty,t:(1.6+Math.random()*4)*fast}; flash("Ligne lancée..."); } else flash("Vise un point d'eau"); }
 function updateFishing(dt){ const f=player.fishing; if(!f)return; if(getT(f.tx,f.ty)!==WATER){player.fishing=null;return;}
   if(Math.hypot((f.tx*T+T/2)-(player.x+PW/2),(f.ty*T+T/2)-(player.y+PH/2))>REACH*1.4){player.fishing=null;return;}
-  f.t-=dt; if(f.t<=0){ catchFish(); player.fishing=null; } }
-function catchFish(){ const r=Math.random();
-  if(r<0.62){addItem("mat","fish",1);flash("Ça mord ! 🐟");} else if(r<0.74){flash("Rien...");}
-  else if(r<0.88){addItem("mat","mushroom",1);flash("Pêché un champignon");} else if(r<0.96){addItem("mat","gold_bar",1);flash("Trésor pêché !");}
-  else {addItem("acc","talisman",1);flash("Accessoire rare pêché !");} }
+  f.t-=dt; if(f.t<=0){ catchFish(f.tx); player.fishing=null; } }
+function catchFish(tx){ fishCaught++; dirtyUI=true;
+  const ocean=biomeAt(tx)===6, lucky=(player.buffs.fishing>0?1:0)+(hasAcc("angler")?1:0), r=Math.random()+lucky*0.12;
+  if(ocean){
+    if(r<0.28){addItem("mat","fish",1);flash("Ça mord ! 🐟");}
+    else if(r<0.48){addItem("mat","salmon",1);flash("Saumon pêché ! 🐟");}
+    else if(r<0.66){addItem("mat","tuna",1);flash("Thon pêché ! 🐟");}
+    else if(r<0.79){addItem("mat","swordfish",1);flash("Espadon pêché ! 🐟");}
+    else if(r<0.90){addItem("use","crate",1);flash("Caisse remontée ! 📦");}
+    else if(r<0.97){addItem("mat","gold_bar",1);flash("Trésor pêché ! 💰");}
+    else {addItem("acc","tackle",1);flash("Accessoire rare pêché ! 🎣");}
+  } else {
+    if(r<0.52){addItem("mat","fish",1);flash("Ça mord ! 🐟");}
+    else if(r<0.63){flash("Rien...");}
+    else if(r<0.78){addItem("mat","salmon",1);flash("Saumon pêché ! 🐟");}
+    else if(r<0.89){addItem("mat","mushroom",1);flash("Pêché un champignon");}
+    else if(r<0.96){addItem("use","crate",1);flash("Caisse remontée ! 📦");}
+    else {addItem("mat","gold_bar",1);flash("Trésor pêché !");}
+  } }
+function openCrate(){ removeItem("use","crate",1); const r=Math.random(); let msg="📦 ";
+  if(r<0.30){ const g=8+Math.floor(Math.random()*20); coins+=g; msg+=g+" pièces"; }
+  else if(r<0.48){ addItem("mat","iron_bar",3); msg+="3 barres de fer"; }
+  else if(r<0.62){ addItem("mat","gold_bar",2); msg+="2 barres d'or"; }
+  else if(r<0.74){ addItem("use","hp_potion",2); msg+="2 potions de soin"; }
+  else if(r<0.84){ addItem("ammo","arrow",30); msg+="30 flèches"; }
+  else if(r<0.92){ addItem("use","fishing_potion",1); msg+="potion de pêche"; }
+  else if(r<0.97){ addItem("tile",GOLD,4); msg+="4 minerais d'or"; }
+  else { addItem("acc","tackle",1); msg+="Boîte à pêche !"; }
+  flash(msg); dirtyUI=true; }
+const QUEST_FISH=["fish","salmon","tuna","swordfish"];
+function newAnglerQuest(){ const f=QUEST_FISH[Math.floor(Math.random()*QUEST_FISH.length)]; anglerQuest={fish:f,qty:2+Math.floor(Math.random()*3)}; }
+function anglerInteract(){ if(!anglerQuest)newAnglerQuest();
+  if(countItem("mat",anglerQuest.fish)>=anglerQuest.qty){ removeItem("mat",anglerQuest.fish,anglerQuest.qty);
+    const reward=40+Math.floor(Math.random()*60); coins+=reward; const r=Math.random(); let extra="";
+    if(r<0.4){addItem("use","fishing_potion",1);extra=" + potion de pêche";}
+    else if(r<0.7){addItem("use","crate",1);extra=" + caisse";}
+    else if(r<0.85){addItem("acc","tackle",1);extra=" + Boîte à pêche";}
+    flash("🎣 Quête accomplie ! +"+reward+" pièces"+extra); newAnglerQuest(); dirtyUI=true; return; }
+  flash("🎣 Quête : apporte "+anglerQuest.qty+"× "+MATS[anglerQuest.fish].name); openShop(ANGLER_SHOP); }
 function updateCritters(dt,step){
   if(!isNight()&&critters.length<4&&Math.random()<dt*0.4){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3),sy=surfaceAt(sx)-1;
     if(Math.abs(sx*T-player.x)<VW&&getT(sx,sy)===AIR) critters.push({x:sx*T,y:sy*T,vx:0,vy:0,w:14,h:12,onGround:false,hop:Math.random()}); }
@@ -975,8 +1017,8 @@ function updateBoss(dt,step){ const e=boss; e.t+=dt; e.charge-=dt;
 // =========================================================================
 const GUIDE_TIPS=["Casse des arbres pour du bois, puis fabrique un établi.","Une fournaise fond les minerais en barres.","Place des torches pour explorer les grottes en sécurité.","Les cristaux de vie augmentent tes PV max.","Tue des yeux démoniaques la nuit pour des lentilles : elles invoquent le boss.","Construis des murs pour empêcher les monstres d'apparaître chez toi.","Le marchand arrive quand tu as assez de pièces."];
 function guideTip(){ return "💬 "+GUIDE_TIPS[Math.floor(Math.random()*GUIDE_TIPS.length)]; }
-function spawnNPC(type){ const hx=Math.floor(WORLD_W/2)+(type==="merchant"?6:type==="nurse"?12:type==="wizard"?-14:type==="blacksmith"?18:type==="dryad"?-20:-6), sy=surfaceAt(hx);
-  npcs.push({type,x:hx*T,y:(sy-3)*T,vx:0,vy:0,w:18,h:40,onGround:false,t:0,next:1,dir:0,home:hx*T,col:type==="merchant"?"#caa23a":type==="nurse"?"#e87a9a":type==="wizard"?"#9a5ad0":type==="blacksmith"?"#8a6a4a":type==="dryad"?"#4a9a5a":"#3aa0c9"}); }
+function spawnNPC(type){ const hx=Math.floor(WORLD_W/2)+(type==="merchant"?6:type==="nurse"?12:type==="wizard"?-14:type==="blacksmith"?18:type==="dryad"?-20:type==="angler"?24:-6), sy=surfaceAt(hx);
+  npcs.push({type,x:hx*T,y:(sy-3)*T,vx:0,vy:0,w:18,h:40,onGround:false,t:0,next:1,dir:0,home:hx*T,col:type==="merchant"?"#caa23a":type==="nurse"?"#e87a9a":type==="wizard"?"#9a5ad0":type==="blacksmith"?"#8a6a4a":type==="dryad"?"#4a9a5a":type==="angler"?"#2a8ab0":"#3aa0c9"}); }
 function nurseHeal(){ if(player.hp>=player.maxHp){flash("Tu es déjà en pleine forme");return;} const cost=Math.ceil((player.maxHp-player.hp)*0.5); if(coins<cost){flash("Pas assez de pièces ("+cost+" requis)");return;} coins-=cost; player.hp=player.maxHp; player.potionCd=0; spawnParticles(player.x+PW/2,player.y+PH/2,"#e87a9a",12); flash("Soigné ! (-"+cost+" pièces)"); dirtyUI=true; }
 function updateNPCs(dt,step){
   if(coins>=50&&!merchantArrived){ merchantArrived=true; spawnNPC("merchant"); flash("🧺 Un marchand s'est installé !"); }
@@ -984,6 +1026,7 @@ function updateNPCs(dt,step){
   if(bossKills>=2&&!wizardArrived){ wizardArrived=true; spawnNPC("wizard"); flash("🧙 Un sorcier s'est installé !"); }
   if(bossKills>=3&&!blacksmithArrived){ blacksmithArrived=true; spawnNPC("blacksmith"); flash("🔨 Un forgeron s'est installé !"); }
   if(bossKills>=4&&!dryadArrived){ dryadArrived=true; spawnNPC("dryad"); flash("🌿 Une dryade s'est installée !"); }
+  if(fishCaught>=5&&!anglerArrived){ anglerArrived=true; newAnglerQuest(); spawnNPC("angler"); flash("🎣 Le Pêcheur s'est installé !"); }
   for(const n of npcs){ n.t+=dt; n.vy=Math.min(n.vy+GRAV*step,MAX_FALL);
     if(n.onGround){ if(n.t>n.next){ n.dir=[-1,0,1][Math.floor(Math.random()*3)]; n.next=n.t+1+Math.random()*2; }
       if(Math.abs(n.x-n.home)>320) n.dir=Math.sign(n.home-n.x);
@@ -1014,6 +1057,11 @@ const DRYAD_SHOP=[
   {item:{kind:"use",id:"hp_potion",n:1},price:16}, {item:{kind:"use",id:"shine_potion",n:1},price:14},
   {item:{kind:"use",id:"swift_potion",n:1},price:18}, {item:{kind:"use",id:"mushroom_soup",n:1},price:16},
   {item:{kind:"tile",id:HEARTLANTERN,n:1},price:30}, {item:{kind:"acc",id:"talisman",n:1},price:120},
+];
+const ANGLER_SHOP=[
+  {item:{kind:"tool",id:"rod",n:1},price:45}, {item:{kind:"use",id:"fishing_potion",n:1},price:20},
+  {item:{kind:"use",id:"cooked_fish",n:1},price:10}, {item:{kind:"use",id:"crate",n:1},price:35},
+  {item:{kind:"acc",id:"tackle",n:1},price:200},
 ];
 
 // =========================================================================
@@ -1163,7 +1211,7 @@ function drawNPC(n){ const sx=n.x-cam.x,sy=n.y-cam.y;
   ctx.fillStyle="#3a2a1a";ctx.fillRect(sx+2,sy,n.w-4,4);
   ctx.fillStyle="#222";ctx.fillRect(sx+(n.dir>=0?n.w-7:4),sy+6,2,2);
   ctx.fillStyle="rgba(0,0,0,0.5)";ctx.fillRect(sx-8,sy-16,n.w+16,12);
-  ctx.fillStyle="#fff";ctx.font="9px sans-serif";ctx.textAlign="center";ctx.fillText(n.type==="merchant"?"Marchand":n.type==="nurse"?"Infirmière":n.type==="wizard"?"Sorcier":n.type==="blacksmith"?"Forgeron":n.type==="dryad"?"Dryade":"Guide",sx+n.w/2,sy-7);ctx.textAlign="left"; }
+  ctx.fillStyle="#fff";ctx.font="9px sans-serif";ctx.textAlign="center";ctx.fillText(n.type==="merchant"?"Marchand":n.type==="nurse"?"Infirmière":n.type==="wizard"?"Sorcier":n.type==="blacksmith"?"Forgeron":n.type==="dryad"?"Dryade":n.type==="angler"?"Pêcheur":"Guide",sx+n.w/2,sy-7);ctx.textAlign="left"; }
 function drawBoss(e){ const sx=e.x-cam.x,sy=e.y-cam.y,t2=e.tier===2;
   if(e.tier===3){ ctx.fillStyle="#e8c33a";roundRect(sx,sy,e.w,e.h,e.h/2);ctx.fill();ctx.fillStyle="#222";for(let k=0;k<3;k++)ctx.fillRect(sx+10+k*16,sy,7,e.h);
     ctx.fillStyle="rgba(255,255,255,0.55)";const wb=Math.sin(e.t*16)*5;ctx.beginPath();ctx.ellipse(sx+12,sy-5+wb,16,8,0,0,7);ctx.fill();ctx.beginPath();ctx.ellipse(sx+e.w-12,sy-5+wb,16,8,0,0,7);ctx.fill();
@@ -1282,7 +1330,7 @@ function respawn(){ dead=false; document.getElementById("death").style.display="
 function rle(arr){ const out=[];let v=arr[0],c=1; for(let i=1;i<arr.length;i++){if(arr[i]===v&&c<65535)c++;else{out.push(v,c);v=arr[i];c=1;}} out.push(v,c); return out; }
 function unrle(out,len){ const arr=new Uint8Array(len);let p=0; for(let i=0;i<out.length;i+=2){const v=out[i],c=out[i+1];for(let j=0;j<c;j++)arr[p++]=v;} return arr; }
 function save(){ try{ const chests=[]; chestData.forEach((v,k)=>chests.push([k,v]));
-  localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,seed,world:rle(world),liquid:rle(liquid),walls:rle(walls),chests,coins,merchantArrived,bossKills,nurseArrived,wizardArrived,blacksmithArrived,dryadArrived,
+  localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,seed,world:rle(world),liquid:rle(liquid),walls:rle(walls),chests,coins,merchantArrived,bossKills,nurseArrived,wizardArrived,blacksmithArrived,dryadArrived,anglerArrived,fishCaught,anglerQuest,
     px:player.x,py:player.y,hp:player.hp,maxHp:player.maxHp,mana:player.mana,maxMana:player.maxMana,armor:player.armorArr,acc:player.acc,pet:player.pet,mtd:player.mounted,spx:player.spawnX,spy:player.spawnY,
     inv,sel:selected,time:gameTime})); }catch(err){flash("Sauvegarde impossible (espace plein)");console.warn(err);} }
 function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
@@ -1290,17 +1338,17 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
     world=unrle(d.world,WORLD_W*WORLD_H); liquid=unrle(d.liquid,WORLD_W*WORLD_H);
     if(d.walls)walls=unrle(d.walls,WORLD_W*WORLD_H); else genWalls();
     chestData=new Map(); if(d.chests)d.chests.forEach(([k,v])=>chestData.set(k,v));
-    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; invasionT=0; bloodMoon=false; eclipse=false;
+    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; anglerArrived=!!d.anglerArrived; fishCaught=d.fishCaught||0; anglerQuest=d.anglerQuest||null; invasionT=0; bloodMoon=false; eclipse=false;
     player.x=d.px;player.y=d.py;player.hp=d.hp;player.maxHp=d.maxHp||100;player.mana=d.mana||0;player.maxMana=d.maxMana||20;player.armorArr=d.armor||[null,null,null];player.acc=d.acc||null;
     player.pet=!!d.pet; player.mounted=!!d.mtd; player.spawnX=d.spx!=null?d.spx:Math.floor(WORLD_W/2)*T; player.spawnY=d.spy!=null?d.spy:(surfaceAt(Math.floor(WORLD_W/2))-6)*T; player.buffs={}; player.fishing=null;
     selected=d.sel||0; gameTime=d.time||0.3; inv=d.inv?d.inv.slice(0,36):new Array(36).fill(null);
     while(inv.length<36)inv.push(null); critters=[]; minions=[]; fireflies=[]; glows=[]; player.grapple=null;
-    npcs=[]; spawnNPC("guide"); if(merchantArrived)spawnNPC("merchant"); if(nurseArrived)spawnNPC("nurse"); if(wizardArrived)spawnNPC("wizard"); if(blacksmithArrived)spawnNPC("blacksmith"); if(dryadArrived)spawnNPC("dryad"); return true;
+    npcs=[]; spawnNPC("guide"); if(merchantArrived)spawnNPC("merchant"); if(nurseArrived)spawnNPC("nurse"); if(wizardArrived)spawnNPC("wizard"); if(blacksmithArrived)spawnNPC("blacksmith"); if(dryadArrived)spawnNPC("dryad"); if(anglerArrived)spawnNPC("angler"); return true;
   }catch(err){console.warn("Sauvegarde corrompue",err);return false;} }
 function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null]; player.acc=null;
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
-  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;raining=false;weatherT=80;bloodMoon=false;eclipse=false;critters=[];minions=[];fireflies=[];invasionT=0;curShop=null;player.buffs={};player.fishing=null;player.pet=false;player.mounted=false;player.flyTime=0;player.grapple=null;glows=[];player.useCd=0;player.placeCd=0;player.swing=0;
+  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;raining=false;weatherT=80;bloodMoon=false;eclipse=false;critters=[];minions=[];fireflies=[];invasionT=0;curShop=null;player.buffs={};player.fishing=null;player.pet=false;player.mounted=false;player.flyTime=0;player.grapple=null;glows=[];player.useCd=0;player.placeCd=0;player.swing=0;
   npcs=[]; spawnNPC("guide");
   document.getElementById("death").style.display="none";
   const c=Math.floor(WORLD_W/2);player.x=c*T;player.y=(surfaceAt(c)-6)*T;player.vx=player.vy=0;player.spawnX=player.x;player.spawnY=player.y;
