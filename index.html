@@ -78,7 +78,7 @@
 <div id="help">
   <b>Bouger</b> A/D ou ←/→ · <b>Saut</b> Espace/W/↑ · <b>Miner</b> clic gauche · <b>Placer</b> clic droit<br>
   <b>Épée/Arc/Sceptre</b> : sélectionne-le puis clic gauche · <b>Coffre/PNJ</b> : clic droit dessus<br>
-  <b>Murs</b> : sélectionne un mur puis clic droit (clic gauche pour le retirer) · <b>Slots</b> 1-9 / molette · <b>Inventaire</b> E
+  <b>Murs</b> : mur sélectionné + clic droit · <b>Slots</b> 1-9 / molette · <b>Inventaire</b> E · <b>Carte</b> M
 </div>
 
 <div id="hotbar"></div>
@@ -124,7 +124,7 @@ const HELL_Y=WORLD_H-14; // début de la couche d'enfer
 const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAMOND=10,
   PLANK=11,TORCH=12,TABLE=13,FURNACE=14,GLASS=15,BRICK=16,COPPER=17,SILVER=18,SNOW=19,
   ICE=20,CLAY=21,RUBY=22,EMERALD=23,SAPPHIRE=24,WATER=25,LAVA=26,CHEST=27,ANVIL=28,LIFE=29,MANA=30,MUSHROOM=31,
-  PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38;
+  PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -170,9 +170,11 @@ const TILE={
   [JGRASS]:{name:"Herbe jungle",solid:true,hard:0.5,drop:MUD,col:"#3a8a2a"},
   [ASH]:{name:"Cendre",solid:true,hard:0.9,drop:ASH,col:"#3a3338"},
   [HELLSTONE]:{name:"Pierre d'enfer",solid:true,hard:2.8,drop:HELLSTONE,col:"#c8442a",light:0.4},
+  [ROPE]:{name:"Corde",solid:false,hard:0.2,drop:ROPE,col:"#b9914a",climb:true},
 };
 const isPlatform=id=>TILE[id]&&TILE[id].platform;
 const isDoor=id=>TILE[id]&&TILE[id].door;
+const isClimb=id=>TILE[id]&&TILE[id].climb;
 const isLiquid=id=>id===WATER||id===LAVA;
 const isStation=id=>TILE[id]&&TILE[id].station;
 
@@ -186,6 +188,7 @@ const TOOLS={
   staff1:{name:"Sceptre de saphir",type:"staff",dmg:22,mana:5},
   pick5:{name:"Pioche d'enfer",type:"pick",power:4.0}, sword5:{name:"Épée d'enfer",type:"sword",dmg:65}, sword6:{name:"Lame des abysses",type:"sword",dmg:95},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
+  mirror:{name:"Miroir magique",type:"mirror"},
 };
 const ACC={ cloud:{name:"Bottes nuage",eff:"djump"}, boots:{name:"Bottes véloces",eff:"speed"}, band:{name:"Brassard de force",eff:"def",def:5} };
 const ARMOR={
@@ -199,7 +202,7 @@ const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Bar
   silver_bar:{name:"Barre argent",col:"#dfe3ea"}, gold_bar:{name:"Barre or",col:"#e8c33a"}, lens:{name:"Lentille",col:"#7fd6e0"},
   mushroom:{name:"Champignon",col:"#d83a3a"}, hellstone_bar:{name:"Barre d'enfer",col:"#e8632a"} };
 const AMMO={ arrow:{name:"Flèche",col:"#caa15a",dmg:5} };
-const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"} };
+const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenbee:{name:"Larve royale"} };
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
   hp_potion:{name:"Potion de soin",col:"#e23a4a"}, mp_potion:{name:"Potion de mana",col:"#3a6ae2"} };
 
@@ -257,6 +260,11 @@ const RECIPES=[
   R({kind:"armor",id:"hell_c"},[ma("hellstone_bar",12)],"anvil"),
   R({kind:"armor",id:"hell_l"},[ma("hellstone_bar",10)],"anvil"),
   R({kind:"summon",id:"helleye"},[ma("hellstone_bar",5),ma("lens",3)],"anvil"),
+  // phase 5
+  R({kind:"tile",id:ROPE,n:10},[ti(LOG,1)],"table"),
+  R({kind:"bomb",id:"bomb",n:3},[ti(COAL,2),ti(IRON,1)],"anvil"),
+  R({kind:"tool",id:"mirror"},[ti(GLASS,5),ma("silver_bar",3)],"anvil"),
+  R({kind:"summon",id:"queenbee"},[ma("gold_bar",6),ti(EMERALD,4)],"anvil"),
 ];
 
 // =========================================================================
@@ -347,10 +355,28 @@ function genWorld(s){
   // champignons sur le sol des grottes
   for(let x=2;x<WORLD_W-2;x++){ const sy=surfaceAt(x);
     for(let y=sy+6;y<WORLD_H-3;y++){ if(world[idx(x,y)]===AIR&&solidAt(x,y+1)&&world[idx(x,y-1)]===AIR&&rng()<0.015) world[idx(x,y)]=MUSHROOM; } }
+  genChests(rng);
   // socle indestructible
   for(let x=0;x<WORLD_W;x++){ world[idx(x,WORLD_H-1)]=STONE; world[idx(x,WORLD_H-2)]=STONE; }
   genWalls();
 }
+function chestLoot(depth,rng){ const a=new Array(20).fill(null); let s=0; const put=it=>{if(s<20)a[s++]=it;};
+  put({kind:"tile",id:TORCH,n:3+Math.floor(rng()*8)});
+  if(rng()<0.6)put({kind:"use",id:"hp_potion",n:1+Math.floor(rng()*2)});
+  if(rng()<0.5)put({kind:"tile",id:ROPE,n:10+Math.floor(rng()*16)});
+  if(rng()<0.4)put({kind:"bomb",id:"bomb",n:2+Math.floor(rng()*4)});
+  if(depth<0.45){ if(rng()<0.5)put({kind:"mat",id:"copper_bar",n:2+Math.floor(rng()*4)}); if(rng()<0.25)put({kind:"tool",id:"bow1",n:1}); }
+  else if(depth<0.7){ if(rng()<0.5)put({kind:"mat",id:"iron_bar",n:2+Math.floor(rng()*4)}); if(rng()<0.25)put({kind:"acc",id:"boots",n:1}); }
+  else { if(rng()<0.5)put({kind:"mat",id:"gold_bar",n:2+Math.floor(rng()*5)}); if(rng()<0.3)put({kind:"tile",id:DIAMOND,n:1+Math.floor(rng()*3)}); if(rng()<0.18)put({kind:"acc",id:"cloud",n:1}); }
+  if(rng()<0.4)put({kind:"mat",id:"mushroom",n:1+Math.floor(rng()*3)});
+  return a; }
+function genChests(rng){ const cands=[];
+  for(let x=3;x<WORLD_W-3;x++){ const sy=surfaceAt(x); for(let y=sy+8;y<WORLD_H-4;y++){
+    if(world[idx(x,y)]===AIR&&world[idx(x,y-1)]===AIR&&solidAt(x,y+1)&&!isLiquid(getT(x,y+1)))cands.push(x*WORLD_H+y); } }
+  for(let i=cands.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));const t=cands[i];cands[i]=cands[j];cands[j]=t;}
+  const n=Math.min(30,cands.length);
+  for(let i=0;i<n;i++){ const id=cands[i],x=Math.floor(id/WORLD_H),y=id%WORLD_H; if(world[idx(x,y)]!==AIR)continue;
+    world[idx(x,y)]=CHEST; chestData.set(x+","+y,chestLoot((y-surfaceAt(x))/WORLD_H,rng)); } }
 function vein(rng,type,count,dmin,dmax,size){ for(let i=0;i<count;i++){ let x=2+Math.floor(rng()*(WORLD_W-4));
   const sy=surfaceAt(x); let y=Math.min(sy+dmin+Math.floor(rng()*(dmax-dmin)),WORLD_H-3); let bx=x,by=y;
   const n=size+Math.floor(rng()*size);
@@ -401,6 +427,7 @@ function makeTex(id){
   else if(id===PLATFORM){g.clearRect(0,0,T,T);g.fillStyle="#a9763c";g.fillRect(0,2,T,8);g.strokeStyle="#7a4f24";g.lineWidth=1;g.strokeRect(0,2,T-1,8);g.beginPath();g.moveTo(T/2,2);g.lineTo(T/2,10);g.stroke();}
   else if(id===DOOR_C){g.clearRect(0,0,T,T);g.fillStyle="#7a4a1e";g.fillRect(2,0,T-4,T);g.strokeStyle="#5a3414";g.lineWidth=1;g.strokeRect(3,1,T-6,T-2);g.fillStyle="#e8c33a";g.fillRect(T-7,T/2-1,3,3);}
   else if(id===DOOR_O){g.clearRect(0,0,T,T);g.fillStyle="#7a4a1e";g.fillRect(1,0,6,T);g.strokeStyle="#5a3414";g.strokeRect(1,1,6,T-2);}
+  else if(id===ROPE){g.clearRect(0,0,T,T);g.strokeStyle="#b9914a";g.lineWidth=3;g.beginPath();g.moveTo(T/2,0);g.lineTo(T/2,T);g.stroke();g.strokeStyle="#8a6a30";g.lineWidth=1;for(let y=0;y<T;y+=4){g.beginPath();g.moveTo(T/2-3,y);g.lineTo(T/2+3,y+2);g.stroke();}}
   else if(id===TABLE){g.clearRect(0,0,T,T);g.fillStyle="#8a5a2b";g.fillRect(2,8,T-4,5);g.fillStyle="#6e4520";g.fillRect(4,13,3,T-14);g.fillRect(T-7,13,3,T-14);}
   else if(id===TORCH){g.clearRect(0,0,T,T);g.fillStyle="#6e4520";g.fillRect(T/2-2,8,4,T-8);g.fillStyle="#ff9a1a";g.beginPath();g.ellipse(T/2,7,4,7,0,0,7);g.fill();g.fillStyle="#ffe27a";g.beginPath();g.ellipse(T/2,8,2,4,0,0,7);g.fill();}
   else if(id===MUSHROOM){ g.clearRect(0,0,T,T); g.fillStyle="#e8e0d0"; g.fillRect(T/2-2,T-11,4,9);
@@ -429,7 +456,8 @@ const cam={x:0,y:0};
 let inv=new Array(36).fill(null);
 let cursor=null, selected=0, gameTime=0.30, frameCount=0;
 let enemies=[], projectiles=[], particles=[], boss=null, npcs=[];
-let coins=0, merchantArrived=false;
+let coins=0, merchantArrived=false, bossKills=0, nurseArrived=false;
+let raining=false, weatherT=80, showMap=false;
 let invOpen=false, chestOpen=false, shopOpen=false, curChestKey=null, dead=false, autosaveT=0;
 const mining={x:-1,y:-1,prog:0};
 const keys={}, mouse={x:0,y:0,wx:0,wy:0,tx:0,ty:0,left:false,right:false};
@@ -437,11 +465,11 @@ const keys={}, mouse={x:0,y:0,wx:0,wy:0,tx:0,ty:0,left:false,right:false};
 // =========================================================================
 //  inventaire / conteneurs
 // =========================================================================
-function defOf(it){ return it.kind==="tile"?TILE[it.id]:it.kind==="tool"?TOOLS[it.id]:it.kind==="armor"?ARMOR[it.id]:it.kind==="mat"?MATS[it.id]:it.kind==="ammo"?AMMO[it.id]:it.kind==="use"?USES[it.id]:it.kind==="wall"?WALLS[it.id]:it.kind==="acc"?ACC[it.id]:SUMMONS[it.id]; }
-function stackable(it){ return it&&(it.kind==="tile"||it.kind==="mat"||it.kind==="ammo"||it.kind==="use"||it.kind==="wall"); }
+function defOf(it){ return it.kind==="tile"?TILE[it.id]:it.kind==="tool"?TOOLS[it.id]:it.kind==="armor"?ARMOR[it.id]:it.kind==="mat"?MATS[it.id]:it.kind==="ammo"?AMMO[it.id]:it.kind==="use"?USES[it.id]:it.kind==="wall"?WALLS[it.id]:it.kind==="acc"?ACC[it.id]:it.kind==="bomb"?{name:"Bombe"}:SUMMONS[it.id]; }
+function stackable(it){ return it&&(it.kind==="tile"||it.kind==="mat"||it.kind==="ammo"||it.kind==="use"||it.kind==="wall"||it.kind==="bomb"); }
 function sameItem(a,b){ return a&&b&&a.kind===b.kind&&a.id===b.id; }
 function addItem(kind,id,n){ n=n||1;
-  if(kind==="tile"||kind==="mat"||kind==="ammo"||kind==="use"||kind==="wall"){ for(let i=0;i<inv.length&&n>0;i++){const s=inv[i];
+  if(kind==="tile"||kind==="mat"||kind==="ammo"||kind==="use"||kind==="wall"||kind==="bomb"){ for(let i=0;i<inv.length&&n>0;i++){const s=inv[i];
     if(s&&s.kind===kind&&s.id===id&&s.n<STACK_MAX){const c=Math.min(STACK_MAX-s.n,n);s.n+=c;n-=c;}}}
   while(n>0){ const i=inv.indexOf(null); if(i<0){flash("Inventaire plein !");return false;}
     const c=(kind==="tool"||kind==="armor"||kind==="summon"||kind==="acc")?1:Math.min(STACK_MAX,n); inv[i]={kind,id,n:c}; n-=c; }
@@ -460,6 +488,7 @@ addEventListener("keydown",e=>{ keys[e.code]=true;
   if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code))e.preventDefault();
   if(e.code>="Digit1"&&e.code<="Digit9"){selected=+e.code.slice(5)-1;dirtyUI=true;}
   if(e.code==="KeyE"||e.code==="KeyC")toggleInv();
+  if(e.code==="KeyM")showMap=!showMap;
   if(e.code==="Escape"&&invOpen)toggleInv();
 });
 addEventListener("keyup",e=>keys[e.code]=false);
@@ -479,17 +508,22 @@ document.getElementById("btnResp").onclick=respawn;
 function update(dt){
   if(dead)return; frameCount++;
   const step=Math.min(dt*60,2.5);
-  player.drop=!!(keys.KeyS||keys.ArrowDown);
+  const onRope=isClimb(getT(Math.floor((player.x+PW/2)/T),Math.floor((player.y+PH/2)/T)));
+  const upHeld=keys.KeyW||keys.ArrowUp, downHeld=keys.KeyS||keys.ArrowDown;
+  player.drop=!!downHeld&&!onRope;
   const maxSpd=MOVE_MAX+(hasAcc("speed")?1.8:0);
   let mv=0; if(keys.KeyA||keys.ArrowLeft)mv-=1; if(keys.KeyD||keys.ArrowRight)mv+=1;
   if(mv!==0){player.vx+=mv*MOVE_ACC*step;player.face=mv;} else player.vx*=Math.pow(FRICTION,step);
   player.vx=clamp(player.vx,-maxSpd,maxSpd);
   const inWater=getT(Math.floor((player.x+PW/2)/T),Math.floor((player.y+PH*0.7)/T))===WATER;
   const jump=keys.KeyW||keys.ArrowUp||keys.Space; const jumpEdge=jump&&!player.jumpWas; player.jumpWas=jump;
-  if(jump&&(player.onGround||inWater)){ player.vy=inWater?-4.5:-JUMP_V; player.onGround=false; }
-  else if(jumpEdge&&hasAcc("djump")&&player.djump&&!inWater){ player.vy=-JUMP_V*0.95; player.djump=false; spawnParticles(player.x+PW/2,player.y+PH,"#cfe6ff",6); }
-  const g=inWater?GRAV*0.35:GRAV, mf=inWater?MAX_FALL*0.4:MAX_FALL;
-  player.vy=Math.min(player.vy+g*step,mf);
+  if(onRope){ player.djump=true; if(keys.Space){player.vy=-JUMP_V;} else player.vy=upHeld?-4:downHeld?4:0; }
+  else {
+    if(jump&&(player.onGround||inWater)){ player.vy=inWater?-4.5:-JUMP_V; player.onGround=false; }
+    else if(jumpEdge&&hasAcc("djump")&&player.djump&&!inWater){ player.vy=-JUMP_V*0.95; player.djump=false; spawnParticles(player.x+PW/2,player.y+PH,"#cfe6ff",6); }
+    const g=inWater?GRAV*0.35:GRAV, mf=inWater?MAX_FALL*0.4:MAX_FALL;
+    player.vy=Math.min(player.vy+g*step,mf);
+  }
   moveEntity(player,PW,PH,step);
   if(player.onGround)player.djump=true;
 
@@ -507,6 +541,7 @@ function update(dt){
   mouse.wx=cam.x+mouse.x; mouse.wy=cam.y+mouse.y; mouse.tx=Math.floor(mouse.wx/T); mouse.ty=Math.floor(mouse.wy/T);
   handleActions(dt);
   gameTime=(gameTime+dt/DAY_SEC)%1;
+  weatherT-=dt; if(weatherT<=0){ raining=!raining; weatherT=raining?(20+Math.random()*35):(60+Math.random()*120); }
 
   const lx0=Math.max(1,Math.floor(cam.x/T)-3),lx1=Math.min(WORLD_W-2,Math.floor((cam.x+VW)/T)+3);
   const ly0=Math.max(1,Math.floor(cam.y/T)-3),ly1=Math.min(WORLD_H-2,Math.floor((cam.y+VH)/T)+3);
@@ -542,7 +577,7 @@ function handleActions(dt){
   if(mouse.right&&inReach){
     const tt=getT(mouse.tx,mouse.ty);
     let npc=null; for(const n of npcs) if(mouse.wx>n.x&&mouse.wx<n.x+n.w&&mouse.wy>n.y&&mouse.wy<n.y+n.h){npc=n;break;}
-    if(npc){ if(npc.type==="merchant")openShop(); else flash(guideTip()); mouse.right=false; }
+    if(npc){ if(npc.type==="merchant")openShop(); else if(npc.type==="nurse")nurseHeal(); else flash(guideTip()); mouse.right=false; }
     else if(isDoor(tt)){ if(player.placeCd<=0){ toggleDoor(mouse.tx,mouse.ty); player.placeCd=0.2; } }
     else if(tt===CHEST){ openChest(mouse.tx,mouse.ty); mouse.right=false; }
     else if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="bucket"&&player.placeCd<=0){ if(useBucket(mouse.tx,mouse.ty,sel))player.placeCd=0.2; }
@@ -556,6 +591,10 @@ function handleActions(dt){
     if(mouse.left&&player.useCd<=0){ if(countItem("ammo","arrow")>0){removeItem("ammo","arrow",1);fireProjectile("arrow",TOOLS[sel.id].dmg+AMMO.arrow.dmg);player.useCd=0.35;} else flash("Plus de flèches"); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="staff"){
     if(mouse.left&&player.useCd<=0){ if(player.mana>=TOOLS[sel.id].mana){player.mana-=TOOLS[sel.id].mana;fireProjectile("bolt",TOOLS[sel.id].dmg);player.useCd=0.3;} else flash("Pas assez de mana"); } return; }
+  if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="mirror"){
+    if(mouse.left&&player.useCd<=0){ player.useCd=1.0; mirrorHome(); } return; }
+  if(sel&&sel.kind==="bomb"){
+    if(mouse.left&&player.useCd<=0){ player.useCd=0.5; throwBomb(); removeItem("bomb","bomb",1); } return; }
   if(sel&&sel.kind==="use"){
     if(mouse.left&&player.useCd<=0){ player.useCd=0.5; useItem(sel); } return; }
   if(sel&&sel.kind==="summon"){
@@ -603,12 +642,27 @@ function fireProjectile(type,dmg){ const pcx=player.x+PW/2,pcy=player.y+PH/2;
   const sp=type==="arrow"?13:11; projectiles.push({x:pcx,y:pcy,vx:dirx*sp,vy:diry*sp,type,dmg,life:type==="arrow"?2.2:1.4,friendly:true}); }
 function enemyFire(ex,ey,dmg){ let dx=player.x+PW/2-ex,dy=player.y+PH/2-ey; const d=Math.hypot(dx,dy)||1;
   projectiles.push({x:ex,y:ey,vx:dx/d*5,vy:dy/d*5,type:"fire",dmg,life:3,friendly:false}); }
+function mirrorHome(){ const c=Math.floor(WORLD_W/2); player.x=c*T; player.y=(surfaceAt(c)-4)*T; player.vx=player.vy=0; player.invuln=1; spawnParticles(player.x+PW/2,player.y+PH/2,"#c9b0ff",18); flash("Téléportation au point d'apparition"); }
+function throwBomb(){ const pcx=player.x+PW/2,pcy=player.y+PH/2; let dx=mouse.wx-pcx,dy=mouse.wy-pcy; const d=Math.hypot(dx,dy)||1;
+  projectiles.push({x:pcx,y:pcy,vx:dx/d*9,vy:dy/d*9-2,type:"bomb",dmg:45,fuse:1.6,life:6,friendly:true}); }
+function explode(x,y,r,dmg){ const cx=Math.floor(x/T),cy=Math.floor(y/T);
+  for(let dx=-r;dx<=r;dx++)for(let dy=-r;dy<=r;dy++){ if(dx*dx+dy*dy>r*r)continue; const tx=cx+dx,ty=cy+dy;
+    if(tx<1||tx>=WORLD_W-1||ty<1||ty>=WORLD_H-1||isBedrock(ty))continue; const id=getT(tx,ty);
+    if(id!==AIR&&id!==CHEST)setT(tx,ty,AIR); walls[idx(tx,ty)]=0; }
+  const list=boss?enemies.concat([boss]):enemies;
+  for(const e of list)if(Math.hypot(e.x+e.w/2-x,e.y+e.h/2-y)<r*T)e.hp-=dmg;
+  if(player.invuln<=0&&Math.hypot(player.x+PW/2-x,player.y+PH/2-y)<r*T)hurtPlayer(Math.floor(dmg*0.4),Math.sign(player.x-x)||1);
+  for(let i=0;i<26;i++)spawnParticles(x,y,i%2?"#ff7a1a":"#999",1); }
 
 // =========================================================================
 //  projectiles
 // =========================================================================
 function updateProjectiles(step){
   for(let i=projectiles.length-1;i>=0;i--){ const p=projectiles[i];
+    if(p.type==="bomb"){ p.vy+=0.35*step; p.fuse-=0.016*step; const nx=p.x+p.vx*step,ny=p.y+p.vy*step;
+      if(solidAt(Math.floor(nx/T),Math.floor(p.y/T)))p.vx*=-0.3; else p.x=nx;
+      if(solidAt(Math.floor(p.x/T),Math.floor(ny/T)))p.vy*=-0.3; else p.y=ny;
+      if(p.fuse<=0){ explode(p.x,p.y,3,p.dmg); projectiles.splice(i,1); } continue; }
     if(p.type==="arrow")p.vy+=0.22*step;
     p.x+=p.vx*step; p.y+=p.vy*step; p.life-=0.016*step;
     const tx=Math.floor(p.x/T),ty=Math.floor(p.y/T);
@@ -632,11 +686,12 @@ const ENEMY={
   bat:{w:22,h:18,hp:18,dmg:8,col:"#6a5a7a",fly:true},
   skeleton:{w:20,h:40,hp:60,dmg:16,col:"#d8d8c8",fly:false},
   imp:{w:24,h:30,hp:80,dmg:20,col:"#c0392b",fly:true},
+  bee:{w:16,h:14,hp:14,dmg:9,col:"#e8c33a",fly:true},
 };
-const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12};
+const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1};
 function spawnEnemy(type,x,y){ const d=ENEMY[type]; enemies.push({type,x,y,vx:0,vy:0,w:d.w,h:d.h,hp:d.hp,maxHp:d.hp,dmg:d.dmg,col:d.col,fly:d.fly,onGround:false,hop:Math.random(),t:Math.random()*9}); }
 function updateEnemies(dt,step){
-  if(isNight()&&enemies.length<9&&Math.random()<dt*1.3){
+  if(isNight()&&enemies.length<9&&Math.random()<dt*(raining?2.0:1.3)){
     const side=Math.random()<0.5?-1:1, sx=clamp(Math.floor((player.x+side*(VW/2+60))/T),2,WORLD_W-3), sy=surfaceAt(sx)-2;
     if(Math.abs(sx*T-player.x)<VW){ const r=Math.random(); spawnEnemy(r<0.5?"slime":r<0.8?"zombie":"eye",sx*T,sy*T); }
   }
@@ -670,16 +725,21 @@ function summonBoss(sel){ if(boss){flash("Le boss est déjà là");return;}
     flash("⚠️ L'Œil maléfique approche !"); }
   else if(sel.id==="helleye"){ removeItem("summon","helleye",1);
     boss={type:"boss",tier:2,x:player.x+280,y:player.y-180,vx:0,vy:0,w:80,h:70,hp:1600,maxHp:1600,dmg:34,col:"#8a1f15",charge:0,t:0,fire:true,fireCd:2};
-    flash("🔥 Le Gardien des Enfers s'éveille !"); } }
+    flash("🔥 Le Gardien des Enfers s'éveille !"); }
+  else if(sel.id==="queenbee"){ removeItem("summon","queenbee",1);
+    boss={type:"boss",tier:3,x:player.x+260,y:player.y-160,vx:0,vy:0,w:64,h:54,hp:1300,maxHp:1300,dmg:28,col:"#e8c33a",charge:0,t:0,beeCd:2.5};
+    flash("🐝 La Reine des abeilles surgit !"); } }
 function updateBoss(dt,step){ const e=boss; e.t+=dt; e.charge-=dt;
-  const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1, cs=e.tier===2?6:7;
-  if(e.charge<=0&&d<400){ e.vx=dx/d*cs; e.vy=dy/d*cs; e.charge=e.tier===2?1.8:2.2; }
+  const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1, cs=e.tier===2?6:e.tier===3?8:7;
+  if(e.charge<=0&&d<400){ e.vx=dx/d*cs; e.vy=dy/d*cs; e.charge=e.tier===3?1.5:e.tier===2?1.8:2.2; }
   else { e.vx=lerp(e.vx,dx/d*2.2,0.04); e.vy=lerp(e.vy,(dy-80)/d*2.2+Math.sin(e.t*2)*0.5,0.04); }
   e.x+=e.vx*step; e.y+=e.vy*step;
   if(e.fire){ e.fireCd-=dt; if(e.fireCd<=0){ const a0=Math.atan2(dy,dx); for(let k=-1;k<=1;k++){ const a=a0+k*0.26; projectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,vx:Math.cos(a)*5,vy:Math.sin(a)*5,type:"fire",dmg:e.dmg,life:3.5,friendly:false}); } e.fireCd=2; } }
+  if(e.tier===3){ e.beeCd-=dt; if(e.beeCd<=0&&enemies.length<14){ spawnEnemy("bee",e.x+e.w/2,e.y+e.h); e.beeCd=2.2; } }
   if(player.invuln<=0&&rectHit(e.x,e.y,e.w,e.h,player.x,player.y,PW,PH))hurtPlayer(e.dmg,Math.sign(player.x-e.x)||1);
-  if(e.hp<=0){ spawnParticles(e.x+e.w/2,e.y+e.h/2,e.col,40);
+  if(e.hp<=0){ spawnParticles(e.x+e.w/2,e.y+e.h/2,e.col,40); bossKills++;
     if(e.tier===2){ addItem("mat","hellstone_bar",20); addItem("tool","sword6",1); coins+=300; player.maxHp+=40; player.hp=player.maxHp; flash("🏆 Gardien des Enfers vaincu ! +40 PV max, Lame des abysses obtenue !"); }
+    else if(e.tier===3){ addItem("mat","gold_bar",12); addItem("tile",EMERALD,6); addItem("acc","cloud",1); coins+=250; player.maxHp+=30; player.hp=player.maxHp; flash("🏆 Reine des abeilles vaincue ! +30 PV max, 250 pièces !"); }
     else { addItem("mat","gold_bar",12); addItem("tool","bow2",1); coins+=120; player.maxHp+=20; player.hp=player.maxHp; flash("🏆 Boss vaincu ! +20 PV max, 120 pièces, butin reçu"); }
     boss=null; dirtyUI=true; }
   else if(e.tier===1&&!isNight()){ flash("L'Œil maléfique fuit le jour..."); boss=null; }
@@ -690,10 +750,12 @@ function updateBoss(dt,step){ const e=boss; e.t+=dt; e.charge-=dt;
 // =========================================================================
 const GUIDE_TIPS=["Casse des arbres pour du bois, puis fabrique un établi.","Une fournaise fond les minerais en barres.","Place des torches pour explorer les grottes en sécurité.","Les cristaux de vie augmentent tes PV max.","Tue des yeux démoniaques la nuit pour des lentilles : elles invoquent le boss.","Construis des murs pour empêcher les monstres d'apparaître chez toi.","Le marchand arrive quand tu as assez de pièces."];
 function guideTip(){ return "💬 "+GUIDE_TIPS[Math.floor(Math.random()*GUIDE_TIPS.length)]; }
-function spawnNPC(type){ const hx=Math.floor(WORLD_W/2)+(type==="merchant"?6:-6), sy=surfaceAt(hx);
-  npcs.push({type,x:hx*T,y:(sy-3)*T,vx:0,vy:0,w:18,h:40,onGround:false,t:0,next:1,dir:0,home:hx*T,col:type==="merchant"?"#caa23a":"#3aa0c9"}); }
+function spawnNPC(type){ const hx=Math.floor(WORLD_W/2)+(type==="merchant"?6:type==="nurse"?12:-6), sy=surfaceAt(hx);
+  npcs.push({type,x:hx*T,y:(sy-3)*T,vx:0,vy:0,w:18,h:40,onGround:false,t:0,next:1,dir:0,home:hx*T,col:type==="merchant"?"#caa23a":type==="nurse"?"#e87a9a":"#3aa0c9"}); }
+function nurseHeal(){ if(player.hp>=player.maxHp){flash("Tu es déjà en pleine forme");return;} const cost=Math.ceil((player.maxHp-player.hp)*0.5); if(coins<cost){flash("Pas assez de pièces ("+cost+" requis)");return;} coins-=cost; player.hp=player.maxHp; player.potionCd=0; spawnParticles(player.x+PW/2,player.y+PH/2,"#e87a9a",12); flash("Soigné ! (-"+cost+" pièces)"); dirtyUI=true; }
 function updateNPCs(dt,step){
   if(coins>=50&&!merchantArrived){ merchantArrived=true; spawnNPC("merchant"); flash("🧺 Un marchand s'est installé !"); }
+  if(bossKills>=1&&!nurseArrived){ nurseArrived=true; spawnNPC("nurse"); flash("⚕️ Une infirmière s'est installée !"); }
   for(const n of npcs){ n.t+=dt; n.vy=Math.min(n.vy+GRAV*step,MAX_FALL);
     if(n.onGround){ if(n.t>n.next){ n.dir=[-1,0,1][Math.floor(Math.random()*3)]; n.next=n.t+1+Math.random()*2; }
       if(Math.abs(n.x-n.home)>320) n.dir=Math.sign(n.home-n.x);
@@ -708,6 +770,7 @@ const SHOP=[
   {item:{kind:"tile",id:GLASS,n:10},price:10}, {item:{kind:"tool",id:"pick1",n:1},price:55},
   {item:{kind:"tool",id:"sword1",n:1},price:55}, {item:{kind:"wall",id:WWOOD,n:20},price:14},
   {item:{kind:"tool",id:"bucket",n:1},price:30}, {item:{kind:"acc",id:"boots",n:1},price:90}, {item:{kind:"acc",id:"cloud",n:1},price:120},
+  {item:{kind:"bomb",id:"bomb",n:5},price:20}, {item:{kind:"tile",id:ROPE,n:20},price:8}, {item:{kind:"tool",id:"mirror",n:1},price:80},
 ];
 
 // =========================================================================
@@ -732,7 +795,7 @@ function stepLiquids(x0,y0,x1,y1){ const lr=(frameCount&1)?1:-1;
 let lightCanvas=document.createElement("canvas"),lctx=lightCanvas.getContext("2d"),lightBuf=null;
 function computeLight(x0,y0,x1,y1){ const rw=x1-x0+1,rh=y1-y0+1;
   if(!lightBuf||lightBuf.length!==rw*rh)lightBuf=new Float32Array(rw*rh); const L=lightBuf; L.fill(0);
-  const sky=dayLight(),at=(x,y)=>(x-x0)*rh+(y-y0);
+  const sky=dayLight()*(raining?0.8:1),at=(x,y)=>(x-x0)*rh+(y-y0);
   for(let x=x0;x<=x1;x++){ let sh=0; while(sh<WORLD_H&&!blocksLight(x,sh))sh++; for(let y=y0;y<=Math.min(y1,sh);y++)if(y>=0)L[at(x,y)]=Math.max(L[at(x,y)],sky); }
   for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){ const t=getT(x,y); if(TILE[t]&&TILE[t].light)L[at(x,y)]=Math.max(L[at(x,y)],TILE[t].light); }
   for(let pass=0;pass<6;pass++){
@@ -749,7 +812,7 @@ function computeLight(x0,y0,x1,y1){ const rw=x1-x0+1,rh=y1-y0+1;
 // =========================================================================
 function mixCol(a,b,t){return[Math.round(lerp(a[0],b[0],t)),Math.round(lerp(a[1],b[1],t)),Math.round(lerp(a[2],b[2],t))];}
 function render(){
-  const dl=dayLight();
+  const dl=dayLight()*(raining?0.82:1);
   const top=mixCol([10,12,40],[90,150,235],dl),bot=mixCol([20,20,55],[180,210,245],dl);
   const grd=ctx.createLinearGradient(0,0,0,VH); grd.addColorStop(0,`rgb(${top[0]},${top[1]},${top[2]})`); grd.addColorStop(1,`rgb(${bot[0]},${bot[1]},${bot[2]})`);
   ctx.fillStyle=grd; ctx.fillRect(0,0,VW,VH);
@@ -773,7 +836,8 @@ function render(){
     for(let i=0;i<n;i++){ctx.beginPath();ctx.moveTo(sx+Math.random()*T,sy);ctx.lineTo(sx+Math.random()*T,sy+T);ctx.stroke();} } }
   for(const e of enemies)drawEnemy(e); if(boss)drawBoss(boss); for(const n of npcs)drawNPC(n);
   drawPlayer();
-  for(const p of projectiles){ ctx.fillStyle=p.type==="bolt"?"#5fd0ff":p.type==="fire"?"#ff7a1a":"#caa15a"; ctx.save(); ctx.translate(p.x-cam.x,p.y-cam.y); ctx.rotate(Math.atan2(p.vy,p.vx)); ctx.fillRect(-6,-2,12,4); ctx.restore(); }
+  for(const p of projectiles){ if(p.type==="bomb"){ ctx.fillStyle="#222"; ctx.beginPath(); ctx.arc(p.x-cam.x,p.y-cam.y,5,0,7); ctx.fill(); ctx.fillStyle="#ff7a1a"; ctx.fillRect(p.x-cam.x-1,p.y-cam.y-7,2,3); continue; }
+    ctx.fillStyle=p.type==="bolt"?"#5fd0ff":p.type==="fire"?"#ff7a1a":"#caa15a"; ctx.save(); ctx.translate(p.x-cam.x,p.y-cam.y); ctx.rotate(Math.atan2(p.vy,p.vx)); ctx.fillRect(-6,-2,12,4); ctx.restore(); }
   for(const p of particles){ ctx.globalAlpha=clamp(p.life*2,0,1); ctx.fillStyle=p.col; ctx.fillRect(p.x-cam.x,p.y-cam.y,p.s,p.s); } ctx.globalAlpha=1;
   // lumière
   const lx0=Math.max(0,x0-1),ly0=Math.max(0,y0-1),lx1=Math.min(WORLD_W-1,x1+1),ly1=Math.min(WORLD_H-1,y1+1);
@@ -782,7 +846,15 @@ function render(){
   for(let x=0;x<rw;x++)for(let y=0;y<rh;y++){ const l=clamp(Math.max(L[x*rh+y],0.05),0,1),a=Math.floor((1-l)*255*0.96),o=(y*rw+x)*4; img.data[o]=0;img.data[o+1]=0;img.data[o+2]=4;img.data[o+3]=a; }
   lctx.putImageData(img,0,0); ctx.imageSmoothingEnabled=true; ctx.drawImage(lightCanvas,0,0,rw,rh,lx0*T-cam.x,ly0*T-cam.y,rw*T,rh*T); ctx.imageSmoothingEnabled=false;
   ctx.strokeStyle="rgba(255,255,255,.5)"; ctx.lineWidth=2; ctx.strokeRect(mouse.tx*T-cam.x,mouse.ty*T-cam.y,T,T);
+  if(raining){ ctx.strokeStyle="rgba(170,190,220,0.45)"; ctx.lineWidth=1; for(let i=0;i<160;i++){ const rx=(i*89+frameCount*7)%VW, ry=(i*61+frameCount*11)%VH; ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(rx-4,ry+12);ctx.stroke(); } }
+  if(showMap)drawMinimap();
 }
+function drawMinimap(){ const MW=160,MH=110,cx=Math.floor(player.x/T),cy=Math.floor(player.y/T),hw=MW>>1,hh=MH>>1,ox=VW-MW-12,oy=54;
+  ctx.fillStyle="rgba(0,0,0,0.6)"; ctx.fillRect(ox-3,oy-3,MW+6,MH+6);
+  for(let i=0;i<MW;i++)for(let j=0;j<MH;j++){ const tx=cx-hw+i,ty=cy-hh+j; if(tx<0||tx>=WORLD_W||ty<0||ty>=WORLD_H)continue;
+    const id=getT(tx,ty); let c=null; if(id!==AIR)c=TILE[id].col; else if(walls[idx(tx,ty)])c="#28222e"; if(c){ctx.fillStyle=c;ctx.fillRect(ox+i,oy+j,1,1);} }
+  ctx.fillStyle="#fff"; ctx.fillRect(ox+hw-1,oy+hh-1,3,3);
+  ctx.strokeStyle="#888"; ctx.lineWidth=1; ctx.strokeRect(ox-3,oy-3,MW+6,MH+6); }
 function drawCelestial(dl){ const ang=(gameTime-0.25)*2*Math.PI,cx=VW*0.5+Math.sin(ang)*VW*0.42,cy=VH*0.55-Math.cos(ang)*VH*0.5;
   if(dl>0.3){ctx.fillStyle="#fff3a0";ctx.beginPath();ctx.arc(cx,cy,26,0,7);ctx.fill();ctx.fillStyle="rgba(255,243,160,.25)";ctx.beginPath();ctx.arc(cx,cy,40,0,7);ctx.fill();}
   else{const mx=VW*0.5-Math.sin(ang)*VW*0.42,my=VH*0.55+Math.cos(ang)*VH*0.5;ctx.fillStyle="#e8e8f0";ctx.beginPath();ctx.arc(mx,my,20,0,7);ctx.fill();} }
@@ -815,6 +887,8 @@ function drawEnemy(e){ const sx=e.x-cam.x,sy=e.y-cam.y;
   else if(e.type==="imp"){ ctx.fillStyle=e.col;roundRect(sx+2,sy+4,e.w-4,e.h-6,5);ctx.fill();
     ctx.fillStyle="#7a1f15";ctx.beginPath();ctx.moveTo(sx+4,sy+5);ctx.lineTo(sx+8,sy-3);ctx.lineTo(sx+11,sy+5);ctx.fill();ctx.beginPath();ctx.moveTo(sx+e.w-4,sy+5);ctx.lineTo(sx+e.w-8,sy-3);ctx.lineTo(sx+e.w-11,sy+5);ctx.fill();
     ctx.fillStyle="#ffd24a";ctx.fillRect(sx+7,sy+11,3,3);ctx.fillRect(sx+e.w-10,sy+11,3,3); }
+  else if(e.type==="bee"){ ctx.fillStyle=e.col;roundRect(sx+2,sy+2,e.w-4,e.h-4,4);ctx.fill();ctx.fillStyle="#222";ctx.fillRect(sx+5,sy+2,2,e.h-4);ctx.fillRect(sx+9,sy+2,2,e.h-4);
+    ctx.fillStyle="rgba(255,255,255,0.6)";const wb=Math.sin(e.t*20)*2;ctx.beginPath();ctx.ellipse(sx+3,sy+2+wb,4,2,0,0,7);ctx.fill();ctx.beginPath();ctx.ellipse(sx+e.w-3,sy+2+wb,4,2,0,0,7);ctx.fill(); }
   if(e.hp<e.maxHp){ ctx.fillStyle="#000";ctx.fillRect(sx,sy-6,e.w,3);ctx.fillStyle="#e33";ctx.fillRect(sx,sy-6,e.w*(e.hp/e.maxHp),3); }
 }
 function drawNPC(n){ const sx=n.x-cam.x,sy=n.y-cam.y;
@@ -826,6 +900,9 @@ function drawNPC(n){ const sx=n.x-cam.x,sy=n.y-cam.y;
   ctx.fillStyle="rgba(0,0,0,0.5)";ctx.fillRect(sx-8,sy-16,n.w+16,12);
   ctx.fillStyle="#fff";ctx.font="9px sans-serif";ctx.textAlign="center";ctx.fillText(n.type==="merchant"?"Marchand":"Guide",sx+n.w/2,sy-7);ctx.textAlign="left"; }
 function drawBoss(e){ const sx=e.x-cam.x,sy=e.y-cam.y,t2=e.tier===2;
+  if(e.tier===3){ ctx.fillStyle="#e8c33a";roundRect(sx,sy,e.w,e.h,e.h/2);ctx.fill();ctx.fillStyle="#222";for(let k=0;k<3;k++)ctx.fillRect(sx+10+k*16,sy,7,e.h);
+    ctx.fillStyle="rgba(255,255,255,0.55)";const wb=Math.sin(e.t*16)*5;ctx.beginPath();ctx.ellipse(sx+12,sy-5+wb,16,8,0,0,7);ctx.fill();ctx.beginPath();ctx.ellipse(sx+e.w-12,sy-5+wb,16,8,0,0,7);ctx.fill();
+    ctx.fillStyle="#000";ctx.fillRect(sx+e.w/2-9,sy+10,5,5);ctx.fillRect(sx+e.w/2+4,sy+10,5,5); return; }
   ctx.fillStyle=t2?"#c98a6a":"#e8e0e4";roundRect(sx,sy,e.w,e.h,e.h/2);ctx.fill();
   ctx.fillStyle=t2?"#8a1f15":"#a33";roundRect(sx+4,sy+6,e.w-8,e.h-12,8);ctx.fill(); const ox=clamp((player.x-e.x)/30,-12,12);
   ctx.fillStyle=t2?"#2a0600":"#600";ctx.beginPath();ctx.arc(sx+e.w/2+ox,sy+e.h/2,t2?17:12,0,7);ctx.fill();ctx.fillStyle="#000";ctx.beginPath();ctx.arc(sx+e.w/2+ox,sy+e.h/2,t2?9:6,0,7);ctx.fill();
@@ -839,8 +916,8 @@ const $hotbar=document.getElementById("hotbar"),$invGrid=document.getElementById
   $craftList=document.getElementById("craftList"),$overlay=document.getElementById("overlay"),$cursorItem=document.getElementById("cursorItem"),
   $station=document.getElementById("stationInfo"),$chestPanel=document.getElementById("chestPanel"),$chestGrid=document.getElementById("chestGrid"),$craft=document.getElementById("craft"),
   $shopPanel=document.getElementById("shopPanel"),$shopList=document.getElementById("shopList"),$coinInfo=document.getElementById("coinInfo");
-function emoji(it){ if(it.kind==="tool"){const t=TOOLS[it.id].type;return t==="pick"?"⛏️":t==="sword"?"⚔️":t==="bow"?"🏹":t==="staff"?"🪄":"🪣";}
-  if(it.kind==="summon")return"👁️"; if(it.kind==="armor"){const s=ARMOR[it.id].slot;return s==="head"?"🪖":s==="chest"?"🦺":"👖";}
+function emoji(it){ if(it.kind==="tool"){const t=TOOLS[it.id].type;return t==="pick"?"⛏️":t==="sword"?"⚔️":t==="bow"?"🏹":t==="staff"?"🪄":t==="bucket"?"🪣":"🪞";}
+  if(it.kind==="bomb")return"💣"; if(it.kind==="summon")return"👁️"; if(it.kind==="armor"){const s=ARMOR[it.id].slot;return s==="head"?"🪖":s==="chest"?"🦺":"👖";}
   if(it.kind==="acc"){const e=ACC[it.id].eff;return e==="djump"?"☁️":e==="speed"?"👟":"💪";} return ""; }
 function itemName(it){ const d=defOf(it); return d?d.name:"?"; }
 function slotInner(it,keyNum){ let h=""; if(keyNum!=null)h+=`<span class="key">${keyNum}</span>`; if(it){
@@ -921,7 +998,7 @@ function flash(t){ $msg.textContent=t; $msg.style.opacity=1; flashT=2.5; }
 const $hearts=document.getElementById("hearts"),$mana=document.getElementById("mana"),$def=document.getElementById("def"),$coins=document.getElementById("coins"),$clock=document.getElementById("clock"),$bossbar=document.getElementById("bossbar"),$bossFg=document.getElementById("bossFg");
 function updateStatus(){ $hearts.textContent="❤️ "+Math.ceil(player.hp)+"/"+player.maxHp; $mana.textContent="🔷 "+Math.floor(player.mana)+"/"+player.maxMana;
   $def.textContent="🛡️ "+totalDef(); $coins.textContent="🪙 "+coins; const h=Math.floor(((gameTime+0.5)%1)*24); $clock.textContent=(isNight()?"🌙 ":"☀️ ")+String(h).padStart(2,"0")+":00";
-  if(boss){$bossbar.style.display="block";document.getElementById("bossName").textContent=boss.tier===2?"Gardien des Enfers":"Œil maléfique";$bossFg.style.width=(100*Math.max(0,boss.hp)/boss.maxHp)+"%";}else $bossbar.style.display="none"; }
+  if(boss){$bossbar.style.display="block";document.getElementById("bossName").textContent=boss.tier===2?"Gardien des Enfers":boss.tier===3?"Reine des abeilles":"Œil maléfique";$bossFg.style.width=(100*Math.max(0,boss.hp)/boss.maxHp)+"%";}else $bossbar.style.display="none"; }
 
 // =========================================================================
 //  mort / sauvegarde
@@ -932,7 +1009,7 @@ function respawn(){ dead=false; document.getElementById("death").style.display="
 function rle(arr){ const out=[];let v=arr[0],c=1; for(let i=1;i<arr.length;i++){if(arr[i]===v&&c<65535)c++;else{out.push(v,c);v=arr[i];c=1;}} out.push(v,c); return out; }
 function unrle(out,len){ const arr=new Uint8Array(len);let p=0; for(let i=0;i<out.length;i+=2){const v=out[i],c=out[i+1];for(let j=0;j<c;j++)arr[p++]=v;} return arr; }
 function save(){ try{ const chests=[]; chestData.forEach((v,k)=>chests.push([k,v]));
-  localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,seed,world:rle(world),liquid:rle(liquid),walls:rle(walls),chests,coins,merchantArrived,
+  localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,seed,world:rle(world),liquid:rle(liquid),walls:rle(walls),chests,coins,merchantArrived,bossKills,nurseArrived,
     px:player.x,py:player.y,hp:player.hp,maxHp:player.maxHp,mana:player.mana,maxMana:player.maxMana,armor:player.armorArr,acc:player.acc,
     inv,sel:selected,time:gameTime})); }catch(err){flash("Sauvegarde impossible (espace plein)");console.warn(err);} }
 function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
@@ -940,16 +1017,16 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
     world=unrle(d.world,WORLD_W*WORLD_H); liquid=unrle(d.liquid,WORLD_W*WORLD_H);
     if(d.walls)walls=unrle(d.walls,WORLD_W*WORLD_H); else genWalls();
     chestData=new Map(); if(d.chests)d.chests.forEach(([k,v])=>chestData.set(k,v));
-    coins=d.coins||0; merchantArrived=!!d.merchantArrived;
+    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived;
     player.x=d.px;player.y=d.py;player.hp=d.hp;player.maxHp=d.maxHp||100;player.mana=d.mana||0;player.maxMana=d.maxMana||20;player.armorArr=d.armor||[null,null,null];player.acc=d.acc||null;
     selected=d.sel||0; gameTime=d.time||0.3; inv=d.inv?d.inv.slice(0,36):new Array(36).fill(null);
     while(inv.length<36)inv.push(null);
-    npcs=[]; spawnNPC("guide"); if(merchantArrived)spawnNPC("merchant"); return true;
+    npcs=[]; spawnNPC("guide"); if(merchantArrived)spawnNPC("merchant"); if(nurseArrived)spawnNPC("nurse"); return true;
   }catch(err){console.warn("Sauvegarde corrompue",err);return false;} }
 function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null]; player.acc=null;
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
-  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;
+  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;raining=false;weatherT=80;
   npcs=[]; spawnNPC("guide");
   document.getElementById("death").style.display="none";
   const c=Math.floor(WORLD_W/2);player.x=c*T;player.y=(surfaceAt(c)-6)*T;player.vx=player.vy=0;
