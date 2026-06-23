@@ -126,7 +126,7 @@ const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAM
   PLANK=11,TORCH=12,TABLE=13,FURNACE=14,GLASS=15,BRICK=16,COPPER=17,SILVER=18,SNOW=19,
   ICE=20,CLAY=21,RUBY=22,EMERALD=23,SAPPHIRE=24,WATER=25,LAVA=26,CHEST=27,ANVIL=28,LIFE=29,MANA=30,MUSHROOM=31,
   PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39,MYTHRIL=40,
-  BED=41,CAMPFIRE=42,HEARTLANTERN=43,SPIKE=44,ADAMANTITE=45,CGRASS=46,EBONSTONE=47,HGRASS=48,PEARLSTONE=49,CRYSTAL=50,LAMP=51;
+  BED=41,CAMPFIRE=42,HEARTLANTERN=43,SPIKE=44,ADAMANTITE=45,CGRASS=46,EBONSTONE=47,HGRASS=48,PEARLSTONE=49,CRYSTAL=50,LAMP=51,CHAIR=52,VASE=53,BANNER=54;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -185,6 +185,9 @@ const TILE={
   [PEARLSTONE]:{name:"Pierre de perle",solid:true,hard:1.8,drop:PEARLSTONE,col:"#cfc6e0"},
   [CRYSTAL]:{name:"Cristal",solid:true,hard:5.5,drop:CRYSTAL,col:"#7fe0ff",light:0.3},
   [LAMP]:{name:"Lampe",solid:false,hard:0.4,drop:LAMP,col:"#ffe27a",light:0.9},
+  [CHAIR]:{name:"Chaise",solid:false,hard:0.4,drop:CHAIR,col:"#8a5a2b"},
+  [VASE]:{name:"Vase",solid:false,hard:0.4,drop:VASE,col:"#c87a4a"},
+  [BANNER]:{name:"Bannière",solid:false,hard:0.4,drop:BANNER,col:"#9c2a3a"},
 };
 const isSpike=id=>TILE[id]&&TILE[id].spike;
 const isPlatform=id=>TILE[id]&&TILE[id].platform;
@@ -213,7 +216,7 @@ const TOOLS={
   mirror:{name:"Miroir magique",type:"mirror"}, rod:{name:"Canne à pêche",type:"rod"},
 };
 const ACC={ cloud:{name:"Bottes nuage",eff:"djump"}, boots:{name:"Bottes véloces",eff:"speed"}, band:{name:"Brassard de force",eff:"def",def:5},
-  talisman:{name:"Talisman de régénération",eff:"regen"}, amulet:{name:"Amulette de mana",eff:"manaregen"}, wings:{name:"Ailes de cristal",eff:"fly"}, lavaboots:{name:"Bottes de lave",eff:"lava"} };
+  talisman:{name:"Talisman de régénération",eff:"regen"}, amulet:{name:"Amulette de mana",eff:"manaregen"}, wings:{name:"Ailes de cristal",eff:"fly"}, lavaboots:{name:"Bottes de lave",eff:"lava"}, headlamp:{name:"Lampe frontale",eff:"glow"} };
 const THROWS={ glowstick:{name:"Bâton lumineux",col:"#7fff9f"} };
 const ARMOR={
   wood_h:{name:"Casque bois",slot:"head",def:1}, wood_c:{name:"Plastron bois",slot:"chest",def:2}, wood_l:{name:"Jambières bois",slot:"legs",def:1},
@@ -347,6 +350,11 @@ const RECIPES=[
   R({kind:"acc",id:"lavaboots"},[ma("hellstone_bar",5)],"anvil"),
   R({kind:"throw",id:"glowstick",n:8},[ti(GLASS,1)],"table"),
   R({kind:"tile",id:LAMP,n:1},[ti(TORCH,1),ti(PLANK,2)],"table"),
+  // phase 11
+  R({kind:"tile",id:CHAIR,n:1},[ti(PLANK,4)],"table"),
+  R({kind:"tile",id:VASE,n:1},[ti(CLAY,3)],"table"),
+  R({kind:"tile",id:BANNER,n:1},[ti(PLANK,2)],"table"),
+  R({kind:"acc",id:"headlamp"},[ma("silver_bar",3),ti(GLASS,2)],"anvil"),
 ];
 
 // =========================================================================
@@ -360,7 +368,7 @@ function vnoise(x,y){const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy,u=f
 function fbm(x,y,oct){let s=0,amp=0.5,f=1,norm=0;for(let i=0;i<oct;i++){s+=amp*vnoise(x*f,y*f);norm+=amp;amp*=0.5;f*=2;}return s/norm;}
 function surfaceAt(x){x=clamp(x|0,0,WORLD_W-1);const n=fbm(x*0.012+1000,7.7,4);return Math.floor(BASE_SURFACE+(n-0.5)*HILL_AMP);}
 // biomes : 0 forêt, 1 neige (gauche), 2 désert
-function biomeAt(x){ if(x<WORLD_W*0.16) return 1; if(x>WORLD_W*0.40&&x<WORLD_W*0.50) return 4; if(x>WORLD_W*0.62&&x<WORLD_W*0.80) return 3; if(x>WORLD_W*0.84&&x<WORLD_W*0.94) return 5; if(vnoise(x*0.006,555)>0.64) return 2; return 0; }
+function biomeAt(x){ if(x<WORLD_W*0.045||x>WORLD_W*0.955) return 6; if(x<WORLD_W*0.16) return 1; if(x>WORLD_W*0.40&&x<WORLD_W*0.50) return 4; if(x>WORLD_W*0.62&&x<WORLD_W*0.80) return 3; if(x>WORLD_W*0.84&&x<WORLD_W*0.94) return 5; if(vnoise(x*0.006,555)>0.64) return 2; return 0; }
 
 // =========================================================================
 //  monde
@@ -399,6 +407,12 @@ function genWorld(s){
     // glace sous la neige
     if(b===1){ for(let y=sy+3;y<sy+9;y++) if(world[idx(x,y)]===STONE&&vnoise(x*0.08,9)>0.5)world[idx(x,y)]=ICE; }
   }
+  // océans aux bords du monde
+  const SEA=BASE_SURFACE+4;
+  for(let x=0;x<WORLD_W;x++){ if(biomeAt(x)!==6)continue; const floor=SEA+10+Math.floor(vnoise(x*0.1,3)*8);
+    for(let y=0;y<WORLD_H-2;y++){ if(y<SEA){world[idx(x,y)]=AIR;liquid[idx(x,y)]=0;}
+      else if(y<floor){world[idx(x,y)]=WATER;liquid[idx(x,y)]=8;}
+      else if(y<floor+3)world[idx(x,y)]=SAND; else world[idx(x,y)]=STONE; } }
   // grottes
   for(let x=0;x<WORLD_W;x++){ const sy=surfaceAt(x);
     for(let y=sy+4;y<WORLD_H-3;y++){ if(fbm(x*0.045+10,y*0.045+10,3)>0.63&&world[idx(x,y)]!==AIR)world[idx(x,y)]=AIR; } }
@@ -536,6 +550,9 @@ function makeTex(id){
   else if(id===TABLE){g.clearRect(0,0,T,T);g.fillStyle="#8a5a2b";g.fillRect(2,8,T-4,5);g.fillStyle="#6e4520";g.fillRect(4,13,3,T-14);g.fillRect(T-7,13,3,T-14);}
   else if(id===TORCH){g.clearRect(0,0,T,T);g.fillStyle="#6e4520";g.fillRect(T/2-2,8,4,T-8);g.fillStyle="#ff9a1a";g.beginPath();g.ellipse(T/2,7,4,7,0,0,7);g.fill();g.fillStyle="#ffe27a";g.beginPath();g.ellipse(T/2,8,2,4,0,0,7);g.fill();}
   else if(id===LAMP){g.clearRect(0,0,T,T);g.fillStyle="#555";g.fillRect(T/2-1,6,2,T-8);g.fillRect(T/2-4,T-3,8,3);g.fillStyle="#caa23a";g.fillRect(T/2-4,2,8,7);g.fillStyle="#ffe27a";g.fillRect(T/2-3,3,6,5);}
+  else if(id===CHAIR){g.clearRect(0,0,T,T);g.fillStyle="#8a5a2b";g.fillRect(5,4,3,T-6);g.fillRect(5,T/2,10,3);g.fillRect(5,T-5,3,3);g.fillRect(12,T/2,3,T/2-2);}
+  else if(id===VASE){g.clearRect(0,0,T,T);g.fillStyle="#c87a4a";g.beginPath();g.ellipse(T/2,T-8,6,8,0,0,7);g.fill();g.fillRect(T/2-3,5,6,4);g.fillStyle="#3a8a2a";g.fillRect(T/2-1,1,2,5);g.fillRect(T/2-4,2,3,3);g.fillRect(T/2+2,2,3,3);}
+  else if(id===BANNER){g.clearRect(0,0,T,T);g.fillStyle="#6e4520";g.fillRect(3,2,T-6,2);g.fillStyle="#9c2a3a";g.fillRect(6,4,T-12,T-7);g.fillStyle="#e8c33a";g.fillRect(T/2-2,8,4,6);}
   else if(id===MUSHROOM){ g.clearRect(0,0,T,T); g.fillStyle="#e8e0d0"; g.fillRect(T/2-2,T-11,4,9);
     g.fillStyle="#d83a3a"; g.beginPath(); g.ellipse(T/2,T-10,8,6,0,Math.PI,0); g.fill();
     g.fillStyle="#fff"; g.fillRect(T/2-4,T-12,2,2); g.fillRect(T/2+2,T-13,2,2); }
@@ -565,7 +582,7 @@ let inv=new Array(36).fill(null);
 let cursor=null, selected=0, gameTime=0.30, frameCount=0;
 let enemies=[], projectiles=[], particles=[], boss=null, npcs=[];
 let coins=0, merchantArrived=false, bossKills=0, nurseArrived=false;
-let raining=false, weatherT=80, showMap=false;
+let raining=false, weatherT=80, showMap=false, bloodMoon=false, eclipse=false;
 let invOpen=false, chestOpen=false, shopOpen=false, curChestKey=null, dead=false, autosaveT=0;
 const mining={x:-1,y:-1,prog:0};
 const keys={}, mouse={x:0,y:0,wx:0,wy:0,tx:0,ty:0,left:false,right:false};
@@ -657,6 +674,8 @@ function update(dt){
   handleActions(dt);
   gameTime=(gameTime+dt/DAY_SEC)%1;
   weatherT-=dt; if(weatherT<=0){ raining=!raining; weatherT=raining?(20+Math.random()*35):(60+Math.random()*120); }
+  if(isNight()){ eclipse=false; if(!bloodMoon&&bossKills>=1&&Math.random()<dt*0.012){ bloodMoon=true; flash("🩸 Lune de sang ! Les monstres déferlent..."); } }
+  else { bloodMoon=false; if(!eclipse&&bossKills>=2&&Math.random()<dt*0.010){ eclipse=true; flash("🌑 Éclipse solaire ! Des monstres surgissent en plein jour..."); } }
 
   const lx0=Math.max(1,Math.floor(cam.x/T)-3),lx1=Math.min(WORLD_W-2,Math.floor((cam.x+VW)/T)+3);
   const ly0=Math.max(1,Math.floor(cam.y/T)-3),ly1=Math.min(WORLD_H-2,Math.floor((cam.y+VH)/T)+3);
@@ -865,17 +884,21 @@ const ENEMY={
   goblin:{w:20,h:38,hp:60,dmg:15,col:"#5a8a4a",fly:false},
   devourer:{w:22,h:20,hp:50,dmg:18,col:"#8a4ad0",fly:true},
   pixie:{w:18,h:16,hp:45,dmg:16,col:"#ffaee0",fly:true},
+  shark:{w:34,h:18,hp:90,dmg:24,col:"#5a7a8a",fly:true},
+  jellyfish:{w:20,h:22,hp:40,dmg:14,col:"#c89ad8",fly:true},
 };
-const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8};
+const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8,shark:14,jellyfish:6};
 function spawnEnemy(type,x,y){ const d=ENEMY[type], sc=1+bossKills*0.12, hp=Math.round(d.hp*sc); enemies.push({type,x,y,vx:0,vy:0,w:d.w,h:d.h,hp,maxHp:hp,dmg:Math.round(d.dmg*(1+bossKills*0.08)),col:d.col,fly:d.fly,onGround:false,hop:Math.random(),t:Math.random()*9}); }
 function updateEnemies(dt,step){
   if(invasionT>0){ invasionT-=dt; if(invasionT<=0)flash("L'invasion gobeline est repoussée !");
     else if(enemies.length<12&&Math.random()<dt*2.2){ const side=Math.random()<0.5?-1:1, sx=clamp(Math.floor((player.x+side*(VW/2+50))/T),2,WORLD_W-3), sy=surfaceAt(sx)-2; if(Math.abs(sx*T-player.x)<VW)spawnEnemy("goblin",sx*T,sy*T); } }
   else if(isNight()&&bossKills>=1&&Math.random()<dt*0.02){ invasionT=45; flash("⚔️ Une invasion gobeline arrive !"); }
-  if(isNight()&&enemies.length<9&&Math.random()<dt*(raining?2.0:1.3)){
+  if(isNight()&&enemies.length<(bloodMoon?13:9)&&Math.random()<dt*(bloodMoon?3.2:raining?2.0:1.3)){
     const side=Math.random()<0.5?-1:1, sx=clamp(Math.floor((player.x+side*(VW/2+60))/T),2,WORLD_W-3), sy=surfaceAt(sx)-2;
-    if(Math.abs(sx*T-player.x)<VW){ const r=Math.random(); spawnEnemy(r<0.5?"slime":r<0.8?"zombie":"eye",sx*T,sy*T); }
+    if(Math.abs(sx*T-player.x)<VW){ const r=Math.random(); spawnEnemy(bloodMoon?(r<0.5?"zombie":r<0.8?"eye":"goblin"):(r<0.5?"slime":r<0.8?"zombie":"eye"),sx*T,sy*T); }
   }
+  // éclipse solaire : monstres en plein jour
+  if(eclipse&&enemies.length<11&&Math.random()<dt*1.8){ const side=Math.random()<0.5?-1:1, sx=clamp(Math.floor((player.x+side*(VW/2+60))/T),2,WORLD_W-3), sy=surfaceAt(sx)-2; if(Math.abs(sx*T-player.x)<VW){ const r=Math.random(); spawnEnemy(r<0.4?"skeleton":r<0.7?"goblin":"eye",sx*T,sy*T); } }
   // ennemis de grotte (chauves-souris en vol, squelettes au sol)
   if(enemies.length<11&&Math.random()<dt*0.8){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(8+Math.floor(Math.random()*10)),2,WORLD_W-3), sy=Math.floor(player.y/T)+Math.floor((Math.random()-0.5)*14);
     if(sy>surfaceAt(sx)+6&&sy<WORLD_H-3&&getT(sx,sy)===AIR&&dayLight()<0.5){
@@ -887,6 +910,8 @@ function updateEnemies(dt,step){
   if(enemies.length<10&&biomeAt(Math.floor(player.x/T))===4&&dayLight()<0.7&&Math.random()<dt*1.1){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3), sy=clamp(Math.floor(player.y/T)+Math.floor((Math.random()-0.5)*12),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("devourer",sx*T,sy*T); }
   // fées du sanctuaire
   if(enemies.length<10&&biomeAt(Math.floor(player.x/T))===5&&Math.random()<dt*0.9){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3), sy=clamp(Math.floor(player.y/T)+Math.floor((Math.random()-0.5)*12),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("pixie",sx*T,sy*T); }
+  // créatures de l'océan
+  if(enemies.length<10&&biomeAt(Math.floor(player.x/T))===6&&Math.random()<dt*1.0){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(5+Math.floor(Math.random()*7)),2,WORLD_W-3), sy=clamp(Math.floor(player.y/T)+Math.floor((Math.random()-0.5)*8),2,WORLD_H-3); if(getT(sx,sy)===WATER)spawnEnemy(Math.random()<0.4?"shark":"jellyfish",sx*T,sy*T); }
   for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; e.t+=dt; if(e.slow>0){e.slow-=dt;e.vx*=0.55;e.vy*=0.7;} if(e.yoyoCd>0)e.yoyoCd-=dt;
     if(e.fly){ const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1; const sp=e.type==="eye"?2.4:2.0;
       e.vx=lerp(e.vx,dx/d*sp,0.05)+(e.type==="bat"?Math.sin(e.t*6)*0.6:0); e.vy=lerp(e.vy,dy/d*sp,0.05)+(e.type==="bat"?Math.cos(e.t*5)*0.6:0);
@@ -1013,10 +1038,10 @@ function stepLiquids(x0,y0,x1,y1){ const lr=(frameCount&1)?1:-1;
 let lightCanvas=document.createElement("canvas"),lctx=lightCanvas.getContext("2d"),lightBuf=null;
 function computeLight(x0,y0,x1,y1){ const rw=x1-x0+1,rh=y1-y0+1;
   if(!lightBuf||lightBuf.length!==rw*rh)lightBuf=new Float32Array(rw*rh); const L=lightBuf; L.fill(0);
-  const sky=dayLight()*(raining?0.8:1),at=(x,y)=>(x-x0)*rh+(y-y0);
+  const sky=dayLight()*(raining?0.8:1)*(eclipse?0.5:1),at=(x,y)=>(x-x0)*rh+(y-y0);
   for(let x=x0;x<=x1;x++){ let sh=0; while(sh<WORLD_H&&!blocksLight(x,sh))sh++; for(let y=y0;y<=Math.min(y1,sh);y++)if(y>=0)L[at(x,y)]=Math.max(L[at(x,y)],sky); }
   for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){ const t=getT(x,y); if(TILE[t]&&TILE[t].light)L[at(x,y)]=Math.max(L[at(x,y)],TILE[t].light); }
-  if(player.buffs.shine>0){ const lx=Math.floor((player.x+PW/2)/T),ly=Math.floor((player.y+PH/2)/T); if(lx>=x0&&lx<=x1&&ly>=y0&&ly<=y1)L[at(lx,ly)]=Math.max(L[at(lx,ly)],0.95); }
+  if(player.buffs.shine>0||hasAcc("glow")){ const lx=Math.floor((player.x+PW/2)/T),ly=Math.floor((player.y+PH/2)/T); if(lx>=x0&&lx<=x1&&ly>=y0&&ly<=y1)L[at(lx,ly)]=Math.max(L[at(lx,ly)],0.95); }
   for(const f of fireflies){ const fx=Math.floor(f.x/T),fy=Math.floor(f.y/T); if(fx>=x0&&fx<=x1&&fy>=y0&&fy<=y1)L[at(fx,fy)]=Math.max(L[at(fx,fy)],0.45); }
   for(const g of glows){ const gx=Math.floor(g.x/T),gy=Math.floor(g.y/T); if(gx>=x0&&gx<=x1&&gy>=y0&&gy<=y1)L[at(gx,gy)]=Math.max(L[at(gx,gy)],0.85); }
   for(let pass=0;pass<6;pass++){
@@ -1033,8 +1058,10 @@ function computeLight(x0,y0,x1,y1){ const rw=x1-x0+1,rh=y1-y0+1;
 // =========================================================================
 function mixCol(a,b,t){return[Math.round(lerp(a[0],b[0],t)),Math.round(lerp(a[1],b[1],t)),Math.round(lerp(a[2],b[2],t))];}
 function render(){
-  const dl=dayLight()*(raining?0.82:1);
-  const top=mixCol([10,12,40],[90,150,235],dl),bot=mixCol([20,20,55],[180,210,245],dl);
+  const dl=dayLight()*(raining?0.82:1)*(eclipse?0.4:1);
+  let top=mixCol([10,12,40],[90,150,235],dl),bot=mixCol([20,20,55],[180,210,245],dl);
+  if(bloodMoon){ top=mixCol(top,[120,20,20],0.6); bot=mixCol(bot,[80,10,10],0.6); }
+  if(eclipse){ top=mixCol(top,[40,30,50],0.5); bot=mixCol(bot,[30,20,40],0.5); }
   const grd=ctx.createLinearGradient(0,0,0,VH); grd.addColorStop(0,`rgb(${top[0]},${top[1]},${top[2]})`); grd.addColorStop(1,`rgb(${bot[0]},${bot[1]},${bot[2]})`);
   ctx.fillStyle=grd; ctx.fillRect(0,0,VW,VH);
   drawCelestial(dl); drawHills(dl);
@@ -1125,6 +1152,8 @@ function drawEnemy(e){ const sx=e.x-cam.x,sy=e.y-cam.y;
     ctx.fillStyle="rgba(255,255,255,0.6)";const wb=Math.sin(e.t*20)*2;ctx.beginPath();ctx.ellipse(sx+3,sy+2+wb,4,2,0,0,7);ctx.fill();ctx.beginPath();ctx.ellipse(sx+e.w-3,sy+2+wb,4,2,0,0,7);ctx.fill(); }
   else if(e.type==="devourer"){ ctx.fillStyle=e.col;roundRect(sx+2,sy+2,e.w-4,e.h-4,5);ctx.fill();ctx.fillStyle="#3a1a5a";ctx.beginPath();ctx.arc(sx+e.w/2,sy+e.h/2,4,0,7);ctx.fill();ctx.fillStyle="#ff3a6a";ctx.fillRect(sx+5,sy+4,2,2);ctx.fillRect(sx+e.w-7,sy+4,2,2); }
   else if(e.type==="pixie"){ ctx.fillStyle="rgba(255,174,224,.5)";ctx.beginPath();ctx.arc(sx+e.w/2,sy+e.h/2,9,0,7);ctx.fill();ctx.fillStyle=e.col;ctx.beginPath();ctx.arc(sx+e.w/2,sy+e.h/2,5,0,7);ctx.fill();ctx.fillStyle="rgba(255,255,255,.7)";const wp=Math.sin(e.t*18)*3;ctx.beginPath();ctx.ellipse(sx+3,sy+e.h/2+wp,4,6,0,0,7);ctx.fill();ctx.beginPath();ctx.ellipse(sx+e.w-3,sy+e.h/2+wp,4,6,0,0,7);ctx.fill(); }
+  else if(e.type==="shark"){ const d=Math.sign(e.vx)||1; ctx.fillStyle=e.col;ctx.beginPath();ctx.ellipse(sx+e.w/2,sy+e.h/2,e.w/2,e.h/2,0,0,7);ctx.fill();ctx.beginPath();ctx.moveTo(sx+e.w/2,sy);ctx.lineTo(sx+e.w/2-4,sy-7);ctx.lineTo(sx+e.w/2+4,sy);ctx.fill();ctx.fillStyle="#fff";ctx.fillRect(sx+(d>0?e.w-8:4),sy+e.h/2-1,4,2);ctx.fillStyle="#222";ctx.fillRect(sx+(d>0?e.w-7:5),sy+e.h/2-4,2,2); }
+  else if(e.type==="jellyfish"){ ctx.fillStyle="rgba(200,154,216,.55)";ctx.beginPath();ctx.arc(sx+e.w/2,sy+8,e.w/2,Math.PI,0);ctx.fill();ctx.strokeStyle=e.col;ctx.lineWidth=2;for(let k=0;k<3;k++){ctx.beginPath();ctx.moveTo(sx+4+k*6,sy+8);ctx.lineTo(sx+4+k*6+Math.sin(e.t*4+k)*3,sy+e.h);ctx.stroke();} }
   if(e.hp<e.maxHp){ ctx.fillStyle="#000";ctx.fillRect(sx,sy-6,e.w,3);ctx.fillStyle="#e33";ctx.fillRect(sx,sy-6,e.w*(e.hp/e.maxHp),3); }
 }
 function drawNPC(n){ const sx=n.x-cam.x,sy=n.y-cam.y;
@@ -1261,7 +1290,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
     world=unrle(d.world,WORLD_W*WORLD_H); liquid=unrle(d.liquid,WORLD_W*WORLD_H);
     if(d.walls)walls=unrle(d.walls,WORLD_W*WORLD_H); else genWalls();
     chestData=new Map(); if(d.chests)d.chests.forEach(([k,v])=>chestData.set(k,v));
-    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; invasionT=0;
+    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; invasionT=0; bloodMoon=false; eclipse=false;
     player.x=d.px;player.y=d.py;player.hp=d.hp;player.maxHp=d.maxHp||100;player.mana=d.mana||0;player.maxMana=d.maxMana||20;player.armorArr=d.armor||[null,null,null];player.acc=d.acc||null;
     player.pet=!!d.pet; player.mounted=!!d.mtd; player.spawnX=d.spx!=null?d.spx:Math.floor(WORLD_W/2)*T; player.spawnY=d.spy!=null?d.spy:(surfaceAt(Math.floor(WORLD_W/2))-6)*T; player.buffs={}; player.fishing=null;
     selected=d.sel||0; gameTime=d.time||0.3; inv=d.inv?d.inv.slice(0,36):new Array(36).fill(null);
@@ -1271,7 +1300,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
 function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null]; player.acc=null;
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
-  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;raining=false;weatherT=80;critters=[];minions=[];fireflies=[];invasionT=0;curShop=null;player.buffs={};player.fishing=null;player.pet=false;player.mounted=false;player.flyTime=0;player.grapple=null;glows=[];player.useCd=0;player.placeCd=0;player.swing=0;
+  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;raining=false;weatherT=80;bloodMoon=false;eclipse=false;critters=[];minions=[];fireflies=[];invasionT=0;curShop=null;player.buffs={};player.fishing=null;player.pet=false;player.mounted=false;player.flyTime=0;player.grapple=null;glows=[];player.useCd=0;player.placeCd=0;player.swing=0;
   npcs=[]; spawnNPC("guide");
   document.getElementById("death").style.display="none";
   const c=Math.floor(WORLD_W/2);player.x=c*T;player.y=(surfaceAt(c)-6)*T;player.vx=player.vy=0;player.spawnX=player.x;player.spawnY=player.y;
