@@ -118,12 +118,13 @@ const T=24, WORLD_W=900, WORLD_H=260, STACK_MAX=99;
 const GRAV=0.55, MAX_FALL=16, MOVE_ACC=1.0, MOVE_MAX=5.0, FRICTION=0.80, JUMP_V=11.0;
 const REACH=5.4*T, DAY_SEC=480, SAVE_KEY="terrabac_save_v2";
 const PW=18, PH=42, BASE_SURFACE=Math.floor(WORLD_H*0.28), HILL_AMP=46;
+const HELL_Y=WORLD_H-14; // début de la couche d'enfer
 
 // ---- tuiles ----
 const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAMOND=10,
   PLANK=11,TORCH=12,TABLE=13,FURNACE=14,GLASS=15,BRICK=16,COPPER=17,SILVER=18,SNOW=19,
   ICE=20,CLAY=21,RUBY=22,EMERALD=23,SAPPHIRE=24,WATER=25,LAVA=26,CHEST=27,ANVIL=28,LIFE=29,MANA=30,MUSHROOM=31,
-  PLATFORM=32,DOOR_C=33,DOOR_O=34;
+  PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -165,6 +166,10 @@ const TILE={
   [PLATFORM]:{name:"Plateforme",solid:false,hard:0.5,drop:PLATFORM,col:"#a9763c",platform:true},
   [DOOR_C]:{name:"Porte",solid:true,hard:0.7,drop:DOOR_C,col:"#7a4a1e",door:true},
   [DOOR_O]:{name:"Porte ouverte",solid:false,hard:0.7,drop:DOOR_C,col:"#7a4a1e",door:true},
+  [MUD]:{name:"Boue",solid:true,hard:0.5,drop:MUD,col:"#5a4332"},
+  [JGRASS]:{name:"Herbe jungle",solid:true,hard:0.5,drop:MUD,col:"#3a8a2a"},
+  [ASH]:{name:"Cendre",solid:true,hard:0.9,drop:ASH,col:"#3a3338"},
+  [HELLSTONE]:{name:"Pierre d'enfer",solid:true,hard:2.8,drop:HELLSTONE,col:"#c8442a",light:0.4},
 };
 const isPlatform=id=>TILE[id]&&TILE[id].platform;
 const isDoor=id=>TILE[id]&&TILE[id].door;
@@ -179,6 +184,7 @@ const TOOLS={
   sword3:{name:"Épée argent",type:"sword",dmg:38}, sword4:{name:"Épée or",type:"sword",dmg:50},
   bow1:{name:"Arc en bois",type:"bow",dmg:12}, bow2:{name:"Arc démoniaque",type:"bow",dmg:24},
   staff1:{name:"Sceptre de saphir",type:"staff",dmg:22,mana:5},
+  pick5:{name:"Pioche d'enfer",type:"pick",power:4.0}, sword5:{name:"Épée d'enfer",type:"sword",dmg:65}, sword6:{name:"Lame des abysses",type:"sword",dmg:95},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
 };
 const ACC={ cloud:{name:"Bottes nuage",eff:"djump"}, boots:{name:"Bottes véloces",eff:"speed"}, band:{name:"Brassard de force",eff:"def",def:5} };
@@ -187,12 +193,13 @@ const ARMOR={
   iron_h:{name:"Casque fer",slot:"head",def:2}, iron_c:{name:"Plastron fer",slot:"chest",def:3}, iron_l:{name:"Jambières fer",slot:"legs",def:2},
   silver_h:{name:"Casque argent",slot:"head",def:3}, silver_c:{name:"Plastron argent",slot:"chest",def:4}, silver_l:{name:"Jambières argent",slot:"legs",def:3},
   gold_h:{name:"Casque or",slot:"head",def:4}, gold_c:{name:"Plastron or",slot:"chest",def:5}, gold_l:{name:"Jambières or",slot:"legs",def:4},
+  hell_h:{name:"Casque d'enfer",slot:"head",def:5}, hell_c:{name:"Plastron d'enfer",slot:"chest",def:6}, hell_l:{name:"Jambières d'enfer",slot:"legs",def:5},
 };
 const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Barre fer",col:"#c9c9d4"},
   silver_bar:{name:"Barre argent",col:"#dfe3ea"}, gold_bar:{name:"Barre or",col:"#e8c33a"}, lens:{name:"Lentille",col:"#7fd6e0"},
-  mushroom:{name:"Champignon",col:"#d83a3a"} };
+  mushroom:{name:"Champignon",col:"#d83a3a"}, hellstone_bar:{name:"Barre d'enfer",col:"#e8632a"} };
 const AMMO={ arrow:{name:"Flèche",col:"#caa15a",dmg:5} };
-const SUMMONS={ eye:{name:"Œil suspect"} };
+const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"} };
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
   hp_potion:{name:"Potion de soin",col:"#e23a4a"}, mp_potion:{name:"Potion de mana",col:"#3a6ae2"} };
 
@@ -242,6 +249,14 @@ const RECIPES=[
   R({kind:"tile",id:DOOR_C,n:1},[ti(PLANK,6)],"table"),
   R({kind:"tool",id:"bucket",n:1},[ma("iron_bar",3)],"anvil"),
   R({kind:"acc",id:"band",n:1},[ma("gold_bar",5)],"anvil"),
+  // enfer
+  R({kind:"mat",id:"hellstone_bar"},[ti(HELLSTONE,3)],"furnace"),
+  R({kind:"tool",id:"pick5"},[ma("hellstone_bar",6),ti(PLANK,3)],"anvil"),
+  R({kind:"tool",id:"sword5"},[ma("hellstone_bar",5),ti(PLANK,1)],"anvil"),
+  R({kind:"armor",id:"hell_h"},[ma("hellstone_bar",8)],"anvil"),
+  R({kind:"armor",id:"hell_c"},[ma("hellstone_bar",12)],"anvil"),
+  R({kind:"armor",id:"hell_l"},[ma("hellstone_bar",10)],"anvil"),
+  R({kind:"summon",id:"helleye"},[ma("hellstone_bar",5),ma("lens",3)],"anvil"),
 ];
 
 // =========================================================================
@@ -255,7 +270,7 @@ function vnoise(x,y){const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy,u=f
 function fbm(x,y,oct){let s=0,amp=0.5,f=1,norm=0;for(let i=0;i<oct;i++){s+=amp*vnoise(x*f,y*f);norm+=amp;amp*=0.5;f*=2;}return s/norm;}
 function surfaceAt(x){x=clamp(x|0,0,WORLD_W-1);const n=fbm(x*0.012+1000,7.7,4);return Math.floor(BASE_SURFACE+(n-0.5)*HILL_AMP);}
 // biomes : 0 forêt, 1 neige (gauche), 2 désert
-function biomeAt(x){ if(x<WORLD_W*0.16) return 1; if(vnoise(x*0.006,555)>0.64) return 2; return 0; }
+function biomeAt(x){ if(x<WORLD_W*0.16) return 1; if(x>WORLD_W*0.62&&x<WORLD_W*0.80) return 3; if(vnoise(x*0.006,555)>0.64) return 2; return 0; }
 
 // =========================================================================
 //  monde
@@ -283,8 +298,8 @@ function genWorld(s){
     for(let y=0;y<WORLD_H;y++){
       let t=AIR;
       if(y<sy)t=AIR;
-      else if(y===sy)t=b===2?SAND:b===1?SNOW:GRASS;
-      else if(y<=sy+(b===2?6:4))t=b===2?SAND:b===1?(y<=sy+2?SNOW:DIRT):DIRT;
+      else if(y===sy)t=b===2?SAND:b===1?SNOW:b===3?JGRASS:GRASS;
+      else if(y<=sy+(b===2?6:b===3?8:4))t=b===2?SAND:b===1?(y<=sy+2?SNOW:DIRT):b===3?MUD:DIRT;
       else t=STONE;
       world[idx(x,y)]=t;
     }
@@ -318,10 +333,17 @@ function genWorld(s){
   for(let i=0;i<140;i++){ const x=2+Math.floor(rng()*(WORLD_W-4)), y=Math.floor(surfaceAt(x)+20+rng()*120);
     if(y<WORLD_H-3&&world[idx(x,y)]===AIR){ for(let dx=-2;dx<=2;dx++)for(let dy=-1;dy<=1;dy++){const X=x+dx,Y=y+dy;
       if(X>1&&X<WORLD_W-1&&Y<WORLD_H-3&&world[idx(X,Y)]===AIR){world[idx(X,Y)]=WATER;liquid[idx(X,Y)]=8;}}}}
+  // === ENFER (couche du bas) ===
+  for(let x=0;x<WORLD_W;x++)for(let y=HELL_Y;y<WORLD_H-2;y++){ if(world[idx(x,y)]!==AIR){ world[idx(x,y)]=ASH; liquid[idx(x,y)]=0; } }
+  for(let x=0;x<WORLD_W;x++)for(let y=HELL_Y+1;y<WORLD_H-3;y++){ if(fbm(x*0.06+30,y*0.06+30,2)>0.52) world[idx(x,y)]=AIR; }
+  for(let i=0;i<220;i++){ const x=2+Math.floor(rng()*(WORLD_W-4)), y=HELL_Y+2+Math.floor(rng()*9);
+    for(let dx=-3;dx<=3;dx++)for(let dy=0;dy<=2;dy++){const X=x+dx,Y=Math.min(y+dy,WORLD_H-3); if(X>1&&X<WORLD_W-1&&world[idx(X,Y)]===AIR){world[idx(X,Y)]=LAVA;liquid[idx(X,Y)]=8;}}}
+  for(let i=0;i<260;i++){ let bx=2+Math.floor(rng()*(WORLD_W-4)),by=HELL_Y+1+Math.floor(rng()*11);
+    for(let j=0;j<4;j++){ if(by>HELL_Y&&by<WORLD_H-2&&bx>0&&bx<WORLD_W-1&&world[idx(bx,by)]===ASH)world[idx(bx,by)]=HELLSTONE; bx=clamp(bx+Math.floor(rng()*3)-1,1,WORLD_W-2); by=clamp(by+Math.floor(rng()*3)-1,HELL_Y+1,WORLD_H-3); } }
   // arbres
   let last=-9;
-  for(let x=3;x<WORLD_W-3;x++){ const b=biomeAt(x); if(b===2)continue; const sy=surfaceAt(x);
-    if((world[idx(x,sy)]===GRASS||world[idx(x,sy)]===SNOW)&&rng()<0.13&&x-last>=3){ tree(x,sy,rng); last=x; } }
+  for(let x=3;x<WORLD_W-3;x++){ const b=biomeAt(x); if(b===2)continue; const sy=surfaceAt(x); const s=world[idx(x,sy)];
+    if((s===GRASS||s===SNOW||s===JGRASS)&&rng()<(b===3?0.30:0.13)&&x-last>=(b===3?2:3)){ tree(x,sy,rng); last=x; } }
   // champignons sur le sol des grottes
   for(let x=2;x<WORLD_W-2;x++){ const sy=surfaceAt(x);
     for(let y=sy+6;y<WORLD_H-3;y++){ if(world[idx(x,y)]===AIR&&solidAt(x,y+1)&&world[idx(x,y-1)]===AIR&&rng()<0.015) world[idx(x,y)]=MUSHROOM; } }
@@ -343,7 +365,7 @@ function tree(x,sy,rng){ const h=4+Math.floor(rng()*4); for(let i=1;i<=h;i++)if(
 const TEX={};
 function shade(hex,d){const n=parseInt(hex.slice(1),16);let r=clamp((n>>16)+d,0,255),g=clamp(((n>>8)&255)+d,0,255),b=clamp((n&255)+d,0,255);return"#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}
 // relief : bord clair en haut/gauche, bord sombre en bas/droite (rendu "bloc")
-const BEVEL=new Set([DIRT,GRASS,STONE,SAND,COAL,IRON,GOLD,DIAMOND,COPPER,SILVER,SNOW,ICE,CLAY,RUBY,EMERALD,SAPPHIRE,LOG,PLANK,BRICK,FURNACE]);
+const BEVEL=new Set([DIRT,GRASS,STONE,SAND,COAL,IRON,GOLD,DIAMOND,COPPER,SILVER,SNOW,ICE,CLAY,RUBY,EMERALD,SAPPHIRE,LOG,PLANK,BRICK,FURNACE,MUD,JGRASS,ASH,HELLSTONE]);
 function bevelTile(g){ g.lineWidth=1;
   g.strokeStyle="rgba(255,255,255,0.16)"; g.beginPath(); g.moveTo(0.5,0); g.lineTo(0.5,T); g.moveTo(0,0.5); g.lineTo(T,0.5); g.stroke();
   g.strokeStyle="rgba(0,0,0,0.34)"; g.beginPath(); g.moveTo(T-0.5,0); g.lineTo(T-0.5,T); g.moveTo(0,T-0.5); g.lineTo(T,T-0.5); g.stroke(); }
@@ -367,6 +389,10 @@ function makeTex(id){
   else if(id===EMERALD)gem("#7d7d85","#3ce87a");
   else if(id===SAPPHIRE)gem("#7d7d85","#4f9cff");
   else if(id===CLAY)speckle("#a5604a",18,24);
+  else if(id===MUD)speckle("#5a4332",18,22);
+  else if(id===JGRASS){speckle("#5a4332",30,30);g.fillStyle="#3a8a2a";g.fillRect(0,0,T,5);for(let i=0;i<10;i++){const px=Math.floor(rnd()*T);g.fillRect(px,4,1,2+Math.floor(rnd()*3));}}
+  else if(id===ASH)speckle("#3a3338",22,24);
+  else if(id===HELLSTONE){speckle("#5a2218",20,24);for(let i=0;i<7;i++){const px=4+Math.floor(rnd()*16),py=4+Math.floor(rnd()*16);g.fillStyle="#ff7a2a";g.fillRect(px,py,3,3);}}
   else if(id===BRICK){g.fillStyle="#9c4a3a";g.fillRect(0,0,T,T);g.strokeStyle="#6e3328";g.lineWidth=2;g.strokeRect(0,0,T,T/2);g.strokeRect(0,T/2,T,T/2);g.beginPath();g.moveTo(T/2,0);g.lineTo(T/2,T/2);g.moveTo(0,T/2);g.lineTo(0,T);g.moveTo(T,T/2);g.lineTo(T,T);g.stroke();}
   else if(id===GLASS){g.fillStyle="rgba(190,227,239,.45)";g.fillRect(0,0,T,T);g.strokeStyle="rgba(255,255,255,.6)";g.lineWidth=1;g.strokeRect(1,1,T-2,T-2);g.beginPath();g.moveTo(2,T-4);g.lineTo(T-6,2);g.stroke();}
   else if(id===FURNACE){g.fillStyle="#444";g.fillRect(0,0,T,T);g.fillStyle="#333";g.fillRect(2,2,T-4,T-4);g.fillStyle="#ff7a1a";g.fillRect(6,T-12,T-12,8);g.fillStyle="#ffd24a";g.fillRect(8,T-10,T-16,4);}
@@ -574,7 +600,9 @@ function meleeAttack(dmg){ const dir=player.face,ax=player.x+PW/2+dir*12,ay=play
   for(const e of list){ const ex=e.x+e.w/2,ey=e.y+e.h/2; if(Math.hypot(ex-ax,ey-ay)<48){e.hp-=dmg;e.vx=dir*6;e.vy=-4;spawnParticles(ex,ey,"#ff5555",6);} } }
 function fireProjectile(type,dmg){ const pcx=player.x+PW/2,pcy=player.y+PH/2;
   let dirx=mouse.wx-pcx,diry=mouse.wy-pcy; const d=Math.hypot(dirx,diry)||1; dirx/=d; diry/=d;
-  const sp=type==="arrow"?13:11; projectiles.push({x:pcx,y:pcy,vx:dirx*sp,vy:diry*sp,type,dmg,life:type==="arrow"?2.2:1.4}); }
+  const sp=type==="arrow"?13:11; projectiles.push({x:pcx,y:pcy,vx:dirx*sp,vy:diry*sp,type,dmg,life:type==="arrow"?2.2:1.4,friendly:true}); }
+function enemyFire(ex,ey,dmg){ let dx=player.x+PW/2-ex,dy=player.y+PH/2-ey; const d=Math.hypot(dx,dy)||1;
+  projectiles.push({x:ex,y:ey,vx:dx/d*5,vy:dy/d*5,type:"fire",dmg,life:3,friendly:false}); }
 
 // =========================================================================
 //  projectiles
@@ -585,6 +613,7 @@ function updateProjectiles(step){
     p.x+=p.vx*step; p.y+=p.vy*step; p.life-=0.016*step;
     const tx=Math.floor(p.x/T),ty=Math.floor(p.y/T);
     if(p.life<=0||solidAt(tx,ty)){ projectiles.splice(i,1); continue; }
+    if(p.friendly===false){ if(player.invuln<=0&&p.x>player.x&&p.x<player.x+PW&&p.y>player.y&&p.y<player.y+PH){ hurtPlayer(p.dmg,Math.sign(p.vx)||1); spawnParticles(p.x,p.y,"#ff7a1a",6); projectiles.splice(i,1); } continue; }
     let hit=false; const list=boss?enemies.concat([boss]):enemies;
     for(const e of list){ if(p.x>e.x&&p.x<e.x+e.w&&p.y>e.y&&p.y<e.y+e.h){ e.hp-=p.dmg; e.vx+=p.vx*0.3; spawnParticles(p.x,p.y,p.type==="bolt"?"#5fd0ff":"#ffcf6a",5); hit=true; break; } }
     if(hit)projectiles.splice(i,1);
@@ -602,8 +631,9 @@ const ENEMY={
   eye:{w:30,h:26,hp:35,dmg:12,col:"#caa",fly:true},
   bat:{w:22,h:18,hp:18,dmg:8,col:"#6a5a7a",fly:true},
   skeleton:{w:20,h:40,hp:60,dmg:16,col:"#d8d8c8",fly:false},
+  imp:{w:24,h:30,hp:80,dmg:20,col:"#c0392b",fly:true},
 };
-const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7};
+const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12};
 function spawnEnemy(type,x,y){ const d=ENEMY[type]; enemies.push({type,x,y,vx:0,vy:0,w:d.w,h:d.h,hp:d.hp,maxHp:d.hp,dmg:d.dmg,col:d.col,fly:d.fly,onGround:false,hop:Math.random(),t:Math.random()*9}); }
 function updateEnemies(dt,step){
   if(isNight()&&enemies.length<9&&Math.random()<dt*1.3){
@@ -615,10 +645,13 @@ function updateEnemies(dt,step){
     if(sy>surfaceAt(sx)+6&&sy<WORLD_H-3&&getT(sx,sy)===AIR&&dayLight()<0.5){
       if(getT(sx,sy-1)===AIR&&solidAt(sx,sy+1)&&Math.random()<0.5) spawnEnemy("skeleton",sx*T,(sy-1)*T);
       else spawnEnemy("bat",sx*T,sy*T); } }
+  // imps de l'enfer
+  if(enemies.length<10&&Math.floor((player.y+PH/2)/T)>HELL_Y&&Math.random()<dt*1.0){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(7+Math.floor(Math.random()*7)),2,WORLD_W-3), sy=clamp(Math.floor(player.y/T)+Math.floor((Math.random()-0.5)*8),HELL_Y,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("imp",sx*T,sy*T); }
   for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; e.t+=dt;
     if(e.fly){ const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1; const sp=e.type==="eye"?2.4:2.0;
       e.vx=lerp(e.vx,dx/d*sp,0.05)+(e.type==="bat"?Math.sin(e.t*6)*0.6:0); e.vy=lerp(e.vy,dy/d*sp,0.05)+(e.type==="bat"?Math.cos(e.t*5)*0.6:0);
       e.x+=e.vx*step; e.y+=e.vy*step;
+      if(e.type==="imp"){ e.fireCd=(e.fireCd==null?1.5:e.fireCd-dt); if(e.fireCd<=0&&Math.hypot(player.x-e.x,player.y-e.y)<480){ enemyFire(e.x+e.w/2,e.y+e.h/2,e.dmg); e.fireCd=1.8; } }
     } else { e.vy=Math.min(e.vy+GRAV*step,MAX_FALL); e.hop-=dt;
       if(e.onGround&&e.hop<=0){ const d=Math.sign(player.x-e.x)||1; e.vx=d*(e.type==="zombie"?1.6:2.2); if(e.type!=="zombie"||Math.random()<0.5)e.vy=-8; e.hop=(e.type==="zombie"?0.4:0.9)+Math.random()*0.6; }
       e.vx*=Math.pow(0.96,step); moveEntity(e,e.w,e.h,step); }
@@ -631,17 +664,25 @@ function updateEnemies(dt,step){
 }
 function rectHit(ax,ay,aw,ah,bx,by,bw,bh){return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by;}
 function hurtPlayer(dmg,dir){ const real=Math.max(1,dmg-totalDef()); player.hp-=real; player.invuln=0.8; player.vx=dir*7; player.vy=-6; spawnParticles(player.x+PW/2,player.y+PH/2,"#ff3030",8); }
-function summonBoss(sel){ if(boss){flash("Le boss est déjà là");return;} if(!isNight()){flash("L'Œil maléfique n'apparaît que la nuit");return;}
-  removeItem("summon","eye",1); boss={type:"boss",x:player.x+260,y:player.y-160,vx:0,vy:0,w:60,h:50,hp:700,maxHp:700,dmg:26,col:"#d24a5a",charge:0,t:0};
-  flash("⚠️ L'Œil maléfique approche !"); }
+function summonBoss(sel){ if(boss){flash("Le boss est déjà là");return;}
+  if(sel.id==="eye"){ if(!isNight()){flash("L'Œil maléfique n'apparaît que la nuit");return;}
+    removeItem("summon","eye",1); boss={type:"boss",tier:1,x:player.x+260,y:player.y-160,vx:0,vy:0,w:60,h:50,hp:700,maxHp:700,dmg:26,col:"#d24a5a",charge:0,t:0};
+    flash("⚠️ L'Œil maléfique approche !"); }
+  else if(sel.id==="helleye"){ removeItem("summon","helleye",1);
+    boss={type:"boss",tier:2,x:player.x+280,y:player.y-180,vx:0,vy:0,w:80,h:70,hp:1600,maxHp:1600,dmg:34,col:"#8a1f15",charge:0,t:0,fire:true,fireCd:2};
+    flash("🔥 Le Gardien des Enfers s'éveille !"); } }
 function updateBoss(dt,step){ const e=boss; e.t+=dt; e.charge-=dt;
-  const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1;
-  if(e.charge<=0&&d<400){ e.vx=dx/d*7; e.vy=dy/d*7; e.charge=2.2; }
+  const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1, cs=e.tier===2?6:7;
+  if(e.charge<=0&&d<400){ e.vx=dx/d*cs; e.vy=dy/d*cs; e.charge=e.tier===2?1.8:2.2; }
   else { e.vx=lerp(e.vx,dx/d*2.2,0.04); e.vy=lerp(e.vy,(dy-80)/d*2.2+Math.sin(e.t*2)*0.5,0.04); }
   e.x+=e.vx*step; e.y+=e.vy*step;
+  if(e.fire){ e.fireCd-=dt; if(e.fireCd<=0){ const a0=Math.atan2(dy,dx); for(let k=-1;k<=1;k++){ const a=a0+k*0.26; projectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,vx:Math.cos(a)*5,vy:Math.sin(a)*5,type:"fire",dmg:e.dmg,life:3.5,friendly:false}); } e.fireCd=2; } }
   if(player.invuln<=0&&rectHit(e.x,e.y,e.w,e.h,player.x,player.y,PW,PH))hurtPlayer(e.dmg,Math.sign(player.x-e.x)||1);
-  if(e.hp<=0){ spawnParticles(e.x+e.w/2,e.y+e.h/2,e.col,40); addItem("mat","gold_bar",12); addItem("tool","bow2",1); coins+=120; player.maxHp+=20; player.hp=player.maxHp; flash("🏆 Boss vaincu ! +20 PV max, 120 pièces, butin reçu"); boss=null; dirtyUI=true; }
-  else if(!isNight()){ flash("L'Œil maléfique fuit le jour..."); boss=null; }
+  if(e.hp<=0){ spawnParticles(e.x+e.w/2,e.y+e.h/2,e.col,40);
+    if(e.tier===2){ addItem("mat","hellstone_bar",20); addItem("tool","sword6",1); coins+=300; player.maxHp+=40; player.hp=player.maxHp; flash("🏆 Gardien des Enfers vaincu ! +40 PV max, Lame des abysses obtenue !"); }
+    else { addItem("mat","gold_bar",12); addItem("tool","bow2",1); coins+=120; player.maxHp+=20; player.hp=player.maxHp; flash("🏆 Boss vaincu ! +20 PV max, 120 pièces, butin reçu"); }
+    boss=null; dirtyUI=true; }
+  else if(e.tier===1&&!isNight()){ flash("L'Œil maléfique fuit le jour..."); boss=null; }
 }
 
 // =========================================================================
@@ -732,7 +773,7 @@ function render(){
     for(let i=0;i<n;i++){ctx.beginPath();ctx.moveTo(sx+Math.random()*T,sy);ctx.lineTo(sx+Math.random()*T,sy+T);ctx.stroke();} } }
   for(const e of enemies)drawEnemy(e); if(boss)drawBoss(boss); for(const n of npcs)drawNPC(n);
   drawPlayer();
-  for(const p of projectiles){ ctx.fillStyle=p.type==="bolt"?"#5fd0ff":"#caa15a"; ctx.save(); ctx.translate(p.x-cam.x,p.y-cam.y); ctx.rotate(Math.atan2(p.vy,p.vx)); ctx.fillRect(-6,-2,12,4); ctx.restore(); }
+  for(const p of projectiles){ ctx.fillStyle=p.type==="bolt"?"#5fd0ff":p.type==="fire"?"#ff7a1a":"#caa15a"; ctx.save(); ctx.translate(p.x-cam.x,p.y-cam.y); ctx.rotate(Math.atan2(p.vy,p.vx)); ctx.fillRect(-6,-2,12,4); ctx.restore(); }
   for(const p of particles){ ctx.globalAlpha=clamp(p.life*2,0,1); ctx.fillStyle=p.col; ctx.fillRect(p.x-cam.x,p.y-cam.y,p.s,p.s); } ctx.globalAlpha=1;
   // lumière
   const lx0=Math.max(0,x0-1),ly0=Math.max(0,y0-1),lx1=Math.min(WORLD_W-1,x1+1),ly1=Math.min(WORLD_H-1,y1+1);
@@ -771,6 +812,9 @@ function drawEnemy(e){ const sx=e.x-cam.x,sy=e.y-cam.y;
   else if(e.type==="skeleton"){ ctx.fillStyle="#e8e8dc";ctx.fillRect(sx+3,sy+24,4,16);ctx.fillRect(sx+e.w-7,sy+24,4,16);
     ctx.fillStyle="#d8d8cc";ctx.fillRect(sx+4,sy+12,e.w-8,13);ctx.fillStyle="#eee";ctx.fillRect(sx+3,sy,e.w-6,12);
     ctx.fillStyle="#000";ctx.fillRect(sx+6,sy+4,3,3);ctx.fillRect(sx+e.w-9,sy+4,3,3); }
+  else if(e.type==="imp"){ ctx.fillStyle=e.col;roundRect(sx+2,sy+4,e.w-4,e.h-6,5);ctx.fill();
+    ctx.fillStyle="#7a1f15";ctx.beginPath();ctx.moveTo(sx+4,sy+5);ctx.lineTo(sx+8,sy-3);ctx.lineTo(sx+11,sy+5);ctx.fill();ctx.beginPath();ctx.moveTo(sx+e.w-4,sy+5);ctx.lineTo(sx+e.w-8,sy-3);ctx.lineTo(sx+e.w-11,sy+5);ctx.fill();
+    ctx.fillStyle="#ffd24a";ctx.fillRect(sx+7,sy+11,3,3);ctx.fillRect(sx+e.w-10,sy+11,3,3); }
   if(e.hp<e.maxHp){ ctx.fillStyle="#000";ctx.fillRect(sx,sy-6,e.w,3);ctx.fillStyle="#e33";ctx.fillRect(sx,sy-6,e.w*(e.hp/e.maxHp),3); }
 }
 function drawNPC(n){ const sx=n.x-cam.x,sy=n.y-cam.y;
@@ -781,9 +825,11 @@ function drawNPC(n){ const sx=n.x-cam.x,sy=n.y-cam.y;
   ctx.fillStyle="#222";ctx.fillRect(sx+(n.dir>=0?n.w-7:4),sy+6,2,2);
   ctx.fillStyle="rgba(0,0,0,0.5)";ctx.fillRect(sx-8,sy-16,n.w+16,12);
   ctx.fillStyle="#fff";ctx.font="9px sans-serif";ctx.textAlign="center";ctx.fillText(n.type==="merchant"?"Marchand":"Guide",sx+n.w/2,sy-7);ctx.textAlign="left"; }
-function drawBoss(e){ const sx=e.x-cam.x,sy=e.y-cam.y; ctx.fillStyle="#e8e0e4";roundRect(sx,sy,e.w,e.h,e.h/2);ctx.fill();
-  ctx.fillStyle="#a33";roundRect(sx+4,sy+6,e.w-8,e.h-12,8);ctx.fill(); const ox=clamp((player.x-e.x)/30,-10,10);
-  ctx.fillStyle="#600";ctx.beginPath();ctx.arc(sx+e.w/2+ox,sy+e.h/2,12,0,7);ctx.fill();ctx.fillStyle="#000";ctx.beginPath();ctx.arc(sx+e.w/2+ox,sy+e.h/2,6,0,7);ctx.fill(); }
+function drawBoss(e){ const sx=e.x-cam.x,sy=e.y-cam.y,t2=e.tier===2;
+  ctx.fillStyle=t2?"#c98a6a":"#e8e0e4";roundRect(sx,sy,e.w,e.h,e.h/2);ctx.fill();
+  ctx.fillStyle=t2?"#8a1f15":"#a33";roundRect(sx+4,sy+6,e.w-8,e.h-12,8);ctx.fill(); const ox=clamp((player.x-e.x)/30,-12,12);
+  ctx.fillStyle=t2?"#2a0600":"#600";ctx.beginPath();ctx.arc(sx+e.w/2+ox,sy+e.h/2,t2?17:12,0,7);ctx.fill();ctx.fillStyle="#000";ctx.beginPath();ctx.arc(sx+e.w/2+ox,sy+e.h/2,t2?9:6,0,7);ctx.fill();
+  if(t2){ctx.fillStyle="rgba(255,120,30,0.5)";ctx.beginPath();ctx.arc(sx+e.w/2,sy+e.h/2,e.w*0.6,0,7);ctx.fill();} }
 
 // =========================================================================
 //  interface (DOM)
@@ -875,7 +921,7 @@ function flash(t){ $msg.textContent=t; $msg.style.opacity=1; flashT=2.5; }
 const $hearts=document.getElementById("hearts"),$mana=document.getElementById("mana"),$def=document.getElementById("def"),$coins=document.getElementById("coins"),$clock=document.getElementById("clock"),$bossbar=document.getElementById("bossbar"),$bossFg=document.getElementById("bossFg");
 function updateStatus(){ $hearts.textContent="❤️ "+Math.ceil(player.hp)+"/"+player.maxHp; $mana.textContent="🔷 "+Math.floor(player.mana)+"/"+player.maxMana;
   $def.textContent="🛡️ "+totalDef(); $coins.textContent="🪙 "+coins; const h=Math.floor(((gameTime+0.5)%1)*24); $clock.textContent=(isNight()?"🌙 ":"☀️ ")+String(h).padStart(2,"0")+":00";
-  if(boss){$bossbar.style.display="block";$bossFg.style.width=(100*Math.max(0,boss.hp)/boss.maxHp)+"%";}else $bossbar.style.display="none"; }
+  if(boss){$bossbar.style.display="block";document.getElementById("bossName").textContent=boss.tier===2?"Gardien des Enfers":"Œil maléfique";$bossFg.style.width=(100*Math.max(0,boss.hp)/boss.maxHp)+"%";}else $bossbar.style.display="none"; }
 
 // =========================================================================
 //  mort / sauvegarde
