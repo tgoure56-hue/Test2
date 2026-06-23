@@ -66,6 +66,7 @@
   <div class="stat" id="def">🛡️ 0</div>
   <div class="stat" id="coins">🪙 0</div>
   <div class="stat" id="clock">🕛</div>
+  <div class="stat" id="buffs" style="display:none"></div>
   <div class="spacer"></div>
   <div class="btn" id="btnInv">Inventaire (E)</div>
   <div class="btn" id="btnSave">Sauvegarder</div>
@@ -124,7 +125,7 @@ const HELL_Y=WORLD_H-14; // début de la couche d'enfer
 const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAMOND=10,
   PLANK=11,TORCH=12,TABLE=13,FURNACE=14,GLASS=15,BRICK=16,COPPER=17,SILVER=18,SNOW=19,
   ICE=20,CLAY=21,RUBY=22,EMERALD=23,SAPPHIRE=24,WATER=25,LAVA=26,CHEST=27,ANVIL=28,LIFE=29,MANA=30,MUSHROOM=31,
-  PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39;
+  PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39,MYTHRIL=40;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -171,6 +172,7 @@ const TILE={
   [ASH]:{name:"Cendre",solid:true,hard:0.9,drop:ASH,col:"#3a3338"},
   [HELLSTONE]:{name:"Pierre d'enfer",solid:true,hard:2.8,drop:HELLSTONE,col:"#c8442a",light:0.4},
   [ROPE]:{name:"Corde",solid:false,hard:0.2,drop:ROPE,col:"#b9914a",climb:true},
+  [MYTHRIL]:{name:"Mythril",solid:true,hard:4.0,drop:MYTHRIL,col:"#5fc9b0"},
 };
 const isPlatform=id=>TILE[id]&&TILE[id].platform;
 const isDoor=id=>TILE[id]&&TILE[id].door;
@@ -187,24 +189,32 @@ const TOOLS={
   bow1:{name:"Arc en bois",type:"bow",dmg:12}, bow2:{name:"Arc démoniaque",type:"bow",dmg:24},
   staff1:{name:"Sceptre de saphir",type:"staff",dmg:22,mana:5},
   pick5:{name:"Pioche d'enfer",type:"pick",power:4.0}, sword5:{name:"Épée d'enfer",type:"sword",dmg:65}, sword6:{name:"Lame des abysses",type:"sword",dmg:95},
+  pick6:{name:"Pioche en mythril",type:"pick",power:5.0}, sword7:{name:"Épée en mythril",type:"sword",dmg:80},
+  spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
-  mirror:{name:"Miroir magique",type:"mirror"},
+  mirror:{name:"Miroir magique",type:"mirror"}, rod:{name:"Canne à pêche",type:"rod"},
 };
-const ACC={ cloud:{name:"Bottes nuage",eff:"djump"}, boots:{name:"Bottes véloces",eff:"speed"}, band:{name:"Brassard de force",eff:"def",def:5} };
+const ACC={ cloud:{name:"Bottes nuage",eff:"djump"}, boots:{name:"Bottes véloces",eff:"speed"}, band:{name:"Brassard de force",eff:"def",def:5},
+  talisman:{name:"Talisman de régénération",eff:"regen"}, amulet:{name:"Amulette de mana",eff:"manaregen"} };
 const ARMOR={
   wood_h:{name:"Casque bois",slot:"head",def:1}, wood_c:{name:"Plastron bois",slot:"chest",def:2}, wood_l:{name:"Jambières bois",slot:"legs",def:1},
   iron_h:{name:"Casque fer",slot:"head",def:2}, iron_c:{name:"Plastron fer",slot:"chest",def:3}, iron_l:{name:"Jambières fer",slot:"legs",def:2},
   silver_h:{name:"Casque argent",slot:"head",def:3}, silver_c:{name:"Plastron argent",slot:"chest",def:4}, silver_l:{name:"Jambières argent",slot:"legs",def:3},
   gold_h:{name:"Casque or",slot:"head",def:4}, gold_c:{name:"Plastron or",slot:"chest",def:5}, gold_l:{name:"Jambières or",slot:"legs",def:4},
   hell_h:{name:"Casque d'enfer",slot:"head",def:5}, hell_c:{name:"Plastron d'enfer",slot:"chest",def:6}, hell_l:{name:"Jambières d'enfer",slot:"legs",def:5},
+  myth_h:{name:"Casque mythril",slot:"head",def:6}, myth_c:{name:"Plastron mythril",slot:"chest",def:8}, myth_l:{name:"Jambières mythril",slot:"legs",def:6},
 };
 const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Barre fer",col:"#c9c9d4"},
   silver_bar:{name:"Barre argent",col:"#dfe3ea"}, gold_bar:{name:"Barre or",col:"#e8c33a"}, lens:{name:"Lentille",col:"#7fd6e0"},
-  mushroom:{name:"Champignon",col:"#d83a3a"}, hellstone_bar:{name:"Barre d'enfer",col:"#e8632a"} };
+  mushroom:{name:"Champignon",col:"#d83a3a"}, hellstone_bar:{name:"Barre d'enfer",col:"#e8632a"},
+  fish:{name:"Poisson",col:"#7fb0c8"}, mythril_bar:{name:"Barre de mythril",col:"#5fc9b0"} };
 const AMMO={ arrow:{name:"Flèche",col:"#caa15a",dmg:5} };
 const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenbee:{name:"Larve royale"} };
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
-  hp_potion:{name:"Potion de soin",col:"#e23a4a"}, mp_potion:{name:"Potion de mana",col:"#3a6ae2"} };
+  hp_potion:{name:"Potion de soin",col:"#e23a4a"}, mp_potion:{name:"Potion de mana",col:"#3a6ae2"},
+  cooked_fish:{name:"Poisson grillé",col:"#d8a25a"}, mushroom_soup:{name:"Soupe de champignons",col:"#c87a3a"},
+  swift_potion:{name:"Potion de hâte",col:"#5ad6e0"}, ironskin_potion:{name:"Potion de fer",col:"#c9c9d4"} };
+const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"} };
 
 // ---- recettes ----
 const R=(out,ins,station)=>({out,ins,station});
@@ -265,6 +275,22 @@ const RECIPES=[
   R({kind:"bomb",id:"bomb",n:3},[ti(COAL,2),ti(IRON,1)],"anvil"),
   R({kind:"tool",id:"mirror"},[ti(GLASS,5),ma("silver_bar",3)],"anvil"),
   R({kind:"summon",id:"queenbee"},[ma("gold_bar",6),ti(EMERALD,4)],"anvil"),
+  // phase 6
+  R({kind:"tool",id:"rod"},[ti(PLANK,8)],"table"),
+  R({kind:"use",id:"cooked_fish",n:1},[ma("fish",1)],"furnace"),
+  R({kind:"use",id:"mushroom_soup",n:1},[ma("mushroom",3)],"table"),
+  R({kind:"use",id:"swift_potion",n:1},[ma("mushroom",1),ti(EMERALD,1)],"table"),
+  R({kind:"use",id:"ironskin_potion",n:1},[ma("iron_bar",1),ma("mushroom",1)],"table"),
+  R({kind:"tool",id:"spear"},[ma("iron_bar",4),ti(PLANK,2)],"anvil"),
+  R({kind:"tool",id:"boomerang"},[ma("silver_bar",3)],"anvil"),
+  R({kind:"mat",id:"mythril_bar"},[ti(MYTHRIL,4)],"furnace"),
+  R({kind:"tool",id:"pick6"},[ma("mythril_bar",8),ti(PLANK,3)],"anvil"),
+  R({kind:"tool",id:"sword7"},[ma("mythril_bar",6),ti(PLANK,1)],"anvil"),
+  R({kind:"armor",id:"myth_h"},[ma("mythril_bar",8)],"anvil"),
+  R({kind:"armor",id:"myth_c"},[ma("mythril_bar",12)],"anvil"),
+  R({kind:"armor",id:"myth_l"},[ma("mythril_bar",10)],"anvil"),
+  R({kind:"acc",id:"talisman"},[ma("gold_bar",4),ti(EMERALD,2)],"anvil"),
+  R({kind:"acc",id:"amulet"},[ma("gold_bar",4),ti(SAPPHIRE,2)],"anvil"),
 ];
 
 // =========================================================================
@@ -323,6 +349,7 @@ function genWorld(s){
   vein(rng,COAL,800,3,80,5); vein(rng,COPPER,520,4,90,4); vein(rng,IRON,440,18,140,4);
   vein(rng,SILVER,300,45,180,4); vein(rng,GOLD,200,70,210,4); vein(rng,DIAMOND,80,120,250,3);
   vein(rng,RUBY,55,90,250,2); vein(rng,EMERALD,55,90,250,2); vein(rng,SAPPHIRE,55,90,250,2);
+  vein(rng,MYTHRIL,100,150,250,3);
   // cristaux de vie / mana : on liste toutes les parois de grotte profondes puis on en tire au sort
   const cand=[];
   for(let x=2;x<WORLD_W-2;x++){ const sy=surfaceAt(x);
@@ -391,7 +418,7 @@ function tree(x,sy,rng){ const h=4+Math.floor(rng()*4); for(let i=1;i<=h;i++)if(
 const TEX={};
 function shade(hex,d){const n=parseInt(hex.slice(1),16);let r=clamp((n>>16)+d,0,255),g=clamp(((n>>8)&255)+d,0,255),b=clamp((n&255)+d,0,255);return"#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}
 // relief : bord clair en haut/gauche, bord sombre en bas/droite (rendu "bloc")
-const BEVEL=new Set([DIRT,GRASS,STONE,SAND,COAL,IRON,GOLD,DIAMOND,COPPER,SILVER,SNOW,ICE,CLAY,RUBY,EMERALD,SAPPHIRE,LOG,PLANK,BRICK,FURNACE,MUD,JGRASS,ASH,HELLSTONE]);
+const BEVEL=new Set([DIRT,GRASS,STONE,SAND,COAL,IRON,GOLD,DIAMOND,COPPER,SILVER,SNOW,ICE,CLAY,RUBY,EMERALD,SAPPHIRE,LOG,PLANK,BRICK,FURNACE,MUD,JGRASS,ASH,HELLSTONE,MYTHRIL]);
 function bevelTile(g){ g.lineWidth=1;
   g.strokeStyle="rgba(255,255,255,0.16)"; g.beginPath(); g.moveTo(0.5,0); g.lineTo(0.5,T); g.moveTo(0,0.5); g.lineTo(T,0.5); g.stroke();
   g.strokeStyle="rgba(0,0,0,0.34)"; g.beginPath(); g.moveTo(T-0.5,0); g.lineTo(T-0.5,T); g.moveTo(0,T-0.5); g.lineTo(T,T-0.5); g.stroke(); }
@@ -414,6 +441,7 @@ function makeTex(id){
   else if(id===RUBY)gem("#7d7d85","#ff5570");
   else if(id===EMERALD)gem("#7d7d85","#3ce87a");
   else if(id===SAPPHIRE)gem("#7d7d85","#4f9cff");
+  else if(id===MYTHRIL)gem("#7d7d85","#5fe0c0");
   else if(id===CLAY)speckle("#a5604a",18,24);
   else if(id===MUD)speckle("#5a4332",18,22);
   else if(id===JGRASS){speckle("#5a4332",30,30);g.fillStyle="#3a8a2a";g.fillRect(0,0,T,5);for(let i=0;i<10;i++){const px=Math.floor(rnd()*T);g.fillRect(px,4,1,2+Math.floor(rnd()*3));}}
@@ -451,7 +479,8 @@ function resize(){VW=canvas.width=window.innerWidth;VH=canvas.height=window.inne
 window.addEventListener("resize",resize);resize();
 
 const player={x:0,y:0,vx:0,vy:0,onGround:false,hp:100,maxHp:100,mana:20,maxMana:20,
-  face:1,invuln:0,swing:0,useCd:0,placeCd:0,potionCd:0,acc:null,djump:false,jumpWas:false,drop:false,armorArr:[null,null,null]};
+  face:1,invuln:0,swing:0,useCd:0,placeCd:0,potionCd:0,acc:null,djump:false,jumpWas:false,drop:false,buffs:{},fishing:null,armorArr:[null,null,null]};
+let critters=[];
 const cam={x:0,y:0};
 let inv=new Array(36).fill(null);
 let cursor=null, selected=0, gameTime=0.30, frameCount=0;
@@ -478,7 +507,7 @@ function countItem(kind,id){ let t=0; for(const s of inv)if(s&&s.kind===kind&&s.
 function removeItem(kind,id,n){ for(let i=0;i<inv.length&&n>0;i++){const s=inv[i];
   if(s&&s.kind===kind&&s.id===id){const c=Math.min(s.n,n);s.n-=c;n-=c;if(s.n<=0)inv[i]=null;}} dirtyUI=true; }
 function bestPick(){ let p=0.5; for(const s of inv)if(s&&s.kind==="tool"&&TOOLS[s.id].type==="pick")p=Math.max(p,TOOLS[s.id].power); return p; }
-function totalDef(){ let d=0; for(const a of player.armorArr)if(a)d+=ARMOR[a.id].def; if(player.acc&&ACC[player.acc.id].def)d+=ACC[player.acc.id].def; return d; }
+function totalDef(){ let d=0; for(const a of player.armorArr)if(a)d+=ARMOR[a.id].def; if(player.acc&&ACC[player.acc.id].def)d+=ACC[player.acc.id].def; if(player.buffs.iron>0)d+=4; return d; }
 function hasAcc(eff){ return player.acc&&ACC[player.acc.id].eff===eff; }
 
 // =========================================================================
@@ -511,7 +540,7 @@ function update(dt){
   const onRope=isClimb(getT(Math.floor((player.x+PW/2)/T),Math.floor((player.y+PH/2)/T)));
   const upHeld=keys.KeyW||keys.ArrowUp, downHeld=keys.KeyS||keys.ArrowDown;
   player.drop=!!downHeld&&!onRope;
-  const maxSpd=MOVE_MAX+(hasAcc("speed")?1.8:0);
+  const maxSpd=MOVE_MAX+(hasAcc("speed")?1.8:0)+(player.buffs.swift>0?1.6:0);
   let mv=0; if(keys.KeyA||keys.ArrowLeft)mv-=1; if(keys.KeyD||keys.ArrowRight)mv+=1;
   if(mv!==0){player.vx+=mv*MOVE_ACC*step;player.face=mv;} else player.vx*=Math.pow(FRICTION,step);
   player.vx=clamp(player.vx,-maxSpd,maxSpd);
@@ -532,8 +561,11 @@ function update(dt){
   if(player.useCd>0)player.useCd-=dt;
   if(player.placeCd>0)player.placeCd-=dt;
   if(player.potionCd>0)player.potionCd-=dt;
-  if(player.invuln<=0&&player.hp<player.maxHp)player.hp=Math.min(player.maxHp,player.hp+dt*2);
-  player.mana=Math.min(player.maxMana,player.mana+dt*4);
+  for(const k in player.buffs){ player.buffs[k]-=dt; if(player.buffs[k]<=0)delete player.buffs[k]; }
+  const regenRate=2+(player.buffs.regen>0?6:0)+(hasAcc("regen")?2:0);
+  if(player.invuln<=0&&player.hp<player.maxHp)player.hp=Math.min(player.maxHp,player.hp+dt*regenRate);
+  player.mana=Math.min(player.maxMana,player.mana+dt*(4+(hasAcc("manaregen")?4:0)));
+  updateFishing(dt); updateCritters(dt,step);
   // dégâts de lave
   const ptx=Math.floor((player.x+PW/2)/T);
   for(let ty=Math.floor(player.y/T);ty<=Math.floor((player.y+PH-1)/T);ty++) if(getT(ptx,ty)===LAVA&&player.invuln<=0){ hurtPlayer(18,player.face); break; }
@@ -587,6 +619,12 @@ function handleActions(dt){
   // clic gauche : arme ou minage
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="sword"){
     if(mouse.left&&player.useCd<=0){player.swing=0.25;player.useCd=0.4;meleeAttack(TOOLS[sel.id].dmg);} return; }
+  if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="spear"){
+    if(mouse.left&&player.useCd<=0){player.swing=0.28;player.useCd=0.5;spearAttack(TOOLS[sel.id].dmg);} return; }
+  if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="boomerang"){
+    if(mouse.left&&player.useCd<=0&&!projectiles.some(p=>p.type==="boomerang")){player.useCd=0.3;throwBoomerang(TOOLS[sel.id].dmg);} return; }
+  if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="rod"){
+    if(mouse.left&&player.useCd<=0){player.useCd=0.4;castRod();} return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="bow"){
     if(mouse.left&&player.useCd<=0){ if(countItem("ammo","arrow")>0){removeItem("ammo","arrow",1);fireProjectile("arrow",TOOLS[sel.id].dmg+AMMO.arrow.dmg);player.useCd=0.35;} else flash("Plus de flèches"); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="staff"){
@@ -633,7 +671,11 @@ function useBucket(x,y,sel){ const id=getT(x,y);
 function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("Vie au maximum");return;} player.maxHp+=20; player.hp=player.maxHp; removeItem("use","lifecrystal",1); flash("PV max +20 !"); }
   else if(sel.id==="manacrystal"){ if(player.maxMana>=200){flash("Mana au maximum");return;} player.maxMana+=20; player.mana=player.maxMana; removeItem("use","manacrystal",1); flash("Mana max +20 !"); }
   else if(sel.id==="hp_potion"){ if(player.potionCd>0){flash("Potion en récupération");return;} if(player.hp>=player.maxHp){flash("Vie déjà pleine");return;} player.hp=Math.min(player.maxHp,player.hp+60); player.potionCd=8; removeItem("use","hp_potion",1); flash("+60 PV"); }
-  else if(sel.id==="mp_potion"){ if(player.potionCd>0){flash("Potion en récupération");return;} if(player.mana>=player.maxMana){flash("Mana déjà plein");return;} player.mana=Math.min(player.maxMana,player.mana+40); player.potionCd=8; removeItem("use","mp_potion",1); flash("+40 mana"); } }
+  else if(sel.id==="mp_potion"){ if(player.potionCd>0){flash("Potion en récupération");return;} if(player.mana>=player.maxMana){flash("Mana déjà plein");return;} player.mana=Math.min(player.maxMana,player.mana+40); player.potionCd=8; removeItem("use","mp_potion",1); flash("+40 mana"); }
+  else if(sel.id==="cooked_fish"){ player.buffs.regen=60; player.hp=Math.min(player.maxHp,player.hp+30); removeItem("use","cooked_fish",1); flash("🍴 Régénération (60s)"); }
+  else if(sel.id==="mushroom_soup"){ player.buffs.regen=Math.max(player.buffs.regen||0,90); removeItem("use","mushroom_soup",1); flash("🍲 Régénération (90s)"); }
+  else if(sel.id==="swift_potion"){ player.buffs.swift=45; removeItem("use","swift_potion",1); flash("💨 Hâte (45s)"); }
+  else if(sel.id==="ironskin_potion"){ player.buffs.iron=45; removeItem("use","ironskin_potion",1); flash("🛡️ Peau de fer (45s)"); } }
 function meleeAttack(dmg){ const dir=player.face,ax=player.x+PW/2+dir*12,ay=player.y+PH/2;
   const list=boss?enemies.concat([boss]):enemies;
   for(const e of list){ const ex=e.x+e.w/2,ey=e.y+e.h/2; if(Math.hypot(ex-ax,ey-ay)<48){e.hp-=dmg;e.vx=dir*6;e.vy=-4;spawnParticles(ex,ey,"#ff5555",6);} } }
@@ -653,6 +695,25 @@ function explode(x,y,r,dmg){ const cx=Math.floor(x/T),cy=Math.floor(y/T);
   for(const e of list)if(Math.hypot(e.x+e.w/2-x,e.y+e.h/2-y)<r*T)e.hp-=dmg;
   if(player.invuln<=0&&Math.hypot(player.x+PW/2-x,player.y+PH/2-y)<r*T)hurtPlayer(Math.floor(dmg*0.4),Math.sign(player.x-x)||1);
   for(let i=0;i<26;i++)spawnParticles(x,y,i%2?"#ff7a1a":"#999",1); }
+function spearAttack(dmg){ const dir=player.face,ax=player.x+PW/2,ay=player.y+PH/2; const list=boss?enemies.concat([boss]):enemies;
+  for(const e of list){ const ex=e.x+e.w/2,ey=e.y+e.h/2; if(Math.abs(ey-ay)<30&&(ex-ax)*dir>0&&Math.abs(ex-ax)<72){ e.hp-=dmg; e.vx=dir*5; spawnParticles(ex,ey,"#ddd",5); } } }
+function throwBoomerang(dmg){ const pcx=player.x+PW/2,pcy=player.y+PH/2; let dx=mouse.wx-pcx,dy=mouse.wy-pcy; const d=Math.hypot(dx,dy)||1;
+  projectiles.push({x:pcx,y:pcy,vx:dx/d*9,vy:dy/d*9,type:"boomerang",dmg,t:0,returning:false,life:6,friendly:true,hitSet:new Set()}); }
+function castRod(){ if(player.fishing){ player.fishing=null; flash("Ligne retirée"); return; }
+  if(getT(mouse.tx,mouse.ty)===WATER){ player.fishing={tx:mouse.tx,ty:mouse.ty,t:2.5+Math.random()*5}; flash("Ligne lancée..."); } else flash("Vise un point d'eau"); }
+function updateFishing(dt){ const f=player.fishing; if(!f)return; if(getT(f.tx,f.ty)!==WATER){player.fishing=null;return;}
+  if(Math.hypot((f.tx*T+T/2)-(player.x+PW/2),(f.ty*T+T/2)-(player.y+PH/2))>REACH*1.4){player.fishing=null;return;}
+  f.t-=dt; if(f.t<=0){ catchFish(); player.fishing=null; } }
+function catchFish(){ const r=Math.random();
+  if(r<0.62){addItem("mat","fish",1);flash("Ça mord ! 🐟");} else if(r<0.74){flash("Rien...");}
+  else if(r<0.88){addItem("mat","mushroom",1);flash("Pêché un champignon");} else if(r<0.96){addItem("mat","gold_bar",1);flash("Trésor pêché !");}
+  else {addItem("acc","talisman",1);flash("Accessoire rare pêché !");} }
+function updateCritters(dt,step){
+  if(!isNight()&&critters.length<4&&Math.random()<dt*0.4){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3),sy=surfaceAt(sx)-1;
+    if(Math.abs(sx*T-player.x)<VW&&getT(sx,sy)===AIR) critters.push({x:sx*T,y:sy*T,vx:0,vy:0,w:14,h:12,onGround:false,hop:Math.random()}); }
+  for(let i=critters.length-1;i>=0;i--){ const c=critters[i]; c.vy=Math.min(c.vy+GRAV*step,MAX_FALL); c.hop-=dt;
+    if(c.onGround&&c.hop<=0){ c.vx=(Math.random()<0.5?-1:1)*1.6; c.vy=-6; c.hop=1+Math.random()*2; } c.vx*=Math.pow(0.9,step); moveEntity(c,c.w,c.h,step);
+    if(Math.abs(c.x-player.x)>VW*1.1||isNight())critters.splice(i,1); } }
 
 // =========================================================================
 //  projectiles
@@ -835,7 +896,10 @@ function render(){
     ctx.strokeStyle=`rgba(0,0,0,${0.3+f*0.5})`;ctx.lineWidth=1; const sx=mining.x*T-cam.x,sy=mining.y*T-cam.y,n=2+Math.floor(f*4);
     for(let i=0;i<n;i++){ctx.beginPath();ctx.moveTo(sx+Math.random()*T,sy);ctx.lineTo(sx+Math.random()*T,sy+T);ctx.stroke();} } }
   for(const e of enemies)drawEnemy(e); if(boss)drawBoss(boss); for(const n of npcs)drawNPC(n);
+  for(const c of critters){ const sx=c.x-cam.x,sy=c.y-cam.y; ctx.fillStyle="#f0eee8"; roundRect(sx,sy+4,c.w,c.h-2,3); ctx.fill(); ctx.fillRect(sx+2,sy-2,3,7); ctx.fillRect(sx+c.w-5,sy-2,3,7); ctx.fillStyle="#f7a0b8"; ctx.fillRect(sx+c.w-4,sy+7,2,2); }
   drawPlayer();
+  if(player.fishing){ const bx=player.fishing.tx*T+T/2-cam.x, by=player.fishing.ty*T+6-cam.y, hx=player.x+PW/2-cam.x, hy=player.y+10-cam.y;
+    ctx.strokeStyle="rgba(255,255,255,0.6)"; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(bx,by); ctx.stroke(); ctx.fillStyle="#e23a4a"; ctx.fillRect(bx-2,by-2,4,4); }
   for(const p of projectiles){ if(p.type==="bomb"){ ctx.fillStyle="#222"; ctx.beginPath(); ctx.arc(p.x-cam.x,p.y-cam.y,5,0,7); ctx.fill(); ctx.fillStyle="#ff7a1a"; ctx.fillRect(p.x-cam.x-1,p.y-cam.y-7,2,3); continue; }
     ctx.fillStyle=p.type==="bolt"?"#5fd0ff":p.type==="fire"?"#ff7a1a":"#caa15a"; ctx.save(); ctx.translate(p.x-cam.x,p.y-cam.y); ctx.rotate(Math.atan2(p.vy,p.vx)); ctx.fillRect(-6,-2,12,4); ctx.restore(); }
   for(const p of particles){ ctx.globalAlpha=clamp(p.life*2,0,1); ctx.fillStyle=p.col; ctx.fillRect(p.x-cam.x,p.y-cam.y,p.s,p.s); } ctx.globalAlpha=1;
@@ -916,7 +980,7 @@ const $hotbar=document.getElementById("hotbar"),$invGrid=document.getElementById
   $craftList=document.getElementById("craftList"),$overlay=document.getElementById("overlay"),$cursorItem=document.getElementById("cursorItem"),
   $station=document.getElementById("stationInfo"),$chestPanel=document.getElementById("chestPanel"),$chestGrid=document.getElementById("chestGrid"),$craft=document.getElementById("craft"),
   $shopPanel=document.getElementById("shopPanel"),$shopList=document.getElementById("shopList"),$coinInfo=document.getElementById("coinInfo");
-function emoji(it){ if(it.kind==="tool"){const t=TOOLS[it.id].type;return t==="pick"?"⛏️":t==="sword"?"⚔️":t==="bow"?"🏹":t==="staff"?"🪄":t==="bucket"?"🪣":"🪞";}
+function emoji(it){ if(it.kind==="tool"){const t=TOOLS[it.id].type;return t==="pick"?"⛏️":t==="sword"?"⚔️":t==="bow"?"🏹":t==="staff"?"🪄":t==="bucket"?"🪣":t==="rod"?"🎣":t==="spear"?"🔱":t==="boomerang"?"🪃":"🪞";}
   if(it.kind==="bomb")return"💣"; if(it.kind==="summon")return"👁️"; if(it.kind==="armor"){const s=ARMOR[it.id].slot;return s==="head"?"🪖":s==="chest"?"🦺":"👖";}
   if(it.kind==="acc"){const e=ACC[it.id].eff;return e==="djump"?"☁️":e==="speed"?"👟":"💪";} return ""; }
 function itemName(it){ const d=defOf(it); return d?d.name:"?"; }
@@ -995,16 +1059,17 @@ function refreshUI(){ buildSlots(); if(invOpen&&!chestOpen&&!shopOpen)buildCraft
 addEventListener("mousemove",e=>{ if(invOpen&&cursor){$cursorItem.style.left=(e.clientX-20)+"px";$cursorItem.style.top=(e.clientY-20)+"px";} });
 let flashT=0; const $msg=document.getElementById("msg");
 function flash(t){ $msg.textContent=t; $msg.style.opacity=1; flashT=2.5; }
-const $hearts=document.getElementById("hearts"),$mana=document.getElementById("mana"),$def=document.getElementById("def"),$coins=document.getElementById("coins"),$clock=document.getElementById("clock"),$bossbar=document.getElementById("bossbar"),$bossFg=document.getElementById("bossFg");
+const $hearts=document.getElementById("hearts"),$mana=document.getElementById("mana"),$def=document.getElementById("def"),$coins=document.getElementById("coins"),$clock=document.getElementById("clock"),$buffs=document.getElementById("buffs"),$bossbar=document.getElementById("bossbar"),$bossFg=document.getElementById("bossFg");
 function updateStatus(){ $hearts.textContent="❤️ "+Math.ceil(player.hp)+"/"+player.maxHp; $mana.textContent="🔷 "+Math.floor(player.mana)+"/"+player.maxMana;
   $def.textContent="🛡️ "+totalDef(); $coins.textContent="🪙 "+coins; const h=Math.floor(((gameTime+0.5)%1)*24); $clock.textContent=(isNight()?"🌙 ":"☀️ ")+String(h).padStart(2,"0")+":00";
+  const ab=Object.keys(player.buffs); if(ab.length){$buffs.style.display="block";$buffs.textContent=ab.map(k=>BUFFS[k].name+" "+Math.ceil(player.buffs[k])+"s").join(" · ");}else $buffs.style.display="none";
   if(boss){$bossbar.style.display="block";document.getElementById("bossName").textContent=boss.tier===2?"Gardien des Enfers":boss.tier===3?"Reine des abeilles":"Œil maléfique";$bossFg.style.width=(100*Math.max(0,boss.hp)/boss.maxHp)+"%";}else $bossbar.style.display="none"; }
 
 // =========================================================================
 //  mort / sauvegarde
 // =========================================================================
 function die(){ dead=true; document.getElementById("death").style.display="flex"; }
-function respawn(){ dead=false; document.getElementById("death").style.display="none"; player.hp=player.maxHp; player.invuln=2; enemies=[]; boss=null;
+function respawn(){ dead=false; document.getElementById("death").style.display="none"; player.hp=player.maxHp; player.invuln=2; player.buffs={}; player.fishing=null; enemies=[]; boss=null;
   const c=Math.floor(WORLD_W/2); player.x=c*T; player.y=(surfaceAt(c)-4)*T; player.vx=player.vy=0; }
 function rle(arr){ const out=[];let v=arr[0],c=1; for(let i=1;i<arr.length;i++){if(arr[i]===v&&c<65535)c++;else{out.push(v,c);v=arr[i];c=1;}} out.push(v,c); return out; }
 function unrle(out,len){ const arr=new Uint8Array(len);let p=0; for(let i=0;i<out.length;i+=2){const v=out[i],c=out[i+1];for(let j=0;j<c;j++)arr[p++]=v;} return arr; }
@@ -1026,7 +1091,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
 function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null]; player.acc=null;
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
-  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;raining=false;weatherT=80;
+  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;raining=false;weatherT=80;critters=[];player.buffs={};player.fishing=null;
   npcs=[]; spawnNPC("guide");
   document.getElementById("death").style.display="none";
   const c=Math.floor(WORLD_W/2);player.x=c*T;player.y=(surfaceAt(c)-6)*T;player.vx=player.vy=0;
