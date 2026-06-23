@@ -116,7 +116,7 @@ const PW=18, PH=42, BASE_SURFACE=Math.floor(WORLD_H*0.28), HILL_AMP=46;
 // ---- tuiles ----
 const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAMOND=10,
   PLANK=11,TORCH=12,TABLE=13,FURNACE=14,GLASS=15,BRICK=16,COPPER=17,SILVER=18,SNOW=19,
-  ICE=20,CLAY=21,RUBY=22,EMERALD=23,SAPPHIRE=24,WATER=25,LAVA=26,CHEST=27,ANVIL=28;
+  ICE=20,CLAY=21,RUBY=22,EMERALD=23,SAPPHIRE=24,WATER=25,LAVA=26,CHEST=27,ANVIL=28,LIFE=29,MANA=30;
 
 const TILE={
   [AIR]:{name:"",solid:false,hard:0,drop:-1,col:"#000"},
@@ -148,6 +148,8 @@ const TILE={
   [LAVA]:{name:"Lave",solid:false,hard:0,drop:-1,col:"#e2541a",light:0.6},
   [CHEST]:{name:"Coffre",solid:false,hard:0.8,drop:CHEST,col:"#9a6a2a"},
   [ANVIL]:{name:"Enclume",solid:true,hard:1.6,drop:ANVIL,col:"#444a55",station:"anvil"},
+  [LIFE]:{name:"Cristal de vie",solid:true,hard:1.0,drop:-1,col:"#ff3a6a",light:0.35},
+  [MANA]:{name:"Étoile de mana",solid:true,hard:1.0,drop:-1,col:"#5a6aff",light:0.35},
 };
 const isLiquid=id=>id===WATER||id===LAVA;
 const isStation=id=>TILE[id]&&TILE[id].station;
@@ -171,6 +173,7 @@ const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Bar
   silver_bar:{name:"Barre argent",col:"#dfe3ea"}, gold_bar:{name:"Barre or",col:"#e8c33a"}, lens:{name:"Lentille",col:"#7fd6e0"} };
 const AMMO={ arrow:{name:"Flèche",col:"#caa15a",dmg:5} };
 const SUMMONS={ eye:{name:"Œil suspect"} };
+const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"} };
 
 // ---- recettes ----
 const R=(out,ins,station)=>({out,ins,station});
@@ -259,6 +262,13 @@ function genWorld(s){
   vein(rng,COAL,800,3,80,5); vein(rng,COPPER,520,4,90,4); vein(rng,IRON,440,18,140,4);
   vein(rng,SILVER,300,45,180,4); vein(rng,GOLD,200,70,210,4); vein(rng,DIAMOND,80,120,250,3);
   vein(rng,RUBY,55,90,250,2); vein(rng,EMERALD,55,90,250,2); vein(rng,SAPPHIRE,55,90,250,2);
+  // cristaux de vie / mana : on liste toutes les parois de grotte profondes puis on en tire au sort
+  const cand=[];
+  for(let x=2;x<WORLD_W-2;x++){ const sy=surfaceAt(x);
+    for(let y=sy+16;y<WORLD_H-3;y++){ if(world[idx(x,y)]===STONE&&(getT(x,y-1)===AIR||getT(x,y+1)===AIR||getT(x-1,y)===AIR||getT(x+1,y)===AIR))cand.push(idx(x,y)); } }
+  for(let i=cand.length-1;i>0;i--){ const j=Math.floor(rng()*(i+1)); const t=cand[i]; cand[i]=cand[j]; cand[j]=t; }
+  for(let i=0;i<Math.min(42,cand.length);i++) world[cand[i]]=LIFE;
+  for(let i=42;i<Math.min(70,cand.length);i++) world[cand[i]]=MANA;
   // lave en profondeur (poches)
   for(let i=0;i<120;i++){ const x=2+Math.floor(rng()*(WORLD_W-4)), y=Math.floor(WORLD_H*0.84+rng()*(WORLD_H*0.13));
     for(let dx=-2;dx<=2;dx++)for(let dy=-1;dy<=1;dy++){const X=x+dx,Y=y+dy;
@@ -290,6 +300,11 @@ function tree(x,sy,rng){ const h=4+Math.floor(rng()*4); for(let i=1;i<=h;i++)if(
 // =========================================================================
 const TEX={};
 function shade(hex,d){const n=parseInt(hex.slice(1),16);let r=clamp((n>>16)+d,0,255),g=clamp(((n>>8)&255)+d,0,255),b=clamp((n&255)+d,0,255);return"#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}
+// relief : bord clair en haut/gauche, bord sombre en bas/droite (rendu "bloc")
+const BEVEL=new Set([DIRT,GRASS,STONE,SAND,COAL,IRON,GOLD,DIAMOND,COPPER,SILVER,SNOW,ICE,CLAY,RUBY,EMERALD,SAPPHIRE,LOG,PLANK,BRICK,FURNACE]);
+function bevelTile(g){ g.lineWidth=1;
+  g.strokeStyle="rgba(255,255,255,0.16)"; g.beginPath(); g.moveTo(0.5,0); g.lineTo(0.5,T); g.moveTo(0,0.5); g.lineTo(T,0.5); g.stroke();
+  g.strokeStyle="rgba(0,0,0,0.34)"; g.beginPath(); g.moveTo(T-0.5,0); g.lineTo(T-0.5,T); g.moveTo(0,T-0.5); g.lineTo(T,T-0.5); g.stroke(); }
 function makeTex(id){
   const c=document.createElement("canvas");c.width=T;c.height=T;const g=c.getContext("2d");const m=TILE[id];const rnd=mulberry32(id*99+7);
   const speckle=(base,spots,range)=>{g.fillStyle=base;g.fillRect(0,0,T,T);for(let i=0;i<spots;i++){const px=Math.floor(rnd()*T),py=Math.floor(rnd()*T),s=1+Math.floor(rnd()*2);g.fillStyle=shade(base,Math.floor((rnd()-0.5)*range));g.fillRect(px,py,s,s);}};
@@ -317,7 +332,11 @@ function makeTex(id){
   else if(id===CHEST){g.clearRect(0,0,T,T);g.fillStyle="#9a6a2a";g.fillRect(2,7,T-4,T-9);g.fillStyle="#6e4a1c";g.fillRect(2,7,T-4,4);g.fillStyle="#e8c33a";g.fillRect(T/2-2,11,4,5);}
   else if(id===TABLE){g.clearRect(0,0,T,T);g.fillStyle="#8a5a2b";g.fillRect(2,8,T-4,5);g.fillStyle="#6e4520";g.fillRect(4,13,3,T-14);g.fillRect(T-7,13,3,T-14);}
   else if(id===TORCH){g.clearRect(0,0,T,T);g.fillStyle="#6e4520";g.fillRect(T/2-2,8,4,T-8);g.fillStyle="#ff9a1a";g.beginPath();g.ellipse(T/2,7,4,7,0,0,7);g.fill();g.fillStyle="#ffe27a";g.beginPath();g.ellipse(T/2,8,2,4,0,0,7);g.fill();}
+  else if(id===LIFE||id===MANA){ const base=id===LIFE?"#ff3a6a":"#5a6aff"; speckle(id===LIFE?"#4a2630":"#26304a",10,18);
+    g.fillStyle=base; g.beginPath(); g.moveTo(T/2,3); g.lineTo(T-5,T/2); g.lineTo(T/2,T-3); g.lineTo(5,T/2); g.closePath(); g.fill();
+    g.fillStyle="rgba(255,255,255,0.65)"; g.beginPath(); g.moveTo(T/2,5); g.lineTo(T/2+4,T/2-2); g.lineTo(T/2,T/2); g.closePath(); g.fill(); }
   else speckle(m.col,22,30);
+  if(BEVEL.has(id)) bevelTile(g);
   TEX[id]=c;
 }
 for(const k in TILE){ const id=+k; if(id!==AIR&&!isLiquid(id)) makeTex(id); }
@@ -331,9 +350,9 @@ function resize(){VW=canvas.width=window.innerWidth;VH=canvas.height=window.inne
 window.addEventListener("resize",resize);resize();
 
 const player={x:0,y:0,vx:0,vy:0,onGround:false,hp:100,maxHp:100,mana:20,maxMana:20,
-  face:1,invuln:0,swing:0,useCd:0,armorArr:[null,null,null]};
+  face:1,invuln:0,swing:0,useCd:0,placeCd:0,armorArr:[null,null,null]};
 const cam={x:0,y:0};
-let inv=new Array(40).fill(null);
+let inv=new Array(36).fill(null);
 let cursor=null, selected=0, gameTime=0.30, frameCount=0;
 let enemies=[], projectiles=[], particles=[], boss=null;
 let invOpen=false, chestOpen=false, curChestKey=null, dead=false, autosaveT=0;
@@ -343,11 +362,11 @@ const keys={}, mouse={x:0,y:0,wx:0,wy:0,tx:0,ty:0,left:false,right:false};
 // =========================================================================
 //  inventaire / conteneurs
 // =========================================================================
-function defOf(it){ return it.kind==="tile"?TILE[it.id]:it.kind==="tool"?TOOLS[it.id]:it.kind==="armor"?ARMOR[it.id]:it.kind==="mat"?MATS[it.id]:it.kind==="ammo"?AMMO[it.id]:SUMMONS[it.id]; }
-function stackable(it){ return it&&(it.kind==="tile"||it.kind==="mat"||it.kind==="ammo"); }
+function defOf(it){ return it.kind==="tile"?TILE[it.id]:it.kind==="tool"?TOOLS[it.id]:it.kind==="armor"?ARMOR[it.id]:it.kind==="mat"?MATS[it.id]:it.kind==="ammo"?AMMO[it.id]:it.kind==="use"?USES[it.id]:SUMMONS[it.id]; }
+function stackable(it){ return it&&(it.kind==="tile"||it.kind==="mat"||it.kind==="ammo"||it.kind==="use"); }
 function sameItem(a,b){ return a&&b&&a.kind===b.kind&&a.id===b.id; }
 function addItem(kind,id,n){ n=n||1;
-  if(kind==="tile"||kind==="mat"||kind==="ammo"){ for(let i=0;i<inv.length&&n>0;i++){const s=inv[i];
+  if(kind==="tile"||kind==="mat"||kind==="ammo"||kind==="use"){ for(let i=0;i<inv.length&&n>0;i++){const s=inv[i];
     if(s&&s.kind===kind&&s.id===id&&s.n<STACK_MAX){const c=Math.min(STACK_MAX-s.n,n);s.n+=c;n-=c;}}}
   while(n>0){ const i=inv.indexOf(null); if(i<0){flash("Inventaire plein !");return false;}
     const c=(kind==="tool"||kind==="armor"||kind==="summon")?1:Math.min(STACK_MAX,n); inv[i]={kind,id,n:c}; n-=c; }
@@ -397,6 +416,7 @@ function update(dt){
   if(player.invuln>0)player.invuln-=dt;
   if(player.swing>0)player.swing-=dt;
   if(player.useCd>0)player.useCd-=dt;
+  if(player.placeCd>0)player.placeCd-=dt;
   if(player.invuln<=0&&player.hp<player.maxHp)player.hp=Math.min(player.maxHp,player.hp+dt*2);
   player.mana=Math.min(player.maxMana,player.mana+dt*4);
   // dégâts de lave
@@ -432,12 +452,13 @@ function moveEntity(e,w,h,step){
 
 // --- actions : miner / placer / armes ---
 function handleActions(dt){
+  if(invOpen){mining.x=-1;mining.prog=0;return;}
   const sel=inv[selected], pcx=player.x+PW/2, pcy=player.y+PH/2;
   const inReach=Math.hypot((mouse.tx*T+T/2)-pcx,(mouse.ty*T+T/2)-pcy)<=REACH;
   // clic droit : ouvrir un coffre, sinon placer
   if(mouse.right&&inReach){
     if(getT(mouse.tx,mouse.ty)===CHEST){ openChest(mouse.tx,mouse.ty); mouse.right=false; }
-    else if(sel&&sel.kind==="tile"){ placeTile(mouse.tx,mouse.ty,sel); }
+    else if(sel&&sel.kind==="tile"&&player.placeCd<=0){ if(placeTile(mouse.tx,mouse.ty,sel))player.placeCd=0.12; }
   }
   // clic gauche : arme ou minage
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="sword"){
@@ -446,6 +467,8 @@ function handleActions(dt){
     if(mouse.left&&player.useCd<=0){ if(countItem("ammo","arrow")>0){removeItem("ammo","arrow",1);fireProjectile("arrow",TOOLS[sel.id].dmg+AMMO.arrow.dmg);player.useCd=0.35;} else flash("Plus de flèches"); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="staff"){
     if(mouse.left&&player.useCd<=0){ if(player.mana>=TOOLS[sel.id].mana){player.mana-=TOOLS[sel.id].mana;fireProjectile("bolt",TOOLS[sel.id].dmg);player.useCd=0.3;} else flash("Pas assez de mana"); } return; }
+  if(sel&&sel.kind==="use"){
+    if(mouse.left&&player.useCd<=0){ player.useCd=0.5; useItem(sel); } return; }
   if(sel&&sel.kind==="summon"){
     if(mouse.left&&player.useCd<=0){ player.useCd=0.5; summonBoss(sel); } return; }
   // minage
@@ -459,12 +482,16 @@ function handleActions(dt){
   } else if(!mouse.left){mining.x=-1;mining.prog=0;}
 }
 function breakTile(x,y,id){ const drop=TILE[id].drop; if(id===CHEST)chestData.delete(x+","+y);
-  setT(x,y,AIR); if(drop>=0)addItem("tile",drop,1); spawnParticles(x*T+T/2,y*T+T/2,TILE[id].col,8); }
-function placeTile(x,y,sel){ if(getT(x,y)!==AIR)return;
-  if(getT(x-1,y)===AIR&&getT(x+1,y)===AIR&&getT(x,y-1)===AIR&&getT(x,y+1)===AIR)return;
+  setT(x,y,AIR);
+  if(id===LIFE)addItem("use","lifecrystal",1); else if(id===MANA)addItem("use","manacrystal",1); else if(drop>=0)addItem("tile",drop,1);
+  spawnParticles(x*T+T/2,y*T+T/2,TILE[id].col,8); }
+function placeTile(x,y,sel){ if(getT(x,y)!==AIR)return false;
+  if(getT(x-1,y)===AIR&&getT(x+1,y)===AIR&&getT(x,y-1)===AIR&&getT(x,y+1)===AIR)return false;
   if(TILE[sel.id].solid){ const px0=Math.floor(player.x/T),px1=Math.floor((player.x+PW-1)/T),py0=Math.floor(player.y/T),py1=Math.floor((player.y+PH-1)/T);
-    if(x>=px0&&x<=px1&&y>=py0&&y<=py1)return; }
-  setT(x,y,sel.id); if(sel.id===CHEST)chestData.set(x+","+y,new Array(20).fill(null)); removeItem("tile",sel.id,1); }
+    if(x>=px0&&x<=px1&&y>=py0&&y<=py1)return false; }
+  setT(x,y,sel.id); if(sel.id===CHEST)chestData.set(x+","+y,new Array(20).fill(null)); removeItem("tile",sel.id,1); return true; }
+function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("Vie au maximum");return;} player.maxHp+=20; player.hp=player.maxHp; removeItem("use","lifecrystal",1); flash("PV max +20 !"); }
+  else if(sel.id==="manacrystal"){ if(player.maxMana>=200){flash("Mana au maximum");return;} player.maxMana+=20; player.mana=player.maxMana; removeItem("use","manacrystal",1); flash("Mana max +20 !"); } }
 function meleeAttack(dmg){ const dir=player.face,ax=player.x+PW/2+dir*12,ay=player.y+PH/2;
   const list=boss?enemies.concat([boss]):enemies;
   for(const e of list){ const ex=e.x+e.w/2,ey=e.y+e.h/2; if(Math.hypot(ex-ax,ey-ay)<48){e.hp-=dmg;e.vx=dir*6;e.vy=-4;spawnParticles(ex,ey,"#ff5555",6);} } }
@@ -651,6 +678,7 @@ function slotInner(it,keyNum){ let h=""; if(keyNum!=null)h+=`<span class="key">$
   if(it.kind==="tile")h+=`<span class="sq" style="background:${TILE[it.id].col}"></span><span class="lbl">${TILE[it.id].name}</span>`;
   else if(it.kind==="mat")h+=`<span class="sq" style="background:${MATS[it.id].col}"></span><span class="lbl">${MATS[it.id].name}</span>`;
   else if(it.kind==="ammo")h+=`<span class="sq" style="background:${AMMO[it.id].col}"></span><span class="lbl">${AMMO[it.id].name}</span>`;
+  else if(it.kind==="use")h+=`<span class="sq" style="background:${USES[it.id].col}"></span><span class="lbl">${USES[it.id].name}</span>`;
   else h+=`<span style="font-size:24px">${emoji(it)}</span><span class="lbl">${itemName(it)}</span>`;
   if(it.n>1)h+=`<span class="cnt">${it.n}</span>`; } return h; }
 function buildSlots(){
@@ -676,16 +704,17 @@ $hotbar.addEventListener("click",e=>{const s=e.target.closest(".slot");if(s){sel
 $invGrid.addEventListener("click",e=>{const s=e.target.closest(".slot");if(s)handleSlot("inv",+s.dataset.i);});
 $armorRow.addEventListener("click",e=>{const s=e.target.closest(".slot");if(s)handleSlot("armor",+s.dataset.i);});
 $chestGrid.addEventListener("click",e=>{const s=e.target.closest(".slot");if(s)handleSlot("chest",+s.dataset.i);});
-function toggleInv(){ invOpen=!invOpen; if(!invOpen)chestOpen=false; $overlay.classList.toggle("show",invOpen);
+function toggleInv(){ invOpen=!invOpen; if(!invOpen)chestOpen=false; mouse.left=mouse.right=false; mining.x=-1; $overlay.classList.toggle("show",invOpen);
   $chestPanel.style.display=chestOpen?"block":"none"; $craft.style.display=chestOpen?"none":"block";
   if(!invOpen&&cursor){addItem(cursor.kind,cursor.id,cursor.n);cursor=null;} dirtyUI=true; }
 function openChest(x,y){ const key=x+","+y; if(!chestData.has(key))chestData.set(key,new Array(20).fill(null));
-  curChestKey=key; chestOpen=true; invOpen=true; $overlay.classList.add("show"); $chestPanel.style.display="block"; $craft.style.display="none"; dirtyUI=true; }
+  curChestKey=key; chestOpen=true; invOpen=true; mouse.left=mouse.right=false; mining.x=-1; $overlay.classList.add("show"); $chestPanel.style.display="block"; $craft.style.display="none"; dirtyUI=true; }
 function chestEmpty(x,y){ const a=chestData.get(x+","+y); return !a||a.every(s=>!s); }
 function nearStation(kind){ const px=Math.floor((player.x+PW/2)/T),py=Math.floor((player.y+PH/2)/T);
   for(let dx=-4;dx<=4;dx++)for(let dy=-4;dy<=4;dy++){const t=getT(px+dx,py+dy);if(TILE[t]&&TILE[t].station===kind)return true;} return false; }
 function canCraft(r){ if(r.station&&!nearStation(r.station))return false; for(const g of r.ins)if(countItem(g.kind,g.id)<g.n)return false; return true; }
-function craft(r){ if(!canCraft(r))return; for(const g of r.ins)removeItem(g.kind,g.id,g.n); addItem(r.out.kind,r.out.id,r.out.n||1); flash("Fabriqué : "+itemName(r.out)); dirtyUI=true; }
+function craft(r){ if(!canCraft(r))return; const snap=JSON.stringify(inv); for(const g of r.ins)removeItem(g.kind,g.id,g.n);
+  if(!addItem(r.out.kind,r.out.id,r.out.n||1)){ inv=JSON.parse(snap); dirtyUI=true; return; } flash("Fabriqué : "+itemName(r.out)); dirtyUI=true; }
 function ingName(g){ return defOf(g).name; }
 function buildCraft(){ $craftList.innerHTML="";
   RECIPES.forEach(r=>{ const ok=canCraft(r),d=document.createElement("div"); d.className="recipe "+(ok?"ok":"no");
@@ -717,17 +746,17 @@ function rle(arr){ const out=[];let v=arr[0],c=1; for(let i=1;i<arr.length;i++){
 function unrle(out,len){ const arr=new Uint8Array(len);let p=0; for(let i=0;i<out.length;i+=2){const v=out[i],c=out[i+1];for(let j=0;j<c;j++)arr[p++]=v;} return arr; }
 function save(){ try{ const chests=[]; chestData.forEach((v,k)=>chests.push([k,v]));
   localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,seed,world:rle(world),liquid:rle(liquid),chests,
-    px:player.x,py:player.y,hp:player.hp,maxHp:player.maxHp,mana:player.mana,armor:player.armorArr,
+    px:player.x,py:player.y,hp:player.hp,maxHp:player.maxHp,mana:player.mana,maxMana:player.maxMana,armor:player.armorArr,
     inv,sel:selected,time:gameTime})); }catch(err){flash("Sauvegarde impossible (espace plein)");console.warn(err);} }
 function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
   try{ const d=JSON.parse(raw); if(d.v!==2)return false; seed=d.seed>>>0;
     world=unrle(d.world,WORLD_W*WORLD_H); liquid=unrle(d.liquid,WORLD_W*WORLD_H);
     chestData=new Map(); if(d.chests)d.chests.forEach(([k,v])=>chestData.set(k,v));
-    player.x=d.px;player.y=d.py;player.hp=d.hp;player.maxHp=d.maxHp||100;player.mana=d.mana||0;player.armorArr=d.armor||[null,null,null];
-    selected=d.sel||0; gameTime=d.time||0.3; inv=d.inv&&d.inv.length===40?d.inv:(d.inv||new Array(40).fill(null));
-    while(inv.length<40)inv.push(null); return true;
+    player.x=d.px;player.y=d.py;player.hp=d.hp;player.maxHp=d.maxHp||100;player.mana=d.mana||0;player.maxMana=d.maxMana||20;player.armorArr=d.armor||[null,null,null];
+    selected=d.sel||0; gameTime=d.time||0.3; inv=d.inv?d.inv.slice(0,36):new Array(36).fill(null);
+    while(inv.length<36)inv.push(null); return true;
   }catch(err){console.warn("Sauvegarde corrompue",err);return false;} }
-function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(40).fill(null); player.armorArr=[null,null,null];
+function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null];
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
   selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;
