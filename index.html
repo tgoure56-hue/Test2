@@ -128,7 +128,7 @@ const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAM
   PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39,MYTHRIL=40,
   BED=41,CAMPFIRE=42,HEARTLANTERN=43,SPIKE=44,ADAMANTITE=45,CGRASS=46,EBONSTONE=47,HGRASS=48,PEARLSTONE=49,CRYSTAL=50,LAMP=51,CHAIR=52,VASE=53,BANNER=54,COBALT=55,TITANIUM=56,DART_TRAP=57,PLATE=58,STATUE=59,
   MGRASS=60,GMUSH=61,MUSHBLOCK=62,MARBLE=63,GRANITE=64,SANDSTONE=65,STONEBRICK=66,CLOUDB=67,COBWEB=68,CACTUS=69,BOOKCASE=70,CANDLE=71,CHANDELIER=72,SAWMILL=73,
-  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97;
+  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -236,6 +236,7 @@ const TILE={
   [TEMPLEBRICK]:{name:"Brique du temple",solid:true,hard:5.5,drop:TEMPLEBRICK,col:"#6a4a3a"},
   [OBSIDIAN]:{name:"Obsidienne",solid:true,hard:3.0,drop:OBSIDIAN,col:"#2a2438"},
   [OBSIDIANBRICK]:{name:"Brique d'obsidienne",solid:true,hard:2.4,drop:OBSIDIANBRICK,col:"#34304a"},
+  [QUESTBOARD]:{name:"Tableau de quêtes",solid:false,hard:0.7,drop:QUESTBOARD,col:"#8a5a2b"},
 };
 const isSpike=id=>TILE[id]&&TILE[id].spike;
 const isPlatform=id=>TILE[id]&&TILE[id].platform;
@@ -509,6 +510,8 @@ const RECIPES=[
   // phase 27 (forage)
   R({kind:"tool",id:"drill"},[ma("adamantite_bar",8),ma("cobalt_bar",4)],"anvil"),
   R({kind:"tool",id:"drill2"},[ma("titanium_bar",10),ma("mech_soul",2)],"anvil"),
+  // phase 28 (quêtes)
+  R({kind:"tile",id:QUESTBOARD},[ti(PLANK,6)],"table"),
 ];
 
 // =========================================================================
@@ -801,6 +804,7 @@ function makeTex(id){
   else if(id===TEMPLEBRICK){g.fillStyle="#6a4a3a";g.fillRect(0,0,T,T);g.strokeStyle="#42281e";g.lineWidth=1;g.strokeRect(1,1,T-2,T-2);g.fillStyle="#e8702a";g.fillRect(T/2-1,4,2,T-8);g.fillRect(5,T/2-1,T-10,2);g.fillStyle="#3a241a";g.fillRect(4,4,2,2);g.fillRect(T-6,T-6,2,2);}
   else if(id===OBSIDIAN){g.fillStyle="#2a2438";g.fillRect(0,0,T,T);for(let i=0;i<5;i++){g.fillStyle=shade("#2a2438",Math.floor((rnd()-0.3)*30));g.fillRect(Math.floor(rnd()*T),Math.floor(rnd()*T),3,3);}g.strokeStyle="rgba(150,130,200,.4)";g.lineWidth=1;g.beginPath();g.moveTo(3,T-4);g.lineTo(T-5,4);g.stroke();}
   else if(id===OBSIDIANBRICK){g.fillStyle="#34304a";g.fillRect(0,0,T,T);g.strokeStyle="#221f33";g.lineWidth=1;g.strokeRect(0,0,T,T/2);g.strokeRect(0,T/2,T,T/2);g.beginPath();g.moveTo(T/2,0);g.lineTo(T/2,T/2);g.moveTo(0,T/2);g.lineTo(0,T);g.stroke();g.fillStyle="rgba(150,130,200,.3)";g.fillRect(2,2,3,2);}
+  else if(id===QUESTBOARD){g.clearRect(0,0,T,T);g.fillStyle="#6e4520";g.fillRect(1,2,T-2,T-5);g.fillStyle="#caa86a";g.fillRect(3,4,T-6,T-9);g.fillStyle="#8a5a2b";g.fillRect(2,T-3,3,3);g.fillRect(T-5,T-3,3,3);g.fillStyle="#3a2410";g.fillRect(5,6,T-12,1);g.fillRect(5,9,T-10,1);g.fillRect(5,12,T-13,1);g.fillStyle="#c0392b";g.fillRect(T-7,5,2,2);}
   else if(id===TABLE){g.clearRect(0,0,T,T);g.fillStyle="#8a5a2b";g.fillRect(2,8,T-4,5);g.fillStyle="#6e4520";g.fillRect(4,13,3,T-14);g.fillRect(T-7,13,3,T-14);}
   else if(id===TORCH){g.clearRect(0,0,T,T);g.fillStyle="#6e4520";g.fillRect(T/2-2,8,4,T-8);g.fillStyle="#ff9a1a";g.beginPath();g.ellipse(T/2,7,4,7,0,0,7);g.fill();g.fillStyle="#ffe27a";g.beginPath();g.ellipse(T/2,8,2,4,0,0,7);g.fill();}
   else if(id===LAMP){g.clearRect(0,0,T,T);g.fillStyle="#555";g.fillRect(T/2-1,6,2,T-8);g.fillRect(T/2-4,T-3,8,3);g.fillStyle="#caa23a";g.fillRect(T/2-4,2,8,7);g.fillStyle="#ffe27a";g.fillRect(T/2-3,3,6,5);}
@@ -841,6 +845,7 @@ let armsDealerArrived=false, painterArrived=false, taxCollectorArrived=false, ta
 let hardmode=false, tinkererArrived=false;
 let trapCd=new Map();
 let army=null;
+let quest=null;
 let raining=false, weatherT=80, showMap=false, bloodMoon=false, eclipse=false;
 let pumpkinMoon=false, pumpkinMoonT=0, pumpkinKills=0;
 let frostMoon=false, frostMoonT=0, frostKills=0;
@@ -982,6 +987,7 @@ function handleActions(dt){
     else if(isDoor(tt)){ if(player.placeCd<=0){ toggleDoor(mouse.tx,mouse.ty); player.placeCd=0.2; } }
     else if(tt===CHEST){ openChest(mouse.tx,mouse.ty); mouse.right=false; }
     else if(tt===LEVER){ if(player.placeCd<=0){ activateWire(mouse.tx,mouse.ty); player.placeCd=0.25; } mouse.right=false; }
+    else if(tt===QUESTBOARD){ if(player.placeCd<=0){ questBoardInteract(); player.placeCd=0.3; } mouse.right=false; }
     else if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="bucket"&&player.placeCd<=0){ if(useBucket(mouse.tx,mouse.ty,sel))player.placeCd=0.2; }
     else if(sel&&sel.kind==="wall"&&player.placeCd<=0){ if(placeWall(mouse.tx,mouse.ty,sel))player.placeCd=0.10; }
     else if(sel&&sel.kind==="tile"&&player.placeCd<=0){ if(placeTile(mouse.tx,mouse.ty,sel))player.placeCd=0.12; }
@@ -1316,6 +1322,7 @@ function updateEnemies(dt,step){
       if((e.type==="pumpkinhead"||e.type==="reaper")){ if(Math.random()<0.6)addItem("mat","candy",1); if(pumpkinMoon)pumpkinKills++; }
       if((e.type==="iceslime"||e.type==="frostzombie"||e.type==="icegolem")){ if(Math.random()<0.6)addItem("mat","ice_shard",1); if(frostMoon)frostKills++; }
       if(army&&e.army){ army.kills++; if(e.type==="general")armyDefeated(); }
+      if(quest&&quest.type==="kill"&&(quest.enemy==="any"||e.type===quest.enemy))quest.have++;
       coins+=(COINS[e.type]||1)+Math.floor(Math.random()*3); spawnParticles(e.x+e.w/2,e.y+e.h/2,"#ffd24a",6); dirtyUI=true; enemies.splice(i,1); continue; }
     if((!isNight()&&!e.fly&&!e.army&&Math.random()<dt*0.5)||Math.abs(e.x-player.x)>VW*1.5)enemies.splice(i,1);
   }
@@ -1409,6 +1416,19 @@ function updateArmy(dt){ if(!army)return;
   if(cur<cap&&Math.random()<dt*2.0){ const side=Math.random()<0.5?-1:1, sx=clamp(Math.floor((player.x+side*(VW/2+50))/T),2,WORLD_W-3), sy=clamp(surfaceAt(sx)-2,2,WORLD_H-3);
     if(Math.abs(sx*T-player.x)<VW*1.2){ const t=Math.random()<(army.wave===1?0.82:0.5)?"goblin":"knight"; spawnArmyEnemy(t,sx*T,sy*T); } } }
 function armyDefeated(){ if(!army)return; coins+=400; player.maxHp+=20; player.hp=player.maxHp; addItem("use","army_horn",1); addItem("tile",BANNER,1); flash("🏆 L'armée est vaincue ! +400 pièces, +20 PV max"); army=null; dirtyUI=true; }
+const QUESTS=[
+  {type:"kill",enemy:"slime",need:8,reward:60,desc:"Vaincre 8 slimes"},
+  {type:"kill",enemy:"zombie",need:6,reward:90,desc:"Vaincre 6 zombies"},
+  {type:"kill",enemy:"any",need:12,reward:80,desc:"Vaincre 12 monstres"},
+  {type:"collect",kind:"tile",id:LOG,need:25,reward:50,desc:"Récolter 25 bois"},
+  {type:"collect",kind:"mat",id:"iron_bar",need:6,reward:120,desc:"Forger 6 barres de fer"},
+  {type:"collect",kind:"mat",id:"mushroom",need:8,reward:70,desc:"Cueillir 8 champignons"},
+];
+function assignQuest(){ const q=QUESTS[Math.floor(Math.random()*QUESTS.length)]; quest={type:q.type,enemy:q.enemy,kind:q.kind,id:q.id,need:q.need,reward:q.reward,desc:q.desc,have:0}; }
+function questReward(){ coins+=quest.reward; addItem("use","hp_potion",1); flash("🏆 Quête accomplie ! +"+quest.reward+" pièces"); quest=null; dirtyUI=true; }
+function questBoardInteract(){ if(!quest){ assignQuest(); flash("📜 Nouvelle quête : "+quest.desc); return; }
+  if(quest.type==="kill"){ if(quest.have>=quest.need)questReward(); else flash("📜 "+quest.desc+" ("+quest.have+"/"+quest.need+")"); }
+  else { const have=countItem(quest.kind,quest.id); if(have>=quest.need){ removeItem(quest.kind,quest.id,quest.need); questReward(); } else flash("📜 "+quest.desc+" ("+have+"/"+quest.need+")"); } }
 function startPumpkinMoon(){ if(pumpkinMoon){flash("La Lune citrouille est déjà levée !");return;} pumpkinMoon=true; pumpkinMoonT=90; pumpkinKills=0; gameTime=0.7; flash("🎃 La Lune citrouille se lève !"); }
 function updatePumpkinMoon(dt){ if(!pumpkinMoon)return; pumpkinMoonT-=dt;
   if(pumpkinMoonT<=0){ pumpkinMoon=false; coins+=300; player.maxHp+=10; player.hp=player.maxHp; addItem("use","pumpkin_pie",2); flash("🎃 La Lune citrouille s'achève ! ("+pumpkinKills+" vaincus)"); dirtyUI=true; return; }
@@ -1790,7 +1810,7 @@ function respawn(){ dead=false; document.getElementById("death").style.display="
 function rle(arr){ const out=[];let v=arr[0],c=1; for(let i=1;i<arr.length;i++){if(arr[i]===v&&c<65535)c++;else{out.push(v,c);v=arr[i];c=1;}} out.push(v,c); return out; }
 function unrle(out,len){ const arr=new Uint8Array(len);let p=0; for(let i=0;i<out.length;i+=2){const v=out[i],c=out[i+1];for(let j=0;j<c;j++)arr[p++]=v;} return arr; }
 function save(){ try{ const chests=[]; chestData.forEach((v,k)=>chests.push([k,v]));
-  localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,seed,world:rle(world),liquid:rle(liquid),walls:rle(walls),wires:rle(wires),tints:rle(tints),chests,coins,merchantArrived,bossKills,nurseArrived,wizardArrived,blacksmithArrived,dryadArrived,anglerArrived,fishCaught,anglerQuest,hardmode,tinkererArrived,armsDealerArrived,painterArrived,taxCollectorArrived,taxPool,
+  localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,seed,world:rle(world),liquid:rle(liquid),walls:rle(walls),wires:rle(wires),tints:rle(tints),chests,coins,merchantArrived,bossKills,nurseArrived,wizardArrived,blacksmithArrived,dryadArrived,anglerArrived,fishCaught,anglerQuest,hardmode,tinkererArrived,armsDealerArrived,painterArrived,taxCollectorArrived,taxPool,quest,
     px:player.x,py:player.y,hp:player.hp,maxHp:player.maxHp,mana:player.mana,maxMana:player.maxMana,armor:player.armorArr,acc:player.acc,pet:player.pet,mtd:player.mount,spx:player.spawnX,spy:player.spawnY,
     inv,sel:selected,time:gameTime})); }catch(err){flash("Sauvegarde impossible (espace plein)");console.warn(err);} }
 function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
@@ -1800,7 +1820,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
     wires=d.wires?unrle(d.wires,WORLD_W*WORLD_H):new Uint8Array(WORLD_W*WORLD_H);
     tints=d.tints?unrle(d.tints,WORLD_W*WORLD_H):new Uint8Array(WORLD_W*WORLD_H);
     chestData=new Map(); if(d.chests)d.chests.forEach(([k,v])=>chestData.set(k,v));
-    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; anglerArrived=!!d.anglerArrived; fishCaught=d.fishCaught||0; anglerQuest=d.anglerQuest||null; hardmode=!!d.hardmode; tinkererArrived=!!d.tinkererArrived; armsDealerArrived=!!d.armsDealerArrived; painterArrived=!!d.painterArrived; taxCollectorArrived=!!d.taxCollectorArrived; taxPool=d.taxPool||0; invasionT=0; army=null; bloodMoon=false; eclipse=false; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0;
+    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; anglerArrived=!!d.anglerArrived; fishCaught=d.fishCaught||0; anglerQuest=d.anglerQuest||null; hardmode=!!d.hardmode; tinkererArrived=!!d.tinkererArrived; armsDealerArrived=!!d.armsDealerArrived; painterArrived=!!d.painterArrived; taxCollectorArrived=!!d.taxCollectorArrived; taxPool=d.taxPool||0; quest=d.quest||null; invasionT=0; army=null; bloodMoon=false; eclipse=false; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0;
     player.x=d.px;player.y=d.py;player.hp=d.hp;player.maxHp=d.maxHp||100;player.mana=d.mana||0;player.maxMana=d.maxMana||20;player.armorArr=d.armor||[null,null,null];player.acc=d.acc||null;
     player.pet=!!d.pet; player.mount=typeof d.mtd==="string"?d.mtd:(d.mtd?"slime":null); player.spawnX=d.spx!=null?d.spx:Math.floor(WORLD_W/2)*T; player.spawnY=d.spy!=null?d.spy:(surfaceAt(Math.floor(WORLD_W/2))-6)*T; player.buffs={}; player.fishing=null;
     selected=d.sel||0; gameTime=d.time||0.3; inv=d.inv?d.inv.slice(0,36):new Array(36).fill(null);
@@ -1810,7 +1830,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
 function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null]; player.acc=null;
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
-  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;curShop=null;player.buffs={};player.fishing=null;player.pet=false;player.mount=null;player.flyTime=0;player.grapple=null;glows=[];trapCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;
+  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;curShop=null;player.buffs={};player.fishing=null;player.pet=false;player.mount=null;player.flyTime=0;player.grapple=null;glows=[];trapCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;
   npcs=[]; spawnNPC("guide");
   document.getElementById("death").style.display="none";
   const c=Math.floor(WORLD_W/2);player.x=c*T;player.y=(surfaceAt(c)-6)*T;player.vx=player.vy=0;player.spawnX=player.x;player.spawnY=player.y;
