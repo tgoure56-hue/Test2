@@ -257,7 +257,7 @@ const TOOLS={
   pick8:{name:"Pioche de cristal",type:"pick",power:7.0}, sword10:{name:"Épée de cristal",type:"sword",dmg:135}, yoyo:{name:"Yo-yo",type:"yoyo",dmg:32},
   pick9:{name:"Pioche de cobalt",type:"pick",power:8.0}, sword11:{name:"Épée de cobalt",type:"sword",dmg:155},
   pick10:{name:"Pioche de titane",type:"pick",power:9.0}, sword12:{name:"Épée de titane",type:"sword",dmg:185}, bow3:{name:"Arc de titane",type:"bow",dmg:42},
-  staff4:{name:"Canon à plasma",type:"staff",dmg:54,mana:8,proj:"bolt"},
+  staff4:{name:"Canon à plasma",type:"staff",dmg:54,mana:8,proj:"bolt"}, sword_titan:{name:"Lame céleste",type:"sword",dmg:230},
   hook:{name:"Grappin",type:"hook"}, flail:{name:"Fléau",type:"flail",dmg:48},
   spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
@@ -265,7 +265,7 @@ const TOOLS={
 };
 const ACC={ cloud:{name:"Bottes nuage",eff:"djump"}, boots:{name:"Bottes véloces",eff:"speed"}, band:{name:"Brassard de force",eff:"def",def:5},
   talisman:{name:"Talisman de régénération",eff:"regen"}, amulet:{name:"Amulette de mana",eff:"manaregen"}, wings:{name:"Ailes de cristal",eff:"fly"}, lavaboots:{name:"Bottes de lave",eff:"lava"}, headlamp:{name:"Lampe frontale",eff:"glow"}, tackle:{name:"Boîte à pêche",eff:"angler"},
-  tinker_band:{name:"Brassard du bricoleur",eff:"def",def:8}, mech_heart:{name:"Cœur mécanique",eff:"def",def:10} };
+  tinker_band:{name:"Brassard du bricoleur",eff:"def",def:8}, mech_heart:{name:"Cœur mécanique",eff:"def",def:10}, celestial_emblem:{name:"Emblème céleste",eff:"def",def:14} };
 const THROWS={ glowstick:{name:"Bâton lumineux",col:"#7fff9f"} };
 const ARMOR={
   wood_h:{name:"Casque bois",slot:"head",def:1}, wood_c:{name:"Plastron bois",slot:"chest",def:2}, wood_l:{name:"Jambières bois",slot:"legs",def:1},
@@ -288,7 +288,7 @@ const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Bar
   cobalt_bar:{name:"Barre de cobalt",col:"#2a6ad0"}, titanium_bar:{name:"Barre de titane",col:"#c0c4cc"}, mech_soul:{name:"Âme mécanique",col:"#9fe0ff"},
   glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"} };
 const AMMO={ arrow:{name:"Flèche",col:"#caa15a",dmg:5} };
-const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenbee:{name:"Larve royale"}, golem:{name:"Noyau de golem"}, worm:{name:"Nourriture maudite"}, moon:{name:"Tablette céleste"}, mechworm:{name:"Engrenage maudit"} };
+const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenbee:{name:"Larve royale"}, golem:{name:"Noyau de golem"}, worm:{name:"Nourriture maudite"}, moon:{name:"Tablette céleste"}, mechworm:{name:"Engrenage maudit"}, titan:{name:"Relique céleste"} };
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
   hp_potion:{name:"Potion de soin",col:"#e23a4a"}, mp_potion:{name:"Potion de mana",col:"#3a6ae2"},
   cooked_fish:{name:"Poisson grillé",col:"#d8a25a"}, mushroom_soup:{name:"Soupe de champignons",col:"#c87a3a"},
@@ -491,6 +491,8 @@ const RECIPES=[
   // phase 23 (montures)
   R({kind:"tool",id:"mount2"},[ma("feather",8),ma("silk",4)],"anvil"),
   R({kind:"tool",id:"mount3"},[ma("gold_bar",6),ma("crystal_bar",2)],"anvil"),
+  // phase 24 (boss ultime)
+  R({kind:"summon",id:"titan"},[ma("mech_soul",10),ma("crystal_bar",10),ma("adamantite_bar",10)],"anvil"),
 ];
 
 // =========================================================================
@@ -1301,7 +1303,10 @@ function summonBoss(sel){ if(boss){flash("Le boss est déjà là");return;}
   else if(sel.id==="mechworm"){ removeItem("summon","mechworm",1);
     const hx=player.x+340,hy=player.y-220,segs=[]; for(let s=0;s<13;s++)segs.push({x:hx+15,y:hy+15});
     boss={type:"boss",tier:7,mech:true,x:hx,y:hy,vx:0,vy:0,w:30,h:30,hp:6500,maxHp:6500,dmg:42,col:"#aab0ba",t:0,segs,fireCd:1.5};
-    flash("🤖 Le Destructeur jaillit du sol !"); } }
+    flash("🤖 Le Destructeur jaillit du sol !"); }
+  else if(sel.id==="titan"){ removeItem("summon","titan",1);
+    boss={type:"boss",tier:8,x:player.x+320,y:player.y-220,vx:0,vy:0,w:96,h:96,hp:12000,maxHp:12000,dmg:60,col:"#ffe27a",charge:0,t:0,fireCd:1.5,spawnCd:3,enraged:false};
+    flash("⭐ Le Titan céleste descend des cieux !"); } }
 function updateMechWorm(dt,step){ const e=boss;
   const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1;
   e.vx+=dx/d*0.35*step; e.vy+=dy/d*0.35*step; const sp=Math.hypot(e.vx,e.vy),mx=7.5;
@@ -1319,7 +1324,7 @@ function updateBoss(dt,step){ const e=boss; e.t+=dt;
   if(e.mech){ updateMechWorm(dt,step); }
   else {
   e.charge-=dt;
-  const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1, cs=e.tier===2?6:e.tier===3?8:e.tier===5?9:e.tier===6?10:7;
+  const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1, cs=e.tier===2?6:e.tier===3?8:e.tier===5?9:e.tier===6?10:e.tier===8?(e.enraged?13:11):7;
   if(e.charge<=0&&d<400){ e.vx=dx/d*cs; e.vy=dy/d*cs; e.charge=e.tier===3?1.5:e.tier===2?1.8:2.2; }
   else { e.vx=lerp(e.vx,dx/d*2.2,0.04); e.vy=lerp(e.vy,(dy-80)/d*2.2+Math.sin(e.t*2)*0.5,0.04); }
   e.x+=e.vx*step; e.y+=e.vy*step;
@@ -1327,6 +1332,9 @@ function updateBoss(dt,step){ const e=boss; e.t+=dt;
   if(e.tier===3){ e.beeCd-=dt; if(e.beeCd<=0&&enemies.length<14){ spawnEnemy("bee",e.x+e.w/2,e.y+e.h); e.beeCd=2.2; } }
   if(e.tier===5){ e.spawnCd-=dt; if(e.spawnCd<=0&&enemies.length<14){ spawnEnemy("devourer",e.x+e.w/2,e.y+e.h/2); e.spawnCd=2.6; } }
   if(e.tier===6){ e.spawnCd-=dt; if(e.spawnCd<=0&&enemies.length<16){ spawnEnemy("pixie",e.x+e.w/2,e.y+e.h/2); e.spawnCd=2.8; } }
+  if(e.tier===8){ if(!e.enraged&&e.hp<e.maxHp*0.5){ e.enraged=true; flash("⭐ Le Titan céleste entre en furie !"); }
+    e.spawnCd-=dt; if(e.spawnCd<=0&&enemies.length<16){ spawnEnemy(Math.random()<0.5?"pixie":"reaper",e.x+e.w/2,e.y+e.h/2); e.spawnCd=e.enraged?2:3.4; }
+    e.fireCd-=dt; if(e.fireCd<=0){ const a0=Math.atan2(dy,dx),n=e.enraged?5:3; for(let k=-(n>>1);k<=(n>>1);k++){ const a=a0+k*0.22; projectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,vx:Math.cos(a)*6,vy:Math.sin(a)*6,type:"laser",dmg:e.dmg,life:3.2,friendly:false}); } e.fireCd=e.enraged?0.9:1.6; } }
   if(player.invuln<=0&&rectHit(e.x,e.y,e.w,e.h,player.x,player.y,PW,PH))hurtPlayer(e.dmg,Math.sign(player.x-e.x)||1);
   }
   if(e.hp<=0){ spawnParticles(e.x+e.w/2,e.y+e.h/2,e.col,40); bossKills++;
@@ -1336,6 +1344,7 @@ function updateBoss(dt,step){ const e=boss; e.t+=dt;
     else if(e.tier===5){ addItem("tool","sword9",1); addItem("mat","adamantite_bar",20); coins+=500; player.maxHp+=60; player.hp=player.maxHp; flash("🏆 Dévoreur vaincu ! Lame du néant + 60 PV max !"); }
     else if(e.tier===6){ addItem("acc","wings",1); addItem("mat","crystal_bar",20); addItem("tool","sword10",1); coins+=800; player.maxHp+=80; player.hp=player.maxHp; flash("🏆 Seigneur de Lune vaincu ! Ailes de cristal + 80 PV max !"); }
     else if(e.tier===7){ addItem("tool","staff4",1); addItem("mat","mech_soul",15); addItem("mat","titanium_bar",20); coins+=600; player.maxHp+=70; player.hp=player.maxHp; flash("🏆 Le Destructeur démantelé ! Canon à plasma + 70 PV max !"); }
+    else if(e.tier===8){ addItem("tool","sword_titan",1); addItem("acc","celestial_emblem",1); addItem("mat","crystal_bar",30); coins+=1500; player.maxHp+=100; player.hp=player.maxHp; flash("🏆 Le Titan céleste est vaincu ! Lame céleste + Emblème céleste + 100 PV max !"); }
     else { addItem("mat","gold_bar",12); addItem("tool","bow2",1); coins+=120; player.maxHp+=20; player.hp=player.maxHp; flash("🏆 Boss vaincu ! +20 PV max, 120 pièces, butin reçu"); }
     boss=null; dirtyUI=true; }
   else if(e.tier===1&&!isNight()){ flash("L'Œil maléfique fuit le jour..."); boss=null; }
@@ -1622,6 +1631,11 @@ function drawBoss(e){ const sx=e.x-cam.x,sy=e.y-cam.y,t2=e.tier===2;
   if(e.tier===4){ ctx.fillStyle="#7a7a82";roundRect(sx,sy,e.w,e.h,6);ctx.fill();ctx.fillStyle="#5a5a62";ctx.fillRect(sx+8,sy+8,e.w-16,e.h-16);ctx.fillStyle="#9aa0aa";ctx.fillRect(sx-6,sy+16,8,22);ctx.fillRect(sx+e.w-2,sy+16,8,22);ctx.fillStyle="#ff5a3a";ctx.fillRect(sx+e.w/2-14,sy+20,9,9);ctx.fillRect(sx+e.w/2+5,sy+20,9,9); return; }
   if(e.tier===5){ for(let s=4;s>=0;s--){ctx.fillStyle=s===0?"#a05ad0":"#8a4ad0";ctx.beginPath();ctx.arc(sx+e.w/2,sy+12+s*12,14-s*1.6,0,7);ctx.fill();}ctx.fillStyle="#2a0a4a";ctx.beginPath();ctx.arc(sx+e.w/2,sy+12,9,0,7);ctx.fill();ctx.fillStyle="#ff3a6a";ctx.fillRect(sx+e.w/2-6,sy+8,3,3);ctx.fillRect(sx+e.w/2+3,sy+8,3,3); return; }
   if(e.tier===6){ ctx.fillStyle="rgba(207,160,255,.4)";ctx.beginPath();ctx.arc(sx+e.w/2,sy+e.h/2,e.w*0.62,0,7);ctx.fill();ctx.fillStyle="#cfa0ff";ctx.beginPath();ctx.arc(sx+e.w/2,sy+e.h/2,e.w/2,0,7);ctx.fill();ctx.fillStyle="#e8dcff";ctx.beginPath();ctx.arc(sx+e.w*0.4,sy+e.h*0.4,e.w*0.12,0,7);ctx.fill();ctx.fillStyle="#3a2060";const ox=clamp((player.x-e.x)/30,-8,8);ctx.beginPath();ctx.arc(sx+e.w/2+ox,sy+e.h/2,10,0,7);ctx.fill();ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(sx+e.w/2+ox,sy+e.h/2,4,0,7);ctx.fill(); return; }
+  if(e.tier===8){ ctx.fillStyle=e.enraged?"rgba(255,120,120,.4)":"rgba(255,226,122,.4)";ctx.beginPath();ctx.arc(sx+e.w/2,sy+e.h/2,e.w*0.66,0,7);ctx.fill();
+    ctx.fillStyle=e.enraged?"#ffb0b0":"#fff0c0";const wf=Math.sin(e.t*4)*8;ctx.beginPath();ctx.moveTo(sx+e.w/2,sy+e.h/2);ctx.lineTo(sx-18,sy+e.h/2-20+wf);ctx.lineTo(sx-6,sy+e.h/2+14);ctx.fill();ctx.beginPath();ctx.moveTo(sx+e.w/2,sy+e.h/2);ctx.lineTo(sx+e.w+18,sy+e.h/2-20+wf);ctx.lineTo(sx+e.w+6,sy+e.h/2+14);ctx.fill();
+    ctx.fillStyle=e.enraged?"#e85a5a":"#e8c33a";roundRect(sx+e.w*0.2,sy+6,e.w*0.6,e.h-12,12);ctx.fill();ctx.fillStyle="#fff5d0";ctx.beginPath();ctx.arc(sx+e.w/2,sy+e.h*0.34,e.w*0.16,0,7);ctx.fill();
+    ctx.fillStyle=e.enraged?"#a00":"#3a2a00";const ox8=clamp((player.x-e.x)/30,-8,8);ctx.fillRect(sx+e.w/2-10+ox8,sy+e.h*0.3,5,5);ctx.fillRect(sx+e.w/2+5+ox8,sy+e.h*0.3,5,5);
+    ctx.fillStyle="#fff0a0";for(let k=-2;k<=2;k++){ctx.beginPath();ctx.moveTo(sx+e.w/2+k*8,sy+2);ctx.lineTo(sx+e.w/2+k*8-3,sy-8);ctx.lineTo(sx+e.w/2+k*8+3,sy-8);ctx.fill();} return; }
   ctx.fillStyle=t2?"#c98a6a":"#e8e0e4";roundRect(sx,sy,e.w,e.h,e.h/2);ctx.fill();
   ctx.fillStyle=t2?"#8a1f15":"#a33";roundRect(sx+4,sy+6,e.w-8,e.h-12,8);ctx.fill(); const ox=clamp((player.x-e.x)/30,-12,12);
   ctx.fillStyle=t2?"#2a0600":"#600";ctx.beginPath();ctx.arc(sx+e.w/2+ox,sy+e.h/2,t2?17:12,0,7);ctx.fill();ctx.fillStyle="#000";ctx.beginPath();ctx.arc(sx+e.w/2+ox,sy+e.h/2,t2?9:6,0,7);ctx.fill();
@@ -1722,7 +1736,7 @@ function updateStatus(){ $hearts.textContent="❤️ "+Math.ceil(player.hp)+"/"+
   const pcol=Math.floor((player.x+PW/2)/T),depth=Math.floor((player.y+PH)/T)-surfaceAt(pcol); const dl2=Math.floor((player.y+PH/2)/T)>=HELL_Y?"🔥 Enfer":depth<2?"⛰️ Surface":"⬇️ "+(depth*2)+"m";
   $clock.textContent=(isNight()?"🌙 ":"☀️ ")+String(h).padStart(2,"0")+":00 · "+dl2;
   const ab=Object.keys(player.buffs); if(ab.length){$buffs.style.display="block";$buffs.textContent=ab.map(k=>BUFFS[k].name+" "+Math.ceil(player.buffs[k])+"s").join(" · ");}else $buffs.style.display="none";
-  if(boss){$bossbar.style.display="block";document.getElementById("bossName").textContent=boss.tier===2?"Gardien des Enfers":boss.tier===3?"Reine des abeilles":boss.tier===4?"Golem":boss.tier===5?"Dévoreur des mondes":boss.tier===6?"Seigneur de Lune":boss.tier===7?"Le Destructeur":"Œil maléfique";$bossFg.style.width=(100*Math.max(0,boss.hp)/boss.maxHp)+"%";}else $bossbar.style.display="none"; }
+  if(boss){$bossbar.style.display="block";document.getElementById("bossName").textContent=boss.tier===2?"Gardien des Enfers":boss.tier===3?"Reine des abeilles":boss.tier===4?"Golem":boss.tier===5?"Dévoreur des mondes":boss.tier===6?"Seigneur de Lune":boss.tier===7?"Le Destructeur":boss.tier===8?"Le Titan céleste":"Œil maléfique";$bossFg.style.width=(100*Math.max(0,boss.hp)/boss.maxHp)+"%";}else $bossbar.style.display="none"; }
 
 // =========================================================================
 //  mort / sauvegarde
