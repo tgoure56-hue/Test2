@@ -128,7 +128,7 @@ const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAM
   PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39,MYTHRIL=40,
   BED=41,CAMPFIRE=42,HEARTLANTERN=43,SPIKE=44,ADAMANTITE=45,CGRASS=46,EBONSTONE=47,HGRASS=48,PEARLSTONE=49,CRYSTAL=50,LAMP=51,CHAIR=52,VASE=53,BANNER=54,COBALT=55,TITANIUM=56,DART_TRAP=57,PLATE=58,STATUE=59,
   MGRASS=60,GMUSH=61,MUSHBLOCK=62,MARBLE=63,GRANITE=64,SANDSTONE=65,STONEBRICK=66,CLOUDB=67,COBWEB=68,CACTUS=69,BOOKCASE=70,CANDLE=71,CHANDELIER=72,SAWMILL=73,
-  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94;
+  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -233,6 +233,9 @@ const TILE={
   [HARDSAND]:{name:"Grès durci",solid:true,hard:1.4,drop:HARDSAND,col:"#b89a52"},
   [FOSSIL]:{name:"Fossile",solid:true,hard:1.8,drop:-1,col:"#cbb478"},
   [SANDSTONEBRICK]:{name:"Brique de grès",solid:true,hard:1.3,drop:SANDSTONEBRICK,col:"#b8985a"},
+  [TEMPLEBRICK]:{name:"Brique du temple",solid:true,hard:5.5,drop:TEMPLEBRICK,col:"#6a4a3a"},
+  [OBSIDIAN]:{name:"Obsidienne",solid:true,hard:3.0,drop:OBSIDIAN,col:"#2a2438"},
+  [OBSIDIANBRICK]:{name:"Brique d'obsidienne",solid:true,hard:2.4,drop:OBSIDIANBRICK,col:"#34304a"},
 };
 const isSpike=id=>TILE[id]&&TILE[id].spike;
 const isPlatform=id=>TILE[id]&&TILE[id].platform;
@@ -493,6 +496,8 @@ const RECIPES=[
   R({kind:"tool",id:"mount3"},[ma("gold_bar",6),ma("crystal_bar",2)],"anvil"),
   // phase 24 (boss ultime)
   R({kind:"summon",id:"titan"},[ma("mech_soul",10),ma("crystal_bar",10),ma("adamantite_bar",10)],"anvil"),
+  // phase 25 (temple)
+  R({kind:"tile",id:OBSIDIANBRICK,n:4},[ti(OBSIDIAN,4)],"furnace"),
 ];
 
 // =========================================================================
@@ -621,6 +626,15 @@ function genWorld(s){
   // toiles d'araignée dans les grottes profondes
   for(let i=0;i<220;i++){ const x=2+Math.floor(rng()*(WORLD_W-4)), y=surfaceAt(x)+22+Math.floor(rng()*120); if(y>=HELL_Y-2)continue;
     if(world[idx(x,y)]===AIR&&(solidAt(x-1,y)||solidAt(x+1,y)||solidAt(x,y-1)||solidAt(x,y+1))&&rng()<0.5)world[idx(x,y)]=COBWEB; }
+  // === temple souterrain (près de l'enfer, pièges + trésors) ===
+  { const tx0=Math.floor(WORLD_W*0.33), tw=26, th=14, ty0=clamp(HELL_Y-th-6,40,WORLD_H-th-4);
+    for(let x=tx0;x<tx0+tw;x++)for(let y=ty0;y<ty0+th;y++){ if(x<1||x>=WORLD_W-1||y<1||y>=WORLD_H-3)continue; const border=(x===tx0||x===tx0+tw-1||y===ty0||y===ty0+th-1); world[idx(x,y)]=border?TEMPLEBRICK:AIR; liquid[idx(x,y)]=0; walls[idx(x,y)]=WBRICK; }
+    const fy=ty0+th-2;
+    world[idx(tx0,fy)]=DOOR_C; world[idx(tx0,fy-1)]=AIR;
+    world[idx(tx0+1,fy-1)]=DART_TRAP; world[idx(tx0+tw-2,fy-1)]=DART_TRAP;
+    for(let x=tx0+11;x<tx0+15;x++){ world[idx(x,fy)]=LAVA; liquid[idx(x,fy)]=8; }
+    world[idx(tx0+4,fy)]=CHEST; chestData.set((tx0+4)+","+fy, templeLoot(rng));
+    world[idx(tx0+tw-5,fy)]=CHEST; chestData.set((tx0+tw-5)+","+fy, templeLoot(rng)); }
   // === îles flottantes dans le ciel ===
   for(let m=0;m<4;m++){ const cx=30+Math.floor(rng()*(WORLD_W-60)), cy=9+Math.floor(rng()*16), iw=6+Math.floor(rng()*6);
     for(let dx=-iw;dx<=iw;dx++){ const X=cx+dx; if(X<2||X>=WORLD_W-2)continue; const th=Math.round(3*(1-(dx*dx)/(iw*iw)));
@@ -644,6 +658,11 @@ function genDungeon(rng){ const dx=Math.floor(WORLD_W*0.10), w=22, h=12, dy=Math
   world[idx(dx+1,fy-1)]=DART_TRAP; world[idx(dx+w-2,fy-1)]=DART_TRAP;
   world[idx(dx+6,fy)]=PLATE; world[idx(dx+15,fy)]=PLATE; world[idx(dx+7,fy)]=STATUE;
 }
+function templeLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=>{if(s<20)a[s++]=it;};
+  put({kind:"tile",id:OBSIDIAN,n:10+Math.floor(rng()*16)}); put({kind:"mat",id:"gold_bar",n:3+Math.floor(rng()*4)});
+  if(rng()<0.7)put({kind:"acc",id:"lavaboots",n:1}); if(rng()<0.55)put({kind:"mat",id:"crystal_bar",n:2+Math.floor(rng()*3)});
+  if(rng()<0.5)put({kind:"use",id:"hp_potion",n:3}); if(rng()<0.35)put({kind:"acc",id:"band",n:1});
+  return a; }
 function skyLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=>{if(s<20)a[s++]=it;};
   put({kind:"tile",id:CLOUDB,n:20+Math.floor(rng()*20)}); put({kind:"mat",id:"feather",n:2+Math.floor(rng()*4)});
   if(rng()<0.55)put({kind:"acc",id:"cloud",n:1}); if(rng()<0.4)put({kind:"acc",id:"boots",n:1});
@@ -680,7 +699,7 @@ function tree(x,sy,rng){ const h=4+Math.floor(rng()*4); for(let i=1;i<=h;i++)if(
 const TEX={};
 function shade(hex,d){const n=parseInt(hex.slice(1),16);let r=clamp((n>>16)+d,0,255),g=clamp(((n>>8)&255)+d,0,255),b=clamp((n&255)+d,0,255);return"#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}
 // relief : bord clair en haut/gauche, bord sombre en bas/droite (rendu "bloc")
-const BEVEL=new Set([DIRT,GRASS,STONE,SAND,COAL,IRON,GOLD,DIAMOND,COPPER,SILVER,SNOW,ICE,CLAY,RUBY,EMERALD,SAPPHIRE,LOG,PLANK,BRICK,FURNACE,MUD,JGRASS,ASH,HELLSTONE,MYTHRIL,ADAMANTITE,CGRASS,EBONSTONE,HGRASS,PEARLSTONE,CRYSTAL,COBALT,TITANIUM,MGRASS,MUSHBLOCK,MARBLE,GRANITE,SANDSTONE,STONEBRICK,CLOUDB,PUMPKIN,JACKOLANTERN,HAY,GOLDBRICK,BLUEBRICK,GLOWSTONE,HIVE,HONEYBLOCK,ICEBRICK,SNOWBRICK,HARDSAND,FOSSIL,SANDSTONEBRICK]);
+const BEVEL=new Set([DIRT,GRASS,STONE,SAND,COAL,IRON,GOLD,DIAMOND,COPPER,SILVER,SNOW,ICE,CLAY,RUBY,EMERALD,SAPPHIRE,LOG,PLANK,BRICK,FURNACE,MUD,JGRASS,ASH,HELLSTONE,MYTHRIL,ADAMANTITE,CGRASS,EBONSTONE,HGRASS,PEARLSTONE,CRYSTAL,COBALT,TITANIUM,MGRASS,MUSHBLOCK,MARBLE,GRANITE,SANDSTONE,STONEBRICK,CLOUDB,PUMPKIN,JACKOLANTERN,HAY,GOLDBRICK,BLUEBRICK,GLOWSTONE,HIVE,HONEYBLOCK,ICEBRICK,SNOWBRICK,HARDSAND,FOSSIL,SANDSTONEBRICK,TEMPLEBRICK,OBSIDIAN,OBSIDIANBRICK]);
 function bevelTile(g){ g.lineWidth=1;
   g.strokeStyle="rgba(255,255,255,0.16)"; g.beginPath(); g.moveTo(0.5,0); g.lineTo(0.5,T); g.moveTo(0,0.5); g.lineTo(T,0.5); g.stroke();
   g.strokeStyle="rgba(0,0,0,0.34)"; g.beginPath(); g.moveTo(T-0.5,0); g.lineTo(T-0.5,T); g.moveTo(0,T-0.5); g.lineTo(T,T-0.5); g.stroke(); }
@@ -768,6 +787,9 @@ function makeTex(id){
   else if(id===HARDSAND){speckle("#b89a52",16,18);g.strokeStyle="#9a7e40";g.lineWidth=1;for(let i=6;i<T;i+=8){g.beginPath();g.moveTo(0,i);g.lineTo(T,i);g.stroke();}}
   else if(id===FOSSIL){speckle("#cbb478",14,16);g.fillStyle="#efe6c8";g.fillRect(5,6,6,2);g.fillRect(7,8,2,5);g.fillStyle="#e0d4a8";g.beginPath();g.arc(T-8,T-8,3,0,7);g.fill();g.fillStyle="#efe6c8";g.fillRect(T-7,T-7,2,4);}
   else if(id===SANDSTONEBRICK){g.fillStyle="#b8985a";g.fillRect(0,0,T,T);g.strokeStyle="#947842";g.lineWidth=1;g.strokeRect(0,0,T,T/2);g.strokeRect(0,T/2,T,T/2);g.beginPath();g.moveTo(T/2,0);g.lineTo(T/2,T/2);g.moveTo(0,T/2);g.lineTo(0,T);g.stroke();}
+  else if(id===TEMPLEBRICK){g.fillStyle="#6a4a3a";g.fillRect(0,0,T,T);g.strokeStyle="#42281e";g.lineWidth=1;g.strokeRect(1,1,T-2,T-2);g.fillStyle="#e8702a";g.fillRect(T/2-1,4,2,T-8);g.fillRect(5,T/2-1,T-10,2);g.fillStyle="#3a241a";g.fillRect(4,4,2,2);g.fillRect(T-6,T-6,2,2);}
+  else if(id===OBSIDIAN){g.fillStyle="#2a2438";g.fillRect(0,0,T,T);for(let i=0;i<5;i++){g.fillStyle=shade("#2a2438",Math.floor((rnd()-0.3)*30));g.fillRect(Math.floor(rnd()*T),Math.floor(rnd()*T),3,3);}g.strokeStyle="rgba(150,130,200,.4)";g.lineWidth=1;g.beginPath();g.moveTo(3,T-4);g.lineTo(T-5,4);g.stroke();}
+  else if(id===OBSIDIANBRICK){g.fillStyle="#34304a";g.fillRect(0,0,T,T);g.strokeStyle="#221f33";g.lineWidth=1;g.strokeRect(0,0,T,T/2);g.strokeRect(0,T/2,T,T/2);g.beginPath();g.moveTo(T/2,0);g.lineTo(T/2,T/2);g.moveTo(0,T/2);g.lineTo(0,T);g.stroke();g.fillStyle="rgba(150,130,200,.3)";g.fillRect(2,2,3,2);}
   else if(id===TABLE){g.clearRect(0,0,T,T);g.fillStyle="#8a5a2b";g.fillRect(2,8,T-4,5);g.fillStyle="#6e4520";g.fillRect(4,13,3,T-14);g.fillRect(T-7,13,3,T-14);}
   else if(id===TORCH){g.clearRect(0,0,T,T);g.fillStyle="#6e4520";g.fillRect(T/2-2,8,4,T-8);g.fillStyle="#ff9a1a";g.beginPath();g.ellipse(T/2,7,4,7,0,0,7);g.fill();g.fillStyle="#ffe27a";g.beginPath();g.ellipse(T/2,8,2,4,0,0,7);g.fill();}
   else if(id===LAMP){g.clearRect(0,0,T,T);g.fillStyle="#555";g.fillRect(T/2-1,6,2,T-8);g.fillRect(T/2-4,T-3,8,3);g.fillStyle="#caa23a";g.fillRect(T/2-4,2,8,7);g.fillStyle="#ffe27a";g.fillRect(T/2-3,3,6,5);}
@@ -1213,8 +1235,9 @@ const ENEMY={
   icegolem:{w:30,h:46,hp:540,dmg:36,col:"#7ab0d0",fly:false},
   antlion:{w:28,h:22,hp:75,dmg:22,col:"#9a7a4a",fly:false},
   vulture:{w:26,h:20,hp:50,dmg:18,col:"#5a4a3a",fly:true},
+  templeguard:{w:28,h:44,hp:280,dmg:42,col:"#7a4a32",fly:false},
 };
-const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8,shark:14,jellyfish:6,wraith:25,possessed:30,spore:10,knight:16,general:120,harpy:14,pumpkinhead:22,reaper:40,hornet:9,iceslime:5,frostzombie:24,icegolem:110,antlion:11,vulture:8};
+const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8,shark:14,jellyfish:6,wraith:25,possessed:30,spore:10,knight:16,general:120,harpy:14,pumpkinhead:22,reaper:40,hornet:9,iceslime:5,frostzombie:24,icegolem:110,antlion:11,vulture:8,templeguard:60};
 function spawnEnemy(type,x,y){ const d=ENEMY[type], sc=1+bossKills*0.12, hp=Math.round(d.hp*sc); enemies.push({type,x,y,vx:0,vy:0,w:d.w,h:d.h,hp,maxHp:hp,dmg:Math.round(d.dmg*(1+bossKills*0.08)),col:d.col,fly:d.fly,onGround:false,hop:Math.random(),t:Math.random()*9}); }
 function updateEnemies(dt,step){
   if(invasionT>0){ invasionT-=dt; if(invasionT<=0)flash("L'invasion gobeline est repoussée !");
@@ -1256,6 +1279,10 @@ function updateEnemies(dt,step){
   if(enemies.length<10&&biomeAt(Math.floor(player.x/T))===2&&Math.floor(player.y/T)>surfaceAt(Math.floor(player.x/T))+4&&Math.random()<dt*0.9){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3), sy=clamp(Math.floor(player.y/T)+Math.floor((Math.random()-0.5)*10),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("antlion",sx*T,sy*T); }
   // vautours dans le désert (surface, jour)
   if(enemies.length<8&&biomeAt(Math.floor(player.x/T))===2&&!isNight()&&Math.floor(player.y/T)<surfaceAt(Math.floor(player.x/T))+4&&Math.random()<dt*0.6){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(7+Math.floor(Math.random()*8)),2,WORLD_W-3), sy=clamp(surfaceAt(sx)-3-Math.floor(Math.random()*4),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("vulture",sx*T,sy*T); }
+  // gardiens du temple (près des briques du temple)
+  if(enemies.length<8&&Math.random()<dt*0.8){ const px=Math.floor(player.x/T),py=Math.floor(player.y/T); let near=false;
+    for(let dx=-10;dx<=10&&!near;dx++)for(let dy=-8;dy<=8;dy++)if(getT(px+dx,py+dy)===TEMPLEBRICK){near=true;break;}
+    if(near){ const sx=clamp(px+(Math.random()<0.5?-1:1)*(4+Math.floor(Math.random()*6)),2,WORLD_W-3), sy=clamp(py+Math.floor((Math.random()-0.5)*6),2,WORLD_H-3); if(getT(sx,sy)===AIR&&solidAt(sx,sy+1))spawnEnemy("templeguard",sx*T,sy*T); } }
   for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; e.t+=dt; if(e.slow>0){e.slow-=dt;e.vx*=0.55;e.vy*=0.7;} if(e.yoyoCd>0)e.yoyoCd-=dt;
     if(e.fly){ const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1; const sp=e.type==="eye"?2.4:2.0;
       e.vx=lerp(e.vx,dx/d*sp,0.05)+(e.type==="bat"?Math.sin(e.t*6)*0.6:0); e.vy=lerp(e.vy,dy/d*sp,0.05)+(e.type==="bat"?Math.cos(e.t*5)*0.6:0);
@@ -1271,6 +1298,7 @@ function updateEnemies(dt,step){
       if(e.type==="harpy"&&Math.random()<0.6)addItem("mat","feather",1);
       if(e.type==="hornet"&&Math.random()<0.6)addItem("mat","honey",1);
       if((e.type==="antlion"||e.type==="vulture")&&Math.random()<0.5)addItem("mat","bone",1);
+      if(e.type==="templeguard"){ addItem("tile",OBSIDIAN,2+Math.floor(Math.random()*3)); if(Math.random()<0.3)addItem("mat","gold_bar",1); }
       if((e.type==="pumpkinhead"||e.type==="reaper")){ if(Math.random()<0.6)addItem("mat","candy",1); if(pumpkinMoon)pumpkinKills++; }
       if((e.type==="iceslime"||e.type==="frostzombie"||e.type==="icegolem")){ if(Math.random()<0.6)addItem("mat","ice_shard",1); if(frostMoon)frostKills++; }
       if(army&&e.army){ army.kills++; if(e.type==="general")armyDefeated(); }
@@ -1459,7 +1487,7 @@ function updateParticles(step){ for(let i=particles.length-1;i>=0;i--){const p=p
 function stepLiquids(x0,y0,x1,y1){ const lr=(frameCount&1)?1:-1;
   for(let y=y1;y>=y0;y--){ for(let xi=0;xi<=x1-x0;xi++){ const x=lr>0?x0+xi:x1-xi; const i=idx(x,y); const id=world[i];
     if(!isLiquid(id))continue; let lvl=liquid[i]; if(lvl<=0){world[i]=AIR;continue;}
-    if(id===LAVA){ if(world[idx(x-1,y)]===WATER||world[idx(x+1,y)]===WATER||world[idx(x,y-1)]===WATER||world[idx(x,y+1)]===WATER){world[i]=STONE;liquid[i]=0;continue;} }
+    if(id===LAVA){ if(world[idx(x-1,y)]===WATER||world[idx(x+1,y)]===WATER||world[idx(x,y-1)]===WATER||world[idx(x,y+1)]===WATER){world[i]=OBSIDIAN;liquid[i]=0;continue;} }
     if(y+1<WORLD_H){ const bi=idx(x,y+1),bid=world[bi]; if(bid===AIR||bid===id){ const bl=bid===id?liquid[bi]:0,t=Math.min(lvl,8-bl);
       if(t>0){world[bi]=id;liquid[bi]=bl+t;lvl-=t;liquid[i]=lvl;if(lvl<=0){world[i]=AIR;continue;}} } }
     if(lvl>1){ for(const dx of [lr,-lr]){ const nx=x+dx; if(nx<0||nx>=WORLD_W)continue; const ni=idx(nx,y),nid=world[ni];
@@ -1611,6 +1639,7 @@ function drawEnemy(e){ const sx=e.x-cam.x,sy=e.y-cam.y;
   else if(e.type==="icegolem"){ ctx.fillStyle=e.col;roundRect(sx,sy,e.w,e.h,5);ctx.fill();ctx.fillStyle="#5a90b0";ctx.fillRect(sx+7,sy+9,e.w-14,e.h-16);ctx.fillStyle="#bfe4ff";ctx.fillRect(sx-5,sy+14,7,20);ctx.fillRect(sx+e.w-2,sy+14,7,20);ctx.fillStyle="#5ad0ff";ctx.fillRect(sx+e.w/2-12,sy+18,8,8);ctx.fillRect(sx+e.w/2+4,sy+18,8,8);ctx.fillStyle="#eaf8ff";ctx.beginPath();ctx.moveTo(sx+e.w/2,sy-6);ctx.lineTo(sx+e.w/2-4,sy+2);ctx.lineTo(sx+e.w/2+4,sy+2);ctx.fill(); }
   else if(e.type==="antlion"){ const d=Math.sign(e.vx)||1; ctx.fillStyle=e.col;roundRect(sx+4,sy+6,e.w-8,e.h-6,5);ctx.fill();ctx.fillStyle="#7a5e34";ctx.fillRect(sx+6,sy+8,e.w-12,2);ctx.fillStyle="#6a4e28";ctx.beginPath();ctx.arc(sx+(d>0?e.w-6:6),sy+e.h-6,5,0,7);ctx.fill();ctx.strokeStyle="#3a2a14";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx+(d>0?e.w-2:2),sy+e.h-8);ctx.lineTo(sx+(d>0?e.w+4:-4),sy+e.h-12);ctx.moveTo(sx+(d>0?e.w-2:2),sy+e.h-6);ctx.lineTo(sx+(d>0?e.w+4:-4),sy+e.h-3);ctx.stroke();ctx.fillStyle="#1a1208";ctx.fillRect(sx+(d>0?e.w-9:5),sy+9,2,2); }
   else if(e.type==="vulture"){ const wf=Math.sin(e.t*12)*5;ctx.fillStyle=e.col;ctx.beginPath();ctx.moveTo(sx+e.w/2,sy+e.h/2);ctx.lineTo(sx-4,sy+e.h/2-7+wf);ctx.lineTo(sx-1,sy+e.h/2+4);ctx.fill();ctx.beginPath();ctx.moveTo(sx+e.w/2,sy+e.h/2);ctx.lineTo(sx+e.w+4,sy+e.h/2-7+wf);ctx.lineTo(sx+e.w+1,sy+e.h/2+4);ctx.fill();ctx.fillStyle="#3a2e22";roundRect(sx+e.w/2-4,sy+4,8,e.h-8,3);ctx.fill();ctx.fillStyle="#c84a2a";ctx.fillRect(sx+e.w/2-1,sy+2,3,3);ctx.fillStyle="#e8c33a";ctx.fillRect(sx+e.w/2,sy+5,2,2); }
+  else if(e.type==="templeguard"){ ctx.fillStyle="#5a3a28";ctx.fillRect(sx+3,sy+26,7,18);ctx.fillRect(sx+e.w-10,sy+26,7,18);ctx.fillStyle=e.col;roundRect(sx,sy+10,e.w,18,3);ctx.fill();ctx.fillStyle="#8a5a3a";ctx.fillRect(sx+3,sy,e.w-6,12);ctx.fillStyle="#e8702a";ctx.fillRect(sx+5,sy+3,e.w-10,2);ctx.fillStyle="#ffb04a";ctx.fillRect(sx+6,sy+5,3,3);ctx.fillRect(sx+e.w-9,sy+5,3,3);ctx.fillStyle="#3a241a";ctx.fillRect(sx-3,sy+14,6,12);ctx.fillRect(sx+e.w-3,sy+14,6,12); }
   if(e.hp<e.maxHp){ ctx.fillStyle="#000";ctx.fillRect(sx,sy-6,e.w,3);ctx.fillStyle="#e33";ctx.fillRect(sx,sy-6,e.w*(e.hp/e.maxHp),3); }
 }
 function drawNPC(n){ const sx=n.x-cam.x,sy=n.y-cam.y;
