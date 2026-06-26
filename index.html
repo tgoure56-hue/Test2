@@ -261,6 +261,8 @@ const TOOLS={
   pick9:{name:"Pioche de cobalt",type:"pick",power:8.0}, sword11:{name:"Épée de cobalt",type:"sword",dmg:155},
   pick10:{name:"Pioche de titane",type:"pick",power:9.0}, sword12:{name:"Épée de titane",type:"sword",dmg:185}, bow3:{name:"Arc de titane",type:"bow",dmg:42},
   staff4:{name:"Canon à plasma",type:"staff",dmg:54,mana:8,proj:"bolt"}, sword_titan:{name:"Lame céleste",type:"sword",dmg:230},
+  staff5:{name:"Sceptre stellaire",type:"staff",dmg:62,mana:9,proj:"spark"}, staff6:{name:"Sceptre du néant",type:"staff",dmg:46,mana:12,proj:"bolt",shots:3,spread:0.22},
+  summon_staff2:{name:"Bâton spectral",type:"summoner",dmg:40,mana:8,minion:"spirit"}, summon_staff3:{name:"Bâton des abysses",type:"summoner",dmg:58,mana:11,minion:"imp"},
   hook:{name:"Grappin",type:"hook"}, flail:{name:"Fléau",type:"flail",dmg:48},
   spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
@@ -498,6 +500,11 @@ const RECIPES=[
   R({kind:"summon",id:"titan"},[ma("mech_soul",10),ma("crystal_bar",10),ma("adamantite_bar",10)],"anvil"),
   // phase 25 (temple)
   R({kind:"tile",id:OBSIDIANBRICK,n:4},[ti(OBSIDIAN,4)],"furnace"),
+  // phase 26 (arsenal magique)
+  R({kind:"tool",id:"staff5"},[ma("crystal_bar",8),ti(DIAMOND,2)],"anvil"),
+  R({kind:"tool",id:"staff6"},[ma("crystal_bar",6),ma("adamantite_bar",4)],"anvil"),
+  R({kind:"tool",id:"summon_staff2"},[ma("mythril_bar",6),ti(EMERALD,2)],"anvil"),
+  R({kind:"tool",id:"summon_staff3"},[ma("crystal_bar",6),ma("mech_soul",3)],"anvil"),
 ];
 
 // =========================================================================
@@ -996,7 +1003,7 @@ function handleActions(dt){
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="brush"){
     if(mouse.left&&player.placeCd<=0&&inReach&&getT(mouse.tx,mouse.ty)!==AIR){ tints[idx(mouse.tx,mouse.ty)]=paintColor; player.placeCd=0.08; if(DYES[paintColor])spawnParticles(mouse.tx*T+T/2,mouse.ty*T+T/2,DYES[paintColor],3); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="summoner"){
-    if(mouse.left&&player.useCd<=0){ player.useCd=0.5; if(minions.length>=3)flash("Maximum de familiers"); else if(player.mana<TOOLS[sel.id].mana)flash("Pas assez de mana"); else { player.mana-=TOOLS[sel.id].mana; minions.push({x:player.x,y:player.y,vx:0,vy:0,t:0,cd:0,dmg:TOOLS[sel.id].dmg}); flash("Familier de combat invoqué !"); } } return; }
+    if(mouse.left&&player.useCd<=0){ player.useCd=0.5; if(minions.length>=3)flash("Maximum de familiers"); else if(player.mana<TOOLS[sel.id].mana)flash("Pas assez de mana"); else { player.mana-=TOOLS[sel.id].mana; minions.push({x:player.x,y:player.y,vx:0,vy:0,t:0,cd:0,dmg:TOOLS[sel.id].dmg,kind:TOOLS[sel.id].minion||"spirit"}); flash("Familier de combat invoqué !"); } } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="mount"){
     if(mouse.left&&player.useCd<=0){ const mid=TOOLS[sel.id].mountId||"slime"; player.mount=(player.mount===mid)?null:mid; player.useCd=0.4; flash(player.mount?"En selle !":"Descendu de monture"); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="bow"){
@@ -1004,7 +1011,7 @@ function handleActions(dt){
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="gun"){
     if(mouse.left&&player.useCd<=0){ if(countItem("ammo","arrow")>0){removeItem("ammo","arrow",1);fireProjectile("bullet",TOOLS[sel.id].dmg);player.useCd=0.18;} else flash("Plus de munitions"); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="staff"){
-    if(mouse.left&&player.useCd<=0){ if(player.mana>=TOOLS[sel.id].mana){player.mana-=TOOLS[sel.id].mana;fireProjectile(TOOLS[sel.id].proj||"bolt",TOOLS[sel.id].dmg);player.useCd=0.3;} else flash("Pas assez de mana"); } return; }
+    if(mouse.left&&player.useCd<=0){ const w=TOOLS[sel.id]; if(player.mana>=w.mana){ player.mana-=w.mana; const n=w.shots||1; for(let i=0;i<n;i++)fireProjectile(w.proj||"bolt",w.dmg,(i-(n-1)/2)*(w.spread||0.2)); player.useCd=0.3; } else flash("Pas assez de mana"); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="mirror"){
     if(mouse.left&&player.useCd<=0){ player.useCd=1.0; mirrorHome(); } return; }
   if(sel&&sel.kind==="bomb"){
@@ -1073,9 +1080,9 @@ function meleeAttack(dmg){ const dir=player.face,ax=player.x+PW/2+dir*12,ay=play
   for(const e of list){ const ex=e.x+e.w/2,ey=e.y+e.h/2; if(Math.hypot(ex-ax,ey-ay)<48){e.hp-=dmg;e.vx=dir*6;e.vy=-4;spawnParticles(ex,ey,"#ff5555",6);} }
   if(boss&&boss.mech){ const hx=boss.x+boss.w/2,hy=boss.y+boss.h/2; if(Math.hypot(hx-ax,hy-ay)<48){boss.hp-=dmg;spawnParticles(hx,hy,"#9fe0ff",6);}
     else for(const s of boss.segs)if(Math.hypot(s.x-ax,s.y-ay)<44){boss.hp-=dmg*0.8;spawnParticles(s.x,s.y,"#9fe0ff",5);break;} } }
-function fireProjectile(type,dmg){ const pcx=player.x+PW/2,pcy=player.y+PH/2;
-  let dirx=mouse.wx-pcx,diry=mouse.wy-pcy; const d=Math.hypot(dirx,diry)||1; dirx/=d; diry/=d;
-  const sp=type==="arrow"?13:type==="bullet"?19:11; projectiles.push({x:pcx,y:pcy,vx:dirx*sp,vy:diry*sp,type,dmg,life:type==="arrow"?2.2:type==="bullet"?1.6:1.4,friendly:true}); }
+function fireProjectile(type,dmg,off){ const pcx=player.x+PW/2,pcy=player.y+PH/2;
+  const a=Math.atan2(mouse.wy-pcy,mouse.wx-pcx)+(off||0), dirx=Math.cos(a),diry=Math.sin(a);
+  const sp=type==="arrow"?13:type==="bullet"?19:type==="spark"?9:11; projectiles.push({x:pcx,y:pcy,vx:dirx*sp,vy:diry*sp,type,dmg,life:type==="arrow"?2.2:type==="bullet"?1.6:type==="spark"?2.4:1.4,friendly:true}); }
 function enemyFire(ex,ey,dmg){ let dx=player.x+PW/2-ex,dy=player.y+PH/2-ey; const d=Math.hypot(dx,dy)||1;
   projectiles.push({x:ex,y:ey,vx:dx/d*5,vy:dy/d*5,type:"fire",dmg,life:3,friendly:false}); }
 function fireDart(tx,ty){ const sx=tx*T+T/2,sy=ty*T+T/2,dir=Math.sign((player.x+PW/2)-sx)||1;
@@ -1164,13 +1171,14 @@ function updateCritters(dt,step){
     if(c.onGround&&c.hop<=0){ c.vx=(Math.random()<0.5?-1:1)*1.6; c.vy=-6; c.hop=1+Math.random()*2; } c.vx*=Math.pow(0.9,step); moveEntity(c,c.w,c.h,step);
     if(Math.abs(c.x-player.x)>VW*1.1||isNight())critters.splice(i,1); } }
 function updateMinions(dt,step){
-  for(const m of minions){ m.t+=dt; if(m.cd>0)m.cd-=dt;
+  for(const m of minions){ m.t+=dt; if(m.cd>0)m.cd-=dt; const ranged=m.kind==="imp";
     let tgt=null,bd=1e9; const list=boss?enemies.concat([boss]):enemies;
-    for(const e of list){ const d=Math.hypot(e.x-m.x,e.y-m.y); if(d<bd&&d<360){bd=d;tgt=e;} }
-    let tx,ty; if(tgt){ tx=tgt.x+tgt.w/2; ty=tgt.y+tgt.h/2; } else { tx=player.x+PW/2+Math.sin(m.t*2)*30; ty=player.y-24; }
-    const dx=tx-m.x,dy=ty-m.y,d=Math.hypot(dx,dy)||1, sp=tgt?4.6:3.2;
+    for(const e of list){ const d=Math.hypot(e.x-m.x,e.y-m.y); if(d<bd&&d<(ranged?420:360)){bd=d;tgt=e;} }
+    let tx,ty; if(tgt&&!ranged){ tx=tgt.x+tgt.w/2; ty=tgt.y+tgt.h/2; } else { tx=player.x+PW/2+Math.sin(m.t*2)*30; ty=player.y-24; }
+    const dx=tx-m.x,dy=ty-m.y,d=Math.hypot(dx,dy)||1, sp=(tgt&&!ranged)?4.6:3.2;
     m.vx=lerp(m.vx,dx/d*sp,0.1); m.vy=lerp(m.vy,dy/d*sp,0.1); m.x+=m.vx*step; m.y+=m.vy*step;
-    if(tgt&&bd<26&&m.cd<=0){ tgt.hp-=m.dmg; m.cd=0.4; spawnParticles(m.x,m.y,"#9fd6ff",4); } } }
+    if(tgt&&ranged&&m.cd<=0){ const ax=tgt.x+tgt.w/2-m.x,ay=tgt.y+tgt.h/2-m.y,ad=Math.hypot(ax,ay)||1; projectiles.push({x:m.x,y:m.y,vx:ax/ad*9,vy:ay/ad*9,type:"spark",dmg:m.dmg,life:2,friendly:true}); m.cd=0.7; spawnParticles(m.x,m.y,"#caa0ff",3); }
+    else if(tgt&&!ranged&&bd<26&&m.cd<=0){ tgt.hp-=m.dmg; m.cd=0.4; spawnParticles(m.x,m.y,"#9fd6ff",4); } } }
 function updateFireflies(dt,step){
   if(isNight()&&fireflies.length<14&&Math.random()<dt*3){ const fx=player.x+(Math.random()-0.5)*VW, fy=player.y+(Math.random()-0.5)*VH*0.7; if(getT(Math.floor(fx/T),Math.floor(fy/T))===AIR)fireflies.push({x:fx,y:fy,t:Math.random()*9}); }
   for(let i=fireflies.length-1;i>=0;i--){ const f=fireflies[i]; f.t+=dt; f.x+=Math.sin(f.t*1.5)*0.7; f.y+=Math.cos(f.t*1.2)*0.5; if(!isNight()||Math.abs(f.x-player.x)>VW||Math.abs(f.y-player.y)>VH)fireflies.splice(i,1); } }
@@ -1189,6 +1197,7 @@ function updateProjectiles(step){
       if(p.fuse<=0){ explode(p.x,p.y,3,p.dmg); projectiles.splice(i,1); } continue; }
     if(p.type==="hook"){ p.x+=p.vx*step; p.y+=p.vy*step; p.life-=0.016*step; if(solidAt(Math.floor(p.x/T),Math.floor(p.y/T))){ player.grapple={x:p.x,y:p.y}; projectiles.splice(i,1); continue; } if(p.life<=0)projectiles.splice(i,1); continue; }
     if(p.type==="glow"){ p.vy+=0.3*step; const nx=p.x+p.vx*step,ny=p.y+p.vy*step; p.life-=0.016*step; if(solidAt(Math.floor(nx/T),Math.floor(ny/T))||p.life<=0){ glows.push({x:p.x,y:p.y,life:25}); projectiles.splice(i,1); continue; } p.x=nx; p.y=ny; continue; }
+    if(p.type==="spark"&&p.friendly!==false){ let bt=null,bd=1e9; const ml=boss?enemies.concat([boss]):enemies; for(const e of ml){const d=Math.hypot(e.x-p.x,e.y-p.y); if(d<bd&&d<260){bd=d;bt=e;}} if(bt){ const ax=bt.x+bt.w/2-p.x,ay=bt.y+bt.h/2-p.y,ad=Math.hypot(ax,ay)||1,sp=Math.hypot(p.vx,p.vy)||9; p.vx=lerp(p.vx,ax/ad*sp,0.2); p.vy=lerp(p.vy,ay/ad*sp,0.2); } }
     if(p.type==="arrow")p.vy+=0.22*step;
     p.x+=p.vx*step; p.y+=p.vy*step; p.life-=0.016*step;
     const tx=Math.floor(p.x/T),ty=Math.floor(p.y/T);
@@ -1566,7 +1575,7 @@ function render(){
   if(player.grapple){ ctx.strokeStyle="#aaa"; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(player.x+PW/2-cam.x,player.y+PH/2-cam.y); ctx.lineTo(player.grapple.x-cam.x,player.grapple.y-cam.y); ctx.stroke(); ctx.fillStyle="#888"; ctx.fillRect(player.grapple.x-cam.x-3,player.grapple.y-cam.y-3,6,6); }
   for(const p of projectiles){ if(p.type==="bomb"){ ctx.fillStyle="#222"; ctx.beginPath(); ctx.arc(p.x-cam.x,p.y-cam.y,5,0,7); ctx.fill(); ctx.fillStyle="#ff7a1a"; ctx.fillRect(p.x-cam.x-1,p.y-cam.y-7,2,3); continue; }
     if(p.type==="yoyo"){ ctx.strokeStyle="rgba(220,220,220,.6)"; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(player.x+PW/2-cam.x,player.y+PH/2-cam.y); ctx.lineTo(p.x-cam.x,p.y-cam.y); ctx.stroke(); ctx.fillStyle="#ffd24a"; ctx.beginPath(); ctx.arc(p.x-cam.x,p.y-cam.y,5,0,7); ctx.fill(); continue; }
-    ctx.fillStyle=p.type==="bolt"?"#5fd0ff":p.type==="fire"?"#ff7a1a":p.type==="frost"?"#9fe6ff":p.type==="laser"?"#ff3a6a":p.type==="dart"?"#d8c89a":p.type==="bullet"?"#ffe27a":"#caa15a"; ctx.save(); ctx.translate(p.x-cam.x,p.y-cam.y); ctx.rotate(Math.atan2(p.vy,p.vx)); ctx.fillRect(p.type==="laser"?-8:p.type==="bullet"?-4:-6,-2,p.type==="laser"?16:p.type==="bullet"?8:12,p.type==="laser"?3:p.type==="bullet"?2:4); ctx.restore(); }
+    ctx.fillStyle=p.type==="bolt"?"#5fd0ff":p.type==="fire"?"#ff7a1a":p.type==="frost"?"#9fe6ff":p.type==="laser"?"#ff3a6a":p.type==="dart"?"#d8c89a":p.type==="bullet"?"#ffe27a":p.type==="spark"?"#c89aff":"#caa15a"; ctx.save(); ctx.translate(p.x-cam.x,p.y-cam.y); ctx.rotate(Math.atan2(p.vy,p.vx)); ctx.fillRect(p.type==="laser"?-8:p.type==="bullet"?-4:-6,-2,p.type==="laser"?16:p.type==="bullet"?8:12,p.type==="laser"?3:p.type==="bullet"?2:4); ctx.restore(); }
   for(const p of particles){ ctx.globalAlpha=clamp(p.life*2,0,1); ctx.fillStyle=p.col; ctx.fillRect(p.x-cam.x,p.y-cam.y,p.s,p.s); } ctx.globalAlpha=1;
   // lumière
   const lx0=Math.max(0,x0-1),ly0=Math.max(0,y0-1),lx1=Math.min(WORLD_W-1,x1+1),ly1=Math.min(WORLD_H-1,y1+1);
