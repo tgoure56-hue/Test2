@@ -267,6 +267,7 @@ const TOOLS={
   spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
   mirror:{name:"Miroir magique",type:"mirror"}, rod:{name:"Canne à pêche",type:"rod"}, wrench:{name:"Clé à molette",type:"wrench"}, gun1:{name:"Mousquet",type:"gun",dmg:34}, bone_sword:{name:"Épée en os",type:"sword",dmg:44}, brush:{name:"Pinceau",type:"brush"},
+  drill:{name:"Foreuse",type:"drill",power:8.5}, drill2:{name:"Foreuse lunaire",type:"drill",power:12.0},
 };
 const ACC={ cloud:{name:"Bottes nuage",eff:"djump"}, boots:{name:"Bottes véloces",eff:"speed"}, band:{name:"Brassard de force",eff:"def",def:5},
   talisman:{name:"Talisman de régénération",eff:"regen"}, amulet:{name:"Amulette de mana",eff:"manaregen"}, wings:{name:"Ailes de cristal",eff:"fly"}, lavaboots:{name:"Bottes de lave",eff:"lava"}, headlamp:{name:"Lampe frontale",eff:"glow"}, tackle:{name:"Boîte à pêche",eff:"angler"},
@@ -505,6 +506,9 @@ const RECIPES=[
   R({kind:"tool",id:"staff6"},[ma("crystal_bar",6),ma("adamantite_bar",4)],"anvil"),
   R({kind:"tool",id:"summon_staff2"},[ma("mythril_bar",6),ti(EMERALD,2)],"anvil"),
   R({kind:"tool",id:"summon_staff3"},[ma("crystal_bar",6),ma("mech_soul",3)],"anvil"),
+  // phase 27 (forage)
+  R({kind:"tool",id:"drill"},[ma("adamantite_bar",8),ma("cobalt_bar",4)],"anvil"),
+  R({kind:"tool",id:"drill2"},[ma("titanium_bar",10),ma("mech_soul",2)],"anvil"),
 ];
 
 // =========================================================================
@@ -859,7 +863,8 @@ function addItem(kind,id,n){ n=n||1;
 function countItem(kind,id){ let t=0; for(const s of inv)if(s&&s.kind===kind&&s.id===id)t+=s.n; return t; }
 function removeItem(kind,id,n){ for(let i=0;i<inv.length&&n>0;i++){const s=inv[i];
   if(s&&s.kind===kind&&s.id===id){const c=Math.min(s.n,n);s.n-=c;n-=c;if(s.n<=0)inv[i]=null;}} dirtyUI=true; }
-function bestPick(){ let p=0.5; for(const s of inv)if(s&&s.kind==="tool"&&TOOLS[s.id].type==="pick")p=Math.max(p,TOOLS[s.id].power); return p; }
+function bestPick(){ let p=0.5; for(const s of inv)if(s&&s.kind==="tool"&&(TOOLS[s.id].type==="pick"||TOOLS[s.id].type==="drill"))p=Math.max(p,TOOLS[s.id].power); return p; }
+function drillArea(cx,cy){ for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){ if(!dx&&!dy)continue; const x=cx+dx,y=cy+dy; if(x<1||x>=WORLD_W-1||y<1||isBedrock(y))continue; const id=getT(x,y); if(id===AIR||isLiquid(id)||id===CHEST)continue; if(TILE[id].hard<=4)breakTile(x,y,id); } }
 function totalDef(){ let d=0; for(const a of player.armorArr)if(a)d+=ARMOR[a.id].def; if(player.acc&&ACC[player.acc.id].def)d+=ACC[player.acc.id].def; if(player.buffs.iron>0)d+=4; return d; }
 function hasAcc(eff){ return player.acc&&ACC[player.acc.id].eff===eff; }
 
@@ -1026,7 +1031,7 @@ function handleActions(dt){
       if(id===CHEST&&!chestEmpty(mouse.tx,mouse.ty)){ flash("Videz le coffre d'abord"); mining.x=-1; return; }
       if(mining.x!==mouse.tx||mining.y!==mouse.ty){mining.x=mouse.tx;mining.y=mouse.ty;mining.prog=0;}
       mining.prog+=bestPick()*dt;
-      if(mining.prog>=TILE[id].hard){breakTile(mouse.tx,mouse.ty,id);mining.x=-1;mining.prog=0;}
+      if(mining.prog>=TILE[id].hard){breakTile(mouse.tx,mouse.ty,id); if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="drill")drillArea(mouse.tx,mouse.ty); mining.x=-1;mining.prog=0;}
     } else if(id===AIR&&wallAt(mouse.tx,mouse.ty)){
       if(mining.x!==mouse.tx||mining.y!==mouse.ty){mining.x=mouse.tx;mining.y=mouse.ty;mining.prog=0;}
       mining.prog+=bestPick()*dt;
