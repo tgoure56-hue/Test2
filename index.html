@@ -299,7 +299,7 @@ const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenb
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
   hp_potion:{name:"Potion de soin",col:"#e23a4a"}, mp_potion:{name:"Potion de mana",col:"#3a6ae2"},
   cooked_fish:{name:"Poisson grillé",col:"#d8a25a"}, mushroom_soup:{name:"Soupe de champignons",col:"#c87a3a"},
-  swift_potion:{name:"Potion de hâte",col:"#5ad6e0"}, ironskin_potion:{name:"Potion de fer",col:"#c9c9d4"}, pet_egg:{name:"Œuf de familier",col:"#8ad6a0"}, shine_potion:{name:"Potion de lumière",col:"#ffe27a"},
+  swift_potion:{name:"Potion de hâte",col:"#5ad6e0"}, ironskin_potion:{name:"Potion de fer",col:"#c9c9d4"}, pet_egg:{name:"Œuf de familier",col:"#8ad6a0"}, pet_cat:{name:"Panier à chat",col:"#e0a04a"}, pet_fairy:{name:"Bocal à fée",col:"#ff9ad0"}, shine_potion:{name:"Potion de lumière",col:"#ffe27a"},
   fishing_potion:{name:"Potion de pêche",col:"#3a9ad6"}, crate:{name:"Caisse en bois",col:"#a87a48"},
   army_horn:{name:"Cor de guerre",col:"#b08a3a"}, glow_soup:{name:"Soupe lumineuse",col:"#7fe0ff"},
   pumpkin_medallion:{name:"Médaillon citrouille",col:"#ff8a2a"}, pumpkin_pie:{name:"Tarte à la citrouille",col:"#d2691e"},
@@ -512,6 +512,9 @@ const RECIPES=[
   R({kind:"tool",id:"drill2"},[ma("titanium_bar",10),ma("mech_soul",2)],"anvil"),
   // phase 28 (quêtes)
   R({kind:"tile",id:QUESTBOARD},[ti(PLANK,6)],"table"),
+  // phase 29 (familiers)
+  R({kind:"use",id:"pet_cat"},[ma("silk",4),ma("gold_bar",1)],"table"),
+  R({kind:"use",id:"pet_fairy"},[ma("glowmush",3),ma("crystal_bar",1)],"table"),
 ];
 
 // =========================================================================
@@ -832,7 +835,7 @@ function resize(){VW=canvas.width=window.innerWidth;VH=canvas.height=window.inne
 window.addEventListener("resize",resize);resize();
 
 const player={x:0,y:0,vx:0,vy:0,onGround:false,hp:100,maxHp:100,mana:20,maxMana:20,
-  face:1,invuln:0,swing:0,useCd:0,placeCd:0,potionCd:0,acc:null,djump:false,jumpWas:false,drop:false,buffs:{},fishing:null,pet:false,mount:null,flyTime:0,grapple:null,spawnX:0,spawnY:0,armorArr:[null,null,null]};
+  face:1,invuln:0,swing:0,useCd:0,placeCd:0,potionCd:0,acc:null,djump:false,jumpWas:false,drop:false,buffs:{},fishing:null,pet:null,mount:null,flyTime:0,grapple:null,spawnX:0,spawnY:0,armorArr:[null,null,null]};
 let critters=[], minions=[], fireflies=[], glows=[];
 let invasionT=0, wizardArrived=false, blacksmithArrived=false, dryadArrived=false, curShop=null;
 const cam={x:0,y:0};
@@ -1073,7 +1076,9 @@ function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("
   else if(sel.id==="mushroom_soup"){ player.buffs.regen=Math.max(player.buffs.regen||0,90); removeItem("use","mushroom_soup",1); flash("🍲 Régénération (90s)"); }
   else if(sel.id==="swift_potion"){ player.buffs.swift=45; removeItem("use","swift_potion",1); flash("💨 Hâte (45s)"); }
   else if(sel.id==="ironskin_potion"){ player.buffs.iron=45; removeItem("use","ironskin_potion",1); flash("🛡️ Peau de fer (45s)"); }
-  else if(sel.id==="pet_egg"){ player.pet=true; removeItem("use","pet_egg",1); flash("🐾 Un familier te suit !"); }
+  else if(sel.id==="pet_egg"){ player.pet=(player.pet==="sprite")?null:"sprite"; flash(player.pet?"🐾 Un esprit te suit !":"Familier rangé"); }
+  else if(sel.id==="pet_cat"){ player.pet=(player.pet==="cat")?null:"cat"; flash(player.pet?"🐱 Un chat te suit !":"Familier rangé"); }
+  else if(sel.id==="pet_fairy"){ player.pet=(player.pet==="fairy")?null:"fairy"; flash(player.pet?"🧚 Une fée lumineuse te suit !":"Familier rangé"); }
   else if(sel.id==="shine_potion"){ player.buffs.shine=120; removeItem("use","shine_potion",1); flash("✨ Lumière (120s)"); }
   else if(sel.id==="fishing_potion"){ player.buffs.fishing=120; removeItem("use","fishing_potion",1); flash("🎣 Pêche chanceuse (120s)"); }
   else if(sel.id==="glow_soup"){ player.buffs.regen=Math.max(player.buffs.regen||0,80); player.buffs.shine=Math.max(player.buffs.shine||0,80); removeItem("use","glow_soup",1); flash("🍲 Régén + lumière (80s)"); }
@@ -1538,7 +1543,7 @@ function computeLight(x0,y0,x1,y1){ const rw=x1-x0+1,rh=y1-y0+1;
   const sky=dayLight()*(raining?0.8:1)*(eclipse?0.5:1),at=(x,y)=>(x-x0)*rh+(y-y0);
   for(let x=x0;x<=x1;x++){ let sh=0; while(sh<WORLD_H&&!blocksLight(x,sh))sh++; for(let y=y0;y<=Math.min(y1,sh);y++)if(y>=0)L[at(x,y)]=Math.max(L[at(x,y)],sky); }
   for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){ const t=getT(x,y); if(TILE[t]&&TILE[t].light)L[at(x,y)]=Math.max(L[at(x,y)],TILE[t].light); }
-  if(player.buffs.shine>0||hasAcc("glow")){ const lx=Math.floor((player.x+PW/2)/T),ly=Math.floor((player.y+PH/2)/T); if(lx>=x0&&lx<=x1&&ly>=y0&&ly<=y1)L[at(lx,ly)]=Math.max(L[at(lx,ly)],0.95); }
+  if(player.buffs.shine>0||hasAcc("glow")||player.pet==="fairy"){ const lx=Math.floor((player.x+PW/2)/T),ly=Math.floor((player.y+PH/2)/T); if(lx>=x0&&lx<=x1&&ly>=y0&&ly<=y1)L[at(lx,ly)]=Math.max(L[at(lx,ly)],player.pet==="fairy"&&!(player.buffs.shine>0||hasAcc("glow"))?0.6:0.95); }
   for(const f of fireflies){ const fx=Math.floor(f.x/T),fy=Math.floor(f.y/T); if(fx>=x0&&fx<=x1&&fy>=y0&&fy<=y1)L[at(fx,fy)]=Math.max(L[at(fx,fy)],0.45); }
   for(const g of glows){ const gx=Math.floor(g.x/T),gy=Math.floor(g.y/T); if(gx>=x0&&gx<=x1&&gy>=y0&&gy<=y1)L[at(gx,gy)]=Math.max(L[at(gx,gy)],0.85); }
   for(let pass=0;pass<6;pass++){
@@ -1589,7 +1594,10 @@ function render(){
   drawPlayer();
   if(player.fishing){ const bx=player.fishing.tx*T+T/2-cam.x, by=player.fishing.ty*T+6-cam.y, hx=player.x+PW/2-cam.x, hy=player.y+10-cam.y;
     ctx.strokeStyle="rgba(255,255,255,0.6)"; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(bx,by); ctx.stroke(); ctx.fillStyle="#e23a4a"; ctx.fillRect(bx-2,by-2,4,4); }
-  if(player.pet){ const tp=frameCount*0.07, pxp=player.x-cam.x+(player.face>0?-16:PW+4)+Math.sin(tp)*2, pyp=player.y-cam.y+18+Math.sin(tp*1.5)*3; ctx.fillStyle="#8ad6a0"; roundRect(pxp,pyp,12,10,4); ctx.fill(); ctx.fillStyle="#fff"; ctx.fillRect(pxp+(player.face>0?2:7),pyp+3,2,2); }
+  if(player.pet){ const tp=frameCount*0.07, pxp=player.x-cam.x+(player.face>0?-16:PW+4)+Math.sin(tp)*2, pyp=player.y-cam.y+18+Math.sin(tp*1.5)*3;
+    if(player.pet==="cat"){ ctx.fillStyle="#e0a04a"; roundRect(pxp,pyp,13,9,3); ctx.fill(); ctx.beginPath();ctx.moveTo(pxp+1,pyp);ctx.lineTo(pxp+3,pyp-4);ctx.lineTo(pxp+5,pyp);ctx.fill();ctx.beginPath();ctx.moveTo(pxp+8,pyp);ctx.lineTo(pxp+10,pyp-4);ctx.lineTo(pxp+12,pyp);ctx.fill(); ctx.fillStyle="#c8843a";ctx.fillRect(pxp+(player.face>0?13:-3),pyp+2,4,2); ctx.fillStyle="#2a2a2a";ctx.fillRect(pxp+(player.face>0?3:7),pyp+3,2,2); }
+    else if(player.pet==="fairy"){ ctx.fillStyle="rgba(255,154,208,.5)";ctx.beginPath();ctx.arc(pxp+6,pyp+5,8,0,7);ctx.fill();ctx.fillStyle="#ff9ad0";ctx.beginPath();ctx.arc(pxp+6,pyp+5,4,0,7);ctx.fill();ctx.fillStyle="rgba(255,255,255,.7)";const fw=Math.sin(frameCount*0.5)*3;ctx.beginPath();ctx.ellipse(pxp+1,pyp+3+fw,4,5,0,0,7);ctx.fill();ctx.beginPath();ctx.ellipse(pxp+11,pyp+3+fw,4,5,0,0,7);ctx.fill(); }
+    else { ctx.fillStyle="#8ad6a0"; roundRect(pxp,pyp,12,10,4); ctx.fill(); ctx.fillStyle="#fff"; ctx.fillRect(pxp+(player.face>0?2:7),pyp+3,2,2); } }
   if(player.mount){ const mx=player.x-cam.x-4, my=player.y-cam.y+PH-10;
     if(player.mount==="bird"){ const wf=Math.sin(frameCount*0.4)*5; ctx.fillStyle="#e8d8a8"; ctx.beginPath();ctx.moveTo(mx+PW/2,my+6);ctx.lineTo(mx-6,my+2-wf);ctx.lineTo(mx-2,my+12);ctx.fill();ctx.beginPath();ctx.moveTo(mx+PW/2+8,my+6);ctx.lineTo(mx+PW+14,my+2-wf);ctx.lineTo(mx+PW+10,my+12);ctx.fill();ctx.fillStyle="#caa07a";roundRect(mx+2,my+4,PW+4,12,5);ctx.fill();ctx.fillStyle="#e8c33a";ctx.fillRect(mx+PW+4,my+8,3,2); }
     else if(player.mount==="unicorn"){ ctx.fillStyle="#f0e8f4"; roundRect(mx,my,PW+10,16,5); ctx.fill(); ctx.fillStyle="#e0d4e8"; ctx.fillRect(mx+2,my+13,3,5); ctx.fillRect(mx+PW+3,my+13,3,5); ctx.fillStyle="#ffd24a"; ctx.beginPath();ctx.moveTo(mx+PW+8,my+2);ctx.lineTo(mx+PW+12,my-5);ctx.lineTo(mx+PW+10,my+3);ctx.fill(); ctx.fillStyle="#c89ad8";ctx.fillRect(mx+PW+4,my-1,4,6); }
@@ -1822,7 +1830,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
     chestData=new Map(); if(d.chests)d.chests.forEach(([k,v])=>chestData.set(k,v));
     coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; anglerArrived=!!d.anglerArrived; fishCaught=d.fishCaught||0; anglerQuest=d.anglerQuest||null; hardmode=!!d.hardmode; tinkererArrived=!!d.tinkererArrived; armsDealerArrived=!!d.armsDealerArrived; painterArrived=!!d.painterArrived; taxCollectorArrived=!!d.taxCollectorArrived; taxPool=d.taxPool||0; quest=d.quest||null; invasionT=0; army=null; bloodMoon=false; eclipse=false; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0;
     player.x=d.px;player.y=d.py;player.hp=d.hp;player.maxHp=d.maxHp||100;player.mana=d.mana||0;player.maxMana=d.maxMana||20;player.armorArr=d.armor||[null,null,null];player.acc=d.acc||null;
-    player.pet=!!d.pet; player.mount=typeof d.mtd==="string"?d.mtd:(d.mtd?"slime":null); player.spawnX=d.spx!=null?d.spx:Math.floor(WORLD_W/2)*T; player.spawnY=d.spy!=null?d.spy:(surfaceAt(Math.floor(WORLD_W/2))-6)*T; player.buffs={}; player.fishing=null;
+    player.pet=typeof d.pet==="string"?d.pet:(d.pet?"sprite":null); player.mount=typeof d.mtd==="string"?d.mtd:(d.mtd?"slime":null); player.spawnX=d.spx!=null?d.spx:Math.floor(WORLD_W/2)*T; player.spawnY=d.spy!=null?d.spy:(surfaceAt(Math.floor(WORLD_W/2))-6)*T; player.buffs={}; player.fishing=null;
     selected=d.sel||0; gameTime=d.time||0.3; inv=d.inv?d.inv.slice(0,36):new Array(36).fill(null);
     while(inv.length<36)inv.push(null); critters=[]; minions=[]; fireflies=[]; glows=[]; trapCd.clear(); player.grapple=null;
     npcs=[]; spawnNPC("guide"); if(merchantArrived)spawnNPC("merchant"); if(nurseArrived)spawnNPC("nurse"); if(wizardArrived)spawnNPC("wizard"); if(blacksmithArrived)spawnNPC("blacksmith"); if(dryadArrived)spawnNPC("dryad"); if(anglerArrived)spawnNPC("angler"); if(tinkererArrived)spawnNPC("tinkerer"); if(armsDealerArrived)spawnNPC("arms_dealer"); if(painterArrived)spawnNPC("painter"); if(taxCollectorArrived)spawnNPC("tax_collector"); return true;
@@ -1830,7 +1838,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
 function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null]; player.acc=null;
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
-  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;curShop=null;player.buffs={};player.fishing=null;player.pet=false;player.mount=null;player.flyTime=0;player.grapple=null;glows=[];trapCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;
+  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;curShop=null;player.buffs={};player.fishing=null;player.pet=null;player.mount=null;player.flyTime=0;player.grapple=null;glows=[];trapCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;
   npcs=[]; spawnNPC("guide");
   document.getElementById("death").style.display="none";
   const c=Math.floor(WORLD_W/2);player.x=c*T;player.y=(surfaceAt(c)-6)*T;player.vx=player.vy=0;player.spawnX=player.x;player.spawnY=player.y;
