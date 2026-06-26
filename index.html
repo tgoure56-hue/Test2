@@ -128,7 +128,7 @@ const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAM
   PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39,MYTHRIL=40,
   BED=41,CAMPFIRE=42,HEARTLANTERN=43,SPIKE=44,ADAMANTITE=45,CGRASS=46,EBONSTONE=47,HGRASS=48,PEARLSTONE=49,CRYSTAL=50,LAMP=51,CHAIR=52,VASE=53,BANNER=54,COBALT=55,TITANIUM=56,DART_TRAP=57,PLATE=58,STATUE=59,
   MGRASS=60,GMUSH=61,MUSHBLOCK=62,MARBLE=63,GRANITE=64,SANDSTONE=65,STONEBRICK=66,CLOUDB=67,COBWEB=68,CACTUS=69,BOOKCASE=70,CANDLE=71,CHANDELIER=72,SAWMILL=73,
-  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88;
+  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -224,6 +224,9 @@ const TILE={
   [HIVE]:{name:"Ruche",solid:true,hard:1.0,drop:HIVE,col:"#d8a23a"},
   [HONEYBLOCK]:{name:"Bloc de miel",solid:true,hard:0.5,drop:HONEYBLOCK,col:"#e8a82a"},
   [LARVA]:{name:"Larve royale",solid:false,hard:0.8,drop:-1,col:"#f0d088",light:0.4},
+  [ICEBRICK]:{name:"Brique de glace",solid:true,hard:1.0,drop:ICEBRICK,col:"#8ad0e8"},
+  [SNOWBRICK]:{name:"Brique de neige",solid:true,hard:0.8,drop:SNOWBRICK,col:"#e0eef8"},
+  [BLUETORCH]:{name:"Torche bleue",solid:false,hard:0.1,drop:BLUETORCH,col:"#5ab0ff",light:1.0},
 };
 const isSpike=id=>TILE[id]&&TILE[id].spike;
 const isPlatform=id=>TILE[id]&&TILE[id].platform;
@@ -276,7 +279,7 @@ const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Bar
   fish:{name:"Poisson",col:"#7fb0c8"}, tuna:{name:"Thon",col:"#4a7a9a"}, salmon:{name:"Saumon",col:"#e08a6a"}, swordfish:{name:"Espadon",col:"#9ab0c0"},
   mythril_bar:{name:"Barre de mythril",col:"#5fc9b0"}, adamantite_bar:{name:"Barre d'adamantite",col:"#d0506a"}, crystal_bar:{name:"Barre de cristal",col:"#7fe0ff"},
   cobalt_bar:{name:"Barre de cobalt",col:"#2a6ad0"}, titanium_bar:{name:"Barre de titane",col:"#c0c4cc"}, mech_soul:{name:"Âme mécanique",col:"#9fe0ff"},
-  glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"} };
+  glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"} };
 const AMMO={ arrow:{name:"Flèche",col:"#caa15a",dmg:5} };
 const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenbee:{name:"Larve royale"}, golem:{name:"Noyau de golem"}, worm:{name:"Nourriture maudite"}, moon:{name:"Tablette céleste"}, mechworm:{name:"Engrenage maudit"} };
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
@@ -286,7 +289,8 @@ const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{nam
   fishing_potion:{name:"Potion de pêche",col:"#3a9ad6"}, crate:{name:"Caisse en bois",col:"#a87a48"},
   army_horn:{name:"Cor de guerre",col:"#b08a3a"}, glow_soup:{name:"Soupe lumineuse",col:"#7fe0ff"},
   pumpkin_medallion:{name:"Médaillon citrouille",col:"#ff8a2a"}, pumpkin_pie:{name:"Tarte à la citrouille",col:"#d2691e"},
-  regen_potion:{name:"Potion de régénération",col:"#5ad65a"}, nightowl_potion:{name:"Potion de vision nocturne",col:"#9a7ad0"}, honey_potion:{name:"Potion de miel",col:"#e8a82a"} };
+  regen_potion:{name:"Potion de régénération",col:"#5ad65a"}, nightowl_potion:{name:"Potion de vision nocturne",col:"#9a7ad0"}, honey_potion:{name:"Potion de miel",col:"#e8a82a"},
+  frost_core:{name:"Noyau de gel",col:"#aae0ff"}, frost_potion:{name:"Potion de givre",col:"#8ad0e8"} };
 const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"}, shine:{name:"Lumière",col:"#ffe27a"}, fishing:{name:"Pêche chanceuse",col:"#3a9ad6"} };
 
 // ---- recettes ----
@@ -462,6 +466,12 @@ const RECIPES=[
   R({kind:"use",id:"honey_potion"},[ma("honey",2)],"alchemy"),
   R({kind:"tile",id:HONEYBLOCK,n:4},[ma("honey",1)],"table"),
   R({kind:"tile",id:HIVE,n:4},[ma("honey",2)],"table"),
+  // phase 19 (gel mortel)
+  R({kind:"tile",id:ICEBRICK,n:4},[ma("ice_shard",1),ti(STONE,2)],"furnace"),
+  R({kind:"tile",id:SNOWBRICK,n:4},[ti(SNOW,4)],"furnace"),
+  R({kind:"tile",id:BLUETORCH,n:4},[ti(TORCH,1),ma("ice_shard",1)],"table"),
+  R({kind:"use",id:"frost_core"},[ma("ice_shard",8),ma("gold_bar",2)],"anvil"),
+  R({kind:"use",id:"frost_potion"},[ma("ice_shard",2),ma("mushroom",1)],"alchemy"),
 ];
 
 // =========================================================================
@@ -643,7 +653,7 @@ function tree(x,sy,rng){ const h=4+Math.floor(rng()*4); for(let i=1;i<=h;i++)if(
 const TEX={};
 function shade(hex,d){const n=parseInt(hex.slice(1),16);let r=clamp((n>>16)+d,0,255),g=clamp(((n>>8)&255)+d,0,255),b=clamp((n&255)+d,0,255);return"#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}
 // relief : bord clair en haut/gauche, bord sombre en bas/droite (rendu "bloc")
-const BEVEL=new Set([DIRT,GRASS,STONE,SAND,COAL,IRON,GOLD,DIAMOND,COPPER,SILVER,SNOW,ICE,CLAY,RUBY,EMERALD,SAPPHIRE,LOG,PLANK,BRICK,FURNACE,MUD,JGRASS,ASH,HELLSTONE,MYTHRIL,ADAMANTITE,CGRASS,EBONSTONE,HGRASS,PEARLSTONE,CRYSTAL,COBALT,TITANIUM,MGRASS,MUSHBLOCK,MARBLE,GRANITE,SANDSTONE,STONEBRICK,CLOUDB,PUMPKIN,JACKOLANTERN,HAY,GOLDBRICK,BLUEBRICK,GLOWSTONE,HIVE,HONEYBLOCK]);
+const BEVEL=new Set([DIRT,GRASS,STONE,SAND,COAL,IRON,GOLD,DIAMOND,COPPER,SILVER,SNOW,ICE,CLAY,RUBY,EMERALD,SAPPHIRE,LOG,PLANK,BRICK,FURNACE,MUD,JGRASS,ASH,HELLSTONE,MYTHRIL,ADAMANTITE,CGRASS,EBONSTONE,HGRASS,PEARLSTONE,CRYSTAL,COBALT,TITANIUM,MGRASS,MUSHBLOCK,MARBLE,GRANITE,SANDSTONE,STONEBRICK,CLOUDB,PUMPKIN,JACKOLANTERN,HAY,GOLDBRICK,BLUEBRICK,GLOWSTONE,HIVE,HONEYBLOCK,ICEBRICK,SNOWBRICK]);
 function bevelTile(g){ g.lineWidth=1;
   g.strokeStyle="rgba(255,255,255,0.16)"; g.beginPath(); g.moveTo(0.5,0); g.lineTo(0.5,T); g.moveTo(0,0.5); g.lineTo(T,0.5); g.stroke();
   g.strokeStyle="rgba(0,0,0,0.34)"; g.beginPath(); g.moveTo(T-0.5,0); g.lineTo(T-0.5,T); g.moveTo(0,T-0.5); g.lineTo(T,T-0.5); g.stroke(); }
@@ -725,6 +735,9 @@ function makeTex(id){
   else if(id===HIVE){g.fillStyle="#d8a23a";g.fillRect(0,0,T,T);g.strokeStyle="#a87a22";g.lineWidth=1;for(let r=0;r<3;r++)for(let c=0;c<3;c++){const ox=c*9+(r%2?4:0),oy=r*8;g.beginPath();g.arc(ox+2,oy+4,3,0,7);g.stroke();}g.fillStyle="#f0c45a";g.fillRect(2,2,2,2);}
   else if(id===HONEYBLOCK){g.fillStyle="rgba(232,168,42,.85)";g.fillRect(0,0,T,T);g.fillStyle="#f0c45a";g.fillRect(2,2,T-4,2);g.fillStyle="#c8862a";g.beginPath();g.arc(T/2,T-5,3,0,7);g.fill();}
   else if(id===LARVA){g.clearRect(0,0,T,T);g.fillStyle="#caa23a";g.fillRect(2,2,T-4,T-4);g.fillStyle="#f0d088";g.beginPath();g.ellipse(T/2,T/2,5,7,0,0,7);g.fill();g.fillStyle="#fff5d0";g.beginPath();g.ellipse(T/2-1,T/2-1,2,3,0,0,7);g.fill();g.strokeStyle="#a8842a";g.lineWidth=1;g.strokeRect(2,2,T-4,T-4);}
+  else if(id===ICEBRICK){g.fillStyle="#8ad0e8";g.fillRect(0,0,T,T);g.strokeStyle="#5aa0c0";g.lineWidth=1;g.strokeRect(0,0,T,T/2);g.strokeRect(0,T/2,T,T/2);g.beginPath();g.moveTo(T/2,0);g.lineTo(T/2,T/2);g.moveTo(0,T/2);g.lineTo(0,T);g.stroke();g.strokeStyle="rgba(255,255,255,.6)";g.beginPath();g.moveTo(2,T-3);g.lineTo(T-4,3);g.stroke();}
+  else if(id===SNOWBRICK){g.fillStyle="#e0eef8";g.fillRect(0,0,T,T);g.strokeStyle="#c0d2e2";g.lineWidth=1;g.strokeRect(0,0,T,T/2);g.strokeRect(0,T/2,T,T/2);g.beginPath();g.moveTo(T/2,0);g.lineTo(T/2,T/2);g.moveTo(0,T/2);g.lineTo(0,T);g.stroke();}
+  else if(id===BLUETORCH){g.clearRect(0,0,T,T);g.fillStyle="#6e4520";g.fillRect(T/2-2,8,4,T-8);g.fillStyle="#3a9aff";g.beginPath();g.ellipse(T/2,7,4,7,0,0,7);g.fill();g.fillStyle="#bfe4ff";g.beginPath();g.ellipse(T/2,8,2,4,0,0,7);g.fill();}
   else if(id===TABLE){g.clearRect(0,0,T,T);g.fillStyle="#8a5a2b";g.fillRect(2,8,T-4,5);g.fillStyle="#6e4520";g.fillRect(4,13,3,T-14);g.fillRect(T-7,13,3,T-14);}
   else if(id===TORCH){g.clearRect(0,0,T,T);g.fillStyle="#6e4520";g.fillRect(T/2-2,8,4,T-8);g.fillStyle="#ff9a1a";g.beginPath();g.ellipse(T/2,7,4,7,0,0,7);g.fill();g.fillStyle="#ffe27a";g.beginPath();g.ellipse(T/2,8,2,4,0,0,7);g.fill();}
   else if(id===LAMP){g.clearRect(0,0,T,T);g.fillStyle="#555";g.fillRect(T/2-1,6,2,T-8);g.fillRect(T/2-4,T-3,8,3);g.fillStyle="#caa23a";g.fillRect(T/2-4,2,8,7);g.fillStyle="#ffe27a";g.fillRect(T/2-3,3,6,5);}
@@ -766,6 +779,7 @@ let trapCd=new Map();
 let army=null;
 let raining=false, weatherT=80, showMap=false, bloodMoon=false, eclipse=false;
 let pumpkinMoon=false, pumpkinMoonT=0, pumpkinKills=0;
+let frostMoon=false, frostMoonT=0, frostKills=0;
 let invOpen=false, chestOpen=false, shopOpen=false, curChestKey=null, dead=false, autosaveT=0;
 const mining={x:-1,y:-1,prog:0};
 const keys={}, mouse={x:0,y:0,wx:0,wy:0,tx:0,ty:0,left:false,right:false};
@@ -846,7 +860,7 @@ function update(dt){
   const regenRate=2+(player.buffs.regen>0?6:0)+(hasAcc("regen")?2:0)+(nearTile(CAMPFIRE,8)?3:0)+(nearTile(HEARTLANTERN,8)?2:0);
   if(player.invuln<=0&&player.hp<player.maxHp)player.hp=Math.min(player.maxHp,player.hp+dt*regenRate);
   player.mana=Math.min(player.maxMana,player.mana+dt*(4+(hasAcc("manaregen")?4:0)));
-  updateFishing(dt); updateCritters(dt,step); updateMinions(dt,step); updateFireflies(dt,step); updateTraps(dt); updateArmy(dt); updatePumpkinMoon(dt);
+  updateFishing(dt); updateCritters(dt,step); updateMinions(dt,step); updateFireflies(dt,step); updateTraps(dt); updateArmy(dt); updatePumpkinMoon(dt); updateFrostMoon(dt);
   for(let i=glows.length-1;i>=0;i--){ glows[i].life-=dt; if(glows[i].life<=0)glows.splice(i,1); }
   // dégâts de lave
   const ptx=Math.floor((player.x+PW/2)/T);
@@ -989,6 +1003,8 @@ function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("
   else if(sel.id==="regen_potion"){ player.buffs.regen=Math.max(player.buffs.regen||0,90); removeItem("use","regen_potion",1); flash("💚 Régénération (90s)"); }
   else if(sel.id==="nightowl_potion"){ player.buffs.shine=Math.max(player.buffs.shine||0,240); removeItem("use","nightowl_potion",1); flash("🦉 Vision nocturne (240s)"); }
   else if(sel.id==="honey_potion"){ player.buffs.regen=Math.max(player.buffs.regen||0,75); player.hp=Math.min(player.maxHp,player.hp+25); removeItem("use","honey_potion",1); flash("🍯 Miel régénérant (75s)"); }
+  else if(sel.id==="frost_core"){ if(!isNight()){flash("À utiliser la nuit");return;} removeItem("use","frost_core",1); startFrostMoon(); }
+  else if(sel.id==="frost_potion"){ player.buffs.iron=Math.max(player.buffs.iron||0,90); removeItem("use","frost_potion",1); flash("❄️ Armure de givre (90s)"); }
   else if(sel.id==="crate"){ openCrate(); } }
 function meleeAttack(dmg){ const dir=player.face,ax=player.x+PW/2+dir*12,ay=player.y+PH/2;
   const list=boss&&!boss.mech?enemies.concat([boss]):enemies;
@@ -1152,8 +1168,11 @@ const ENEMY={
   pumpkinhead:{w:22,h:40,hp:150,dmg:28,col:"#d2691e",fly:false},
   reaper:{w:26,h:42,hp:210,dmg:40,col:"#3a3a44",fly:true},
   hornet:{w:22,h:18,hp:85,dmg:24,col:"#e8c33a",fly:true},
+  iceslime:{w:26,h:22,hp:55,dmg:16,col:"#8ad0e8",fly:false},
+  frostzombie:{w:20,h:42,hp:165,dmg:30,col:"#9ab0c0",fly:false},
+  icegolem:{w:30,h:46,hp:540,dmg:36,col:"#7ab0d0",fly:false},
 };
-const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8,shark:14,jellyfish:6,wraith:25,possessed:30,spore:10,knight:16,general:120,harpy:14,pumpkinhead:22,reaper:40,hornet:9};
+const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8,shark:14,jellyfish:6,wraith:25,possessed:30,spore:10,knight:16,general:120,harpy:14,pumpkinhead:22,reaper:40,hornet:9,iceslime:5,frostzombie:24,icegolem:110};
 function spawnEnemy(type,x,y){ const d=ENEMY[type], sc=1+bossKills*0.12, hp=Math.round(d.hp*sc); enemies.push({type,x,y,vx:0,vy:0,w:d.w,h:d.h,hp,maxHp:hp,dmg:Math.round(d.dmg*(1+bossKills*0.08)),col:d.col,fly:d.fly,onGround:false,hop:Math.random(),t:Math.random()*9}); }
 function updateEnemies(dt,step){
   if(invasionT>0){ invasionT-=dt; if(invasionT<=0)flash("L'invasion gobeline est repoussée !");
@@ -1189,6 +1208,8 @@ function updateEnemies(dt,step){
   if(enemies.length<8&&Math.random()<dt*1.0){ const pcx=Math.floor(player.x/T),py=Math.floor(player.y/T); if(py<surfaceAt(pcx)-12){ const sx=clamp(pcx+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3), sy=clamp(py+Math.floor((Math.random()-0.5)*8),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("harpy",sx*T,sy*T); } }
   // frelons de la jungle (souterrain)
   if(enemies.length<10&&biomeAt(Math.floor(player.x/T))===3&&Math.floor(player.y/T)>surfaceAt(Math.floor(player.x/T))+4&&Math.random()<dt*0.9){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3), sy=clamp(Math.floor(player.y/T)+Math.floor((Math.random()-0.5)*10),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("hornet",sx*T,sy*T); }
+  // limaces de glace dans la neige
+  if(enemies.length<9&&biomeAt(Math.floor(player.x/T))===1&&Math.random()<dt*0.7){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3), sy=surfaceAt(sx)-2; if(Math.abs(sx*T-player.x)<VW&&getT(sx,sy)===AIR)spawnEnemy("iceslime",sx*T,sy*T); }
   for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; e.t+=dt; if(e.slow>0){e.slow-=dt;e.vx*=0.55;e.vy*=0.7;} if(e.yoyoCd>0)e.yoyoCd-=dt;
     if(e.fly){ const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1; const sp=e.type==="eye"?2.4:2.0;
       e.vx=lerp(e.vx,dx/d*sp,0.05)+(e.type==="bat"?Math.sin(e.t*6)*0.6:0); e.vy=lerp(e.vy,dy/d*sp,0.05)+(e.type==="bat"?Math.cos(e.t*5)*0.6:0);
@@ -1204,6 +1225,7 @@ function updateEnemies(dt,step){
       if(e.type==="harpy"&&Math.random()<0.6)addItem("mat","feather",1);
       if(e.type==="hornet"&&Math.random()<0.6)addItem("mat","honey",1);
       if((e.type==="pumpkinhead"||e.type==="reaper")){ if(Math.random()<0.6)addItem("mat","candy",1); if(pumpkinMoon)pumpkinKills++; }
+      if((e.type==="iceslime"||e.type==="frostzombie"||e.type==="icegolem")){ if(Math.random()<0.6)addItem("mat","ice_shard",1); if(frostMoon)frostKills++; }
       if(army&&e.army){ army.kills++; if(e.type==="general")armyDefeated(); }
       coins+=(COINS[e.type]||1)+Math.floor(Math.random()*3); spawnParticles(e.x+e.w/2,e.y+e.h/2,"#ffd24a",6); dirtyUI=true; enemies.splice(i,1); continue; }
     if((!isNight()&&!e.fly&&!e.army&&Math.random()<dt*0.5)||Math.abs(e.x-player.x)>VW*1.5)enemies.splice(i,1);
@@ -1296,6 +1318,11 @@ function updatePumpkinMoon(dt){ if(!pumpkinMoon)return; pumpkinMoonT-=dt;
   if(pumpkinMoonT<=0){ pumpkinMoon=false; coins+=300; player.maxHp+=10; player.hp=player.maxHp; addItem("use","pumpkin_pie",2); flash("🎃 La Lune citrouille s'achève ! ("+pumpkinKills+" vaincus)"); dirtyUI=true; return; }
   if(enemies.length<14&&Math.random()<dt*2.2){ const side=Math.random()<0.5?-1:1, sx=clamp(Math.floor((player.x+side*(VW/2+60))/T),2,WORLD_W-3), sy=clamp(surfaceAt(sx)-2,2,WORLD_H-3);
     if(Math.abs(sx*T-player.x)<VW*1.2){ spawnEnemy(Math.random()<0.7?"pumpkinhead":"reaper",sx*T,sy*T); enemies[enemies.length-1].pmoon=true; } } }
+function startFrostMoon(){ if(frostMoon){flash("Le Gel mortel sévit déjà !");return;} frostMoon=true; frostMoonT=90; frostKills=0; gameTime=0.72; flash("❄️ Le Gel mortel s'abat !"); }
+function updateFrostMoon(dt){ if(!frostMoon)return; frostMoonT-=dt;
+  if(frostMoonT<=0){ frostMoon=false; coins+=350; player.maxHp+=10; player.hp=player.maxHp; addItem("mat","ice_shard",8); addItem("use","frost_core",1); flash("❄️ Le Gel mortel se dissipe ! ("+frostKills+" vaincus)"); dirtyUI=true; return; }
+  if(enemies.length<14&&Math.random()<dt*2.2){ const side=Math.random()<0.5?-1:1, sx=clamp(Math.floor((player.x+side*(VW/2+60))/T),2,WORLD_W-3), sy=clamp(surfaceAt(sx)-2,2,WORLD_H-3);
+    if(Math.abs(sx*T-player.x)<VW*1.2){ const r=Math.random(); spawnEnemy(r<0.55?"frostzombie":r<0.85?"iceslime":"icegolem",sx*T,sy*T); enemies[enemies.length-1].fmoon=true; } } }
 
 // =========================================================================
 //  PNJ (guide + marchand) et boutique
@@ -1402,6 +1429,7 @@ function render(){
   if(bloodMoon){ top=mixCol(top,[120,20,20],0.6); bot=mixCol(bot,[80,10,10],0.6); }
   if(eclipse){ top=mixCol(top,[40,30,50],0.5); bot=mixCol(bot,[30,20,40],0.5); }
   if(pumpkinMoon){ top=mixCol(top,[90,40,10],0.55); bot=mixCol(bot,[50,25,10],0.55); }
+  if(frostMoon){ top=mixCol(top,[80,120,170],0.5); bot=mixCol(bot,[40,70,110],0.5); }
   const grd=ctx.createLinearGradient(0,0,0,VH); grd.addColorStop(0,`rgb(${top[0]},${top[1]},${top[2]})`); grd.addColorStop(1,`rgb(${bot[0]},${bot[1]},${bot[2]})`);
   ctx.fillStyle=grd; ctx.fillRect(0,0,VW,VH);
   drawCelestial(dl); drawHills(dl);
@@ -1506,6 +1534,9 @@ function drawEnemy(e){ const sx=e.x-cam.x,sy=e.y-cam.y;
   else if(e.type==="pumpkinhead"){ ctx.fillStyle="#3a5a2a";ctx.fillRect(sx+2,sy+24,6,16);ctx.fillRect(sx+e.w-8,sy+24,6,16);ctx.fillStyle="#5a7a4a";ctx.fillRect(sx,sy+12,e.w,14);ctx.fillStyle="#d2691e";ctx.beginPath();ctx.arc(sx+e.w/2,sy+6,8,0,7);ctx.fill();ctx.fillStyle="#5a8a3a";ctx.fillRect(sx+e.w/2-1,sy-3,2,3);ctx.fillStyle="#ffd24a";ctx.beginPath();ctx.moveTo(sx+e.w/2-5,sy+5);ctx.lineTo(sx+e.w/2-1,sy+5);ctx.lineTo(sx+e.w/2-3,sy+8);ctx.fill();ctx.beginPath();ctx.moveTo(sx+e.w/2+5,sy+5);ctx.lineTo(sx+e.w/2+1,sy+5);ctx.lineTo(sx+e.w/2+3,sy+8);ctx.fill(); }
   else if(e.type==="reaper"){ ctx.fillStyle="rgba(30,30,40,.6)";ctx.beginPath();ctx.arc(sx+e.w/2,sy+e.h/2,e.w/2+2,0,7);ctx.fill();ctx.fillStyle=e.col;ctx.beginPath();ctx.moveTo(sx+e.w/2,sy);ctx.lineTo(sx+e.w-2,sy+e.h);ctx.lineTo(sx+2,sy+e.h);ctx.fill();ctx.fillStyle="#0a0a10";ctx.beginPath();ctx.arc(sx+e.w/2,sy+8,5,0,7);ctx.fill();ctx.fillStyle="#ff2a2a";ctx.fillRect(sx+e.w/2-3,sy+7,2,2);ctx.fillRect(sx+e.w/2+1,sy+7,2,2);ctx.strokeStyle="#b8bcc4";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx+e.w,sy+2);ctx.lineTo(sx+e.w,sy+e.h);ctx.stroke();ctx.beginPath();ctx.arc(sx+e.w,sy+3,4,Math.PI,0);ctx.stroke(); }
   else if(e.type==="hornet"){ ctx.fillStyle=e.col;roundRect(sx+3,sy+2,e.w-6,e.h-4,4);ctx.fill();ctx.fillStyle="#2a2418";ctx.fillRect(sx+6,sy+2,2,e.h-4);ctx.fillRect(sx+10,sy+2,2,e.h-4);ctx.fillStyle="#3a2a18";ctx.beginPath();ctx.moveTo(sx+e.w-3,sy+e.h/2);ctx.lineTo(sx+e.w+3,sy+e.h/2+2);ctx.lineTo(sx+e.w-3,sy+e.h/2+3);ctx.fill();ctx.fillStyle="rgba(255,255,255,0.6)";const wb=Math.sin(e.t*22)*2;ctx.beginPath();ctx.ellipse(sx+4,sy+wb,5,2,0,0,7);ctx.fill();ctx.beginPath();ctx.ellipse(sx+e.w-4,sy+wb,5,2,0,0,7);ctx.fill(); }
+  else if(e.type==="iceslime"){ ctx.fillStyle=e.col;ctx.globalAlpha=0.9;roundRect(sx,sy,e.w,e.h,7);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle="#eaf8ff";ctx.fillRect(sx+6,sy+8,4,4);ctx.fillRect(sx+e.w-10,sy+8,4,4);ctx.fillStyle="#2a6a8a";ctx.fillRect(sx+7,sy+9,2,2);ctx.fillRect(sx+e.w-9,sy+9,2,2);ctx.strokeStyle="rgba(255,255,255,.7)";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx+4,sy+e.h-5);ctx.lineTo(sx+10,sy+5);ctx.stroke(); }
+  else if(e.type==="frostzombie"){ ctx.fillStyle="#5a7a8a";ctx.fillRect(sx+2,sy+24,6,16);ctx.fillRect(sx+e.w-8,sy+24,6,16);ctx.fillStyle=e.col;ctx.fillRect(sx,sy+12,e.w,14);ctx.fillStyle="#bcd2e0";ctx.fillRect(sx+2,sy,e.w-4,13);ctx.fillStyle="#3aa0e0";ctx.fillRect(sx+4,sy+5,2,2);ctx.fillRect(sx+e.w-6,sy+5,2,2);ctx.fillStyle="#eaf8ff";ctx.fillRect(sx+1,sy+11,3,3); }
+  else if(e.type==="icegolem"){ ctx.fillStyle=e.col;roundRect(sx,sy,e.w,e.h,5);ctx.fill();ctx.fillStyle="#5a90b0";ctx.fillRect(sx+7,sy+9,e.w-14,e.h-16);ctx.fillStyle="#bfe4ff";ctx.fillRect(sx-5,sy+14,7,20);ctx.fillRect(sx+e.w-2,sy+14,7,20);ctx.fillStyle="#5ad0ff";ctx.fillRect(sx+e.w/2-12,sy+18,8,8);ctx.fillRect(sx+e.w/2+4,sy+18,8,8);ctx.fillStyle="#eaf8ff";ctx.beginPath();ctx.moveTo(sx+e.w/2,sy-6);ctx.lineTo(sx+e.w/2-4,sy+2);ctx.lineTo(sx+e.w/2+4,sy+2);ctx.fill(); }
   if(e.hp<e.maxHp){ ctx.fillStyle="#000";ctx.fillRect(sx,sy-6,e.w,3);ctx.fillStyle="#e33";ctx.fillRect(sx,sy-6,e.w*(e.hp/e.maxHp),3); }
 }
 function drawNPC(n){ const sx=n.x-cam.x,sy=n.y-cam.y;
@@ -1632,7 +1663,7 @@ function updateStatus(){ $hearts.textContent="❤️ "+Math.ceil(player.hp)+"/"+
 //  mort / sauvegarde
 // =========================================================================
 function die(){ dead=true; document.getElementById("death").style.display="flex"; }
-function respawn(){ dead=false; document.getElementById("death").style.display="none"; player.hp=player.maxHp; player.invuln=2; player.buffs={}; player.fishing=null; enemies=[]; boss=null; army=null; pumpkinMoon=false; pumpkinMoonT=0;
+function respawn(){ dead=false; document.getElementById("death").style.display="none"; player.hp=player.maxHp; player.invuln=2; player.buffs={}; player.fishing=null; enemies=[]; boss=null; army=null; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0;
   player.x=player.spawnX; player.y=player.spawnY; player.vx=player.vy=0; }
 function rle(arr){ const out=[];let v=arr[0],c=1; for(let i=1;i<arr.length;i++){if(arr[i]===v&&c<65535)c++;else{out.push(v,c);v=arr[i];c=1;}} out.push(v,c); return out; }
 function unrle(out,len){ const arr=new Uint8Array(len);let p=0; for(let i=0;i<out.length;i+=2){const v=out[i],c=out[i+1];for(let j=0;j<c;j++)arr[p++]=v;} return arr; }
@@ -1646,7 +1677,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
     if(d.walls)walls=unrle(d.walls,WORLD_W*WORLD_H); else genWalls();
     wires=d.wires?unrle(d.wires,WORLD_W*WORLD_H):new Uint8Array(WORLD_W*WORLD_H);
     chestData=new Map(); if(d.chests)d.chests.forEach(([k,v])=>chestData.set(k,v));
-    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; anglerArrived=!!d.anglerArrived; fishCaught=d.fishCaught||0; anglerQuest=d.anglerQuest||null; hardmode=!!d.hardmode; tinkererArrived=!!d.tinkererArrived; invasionT=0; army=null; bloodMoon=false; eclipse=false; pumpkinMoon=false; pumpkinMoonT=0;
+    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; anglerArrived=!!d.anglerArrived; fishCaught=d.fishCaught||0; anglerQuest=d.anglerQuest||null; hardmode=!!d.hardmode; tinkererArrived=!!d.tinkererArrived; invasionT=0; army=null; bloodMoon=false; eclipse=false; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0;
     player.x=d.px;player.y=d.py;player.hp=d.hp;player.maxHp=d.maxHp||100;player.mana=d.mana||0;player.maxMana=d.maxMana||20;player.armorArr=d.armor||[null,null,null];player.acc=d.acc||null;
     player.pet=!!d.pet; player.mounted=!!d.mtd; player.spawnX=d.spx!=null?d.spx:Math.floor(WORLD_W/2)*T; player.spawnY=d.spy!=null?d.spy:(surfaceAt(Math.floor(WORLD_W/2))-6)*T; player.buffs={}; player.fishing=null;
     selected=d.sel||0; gameTime=d.time||0.3; inv=d.inv?d.inv.slice(0,36):new Array(36).fill(null);
@@ -1656,7 +1687,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
 function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null]; player.acc=null;
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
-  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;tinkererArrived=false;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;curShop=null;player.buffs={};player.fishing=null;player.pet=false;player.mounted=false;player.flyTime=0;player.grapple=null;glows=[];trapCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;
+  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;tinkererArrived=false;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;curShop=null;player.buffs={};player.fishing=null;player.pet=false;player.mounted=false;player.flyTime=0;player.grapple=null;glows=[];trapCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;
   npcs=[]; spawnNPC("guide");
   document.getElementById("death").style.display="none";
   const c=Math.floor(WORLD_W/2);player.x=c*T;player.y=(surfaceAt(c)-6)*T;player.vx=player.vy=0;player.spawnX=player.x;player.spawnY=player.y;
