@@ -133,6 +133,9 @@ const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAM
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
   [WWOOD]:{name:"Mur de bois",col:"#4a3420"}, [WBRICK]:{name:"Mur de brique",col:"#5a2e26"} };
+// teintures (couche de couleur, index 0 = aucune)
+const DYES=[null,"#d23a3a","#3a7ad6","#27b85a","#e8c33a","#9a5ad0","#e85a8a","#f0f0f0","#2a2a30"];
+const DYE_NAMES=["Aucune","Rouge","Bleu","Vert","Jaune","Violet","Rose","Blanc","Noir"];
 
 const TILE={
   [AIR]:{name:"",solid:false,hard:0,drop:-1,col:"#000"},
@@ -258,7 +261,7 @@ const TOOLS={
   hook:{name:"Grappin",type:"hook"}, flail:{name:"Fléau",type:"flail",dmg:48},
   spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
-  mirror:{name:"Miroir magique",type:"mirror"}, rod:{name:"Canne à pêche",type:"rod"}, wrench:{name:"Clé à molette",type:"wrench"}, gun1:{name:"Mousquet",type:"gun",dmg:34}, bone_sword:{name:"Épée en os",type:"sword",dmg:44},
+  mirror:{name:"Miroir magique",type:"mirror"}, rod:{name:"Canne à pêche",type:"rod"}, wrench:{name:"Clé à molette",type:"wrench"}, gun1:{name:"Mousquet",type:"gun",dmg:34}, bone_sword:{name:"Épée en os",type:"sword",dmg:44}, brush:{name:"Pinceau",type:"brush"},
 };
 const ACC={ cloud:{name:"Bottes nuage",eff:"djump"}, boots:{name:"Bottes véloces",eff:"speed"}, band:{name:"Brassard de force",eff:"def",def:5},
   talisman:{name:"Talisman de régénération",eff:"regen"}, amulet:{name:"Amulette de mana",eff:"manaregen"}, wings:{name:"Ailes de cristal",eff:"fly"}, lavaboots:{name:"Bottes de lave",eff:"lava"}, headlamp:{name:"Lampe frontale",eff:"glow"}, tackle:{name:"Boîte à pêche",eff:"angler"},
@@ -483,6 +486,8 @@ const RECIPES=[
   R({kind:"armor",id:"bone_l"},[ma("bone",10)],"anvil"),
   R({kind:"tile",id:SANDSTONEBRICK,n:4},[ti(SANDSTONE,4)],"furnace"),
   R({kind:"tile",id:HARDSAND,n:4},[ti(SAND,4)],"furnace"),
+  // phase 22 (peinture)
+  R({kind:"tool",id:"brush"},[ti(PLANK,3),ma("silk",1)],"table"),
 ];
 
 // =========================================================================
@@ -505,6 +510,8 @@ let world=new Uint8Array(WORLD_W*WORLD_H);
 let liquid=new Uint8Array(WORLD_W*WORLD_H); // niveau 0..8
 let walls=new Uint8Array(WORLD_W*WORLD_H);  // murs d'arrière-plan
 let wires=new Uint8Array(WORLD_W*WORLD_H);   // couche de câblage (0/1)
+let tints=new Uint8Array(WORLD_W*WORLD_H);   // couche de teinture (index de couleur, 0 = aucune)
+let paintColor=1;                            // couleur de peinture sélectionnée
 let chestData=new Map();                    // "x,y" -> [20 slots]
 function wallAt(x,y){ if(x<0||x>=WORLD_W||y<0||y>=WORLD_H)return 0; return walls[idx(x,y)]; }
 function nearTile(id,rad){ const px=Math.floor((player.x+PW/2)/T),py=Math.floor((player.y+PH/2)/T); for(let dx=-rad;dx<=rad;dx++)for(let dy=-rad;dy<=rad;dy++)if(getT(px+dx,py+dy)===id)return true; return false; }
@@ -519,7 +526,7 @@ function blocksLight(x,y){ const id=getT(x,y); return id===LEAF||(TILE[id]&&TILE
 function isBedrock(y){ return y>=WORLD_H-2; }
 
 function genWorld(s){
-  seed=s>>>0; world=new Uint8Array(WORLD_W*WORLD_H); liquid=new Uint8Array(WORLD_W*WORLD_H); wires=new Uint8Array(WORLD_W*WORLD_H); chestData=new Map();
+  seed=s>>>0; world=new Uint8Array(WORLD_W*WORLD_H); liquid=new Uint8Array(WORLD_W*WORLD_H); wires=new Uint8Array(WORLD_W*WORLD_H); tints=new Uint8Array(WORLD_W*WORLD_H); chestData=new Map();
   const rng=mulberry32(seed^0xABCDEF);
   for(let x=0;x<WORLD_W;x++){
     const sy=surfaceAt(x),b=biomeAt(x);
@@ -923,6 +930,8 @@ function handleActions(dt){
   if(invOpen){mining.x=-1;mining.prog=0;return;}
   const sel=inv[selected], pcx=player.x+PW/2, pcy=player.y+PH/2;
   const inReach=Math.hypot((mouse.tx*T+T/2)-pcx,(mouse.ty*T+T/2)-pcy)<=REACH;
+  // clic droit avec le pinceau : changer de couleur
+  if(mouse.right&&sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="brush"){ if(player.placeCd<=0){ paintColor=(paintColor+1)%DYES.length; player.placeCd=0.25; flash("🎨 "+DYE_NAMES[paintColor]); } mouse.right=false; }
   // clic droit : PNJ, porte, coffre, seau, mur, ou bloc
   if(mouse.right&&inReach){
     const tt=getT(mouse.tx,mouse.ty);
@@ -955,6 +964,8 @@ function handleActions(dt){
     if(mouse.left&&player.useCd<=0){player.useCd=0.4;castRod();} return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="wrench"){
     if(mouse.left&&player.placeCd<=0&&inReach){ const i=idx(mouse.tx,mouse.ty); wires[i]=wires[i]?0:1; player.placeCd=0.12; spawnParticles(mouse.tx*T+T/2,mouse.ty*T+T/2,"#ff5a5a",3); dirtyUI=true; } return; }
+  if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="brush"){
+    if(mouse.left&&player.placeCd<=0&&inReach&&getT(mouse.tx,mouse.ty)!==AIR){ tints[idx(mouse.tx,mouse.ty)]=paintColor; player.placeCd=0.08; if(DYES[paintColor])spawnParticles(mouse.tx*T+T/2,mouse.ty*T+T/2,DYES[paintColor],3); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="summoner"){
     if(mouse.left&&player.useCd<=0){ player.useCd=0.5; if(minions.length>=3)flash("Maximum de familiers"); else if(player.mana<TOOLS[sel.id].mana)flash("Pas assez de mana"); else { player.mana-=TOOLS[sel.id].mana; minions.push({x:player.x,y:player.y,vx:0,vy:0,t:0,cd:0,dmg:TOOLS[sel.id].dmg}); flash("Familier de combat invoqué !"); } } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="mount"){
@@ -1488,7 +1499,7 @@ function render(){
     if(isLiquid(id)){ const lvl=liquid[idx(x,y)]/8; const h=Math.max(3,T*lvl);
       ctx.fillStyle=id===WATER?"rgba(58,110,165,.62)":"rgba(226,84,26,.85)"; ctx.fillRect(sx,sy+(T-h),T,h);
       if(id===LAVA){ctx.fillStyle="rgba(255,180,60,.5)";ctx.fillRect(sx,sy+(T-h),T,2);} }
-    else ctx.drawImage(TEX[id],sx,sy);
+    else { ctx.drawImage(TEX[id],sx,sy); const tn=tints[idx(x,y)]; if(tn&&DYES[tn]){ ctx.globalAlpha=0.42; ctx.fillStyle=DYES[tn]; ctx.fillRect(sx,sy,T,T); ctx.globalAlpha=1; } }
   }
   // câblage (overlay rouge)
   for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){ if(!wires[idx(x,y)])continue; const sx=Math.floor(x*T-cam.x),sy=Math.floor(y*T-cam.y);
@@ -1714,7 +1725,7 @@ function respawn(){ dead=false; document.getElementById("death").style.display="
 function rle(arr){ const out=[];let v=arr[0],c=1; for(let i=1;i<arr.length;i++){if(arr[i]===v&&c<65535)c++;else{out.push(v,c);v=arr[i];c=1;}} out.push(v,c); return out; }
 function unrle(out,len){ const arr=new Uint8Array(len);let p=0; for(let i=0;i<out.length;i+=2){const v=out[i],c=out[i+1];for(let j=0;j<c;j++)arr[p++]=v;} return arr; }
 function save(){ try{ const chests=[]; chestData.forEach((v,k)=>chests.push([k,v]));
-  localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,seed,world:rle(world),liquid:rle(liquid),walls:rle(walls),wires:rle(wires),chests,coins,merchantArrived,bossKills,nurseArrived,wizardArrived,blacksmithArrived,dryadArrived,anglerArrived,fishCaught,anglerQuest,hardmode,tinkererArrived,armsDealerArrived,painterArrived,taxCollectorArrived,taxPool,
+  localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,seed,world:rle(world),liquid:rle(liquid),walls:rle(walls),wires:rle(wires),tints:rle(tints),chests,coins,merchantArrived,bossKills,nurseArrived,wizardArrived,blacksmithArrived,dryadArrived,anglerArrived,fishCaught,anglerQuest,hardmode,tinkererArrived,armsDealerArrived,painterArrived,taxCollectorArrived,taxPool,
     px:player.x,py:player.y,hp:player.hp,maxHp:player.maxHp,mana:player.mana,maxMana:player.maxMana,armor:player.armorArr,acc:player.acc,pet:player.pet,mtd:player.mounted,spx:player.spawnX,spy:player.spawnY,
     inv,sel:selected,time:gameTime})); }catch(err){flash("Sauvegarde impossible (espace plein)");console.warn(err);} }
 function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
@@ -1722,6 +1733,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
     world=unrle(d.world,WORLD_W*WORLD_H); liquid=unrle(d.liquid,WORLD_W*WORLD_H);
     if(d.walls)walls=unrle(d.walls,WORLD_W*WORLD_H); else genWalls();
     wires=d.wires?unrle(d.wires,WORLD_W*WORLD_H):new Uint8Array(WORLD_W*WORLD_H);
+    tints=d.tints?unrle(d.tints,WORLD_W*WORLD_H):new Uint8Array(WORLD_W*WORLD_H);
     chestData=new Map(); if(d.chests)d.chests.forEach(([k,v])=>chestData.set(k,v));
     coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; anglerArrived=!!d.anglerArrived; fishCaught=d.fishCaught||0; anglerQuest=d.anglerQuest||null; hardmode=!!d.hardmode; tinkererArrived=!!d.tinkererArrived; armsDealerArrived=!!d.armsDealerArrived; painterArrived=!!d.painterArrived; taxCollectorArrived=!!d.taxCollectorArrived; taxPool=d.taxPool||0; invasionT=0; army=null; bloodMoon=false; eclipse=false; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0;
     player.x=d.px;player.y=d.py;player.hp=d.hp;player.maxHp=d.maxHp||100;player.mana=d.mana||0;player.maxMana=d.maxMana||20;player.armorArr=d.armor||[null,null,null];player.acc=d.acc||null;
