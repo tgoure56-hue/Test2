@@ -12,14 +12,17 @@ rem  Le script utilise 7-Zip (recommande, gratuit :
 rem  https://www.7-zip.org) ou WinRAR, detecte automatiquement.
 rem
 rem  Fonctionnement :
-rem    PHASE 1 : scan de l'archive au debut, affichage du contenu
-rem              et de la liste des archives imbriquees visibles.
-rem    PHASE 2 : extraction de tout, en cascade et d'un coup :
-rem              chaque archive imbriquee est extraite dans son
-rem              propre dossier puis supprimee, sans confirmation.
+rem    PHASE 1 : scan de l'archive au debut, liste des archives
+rem              imbriquees reperees.
+rem    PHASE 2 : extraction A PLAT : TOUS les fichiers vont dans
+rem              UN SEUL dossier, sans aucun sous-dossier. Les
+rem              archives imbriquees sont extraites EN PARALLELE
+rem              (plusieurs a la fois) pour aller au plus vite,
+rem              puis supprimees.
 rem
-rem  Protection contre les noms en double :
-rem    Rien n'est jamais ecrase. Dossier deja pris -> "nom (2)".
+rem  Noms en double : rien n'est jamais ecrase. En cas de
+rem  doublon le fichier est renomme automatiquement par l'outil
+rem  (ex : "photo_1.jpg" avec 7-Zip, "photo(2).jpg" avec WinRAR).
 rem
 rem  Utilisation :
 rem    - Glisser-deposer un fichier .rar (ou .zip / .7z) sur ce
@@ -111,8 +114,8 @@ if (-not $unrar) {
     if ($cmd) { $unrar = $cmd.Source }
 }
 
-if ($sevenZip)   { Write-Host ('Outil utilise : 7-Zip  (' + $sevenZip + ')') }
-elseif ($unrar)  { Write-Host ('Outil utilise : WinRAR (' + $unrar + ')') }
+if ($sevenZip)  { Write-Host ('Outil utilise : 7-Zip  (' + $sevenZip + ')') }
+elseif ($unrar) { Write-Host ('Outil utilise : WinRAR (' + $unrar + ')') }
 
 if (-not $sevenZip -and -not $unrar -and $src -notmatch '\.zip$') {
     Write-Host 'ERREUR : ni 7-Zip ni WinRAR n''a ete trouve sur ce PC.'
@@ -122,20 +125,41 @@ if (-not $sevenZip -and -not $unrar -and $src -notmatch '\.zip$') {
     exit 1
 }
 
-# Extrait une archive (rar/zip/7z) vers un dossier, sans confirmation.
-# Leve une erreur si l'archive est illisible.
-function ExtraireArchive([string]$archive, [string]$dest) {
-    New-Item -ItemType Directory -Path $dest -Force | Out-Null
+# Extraction .zip a plat sans outil externe (solution de secours)
+function ExtraireZipFlatNet([string]$zip, [string]$dest) {
+    Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
+    $a = [IO.Compression.ZipFile]::OpenRead($zip)
+    try {
+        foreach ($e in $a.Entries) {
+            if (-not $e.Name) { continue }
+            $base = [IO.Path]::GetFileNameWithoutExtension($e.Name)
+            $ext  = [IO.Path]::GetExtension($e.Name)
+            $cible = Join-Path $dest $e.Name
+            $i = 2
+            while (Test-Path -LiteralPath $cible) {
+                $cible = Join-Path $dest ($base + ' (' + $i + ')' + $ext); $i++
+            }
+            [IO.Compression.ZipFileExtensions]::ExtractToFile($e, $cible, $false)
+        }
+    } finally { $a.Dispose() }
+}
+
+# Extrait une archive A PLAT (commande "e" : fichiers seulement,
+# aucun dossier recree) vers $dest, sans confirmation.
+# 7-Zip : -aou renomme les doublons / UnRAR : -or pareil.
+function ExtraireAPlat([string]$archive, [string]$dest) {
     if ($sevenZip) {
-        # -y : oui a tout ; -aou : renomme si un nom existe deja
-        & $sevenZip x -y -aou ('-o' + $dest) -- $archive | Out-Null
+        & $sevenZip e -y -aou -mmt=on -bso0 -bse0 -bsp0 ('-o' + $dest) -- $archive
         if ($LASTEXITCODE -ne 0) { throw ('7-Zip a renvoye le code ' + $LASTEXITCODE) }
     } elseif ($archive -match '\.zip$') {
-        Expand-Archive -LiteralPath $archive -DestinationPath $dest -Force
+        ExtraireZipFlatNet $archive $dest
     } elseif ($unrar) {
-        # -y : oui a tout ; -or : renomme si un nom existe deja
-        & $unrar x -y -or -- $archive ($dest + '\') | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw ('UnRAR a renvoye le code ' + $LASTEXITCODE) }
+        # UnRAR extrait dans le dossier courant : on s'y place
+        Push-Location -LiteralPath $dest
+        try {
+            & $unrar e -y -or -idq -- $archive
+            if ($LASTEXITCODE -ne 0) { throw ('UnRAR a renvoye le code ' + $LASTEXITCODE) }
+        } finally { Pop-Location }
     } else {
         throw 'aucun outil disponible pour ce format'
     }
@@ -147,9 +171,9 @@ function ListerArchive([string]$archive) {
         $sortie = & $sevenZip l -ba -slt -- $archive
         $chemin = $null
         foreach ($ligne in $sortie) {
-            if ($ligne -like 'Path = *')        { $chemin = $ligne.Substring(7) }
-            elseif ($ligne -like 'Folder = -')  { if ($chemin) { $chemin }; $chemin = $null }
-            elseif ($ligne -like 'Folder = +')  { $chemin = $null }
+            if ($ligne -like 'Path = *')       { $chemin = $ligne.Substring(7) }
+            elseif ($ligne -like 'Folder = -') { if ($chemin) { $chemin }; $chemin = $null }
+            elseif ($ligne -like 'Folder = +') { $chemin = $null }
         }
     } elseif ($archive -match '\.zip$') {
         Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
@@ -161,46 +185,83 @@ function ListerArchive([string]$archive) {
     }
 }
 
+# Extrait toute une vague d'archives EN PARALLELE (une extraction
+# par coeur du processeur maximum), toutes vers le meme dossier.
+# Archive reussie -> supprimee ; illisible -> renommee .echec.
+function ExtraireVagueParallele([array]$archives, [string]$dest) {
+    $cap = [Environment]::ProcessorCount
+    $lances = @()
+    foreach ($a in $archives) {
+        $viaOutil = $false
+        if ($sevenZip) { $viaOutil = $true }
+        elseif ($unrar -and $a.Extension -ne '.zip') { $viaOutil = $true }
+
+        if (-not $viaOutil) {
+            # .zip sans 7-Zip : extraction .NET directe (non parallele)
+            try {
+                ExtraireZipFlatNet $a.FullName $dest
+                Remove-Item -LiteralPath $a.FullName -Force
+            } catch {
+                Write-Host ('  ERREUR : illisible, renomme en .echec : ' + $a.Name)
+                Move-Item -LiteralPath $a.FullName -Destination (DossierUnique ($a.FullName + '.echec'))
+            }
+            continue
+        }
+
+        while (@($lances | Where-Object { -not $_.Proc.HasExited }).Count -ge $cap) {
+            Start-Sleep -Milliseconds 50
+        }
+
+        if ($sevenZip) {
+            $argu = 'e -y -aou -mmt=on -bso0 -bse0 -bsp0 "-o' + $dest + '" -- "' + $a.FullName + '"'
+            $p = Start-Process -FilePath $sevenZip -ArgumentList $argu -WindowStyle Hidden -PassThru
+        } else {
+            $argu = 'e -y -or -idq -- "' + $a.FullName + '"'
+            $p = Start-Process -FilePath $unrar -ArgumentList $argu -WorkingDirectory $dest -WindowStyle Hidden -PassThru
+        }
+        $lances += ,@{ Proc = $p; Archive = $a }
+    }
+    foreach ($x in $lances) {
+        $x.Proc.WaitForExit()
+        if ($x.Proc.ExitCode -eq 0) {
+            Remove-Item -LiteralPath $x.Archive.FullName -Force
+        } else {
+            Write-Host ('  ERREUR : illisible, renomme en .echec : ' + $x.Archive.Name)
+            Move-Item -LiteralPath $x.Archive.FullName -Destination (DossierUnique ($x.Archive.FullName + '.echec'))
+        }
+    }
+}
+
 # ---------------- PHASE 1 : SCAN ----------------
 Write-Host ''
 Write-Host '=== PHASE 1 : scan de l''archive (rien n''est encore extrait) ==='
 Write-Host ('Archive : ' + $src)
-$entrees  = @(ListerArchive $src)
+$entrees = @(ListerArchive $src)
 $imbriqueesVisibles = @($entrees | Where-Object { $_ -match '\.(rar|zip|7z)$' })
 Write-Host ('Contenu : ' + $entrees.Count + ' element(s), dont ' + $imbriqueesVisibles.Count + ' archive(s) imbriquee(s) :')
 foreach ($a in $imbriqueesVisibles) { Write-Host ('  [ARCHIVE] ' + $a) }
-if ($imbriqueesVisibles.Count -gt 0) {
-    Write-Host '(le contenu des archives imbriquees apparait apres leur extraction ;'
-    Write-Host ' elles seront toutes traitees automatiquement en phase 2)'
-}
 
-# ---------- PHASE 2 : EXTRACTION DE TOUT ----------
+# ---------- PHASE 2 : EXTRACTION A PLAT, TOUT D'UN COUP ----------
 Write-Host ''
-Write-Host '=== PHASE 2 : extraction de tout, sans confirmation ==='
+Write-Host '=== PHASE 2 : extraction de tout, a plat, sans confirmation ==='
 $dest = DossierUnique $dst0
-if ($dest -ne $dst0) { Write-Host ('Le dossier existe deja, pour ne rien ecraser tout ira dans : ' + $dest) }
-Write-Host ('Extraction de l''archive principale vers : ' + $dest)
-ExtraireArchive $src $dest
+New-Item -ItemType Directory -Path $dest -Force | Out-Null
+Write-Host ('TOUS les fichiers vont dans un seul dossier : ' + $dest)
 
-# Archives imbriquees : extraites en cascade, chacune dans son
-# propre dossier, puis supprimees. Se repete tant qu'il en reste
-# (une archive peut en contenir d'autres).
+ExtraireAPlat $src $dest
+
 do {
-    $imbriquees = @(Get-ChildItem -LiteralPath $dest -Recurse -File |
-                    Where-Object { $_.Extension -match '^\.(rar|zip|7z)$' })
-    foreach ($a in $imbriquees) {
-        $d = DossierUnique (Join-Path $a.DirectoryName $a.BaseName)
-        Write-Host ('  Archive imbriquee : ' + $a.FullName)
-        try {
-            ExtraireArchive $a.FullName $d
-            Remove-Item -LiteralPath $a.FullName -Force
-        } catch {
-            Write-Host ('  ERREUR : archive illisible, renommee en .echec : ' + $a.FullName)
-            Move-Item -LiteralPath $a.FullName -Destination (DossierUnique ($a.FullName + '.echec'))
-        }
+    # Tout est a plat dans $dest : pas besoin de chercher dans des
+    # sous-dossiers. On extrait chaque vague d'archives en parallele.
+    $restantes = @(Get-ChildItem -LiteralPath $dest -File |
+                   Where-Object { $_.Extension -match '^\.(rar|zip|7z)$' })
+    if ($restantes.Count -gt 0) {
+        Write-Host ('  ' + $restantes.Count + ' archive(s) imbriquee(s) -> extraction en parallele...')
+        ExtraireVagueParallele $restantes $dest
     }
-} while ($imbriquees.Count -gt 0)
+} while ($restantes.Count -gt 0)
 
+$total = @(Get-ChildItem -LiteralPath $dest -File).Count
 Write-Host ''
-Write-Host 'Termine ! Tout le contenu a ete extrait dans :'
+Write-Host ('Termine ! ' + $total + ' fichier(s), tous dans le dossier :')
 Write-Host ('  ' + $dest)
