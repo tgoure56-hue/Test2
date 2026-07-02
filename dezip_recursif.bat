@@ -3,36 +3,34 @@ setlocal
 
 rem ============================================================
 rem  dezip_recursif.bat
-rem  Dezippe un fichier ZIP et tous les ZIP imbriques qu'il
-rem  contient, automatiquement et sans aucune confirmation.
+rem  Decompresse une archive RAR (ou ZIP / 7Z) et toutes les
+rem  archives imbriquees qu'elle contient, automatiquement et
+rem  sans aucune confirmation.
 rem
-rem  Fonctionnement en 2 phases :
-rem    PHASE 1 : UN SEUL scan, au tout debut. Les zips imbriques
-rem              sont ouverts en memoire (sans rien extraire),
-rem              donc meme un zip dans un zip dans un zip est
-rem              repere des le depart.
-rem    PHASE 2 : extraction de TOUT en une seule fois. Les zips
-rem              imbriques sont decompresses directement vers
-rem              leur dossier final, sans ecrire de .zip
-rem              intermediaire sur le disque.
+rem  IMPORTANT : Windows ne sait pas ouvrir les .rar tout seul.
+rem  Le script utilise 7-Zip (recommande, gratuit :
+rem  https://www.7-zip.org) ou WinRAR, detecte automatiquement.
+rem
+rem  Fonctionnement :
+rem    PHASE 1 : scan de l'archive au debut, affichage du contenu
+rem              et de la liste des archives imbriquees visibles.
+rem    PHASE 2 : extraction de tout, en cascade et d'un coup :
+rem              chaque archive imbriquee est extraite dans son
+rem              propre dossier puis supprimee, sans confirmation.
 rem
 rem  Protection contre les noms en double :
-rem    Rien n'est jamais ecrase. Dossier deja pris -> "nom (2)",
-rem    fichier deja pris -> "photo (2).jpg", etc.
+rem    Rien n'est jamais ecrase. Dossier deja pris -> "nom (2)".
 rem
 rem  Utilisation :
-rem    - Glisser-deposer un fichier .zip sur ce script, OU
-rem    - En ligne de commande :
-rem        dezip_recursif.bat "C:\chemin\vers\archive.zip"
-rem
-rem  Remarque : les zips imbriques sont lus en memoire. Pour des
-rem  zips imbriques de plusieurs Go, prevoir assez de RAM.
+rem    - Glisser-deposer un fichier .rar (ou .zip / .7z) sur ce
+rem      script, OU en ligne de commande :
+rem        dezip_recursif.bat "C:\chemin\vers\archive.rar"
 rem ============================================================
 
 rem --- Verification de l'argument ---
 if "%~1"=="" (
-    echo Utilisation : %~nx0 "chemin\vers\archive.zip"
-    echo Vous pouvez aussi glisser-deposer un fichier .zip sur ce script.
+    echo Utilisation : %~nx0 "chemin\vers\archive.rar"
+    echo Vous pouvez aussi glisser-deposer un fichier .rar sur ce script.
     pause
     exit /b 1
 )
@@ -43,8 +41,12 @@ if not exist "%~1" (
     exit /b 1
 )
 
-if /I not "%~x1"==".zip" (
-    echo ERREUR : "%~1" n'est pas un fichier .zip
+set "EXTOK="
+if /I "%~x1"==".rar" set "EXTOK=1"
+if /I "%~x1"==".zip" set "EXTOK=1"
+if /I "%~x1"==".7z"  set "EXTOK=1"
+if not defined EXTOK (
+    echo ERREUR : "%~1" n'est pas une archive .rar, .zip ou .7z
     pause
     exit /b 1
 )
@@ -77,115 +79,127 @@ rem  lignes grace au "exit /b 0" ci-dessus.
 rem ============================================================
 #PSBEGIN
 $ErrorActionPreference = 'Stop'
-Add-Type -AssemblyName System.IO.Compression | Out-Null
-Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
 
 $src  = $env:SRC
 $dst0 = $env:DST
 
-# Renvoie un chemin de dossier libre : "nom", sinon "nom (2)", "nom (3)"...
+# Renvoie un chemin libre : "nom", sinon "nom (2)", "nom (3)"...
 function DossierUnique([string]$b) {
     $c = $b; $i = 2
     while (Test-Path -LiteralPath $c) { $c = $b + ' (' + $i + ')'; $i++ }
     return $c
 }
 
-# Pareil pour un fichier, en gardant l'extension : "photo (2).jpg"
-function FichierUnique([string]$b) {
-    if (-not (Test-Path -LiteralPath $b)) { return $b }
-    $dir = Split-Path -Parent $b
-    $nom = [IO.Path]::GetFileNameWithoutExtension($b)
-    $ext = [IO.Path]::GetExtension($b)
-    $i = 2
-    do { $c = Join-Path $dir ($nom + ' (' + $i + ')' + $ext); $i++ } while (Test-Path -LiteralPath $c)
-    return $c
+# ---------- Detection de l'outil d'extraction ----------
+$sevenZip = $null
+$unrar    = $null
+foreach ($c in @("$env:ProgramFiles\7-Zip\7z.exe",
+                 "${env:ProgramFiles(x86)}\7-Zip\7z.exe",
+                 "$env:ProgramW6432\7-Zip\7z.exe")) {
+    if ($c -and (Test-Path -LiteralPath $c)) { $sevenZip = $c; break }
+}
+if (-not $sevenZip) {
+    $cmd = Get-Command 7z.exe -ErrorAction SilentlyContinue
+    if ($cmd) { $sevenZip = $cmd.Source }
+}
+foreach ($c in @("$env:ProgramFiles\WinRAR\UnRAR.exe",
+                 "${env:ProgramFiles(x86)}\WinRAR\UnRAR.exe")) {
+    if ($c -and (Test-Path -LiteralPath $c)) { $unrar = $c; break }
+}
+if (-not $unrar) {
+    $cmd = Get-Command unrar.exe -ErrorAction SilentlyContinue
+    if ($cmd) { $unrar = $cmd.Source }
 }
 
-# ---------------- PHASE 1 : UN SEUL SCAN ----------------
-# Les zips imbriques sont ouverts en memoire, rien n'est ecrit
-# sur le disque pendant cette phase.
-$script:nbFichiers = 0
-$script:listeZips  = New-Object System.Collections.ArrayList
+if ($sevenZip)   { Write-Host ('Outil utilise : 7-Zip  (' + $sevenZip + ')') }
+elseif ($unrar)  { Write-Host ('Outil utilise : WinRAR (' + $unrar + ')') }
 
-function Scan([IO.Stream]$flux, [string]$prefixe) {
-    $arch = New-Object IO.Compression.ZipArchive($flux, [IO.Compression.ZipArchiveMode]::Read, $true)
-    try {
-        foreach ($e in $arch.Entries) {
-            if ($e.FullName.EndsWith('/') -or $e.FullName.EndsWith('\')) { continue }
-            $chemin = $prefixe + '\' + ($e.FullName -replace '/', '\')
-            if ($e.FullName -match '\.zip$') {
-                [void]$script:listeZips.Add($chemin)
-                $ms = New-Object IO.MemoryStream
-                $s = $e.Open(); $s.CopyTo($ms); $s.Dispose(); $ms.Position = 0
-                try { Scan $ms ($chemin -replace '\.zip$', '') }
-                catch { Write-Host ('  ATTENTION : zip illisible pendant le scan : ' + $chemin) }
-                $ms.Dispose()
-            } else {
-                $script:nbFichiers++
-            }
+if (-not $sevenZip -and -not $unrar -and $src -notmatch '\.zip$') {
+    Write-Host 'ERREUR : ni 7-Zip ni WinRAR n''a ete trouve sur ce PC.'
+    Write-Host 'Windows ne sait pas ouvrir les .rar tout seul.'
+    Write-Host 'Installez 7-Zip (gratuit) : https://www.7-zip.org'
+    Write-Host 'puis relancez ce script.'
+    exit 1
+}
+
+# Extrait une archive (rar/zip/7z) vers un dossier, sans confirmation.
+# Leve une erreur si l'archive est illisible.
+function ExtraireArchive([string]$archive, [string]$dest) {
+    New-Item -ItemType Directory -Path $dest -Force | Out-Null
+    if ($sevenZip) {
+        # -y : oui a tout ; -aou : renomme si un nom existe deja
+        & $sevenZip x -y -aou ('-o' + $dest) -- $archive | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw ('7-Zip a renvoye le code ' + $LASTEXITCODE) }
+    } elseif ($archive -match '\.zip$') {
+        Expand-Archive -LiteralPath $archive -DestinationPath $dest -Force
+    } elseif ($unrar) {
+        # -y : oui a tout ; -or : renomme si un nom existe deja
+        & $unrar x -y -or -- $archive ($dest + '\') | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw ('UnRAR a renvoye le code ' + $LASTEXITCODE) }
+    } else {
+        throw 'aucun outil disponible pour ce format'
+    }
+}
+
+# Liste le contenu d'une archive sans l'extraire (pour le scan).
+function ListerArchive([string]$archive) {
+    if ($sevenZip) {
+        $sortie = & $sevenZip l -ba -slt -- $archive
+        $chemin = $null
+        foreach ($ligne in $sortie) {
+            if ($ligne -like 'Path = *')        { $chemin = $ligne.Substring(7) }
+            elseif ($ligne -like 'Folder = -')  { if ($chemin) { $chemin }; $chemin = $null }
+            elseif ($ligne -like 'Folder = +')  { $chemin = $null }
         }
-    } finally { $arch.Dispose() }
+    } elseif ($archive -match '\.zip$') {
+        Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
+        $a = [IO.Compression.ZipFile]::OpenRead($archive)
+        $a.Entries | Where-Object { $_.Name } | ForEach-Object { $_.FullName }
+        $a.Dispose()
+    } elseif ($unrar) {
+        & $unrar lb -- $archive
+    }
 }
 
-Write-Host '=== PHASE 1 : scan unique (rien n''est encore extrait) ==='
-Write-Host ('Archive : ' + $src)
-$fs = [IO.File]::OpenRead($src)
-Scan $fs ([IO.Path]::GetFileNameWithoutExtension($src))
-$fs.Dispose()
-
-Write-Host ('Scan termine : ' + $script:nbFichiers + ' fichier(s) et ' + $script:listeZips.Count + ' zip(s) imbrique(s).')
-foreach ($z in $script:listeZips) { Write-Host ('  [ZIP] ' + $z) }
-
-# ---------- PHASE 2 : EXTRACTION DE TOUT EN UNE FOIS ----------
-# Les zips imbriques sont decompresses directement depuis la
-# memoire vers leur dossier final : aucun .zip intermediaire
-# n'est ecrit puis supprime, tout sort en un seul passage.
-
-function Extraire([IO.Stream]$flux, [string]$dossier) {
-    $arch = New-Object IO.Compression.ZipArchive($flux, [IO.Compression.ZipArchiveMode]::Read, $true)
-    try {
-        $racine = [IO.Path]::GetFullPath($dossier).TrimEnd('\') + '\'
-        foreach ($e in $arch.Entries) {
-            if ($e.FullName.EndsWith('/') -or $e.FullName.EndsWith('\')) { continue }
-            $cible = [IO.Path]::GetFullPath((Join-Path $dossier ($e.FullName -replace '/', '\')))
-            if (-not $cible.StartsWith($racine, [StringComparison]::OrdinalIgnoreCase)) {
-                Write-Host ('  ATTENTION : entree ignoree (chemin suspect) : ' + $e.FullName)
-                continue
-            }
-            if ($e.FullName -match '\.zip$') {
-                $ms = New-Object IO.MemoryStream
-                $s = $e.Open(); $s.CopyTo($ms); $s.Dispose(); $ms.Position = 0
-                $sous = DossierUnique ($cible -replace '\.zip$', '')
-                try { Extraire $ms $sous }
-                catch {
-                    # Zip illisible : on le copie tel quel pour ne rien perdre
-                    $ms.Position = 0
-                    $cible = FichierUnique $cible
-                    $rep = Split-Path -Parent $cible
-                    if (-not (Test-Path -LiteralPath $rep)) { New-Item -ItemType Directory -Path $rep -Force | Out-Null }
-                    $out = [IO.File]::Open($cible, 'CreateNew')
-                    $ms.CopyTo($out); $out.Dispose()
-                    Write-Host ('  ERREUR : zip illisible, copie tel quel : ' + $e.FullName)
-                }
-                $ms.Dispose()
-            } else {
-                $cible = FichierUnique $cible
-                $rep = Split-Path -Parent $cible
-                if (-not (Test-Path -LiteralPath $rep)) { New-Item -ItemType Directory -Path $rep -Force | Out-Null }
-                $out = [IO.File]::Open($cible, 'CreateNew')
-                $s = $e.Open(); $s.CopyTo($out); $s.Dispose(); $out.Dispose()
-            }
-        }
-    } finally { $arch.Dispose() }
-}
-
+# ---------------- PHASE 1 : SCAN ----------------
 Write-Host ''
-Write-Host '=== PHASE 2 : extraction de tout en une seule fois ==='
+Write-Host '=== PHASE 1 : scan de l''archive (rien n''est encore extrait) ==='
+Write-Host ('Archive : ' + $src)
+$entrees  = @(ListerArchive $src)
+$imbriqueesVisibles = @($entrees | Where-Object { $_ -match '\.(rar|zip|7z)$' })
+Write-Host ('Contenu : ' + $entrees.Count + ' element(s), dont ' + $imbriqueesVisibles.Count + ' archive(s) imbriquee(s) :')
+foreach ($a in $imbriqueesVisibles) { Write-Host ('  [ARCHIVE] ' + $a) }
+if ($imbriqueesVisibles.Count -gt 0) {
+    Write-Host '(le contenu des archives imbriquees apparait apres leur extraction ;'
+    Write-Host ' elles seront toutes traitees automatiquement en phase 2)'
+}
+
+# ---------- PHASE 2 : EXTRACTION DE TOUT ----------
+Write-Host ''
+Write-Host '=== PHASE 2 : extraction de tout, sans confirmation ==='
 $dest = DossierUnique $dst0
 if ($dest -ne $dst0) { Write-Host ('Le dossier existe deja, pour ne rien ecraser tout ira dans : ' + $dest) }
-$fs = [IO.File]::OpenRead($src)
-Extraire $fs $dest
-$fs.Dispose()
+Write-Host ('Extraction de l''archive principale vers : ' + $dest)
+ExtraireArchive $src $dest
+
+# Archives imbriquees : extraites en cascade, chacune dans son
+# propre dossier, puis supprimees. Se repete tant qu'il en reste
+# (une archive peut en contenir d'autres).
+do {
+    $imbriquees = @(Get-ChildItem -LiteralPath $dest -Recurse -File |
+                    Where-Object { $_.Extension -match '^\.(rar|zip|7z)$' })
+    foreach ($a in $imbriquees) {
+        $d = DossierUnique (Join-Path $a.DirectoryName $a.BaseName)
+        Write-Host ('  Archive imbriquee : ' + $a.FullName)
+        try {
+            ExtraireArchive $a.FullName $d
+            Remove-Item -LiteralPath $a.FullName -Force
+        } catch {
+            Write-Host ('  ERREUR : archive illisible, renommee en .echec : ' + $a.FullName)
+            Move-Item -LiteralPath $a.FullName -Destination (DossierUnique ($a.FullName + '.echec'))
+        }
+    }
+} while ($imbriquees.Count -gt 0)
 
 Write-Host ''
 Write-Host 'Termine ! Tout le contenu a ete extrait dans :'
