@@ -128,7 +128,7 @@ const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAM
   PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39,MYTHRIL=40,
   BED=41,CAMPFIRE=42,HEARTLANTERN=43,SPIKE=44,ADAMANTITE=45,CGRASS=46,EBONSTONE=47,HGRASS=48,PEARLSTONE=49,CRYSTAL=50,LAMP=51,CHAIR=52,VASE=53,BANNER=54,COBALT=55,TITANIUM=56,DART_TRAP=57,PLATE=58,STATUE=59,
   MGRASS=60,GMUSH=61,MUSHBLOCK=62,MARBLE=63,GRANITE=64,SANDSTONE=65,STONEBRICK=66,CLOUDB=67,COBWEB=68,CACTUS=69,BOOKCASE=70,CANDLE=71,CHANDELIER=72,SAWMILL=73,
-  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98;
+  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -237,6 +237,7 @@ const TILE={
   [OBSIDIAN]:{name:"Obsidienne",solid:true,hard:3.0,drop:OBSIDIAN,col:"#2a2438"},
   [OBSIDIANBRICK]:{name:"Brique d'obsidienne",solid:true,hard:2.4,drop:OBSIDIANBRICK,col:"#34304a"},
   [QUESTBOARD]:{name:"Tableau de quêtes",solid:false,hard:0.7,drop:QUESTBOARD,col:"#8a5a2b"},
+  [TROPHY]:{name:"Trophée de boss",solid:false,hard:0.5,drop:TROPHY,col:"#e8c33a",light:0.3},
 };
 const isSpike=id=>TILE[id]&&TILE[id].spike;
 const isPlatform=id=>TILE[id]&&TILE[id].platform;
@@ -808,6 +809,7 @@ function makeTex(id){
   else if(id===OBSIDIAN){g.fillStyle="#2a2438";g.fillRect(0,0,T,T);for(let i=0;i<5;i++){g.fillStyle=shade("#2a2438",Math.floor((rnd()-0.3)*30));g.fillRect(Math.floor(rnd()*T),Math.floor(rnd()*T),3,3);}g.strokeStyle="rgba(150,130,200,.4)";g.lineWidth=1;g.beginPath();g.moveTo(3,T-4);g.lineTo(T-5,4);g.stroke();}
   else if(id===OBSIDIANBRICK){g.fillStyle="#34304a";g.fillRect(0,0,T,T);g.strokeStyle="#221f33";g.lineWidth=1;g.strokeRect(0,0,T,T/2);g.strokeRect(0,T/2,T,T/2);g.beginPath();g.moveTo(T/2,0);g.lineTo(T/2,T/2);g.moveTo(0,T/2);g.lineTo(0,T);g.stroke();g.fillStyle="rgba(150,130,200,.3)";g.fillRect(2,2,3,2);}
   else if(id===QUESTBOARD){g.clearRect(0,0,T,T);g.fillStyle="#6e4520";g.fillRect(1,2,T-2,T-5);g.fillStyle="#caa86a";g.fillRect(3,4,T-6,T-9);g.fillStyle="#8a5a2b";g.fillRect(2,T-3,3,3);g.fillRect(T-5,T-3,3,3);g.fillStyle="#3a2410";g.fillRect(5,6,T-12,1);g.fillRect(5,9,T-10,1);g.fillRect(5,12,T-13,1);g.fillStyle="#c0392b";g.fillRect(T-7,5,2,2);}
+  else if(id===TROPHY){g.clearRect(0,0,T,T);g.fillStyle="#6e4520";g.fillRect(3,T-5,T-6,4);g.fillRect(T/2-2,T-9,4,5);g.fillStyle="#e8c33a";g.beginPath();g.moveTo(T/2-6,T-16);g.quadraticCurveTo(T/2,T-8,T/2+6,T-16);g.lineTo(T/2+6,4);g.lineTo(T/2-6,4);g.closePath();g.fill();g.fillRect(T/2-8,3,16,3);g.strokeStyle="#caa23a";g.lineWidth=2;g.beginPath();g.arc(T/2-8,9,3,Math.PI*0.5,Math.PI*1.5);g.stroke();g.beginPath();g.arc(T/2+8,9,3,Math.PI*1.5,Math.PI*0.5);g.stroke();g.fillStyle="#fff5c0";g.fillRect(T/2-4,6,2,6);}
   else if(id===TABLE){g.clearRect(0,0,T,T);g.fillStyle="#8a5a2b";g.fillRect(2,8,T-4,5);g.fillStyle="#6e4520";g.fillRect(4,13,3,T-14);g.fillRect(T-7,13,3,T-14);}
   else if(id===TORCH){g.clearRect(0,0,T,T);g.fillStyle="#6e4520";g.fillRect(T/2-2,8,4,T-8);g.fillStyle="#ff9a1a";g.beginPath();g.ellipse(T/2,7,4,7,0,0,7);g.fill();g.fillStyle="#ffe27a";g.beginPath();g.ellipse(T/2,8,2,4,0,0,7);g.fill();}
   else if(id===LAMP){g.clearRect(0,0,T,T);g.fillStyle="#555";g.fillRect(T/2-1,6,2,T-8);g.fillRect(T/2-4,T-3,8,3);g.fillStyle="#caa23a";g.fillRect(T/2-4,2,8,7);g.fillStyle="#ffe27a";g.fillRect(T/2-3,3,6,5);}
@@ -849,6 +851,7 @@ let hardmode=false, tinkererArrived=false;
 let trapCd=new Map();
 let army=null;
 let quest=null;
+let achievements={}, blocksPlaced=0, questsDone=0;
 let raining=false, weatherT=80, showMap=false, bloodMoon=false, eclipse=false;
 let pumpkinMoon=false, pumpkinMoonT=0, pumpkinKills=0;
 let frostMoon=false, frostMoonT=0, frostKills=0;
@@ -873,7 +876,11 @@ function removeItem(kind,id,n){ for(let i=0;i<inv.length&&n>0;i++){const s=inv[i
   if(s&&s.kind===kind&&s.id===id){const c=Math.min(s.n,n);s.n-=c;n-=c;if(s.n<=0)inv[i]=null;}} dirtyUI=true; }
 function bestPick(){ let p=0.5; for(const s of inv)if(s&&s.kind==="tool"&&(TOOLS[s.id].type==="pick"||TOOLS[s.id].type==="drill"))p=Math.max(p,TOOLS[s.id].power); return p; }
 function drillArea(cx,cy){ for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){ if(!dx&&!dy)continue; const x=cx+dx,y=cy+dy; if(x<1||x>=WORLD_W-1||y<1||isBedrock(y))continue; const id=getT(x,y); if(id===AIR||isLiquid(id)||id===CHEST)continue; if(TILE[id].hard<=4)breakTile(x,y,id); } }
-function totalDef(){ let d=0; for(const a of player.armorArr)if(a)d+=ARMOR[a.id].def; if(player.acc&&ACC[player.acc.id].def)d+=ACC[player.acc.id].def; if(player.buffs.iron>0)d+=4; return d; }
+// bonus de set : porter les 3 pièces d'une même famille d'armure
+const SET_BONUS={wood:1,iron:2,silver:3,gold:4,hell:5,myth:6,ada:7,crystal:8,cobalt:9,titanium:10,bone:4};
+function armorSet(){ const a=player.armorArr; if(!a[0]||!a[1]||!a[2])return null; const p=a[0].id.split("_")[0];
+  return (a[1].id.split("_")[0]===p&&a[2].id.split("_")[0]===p)?p:null; }
+function totalDef(){ let d=0; for(const a of player.armorArr)if(a)d+=ARMOR[a.id].def; if(player.acc&&ACC[player.acc.id].def)d+=ACC[player.acc.id].def; if(player.buffs.iron>0)d+=4; const s=armorSet(); if(s)d+=SET_BONUS[s]||0; return d; }
 function hasAcc(eff){ return player.acc&&ACC[player.acc.id].eff===eff; }
 
 // =========================================================================
@@ -935,11 +942,11 @@ function update(dt){
   const regenRate=2+(player.buffs.regen>0?6:0)+(hasAcc("regen")?2:0)+(nearTile(CAMPFIRE,8)?3:0)+(nearTile(HEARTLANTERN,8)?2:0);
   if(player.invuln<=0&&player.hp<player.maxHp)player.hp=Math.min(player.maxHp,player.hp+dt*regenRate);
   player.mana=Math.min(player.maxMana,player.mana+dt*(4+(hasAcc("manaregen")?4:0)));
-  updateFishing(dt); updateCritters(dt,step); updateMinions(dt,step); updateFireflies(dt,step); updateTraps(dt); updateArmy(dt); updatePumpkinMoon(dt); updateFrostMoon(dt);
+  updateFishing(dt); updateCritters(dt,step); updateMinions(dt,step); updateFireflies(dt,step); updateTraps(dt); updateArmy(dt); updatePumpkinMoon(dt); updateFrostMoon(dt); checkAchievements();
   for(let i=glows.length-1;i>=0;i--){ glows[i].life-=dt; if(glows[i].life<=0)glows.splice(i,1); }
   // dégâts de lave
   const ptx=Math.floor((player.x+PW/2)/T);
-  for(let ty=Math.floor(player.y/T);ty<=Math.floor((player.y+PH-1)/T);ty++) if(getT(ptx,ty)===LAVA&&player.invuln<=0&&!hasAcc("lava")){ hurtPlayer(18,player.face); break; }
+  for(let ty=Math.floor(player.y/T);ty<=Math.floor((player.y+PH-1)/T);ty++) if(getT(ptx,ty)===LAVA&&player.invuln<=0&&!hasAcc("lava")&&armorSet()!=="hell"){ hurtPlayer(18,player.face); break; }
   if(player.invuln<=0){ spk: for(let tx=Math.floor(player.x/T);tx<=Math.floor((player.x+PW-1)/T);tx++)for(let ty=Math.floor(player.y/T);ty<=Math.floor((player.y+PH-1)/T);ty++) if(getT(tx,ty)===SPIKE){ hurtPlayer(12,player.face); break spk; } }
 
   mouse.wx=cam.x+mouse.x; mouse.wy=cam.y+mouse.y; mouse.tx=Math.floor(mouse.wx/T); mouse.ty=Math.floor(mouse.wy/T);
@@ -1060,7 +1067,7 @@ function placeTile(x,y,sel){ if(getT(x,y)!==AIR)return false;
   if(!wallAt(x,y)&&getT(x-1,y)===AIR&&getT(x+1,y)===AIR&&getT(x,y-1)===AIR&&getT(x,y+1)===AIR)return false;
   if(TILE[sel.id].solid){ const px0=Math.floor(player.x/T),px1=Math.floor((player.x+PW-1)/T),py0=Math.floor(player.y/T),py1=Math.floor((player.y+PH-1)/T);
     if(x>=px0&&x<=px1&&y>=py0&&y<=py1)return false; }
-  setT(x,y,sel.id); if(sel.id===CHEST)chestData.set(x+","+y,new Array(20).fill(null)); removeItem("tile",sel.id,1); return true; }
+  setT(x,y,sel.id); if(sel.id===CHEST)chestData.set(x+","+y,new Array(20).fill(null)); removeItem("tile",sel.id,1); blocksPlaced++; return true; }
 function placeWall(x,y,sel){ if(x<0||x>=WORLD_W||y<0||y>=WORLD_H)return false; if(walls[idx(x,y)]!==0)return false;
   const sup=wallAt(x-1,y)||wallAt(x+1,y)||wallAt(x,y-1)||wallAt(x,y+1)||getT(x-1,y)!==AIR||getT(x+1,y)!==AIR||getT(x,y-1)!==AIR||getT(x,y+1)!==AIR||getT(x,y)!==AIR;
   if(!sup)return false; walls[idx(x,y)]=sel.id; removeItem("wall",sel.id,1); return true; }
@@ -1160,15 +1167,16 @@ function catchFish(tx){ fishCaught++; dirtyUI=true;
     else if(r<0.96){addItem("use","crate",1);flash("Caisse remontée ! 📦");}
     else {addItem("mat","gold_bar",1);flash("Trésor pêché !");}
   } }
-function openCrate(){ removeItem("use","crate",1); const r=Math.random(); let msg="📦 ";
+function openCrate(){ const snap=JSON.stringify(inv); removeItem("use","crate",1); const r=Math.random(); let msg="📦 ", ok=true;
   if(r<0.30){ const g=8+Math.floor(Math.random()*20); coins+=g; msg+=g+" pièces"; }
-  else if(r<0.48){ addItem("mat","iron_bar",3); msg+="3 barres de fer"; }
-  else if(r<0.62){ addItem("mat","gold_bar",2); msg+="2 barres d'or"; }
-  else if(r<0.74){ addItem("use","hp_potion",2); msg+="2 potions de soin"; }
-  else if(r<0.84){ addItem("ammo","arrow",30); msg+="30 flèches"; }
-  else if(r<0.92){ addItem("use","fishing_potion",1); msg+="potion de pêche"; }
-  else if(r<0.97){ addItem("tile",GOLD,4); msg+="4 minerais d'or"; }
-  else { addItem("acc","tackle",1); msg+="Boîte à pêche !"; }
+  else if(r<0.48){ ok=addItem("mat","iron_bar",3); msg+="3 barres de fer"; }
+  else if(r<0.62){ ok=addItem("mat","gold_bar",2); msg+="2 barres d'or"; }
+  else if(r<0.74){ ok=addItem("use","hp_potion",2); msg+="2 potions de soin"; }
+  else if(r<0.84){ ok=addItem("ammo","arrow",30); msg+="30 flèches"; }
+  else if(r<0.92){ ok=addItem("use","fishing_potion",1); msg+="potion de pêche"; }
+  else if(r<0.97){ ok=addItem("tile",GOLD,4); msg+="4 minerais d'or"; }
+  else { ok=addItem("acc","tackle",1); msg+="Boîte à pêche !"; }
+  if(!ok){ inv=JSON.parse(snap); dirtyUI=true; return; }
   flash(msg); dirtyUI=true; }
 const QUEST_FISH=["fish","salmon","tuna","swordfish"];
 function newAnglerQuest(){ const f=QUEST_FISH[Math.floor(Math.random()*QUEST_FISH.length)]; anglerQuest={fish:f,qty:2+Math.floor(Math.random()*3)}; }
@@ -1334,7 +1342,8 @@ function updateEnemies(dt,step){
   if(boss)updateBoss(dt,step);
 }
 function rectHit(ax,ay,aw,ah,bx,by,bw,bh){return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by;}
-function hurtPlayer(dmg,dir){ const real=Math.max(1,dmg-totalDef()); player.hp-=real; player.invuln=0.8; player.vx=dir*7; player.vy=-6; spawnParticles(player.x+PW/2,player.y+PH/2,"#ff3030",8); }
+function hurtPlayer(dmg,dir){ const real=Math.max(1,dmg-totalDef()); player.hp-=real; player.invuln=0.8; player.vx=dir*7; player.vy=-6; spawnParticles(player.x+PW/2,player.y+PH/2,"#ff3030",8);
+  if(armorSet()==="titanium"){ for(const e of enemies){ if(Math.hypot(e.x+e.w/2-(player.x+PW/2),e.y+e.h/2-(player.y+PH/2))<72){ e.hp-=18; spawnParticles(e.x+e.w/2,e.y+e.h/2,"#dce0e8",4); } } } }
 function summonBoss(sel){ if(boss){flash("Le boss est déjà là");return;}
   if(sel.id==="eye"){ if(!isNight()){flash("L'Œil maléfique n'apparaît que la nuit");return;}
     removeItem("summon","eye",1); boss={type:"boss",tier:1,x:player.x+260,y:player.y-160,vx:0,vy:0,w:60,h:50,hp:700,maxHp:700,dmg:26,col:"#d24a5a",charge:0,t:0};
@@ -1374,7 +1383,7 @@ function updateMechWorm(dt,step){ const e=boss;
 function mechWormHitAt(x,y,dmg){ const e=boss; if(!e||!e.mech)return false;
   if(x>e.x&&x<e.x+e.w&&y>e.y&&y<e.y+e.h){ e.hp-=dmg; return true; }
   for(const s of e.segs)if(x>s.x-11&&x<s.x+11&&y>s.y-11&&y<s.y+11){ e.hp-=dmg*0.8; return true; } return false; }
-function updateBoss(dt,step){ const e=boss; e.t+=dt;
+function updateBoss(dt,step){ const e=boss; e.t+=dt; if(e.yoyoCd>0)e.yoyoCd-=dt;
   if(e.mech){ updateMechWorm(dt,step); }
   else {
   e.charge-=dt;
@@ -1391,7 +1400,7 @@ function updateBoss(dt,step){ const e=boss; e.t+=dt;
     e.fireCd-=dt; if(e.fireCd<=0){ const a0=Math.atan2(dy,dx),n=e.enraged?5:3; for(let k=-(n>>1);k<=(n>>1);k++){ const a=a0+k*0.22; projectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,vx:Math.cos(a)*6,vy:Math.sin(a)*6,type:"laser",dmg:e.dmg,life:3.2,friendly:false}); } e.fireCd=e.enraged?0.9:1.6; } }
   if(player.invuln<=0&&rectHit(e.x,e.y,e.w,e.h,player.x,player.y,PW,PH))hurtPlayer(e.dmg,Math.sign(player.x-e.x)||1);
   }
-  if(e.hp<=0){ spawnParticles(e.x+e.w/2,e.y+e.h/2,e.col,40); bossKills++;
+  if(e.hp<=0){ spawnParticles(e.x+e.w/2,e.y+e.h/2,e.col,40); bossKills++; addItem("tile",TROPHY,1);
     if(e.tier===2){ addItem("mat","hellstone_bar",20); addItem("tool","sword6",1); coins+=300; player.maxHp+=40; player.hp=player.maxHp; flash("🏆 Gardien des Enfers vaincu ! +40 PV max, Lame des abysses obtenue !"); }
     else if(e.tier===3){ addItem("mat","gold_bar",12); addItem("tile",EMERALD,6); addItem("acc","cloud",1); coins+=250; player.maxHp+=30; player.hp=player.maxHp; flash("🏆 Reine des abeilles vaincue ! +30 PV max, 250 pièces !"); }
     else if(e.tier===4){ addItem("mat","adamantite_bar",24); addItem("tool","sword8",1); coins+=400; player.maxHp+=50; player.hp=player.maxHp; flash("🏆 Golem vaincu ! +50 PV max, Épée d'adamantite !"); activateHardmode(); }
@@ -1430,7 +1439,17 @@ const QUESTS=[
   {type:"collect",kind:"mat",id:"mushroom",need:8,reward:70,desc:"Cueillir 8 champignons"},
 ];
 function assignQuest(){ const q=QUESTS[Math.floor(Math.random()*QUESTS.length)]; quest={type:q.type,enemy:q.enemy,kind:q.kind,id:q.id,need:q.need,reward:q.reward,desc:q.desc,have:0}; }
-function questReward(){ coins+=quest.reward; addItem("use","hp_potion",1); flash("🏆 Quête accomplie ! +"+quest.reward+" pièces"); quest=null; dirtyUI=true; }
+function questReward(){ coins+=quest.reward; addItem("use","hp_potion",1); questsDone++; flash("🏆 Quête accomplie ! +"+quest.reward+" pièces"); quest=null; dirtyUI=true; }
+// ---- succès ----
+const ACHIEVEMENTS={ premier_boss:"Premier boss vaincu", chasseur:"5 boss vaincus", legende:"9 boss vaincus",
+  pecheur:"10 poissons pêchés", riche:"1000 pièces amassées", batisseur:"100 blocs placés",
+  enfer:"Descendre en enfer", cieux:"Toucher les cieux", chaos:"Survivre au mode difficile", questeur:"3 quêtes accomplies" };
+function unlock(id){ if(achievements[id])return; achievements[id]=true; flash("🏆 Succès débloqué : "+ACHIEVEMENTS[id]); spawnParticles(player.x+PW/2,player.y+PH/2,"#ffd24a",14); dirtyUI=true; }
+function checkAchievements(){
+  if(bossKills>=1)unlock("premier_boss"); if(bossKills>=5)unlock("chasseur"); if(bossKills>=9)unlock("legende");
+  if(fishCaught>=10)unlock("pecheur"); if(coins>=1000)unlock("riche"); if(blocksPlaced>=100)unlock("batisseur");
+  const py=Math.floor((player.y+PH/2)/T); if(py>HELL_Y)unlock("enfer"); if(py<18)unlock("cieux");
+  if(hardmode)unlock("chaos"); if(questsDone>=3)unlock("questeur"); }
 function questBoardInteract(){ if(!quest){ assignQuest(); flash("📜 Nouvelle quête : "+quest.desc); return; }
   if(quest.type==="kill"){ if(quest.have>=quest.need)questReward(); else flash("📜 "+quest.desc+" ("+quest.have+"/"+quest.need+")"); }
   else { const have=countItem(quest.kind,quest.id); if(have>=quest.need){ removeItem(quest.kind,quest.id,quest.need); questReward(); } else flash("📜 "+quest.desc+" ("+have+"/"+quest.need+")"); } }
@@ -1543,7 +1562,7 @@ function computeLight(x0,y0,x1,y1){ const rw=x1-x0+1,rh=y1-y0+1;
   const sky=dayLight()*(raining?0.8:1)*(eclipse?0.5:1),at=(x,y)=>(x-x0)*rh+(y-y0);
   for(let x=x0;x<=x1;x++){ let sh=0; while(sh<WORLD_H&&!blocksLight(x,sh))sh++; for(let y=y0;y<=Math.min(y1,sh);y++)if(y>=0)L[at(x,y)]=Math.max(L[at(x,y)],sky); }
   for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){ const t=getT(x,y); if(TILE[t]&&TILE[t].light)L[at(x,y)]=Math.max(L[at(x,y)],TILE[t].light); }
-  if(player.buffs.shine>0||hasAcc("glow")||player.pet==="fairy"){ const lx=Math.floor((player.x+PW/2)/T),ly=Math.floor((player.y+PH/2)/T); if(lx>=x0&&lx<=x1&&ly>=y0&&ly<=y1)L[at(lx,ly)]=Math.max(L[at(lx,ly)],player.pet==="fairy"&&!(player.buffs.shine>0||hasAcc("glow"))?0.6:0.95); }
+  if(player.buffs.shine>0||hasAcc("glow")||player.pet==="fairy"||armorSet()==="crystal"){ const lx=Math.floor((player.x+PW/2)/T),ly=Math.floor((player.y+PH/2)/T); if(lx>=x0&&lx<=x1&&ly>=y0&&ly<=y1)L[at(lx,ly)]=Math.max(L[at(lx,ly)],(player.buffs.shine>0||hasAcc("glow"))?0.95:0.6); }
   for(const f of fireflies){ const fx=Math.floor(f.x/T),fy=Math.floor(f.y/T); if(fx>=x0&&fx<=x1&&fy>=y0&&fy<=y1)L[at(fx,fy)]=Math.max(L[at(fx,fy)],0.45); }
   for(const g of glows){ const gx=Math.floor(g.x/T),gy=Math.floor(g.y/T); if(gx>=x0&&gx<=x1&&gy>=y0&&gy<=y1)L[at(gx,gy)]=Math.max(L[at(gx,gy)],0.85); }
   for(let pass=0;pass<6;pass++){
@@ -1682,6 +1701,12 @@ function drawEnemy(e){ const sx=e.x-cam.x,sy=e.y-cam.y;
   else if(e.type==="antlion"){ const d=Math.sign(e.vx)||1; ctx.fillStyle=e.col;roundRect(sx+4,sy+6,e.w-8,e.h-6,5);ctx.fill();ctx.fillStyle="#7a5e34";ctx.fillRect(sx+6,sy+8,e.w-12,2);ctx.fillStyle="#6a4e28";ctx.beginPath();ctx.arc(sx+(d>0?e.w-6:6),sy+e.h-6,5,0,7);ctx.fill();ctx.strokeStyle="#3a2a14";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx+(d>0?e.w-2:2),sy+e.h-8);ctx.lineTo(sx+(d>0?e.w+4:-4),sy+e.h-12);ctx.moveTo(sx+(d>0?e.w-2:2),sy+e.h-6);ctx.lineTo(sx+(d>0?e.w+4:-4),sy+e.h-3);ctx.stroke();ctx.fillStyle="#1a1208";ctx.fillRect(sx+(d>0?e.w-9:5),sy+9,2,2); }
   else if(e.type==="vulture"){ const wf=Math.sin(e.t*12)*5;ctx.fillStyle=e.col;ctx.beginPath();ctx.moveTo(sx+e.w/2,sy+e.h/2);ctx.lineTo(sx-4,sy+e.h/2-7+wf);ctx.lineTo(sx-1,sy+e.h/2+4);ctx.fill();ctx.beginPath();ctx.moveTo(sx+e.w/2,sy+e.h/2);ctx.lineTo(sx+e.w+4,sy+e.h/2-7+wf);ctx.lineTo(sx+e.w+1,sy+e.h/2+4);ctx.fill();ctx.fillStyle="#3a2e22";roundRect(sx+e.w/2-4,sy+4,8,e.h-8,3);ctx.fill();ctx.fillStyle="#c84a2a";ctx.fillRect(sx+e.w/2-1,sy+2,3,3);ctx.fillStyle="#e8c33a";ctx.fillRect(sx+e.w/2,sy+5,2,2); }
   else if(e.type==="templeguard"){ ctx.fillStyle="#5a3a28";ctx.fillRect(sx+3,sy+26,7,18);ctx.fillRect(sx+e.w-10,sy+26,7,18);ctx.fillStyle=e.col;roundRect(sx,sy+10,e.w,18,3);ctx.fill();ctx.fillStyle="#8a5a3a";ctx.fillRect(sx+3,sy,e.w-6,12);ctx.fillStyle="#e8702a";ctx.fillRect(sx+5,sy+3,e.w-10,2);ctx.fillStyle="#ffb04a";ctx.fillRect(sx+6,sy+5,3,3);ctx.fillRect(sx+e.w-9,sy+5,3,3);ctx.fillStyle="#3a241a";ctx.fillRect(sx-3,sy+14,6,12);ctx.fillRect(sx+e.w-3,sy+14,6,12); }
+  else if(e.type==="goblin"){ ctx.fillStyle="#3a6a30";ctx.fillRect(sx+2,sy+22,6,16);ctx.fillRect(sx+e.w-8,sy+22,6,16);
+    ctx.fillStyle="#6a4a2a";ctx.fillRect(sx,sy+11,e.w,12);ctx.fillStyle=e.col;ctx.fillRect(sx+2,sy,e.w-4,12);
+    ctx.beginPath();ctx.moveTo(sx+2,sy+4);ctx.lineTo(sx-4,sy+1);ctx.lineTo(sx+2,sy+8);ctx.fill();
+    ctx.beginPath();ctx.moveTo(sx+e.w-2,sy+4);ctx.lineTo(sx+e.w+4,sy+1);ctx.lineTo(sx+e.w-2,sy+8);ctx.fill();
+    ctx.fillStyle="#d33";ctx.fillRect(sx+5,sy+4,2,2);ctx.fillRect(sx+e.w-7,sy+4,2,2);ctx.fillStyle="#caa15a";ctx.fillRect(sx+e.w-2,sy+14,5,3); }
+  else { ctx.fillStyle=e.col; roundRect(sx,sy,e.w,e.h,4); ctx.fill(); ctx.fillStyle="#fff"; ctx.fillRect(sx+4,sy+5,3,3); ctx.fillRect(sx+e.w-7,sy+5,3,3); }
   if(e.hp<e.maxHp){ ctx.fillStyle="#000";ctx.fillRect(sx,sy-6,e.w,3);ctx.fillStyle="#e33";ctx.fillRect(sx,sy-6,e.w*(e.hp/e.maxHp),3); }
 }
 function drawNPC(n){ const sx=n.x-cam.x,sy=n.y-cam.y;
@@ -1764,14 +1789,15 @@ $armorRow.addEventListener("click",e=>{const s=e.target.closest(".slot");if(s)ha
 $chestGrid.addEventListener("click",e=>{const s=e.target.closest(".slot");if(s)handleSlot("chest",+s.dataset.i);});
 function panels(){ $chestPanel.style.display=chestOpen?"block":"none"; $shopPanel.style.display=shopOpen?"block":"none"; $craft.style.display=(chestOpen||shopOpen)?"none":"block"; }
 function toggleInv(){ invOpen=!invOpen; if(!invOpen){chestOpen=false;shopOpen=false;} mouse.left=mouse.right=false; mining.x=-1; $overlay.classList.toggle("show",invOpen);
-  panels(); if(!invOpen&&cursor){addItem(cursor.kind,cursor.id,cursor.n);cursor=null;} dirtyUI=true; }
+  panels(); if(!invOpen&&cursor){ if(addItem(cursor.kind,cursor.id,cursor.n))cursor=null; } dirtyUI=true; }
 function openChest(x,y){ const key=x+","+y; if(!chestData.has(key))chestData.set(key,new Array(20).fill(null));
   curChestKey=key; chestOpen=true; shopOpen=false; invOpen=true; mouse.left=mouse.right=false; mining.x=-1; $overlay.classList.add("show"); panels(); dirtyUI=true; }
 function openShop(stock){ curShop=stock||SHOP; shopOpen=true; chestOpen=false; invOpen=true; mouse.left=mouse.right=false; mining.x=-1; $overlay.classList.add("show"); panels(); dirtyUI=true; }
-function buyItem(e){ if(coins<e.price){flash("Pas assez de pièces");return;} if(addItem(e.item.kind,e.item.id,e.item.n)){ coins-=e.price; flash("Acheté : "+itemName(e.item)); dirtyUI=true; } }
+function buyItem(e){ if(coins<e.price){flash("Pas assez de pièces");return;} const snap=JSON.stringify(inv);
+  if(addItem(e.item.kind,e.item.id,e.item.n)){ coins-=e.price; flash("Acheté : "+itemName(e.item)); } else { inv=JSON.parse(snap); } dirtyUI=true; }
 function buildShop(){ $shopList.innerHTML="";
   (curShop||SHOP).forEach(e=>{ const ok=coins>=e.price,d=document.createElement("div"); d.className="recipe "+(ok?"ok":"no"); const it=e.item;
-    const col=it.kind==="tile"?TILE[it.id].col:it.kind==="use"?USES[it.id].col:it.kind==="ammo"?AMMO[it.id].col:it.kind==="wall"?WALLS[it.id].col:null;
+    const col=it.kind==="tile"?TILE[it.id].col:it.kind==="use"?USES[it.id].col:it.kind==="ammo"?AMMO[it.id].col:it.kind==="wall"?WALLS[it.id].col:it.kind==="mat"?MATS[it.id].col:it.kind==="throw"?THROWS[it.id].col:null;
     const sq=col?`<span class="sq" style="display:inline-block;width:22px;height:22px;background:${col};border-radius:3px"></span>`:`<span>${emoji(it)}</span>`;
     d.innerHTML=`<div class="ricon">${sq}</div><div class="rtxt"><b>${itemName(it)} ×${it.n}</b><br><small>🪙 ${e.price} pièces</small></div>`;
     if(ok)d.onclick=()=>buyItem(e); $shopList.appendChild(d); });
@@ -1792,7 +1818,7 @@ function buildCraft(){ $craftList.innerHTML="";
       :r.out.kind==="use"?`<span class="sq" style="display:inline-block;width:22px;height:22px;background:${USES[r.out.id].col};border-radius:3px"></span>`
       :r.out.kind==="wall"?`<span class="sq" style="display:inline-block;width:22px;height:22px;background:${WALLS[r.out.id].col};border-radius:3px"></span>`
       :r.out.kind==="throw"?`<span class="sq" style="display:inline-block;width:22px;height:22px;background:${THROWS[r.out.id].col};border-radius:3px"></span>`:`<span>${emoji(r.out)}</span>`;
-    d.innerHTML=`<div class="ricon">${sq}</div><div class="rtxt"><b>${itemName(r.out)} ×${r.out.n||1}</b><br><small>${ins}${r.station?" • "+({table:"établi",furnace:"fournaise",anvil:"enclume"})[r.station]:""}</small></div>`;
+    d.innerHTML=`<div class="ricon">${sq}</div><div class="rtxt"><b>${itemName(r.out)} ×${r.out.n||1}</b><br><small>${ins}${r.station?" • "+({table:"établi",furnace:"fournaise",anvil:"enclume",sawmill:"scierie",alchemy:"alchimie"})[r.station]:""}</small></div>`;
     if(ok)d.onclick=()=>craft(r); $craftList.appendChild(d); });
   $station.textContent="À proximité : "+[nearStation("table")?"Établi ✓":"Établi ✗",nearStation("furnace")?"Fournaise ✓":"Fournaise ✗",nearStation("anvil")?"Enclume ✓":"Enclume ✗"].join(" · ");
 }
@@ -1806,7 +1832,8 @@ function updateStatus(){ $hearts.textContent="❤️ "+Math.ceil(player.hp)+"/"+
   $def.textContent="🛡️ "+totalDef(); $coins.textContent="🪙 "+coins; const h=Math.floor(((gameTime+0.5)%1)*24);
   const pcol=Math.floor((player.x+PW/2)/T),depth=Math.floor((player.y+PH)/T)-surfaceAt(pcol); const dl2=Math.floor((player.y+PH/2)/T)>=HELL_Y?"🔥 Enfer":depth<2?"⛰️ Surface":"⬇️ "+(depth*2)+"m";
   $clock.textContent=(isNight()?"🌙 ":"☀️ ")+String(h).padStart(2,"0")+":00 · "+dl2;
-  const ab=Object.keys(player.buffs); if(ab.length){$buffs.style.display="block";$buffs.textContent=ab.map(k=>BUFFS[k].name+" "+Math.ceil(player.buffs[k])+"s").join(" · ");}else $buffs.style.display="none";
+  const ab=Object.keys(player.buffs), nAch=Object.keys(achievements).length;
+  if(ab.length||nAch){$buffs.style.display="block";$buffs.textContent=ab.map(k=>BUFFS[k].name+" "+Math.ceil(player.buffs[k])+"s").concat(nAch?["🏆 "+nAch+"/"+Object.keys(ACHIEVEMENTS).length]:[]).join(" · ");}else $buffs.style.display="none";
   if(boss){$bossbar.style.display="block";document.getElementById("bossName").textContent=boss.tier===2?"Gardien des Enfers":boss.tier===3?"Reine des abeilles":boss.tier===4?"Golem":boss.tier===5?"Dévoreur des mondes":boss.tier===6?"Seigneur de Lune":boss.tier===7?"Le Destructeur":boss.tier===8?"Le Titan céleste":"Œil maléfique";$bossFg.style.width=(100*Math.max(0,boss.hp)/boss.maxHp)+"%";}else $bossbar.style.display="none"; }
 
 // =========================================================================
@@ -1818,9 +1845,9 @@ function respawn(){ dead=false; document.getElementById("death").style.display="
 function rle(arr){ const out=[];let v=arr[0],c=1; for(let i=1;i<arr.length;i++){if(arr[i]===v&&c<65535)c++;else{out.push(v,c);v=arr[i];c=1;}} out.push(v,c); return out; }
 function unrle(out,len){ const arr=new Uint8Array(len);let p=0; for(let i=0;i<out.length;i+=2){const v=out[i],c=out[i+1];for(let j=0;j<c;j++)arr[p++]=v;} return arr; }
 function save(){ try{ const chests=[]; chestData.forEach((v,k)=>chests.push([k,v]));
-  localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,seed,world:rle(world),liquid:rle(liquid),walls:rle(walls),wires:rle(wires),tints:rle(tints),chests,coins,merchantArrived,bossKills,nurseArrived,wizardArrived,blacksmithArrived,dryadArrived,anglerArrived,fishCaught,anglerQuest,hardmode,tinkererArrived,armsDealerArrived,painterArrived,taxCollectorArrived,taxPool,quest,
+  localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,seed,world:rle(world),liquid:rle(liquid),walls:rle(walls),wires:rle(wires),tints:rle(tints),chests,coins,merchantArrived,bossKills,nurseArrived,wizardArrived,blacksmithArrived,dryadArrived,anglerArrived,fishCaught,anglerQuest,hardmode,tinkererArrived,armsDealerArrived,painterArrived,taxCollectorArrived,taxPool,quest,achievements,blocksPlaced,questsDone,
     px:player.x,py:player.y,hp:player.hp,maxHp:player.maxHp,mana:player.mana,maxMana:player.maxMana,armor:player.armorArr,acc:player.acc,pet:player.pet,mtd:player.mount,spx:player.spawnX,spy:player.spawnY,
-    inv,sel:selected,time:gameTime})); }catch(err){flash("Sauvegarde impossible (espace plein)");console.warn(err);} }
+    inv,cur:cursor,sel:selected,time:gameTime})); }catch(err){flash("Sauvegarde impossible (espace plein)");console.warn(err);} }
 function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
   try{ const d=JSON.parse(raw); if(d.v!==2)return false; seed=d.seed>>>0;
     world=unrle(d.world,WORLD_W*WORLD_H); liquid=unrle(d.liquid,WORLD_W*WORLD_H);
@@ -1828,17 +1855,18 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
     wires=d.wires?unrle(d.wires,WORLD_W*WORLD_H):new Uint8Array(WORLD_W*WORLD_H);
     tints=d.tints?unrle(d.tints,WORLD_W*WORLD_H):new Uint8Array(WORLD_W*WORLD_H);
     chestData=new Map(); if(d.chests)d.chests.forEach(([k,v])=>chestData.set(k,v));
-    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; anglerArrived=!!d.anglerArrived; fishCaught=d.fishCaught||0; anglerQuest=d.anglerQuest||null; hardmode=!!d.hardmode; tinkererArrived=!!d.tinkererArrived; armsDealerArrived=!!d.armsDealerArrived; painterArrived=!!d.painterArrived; taxCollectorArrived=!!d.taxCollectorArrived; taxPool=d.taxPool||0; quest=d.quest||null; invasionT=0; army=null; bloodMoon=false; eclipse=false; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0;
+    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; anglerArrived=!!d.anglerArrived; fishCaught=d.fishCaught||0; anglerQuest=d.anglerQuest||null; hardmode=!!d.hardmode; tinkererArrived=!!d.tinkererArrived; armsDealerArrived=!!d.armsDealerArrived; painterArrived=!!d.painterArrived; taxCollectorArrived=!!d.taxCollectorArrived; taxPool=d.taxPool||0; quest=d.quest||null; achievements=d.achievements||{}; blocksPlaced=d.blocksPlaced||0; questsDone=d.questsDone||0; invasionT=0; army=null; bloodMoon=false; eclipse=false; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0;
     player.x=d.px;player.y=d.py;player.hp=d.hp;player.maxHp=d.maxHp||100;player.mana=d.mana||0;player.maxMana=d.maxMana||20;player.armorArr=d.armor||[null,null,null];player.acc=d.acc||null;
     player.pet=typeof d.pet==="string"?d.pet:(d.pet?"sprite":null); player.mount=typeof d.mtd==="string"?d.mtd:(d.mtd?"slime":null); player.spawnX=d.spx!=null?d.spx:Math.floor(WORLD_W/2)*T; player.spawnY=d.spy!=null?d.spy:(surfaceAt(Math.floor(WORLD_W/2))-6)*T; player.buffs={}; player.fishing=null;
     selected=d.sel||0; gameTime=d.time||0.3; inv=d.inv?d.inv.slice(0,36):new Array(36).fill(null);
-    while(inv.length<36)inv.push(null); critters=[]; minions=[]; fireflies=[]; glows=[]; trapCd.clear(); player.grapple=null;
+    while(inv.length<36)inv.push(null); cursor=null; if(d.cur){ if(!addItem(d.cur.kind,d.cur.id,d.cur.n))cursor=d.cur; }
+    critters=[]; minions=[]; fireflies=[]; glows=[]; trapCd.clear(); player.grapple=null;
     npcs=[]; spawnNPC("guide"); if(merchantArrived)spawnNPC("merchant"); if(nurseArrived)spawnNPC("nurse"); if(wizardArrived)spawnNPC("wizard"); if(blacksmithArrived)spawnNPC("blacksmith"); if(dryadArrived)spawnNPC("dryad"); if(anglerArrived)spawnNPC("angler"); if(tinkererArrived)spawnNPC("tinkerer"); if(armsDealerArrived)spawnNPC("arms_dealer"); if(painterArrived)spawnNPC("painter"); if(taxCollectorArrived)spawnNPC("tax_collector"); return true;
   }catch(err){console.warn("Sauvegarde corrompue",err);return false;} }
 function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null]; player.acc=null;
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
-  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;curShop=null;player.buffs={};player.fishing=null;player.pet=null;player.mount=null;player.flyTime=0;player.grapple=null;glows=[];trapCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;
+  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;achievements={};blocksPlaced=0;questsDone=0;curShop=null;player.buffs={};player.fishing=null;player.pet=null;player.mount=null;player.flyTime=0;player.grapple=null;glows=[];trapCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;
   npcs=[]; spawnNPC("guide");
   document.getElementById("death").style.display="none";
   const c=Math.floor(WORLD_W/2);player.x=c*T;player.y=(surfaceAt(c)-6)*T;player.vx=player.vy=0;player.spawnX=player.x;player.spawnY=player.y;
