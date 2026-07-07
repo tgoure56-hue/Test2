@@ -275,7 +275,7 @@ const TOOLS={
   pick6:{name:"Pioche en mythril",type:"pick",power:5.0}, sword7:{name:"Épée en mythril",type:"sword",dmg:80},
   pick7:{name:"Pioche en adamantite",type:"pick",power:6.0}, sword8:{name:"Épée en adamantite",type:"sword",dmg:110},
   staff2:{name:"Bâton de feu",type:"staff",dmg:34,mana:7,proj:"bolt"}, staff3:{name:"Bâton de givre",type:"staff",dmg:28,mana:8,proj:"frost"},
-  summon_staff:{name:"Bâton d'invocation",type:"summoner",dmg:22,mana:6}, mount:{name:"Monture slime",type:"mount",mountId:"slime"}, mount2:{name:"Monture oiseau",type:"mount",mountId:"bird"}, mount3:{name:"Monture licorne",type:"mount",mountId:"unicorn"}, sword9:{name:"Lame du néant",type:"sword",dmg:140},
+  summon_staff:{name:"Bâton d'invocation",type:"summoner",dmg:22,mana:6}, mount:{name:"Monture slime",type:"mount",mountId:"slime"}, mount2:{name:"Monture oiseau",type:"mount",mountId:"bird"}, mount3:{name:"Monture licorne",type:"mount",mountId:"unicorn"}, mount4:{name:"Soucoupe volante",type:"mount",mountId:"ufo"}, sword9:{name:"Lame du néant",type:"sword",dmg:140},
   pick8:{name:"Pioche de cristal",type:"pick",power:7.0}, sword10:{name:"Épée de cristal",type:"sword",dmg:135}, yoyo:{name:"Yo-yo",type:"yoyo",dmg:32},
   pick9:{name:"Pioche de cobalt",type:"pick",power:8.0}, sword11:{name:"Épée de cobalt",type:"sword",dmg:155},
   pick10:{name:"Pioche de titane",type:"pick",power:9.0}, sword12:{name:"Épée de titane",type:"sword",dmg:185}, bow3:{name:"Arc de titane",type:"bow",dmg:42},
@@ -293,7 +293,7 @@ const TOOLS={
 const ACC={ cloud:{name:"Bottes nuage",eff:"djump"}, boots:{name:"Bottes véloces",eff:"speed"}, band:{name:"Brassard de force",eff:"def",def:5},
   talisman:{name:"Talisman de régénération",eff:"regen"}, amulet:{name:"Amulette de mana",eff:"manaregen"}, wings:{name:"Ailes de cristal",eff:"fly"}, lavaboots:{name:"Bottes de lave",eff:"lava"}, headlamp:{name:"Lampe frontale",eff:"glow"}, tackle:{name:"Boîte à pêche",eff:"angler"},
   tinker_band:{name:"Brassard du bricoleur",eff:"def",def:8}, mech_heart:{name:"Cœur mécanique",eff:"def",def:10}, celestial_emblem:{name:"Emblème céleste",eff:"def",def:14}, aegis_nightmare:{name:"Égide du cauchemar",eff:"def",def:16},
-  spider_charm:{name:"Amulette d'araignée",eff:"summonplus",def:4}, ninja_hood:{name:"Cape ninja",eff:"speed",def:3} };
+  spider_charm:{name:"Amulette d'araignée",eff:"summonplus",def:4}, ninja_hood:{name:"Cape ninja",eff:"speed",def:3}, dash_boots:{name:"Bottes d'élan",eff:"dash",def:2} };
 const THROWS={ glowstick:{name:"Bâton lumineux",col:"#7fff9f"} };
 const ARMOR={
   wood_h:{name:"Casque bois",slot:"head",def:1}, wood_c:{name:"Plastron bois",slot:"chest",def:2}, wood_l:{name:"Jambières bois",slot:"legs",def:1},
@@ -579,6 +579,9 @@ const RECIPES=[
   R({kind:"tile",id:FOUNTAIN},[ti(STONE,10),ma("silver_bar",3)],"table"),
   R({kind:"tile",id:PIANO},[ti(PLANK,8),ma("gold_bar",2)],"sawmill"),
   R({kind:"tile",id:DRESSER},[ti(PLANK,12)],"sawmill"),
+  // phase 39 (mobilité)
+  R({kind:"acc",id:"dash_boots"},[ma("feather",3),ma("iron_bar",4)],"anvil"),
+  R({kind:"tool",id:"mount4"},[ma("crystal_bar",8),ma("mech_soul",3)],"anvil"),
 ];
 
 // =========================================================================
@@ -945,7 +948,7 @@ function resize(){VW=canvas.width=window.innerWidth;VH=canvas.height=window.inne
 window.addEventListener("resize",resize);resize();
 
 const player={x:0,y:0,vx:0,vy:0,onGround:false,hp:100,maxHp:100,mana:20,maxMana:20,
-  face:1,invuln:0,swing:0,useCd:0,placeCd:0,potionCd:0,acc:null,acc2:null,djump:false,jumpWas:false,drop:false,buffs:{},fishing:null,pet:null,combatPet:null,mount:null,flyTime:0,grapple:null,spawnX:0,spawnY:0,armorArr:[null,null,null]};
+  face:1,invuln:0,swing:0,useCd:0,placeCd:0,potionCd:0,dashCd:0,tapDir:0,tapWin:0,dashTime:0,acc:null,acc2:null,djump:false,jumpWas:false,drop:false,buffs:{},fishing:null,pet:null,combatPet:null,mount:null,flyTime:0,grapple:null,spawnX:0,spawnY:0,armorArr:[null,null,null]};
 let critters=[], minions=[], fireflies=[], glows=[];
 let invasionT=0, wizardArrived=false, blacksmithArrived=false, dryadArrived=false, curShop=null;
 const cam={x:0,y:0};
@@ -1004,8 +1007,10 @@ function hasAcc(eff){ return !!((player.acc&&ACC[player.acc.id].eff===eff)||(pla
 // =========================================================================
 //  entrées
 // =========================================================================
-addEventListener("keydown",e=>{ keys[e.code]=true;
+addEventListener("keydown",e=>{ const fresh=!keys[e.code]; keys[e.code]=true;
   if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code))e.preventDefault();
+  if(fresh&&(e.code==="KeyA"||e.code==="ArrowLeft"))onDirTap(-1);
+  if(fresh&&(e.code==="KeyD"||e.code==="ArrowRight"))onDirTap(1);
   if(e.code>="Digit1"&&e.code<="Digit9"){selected=+e.code.slice(5)-1;dirtyUI=true;}
   if(e.code==="KeyE"||e.code==="KeyC")toggleInv();
   if(e.code==="KeyM")showMap=!showMap;
@@ -1034,21 +1039,22 @@ function update(dt){
   const onRope=isClimb(getT(Math.floor((player.x+PW/2)/T),Math.floor((player.y+PH/2)/T)));
   const upHeld=keys.KeyW||keys.ArrowUp, downHeld=keys.KeyS||keys.ArrowDown;
   player.drop=!!downHeld&&!onRope;
-  const ms=player.mount==="unicorn"?4.2:player.mount==="bird"?2.0:player.mount==="slime"?2.6:0;
+  const ms=player.mount==="unicorn"?4.2:player.mount==="ufo"?3.6:player.mount==="bird"?2.0:player.mount==="slime"?2.6:0;
   const maxSpd=MOVE_MAX+(hasAcc("speed")?1.8:0)+(player.buffs.swift>0?1.6:0)+ms;
   let mv=0; if(keys.KeyA||keys.ArrowLeft)mv-=1; if(keys.KeyD||keys.ArrowRight)mv+=1;
   if(mv!==0){player.vx+=mv*MOVE_ACC*step;player.face=mv;} else player.vx*=Math.pow(FRICTION,step);
-  player.vx=clamp(player.vx,-maxSpd,maxSpd);
+  if(player.dashTime>0){ player.dashTime-=dt; } else player.vx=clamp(player.vx,-maxSpd,maxSpd);
   const inWater=getT(Math.floor((player.x+PW/2)/T),Math.floor((player.y+PH*0.7)/T))===WATER;
   const jump=keys.KeyW||keys.ArrowUp||keys.Space; const jumpEdge=jump&&!player.jumpWas; player.jumpWas=jump;
   if(player.grapple){ const gx=player.grapple.x-(player.x+PW/2),gy=player.grapple.y-(player.y+PH/2),gd=Math.hypot(gx,gy)||1; if(gd<22){player.vx*=0.6;player.vy*=0.6;}else{player.vx=gx/gd*6.5;player.vy=gy/gd*6.5;} player.djump=true; if(jumpEdge)player.grapple=null; }
   else if(onRope){ player.djump=true; if(keys.Space){player.vy=-JUMP_V;} else player.vy=upHeld?-4:downHeld?4:0; }
   else {
-    if(jump&&(player.onGround||inWater)){ player.vy=inWater?-4.5:(player.mount==="slime"?-JUMP_V*1.35:-JUMP_V); player.onGround=false; }
+    if(player.mount==="ufo"&&!inWater){ if(jump)player.vy=Math.max(player.vy-1.9*step,-7); else if(downHeld)player.vy=Math.min(player.vy+1.0*step,5); }
+    else if(jump&&(player.onGround||inWater)){ player.vy=inWater?-4.5:(player.mount==="slime"?-JUMP_V*1.35:-JUMP_V); player.onGround=false; }
     else if(jump&&player.mount==="bird"&&!inWater){ player.vy=Math.max(player.vy-1.4*step,-6.5); }
     else if(jumpEdge&&hasAcc("djump")&&player.djump&&!inWater){ player.vy=-JUMP_V*0.95; player.djump=false; spawnParticles(player.x+PW/2,player.y+PH,"#cfe6ff",6); }
     else if(jump&&hasAcc("fly")&&player.flyTime>0&&!inWater){ player.vy=Math.max(player.vy-1.5*step,-6); player.flyTime-=dt; }
-    const g=inWater?GRAV*0.35:GRAV, mf=inWater?MAX_FALL*0.4:MAX_FALL;
+    const g=inWater?GRAV*0.35:(player.mount==="ufo"?GRAV*0.22:GRAV), mf=inWater?MAX_FALL*0.4:(player.mount==="ufo"?6:MAX_FALL);
     player.vy=Math.min(player.vy+g*step,mf);
   }
   const preVy=player.vy;
@@ -1062,6 +1068,8 @@ function update(dt){
   if(player.useCd>0)player.useCd-=dt;
   if(player.placeCd>0)player.placeCd-=dt;
   if(player.potionCd>0)player.potionCd-=dt;
+  if(player.dashCd>0)player.dashCd-=dt;
+  if(player.tapWin>0)player.tapWin-=dt;
   for(const k in player.buffs){ player.buffs[k]-=dt; if(player.buffs[k]<=0)delete player.buffs[k]; }
   const regenRate=2+(player.buffs.regen>0?6:0)+(hasAcc("regen")?2:0)+(nearTile(CAMPFIRE,8)?3:0)+(nearTile(HEARTLANTERN,8)?2:0)+(nearTile(FOUNTAIN,8)?2:0);
   if(player.invuln<=0&&player.hp<player.maxHp)player.hp=Math.min(player.maxHp,player.hp+dt*regenRate);
@@ -1266,6 +1274,8 @@ function mirrorHome(){ player.x=player.spawnX; player.y=player.spawnY; player.vx
 function wormholeTeleport(){ for(let tries=0;tries<80;tries++){ const tx=2+Math.floor(Math.random()*(WORLD_W-4)), sy=surfaceAt(tx);
     if(sy>2&&sy<WORLD_H-4&&getT(tx,sy)===AIR&&getT(tx,sy-1)===AIR){ spawnParticles(player.x+PW/2,player.y+PH/2,"#7a5ad0",14); player.x=tx*T; player.y=(sy-2)*T; player.vx=player.vy=0; player.invuln=1.5; spawnParticles(player.x+PW/2,player.y+PH/2,"#7a5ad0",22); flash("🌀 Trou de ver : téléportation aléatoire !"); return; } }
   mirrorHome(); }
+function doDash(dir){ player.vx=dir*15; player.dashTime=0.2; player.dashCd=0.9; player.face=dir; player.invuln=Math.max(player.invuln,0.2); player.tapWin=0; spawnParticles(player.x+PW/2,player.y+PH/2,"#cfe6ff",10); }
+function onDirTap(dir){ if(hasAcc("dash")&&player.dashCd<=0&&player.tapDir===dir&&player.tapWin>0){ doDash(dir); } else { player.tapDir=dir; player.tapWin=0.28; } }
 function throwBomb(){ const pcx=player.x+PW/2,pcy=player.y+PH/2; let dx=mouse.wx-pcx,dy=mouse.wy-pcy; const d=Math.hypot(dx,dy)||1;
   projectiles.push({x:pcx,y:pcy,vx:dx/d*9,vy:dy/d*9-2,type:"bomb",dmg:45,fuse:1.6,life:6,friendly:true}); }
 function explode(x,y,r,dmg){ const cx=Math.floor(x/T),cy=Math.floor(y/T);
@@ -1848,6 +1858,11 @@ function render(){
   if(player.mount){ const mx=player.x-cam.x-4, my=player.y-cam.y+PH-10;
     if(player.mount==="bird"){ const wf=Math.sin(frameCount*0.4)*5; ctx.fillStyle="#e8d8a8"; ctx.beginPath();ctx.moveTo(mx+PW/2,my+6);ctx.lineTo(mx-6,my+2-wf);ctx.lineTo(mx-2,my+12);ctx.fill();ctx.beginPath();ctx.moveTo(mx+PW/2+8,my+6);ctx.lineTo(mx+PW+14,my+2-wf);ctx.lineTo(mx+PW+10,my+12);ctx.fill();ctx.fillStyle="#caa07a";roundRect(mx+2,my+4,PW+4,12,5);ctx.fill();ctx.fillStyle="#e8c33a";ctx.fillRect(mx+PW+4,my+8,3,2); }
     else if(player.mount==="unicorn"){ ctx.fillStyle="#f0e8f4"; roundRect(mx,my,PW+10,16,5); ctx.fill(); ctx.fillStyle="#e0d4e8"; ctx.fillRect(mx+2,my+13,3,5); ctx.fillRect(mx+PW+3,my+13,3,5); ctx.fillStyle="#ffd24a"; ctx.beginPath();ctx.moveTo(mx+PW+8,my+2);ctx.lineTo(mx+PW+12,my-5);ctx.lineTo(mx+PW+10,my+3);ctx.fill(); ctx.fillStyle="#c89ad8";ctx.fillRect(mx+PW+4,my-1,4,6); }
+    else if(player.mount==="ufo"){ const bob=Math.sin(frameCount*0.2)*2, cx2=mx+PW/2;
+      ctx.fillStyle="rgba(127,200,255,0.25)";ctx.beginPath();ctx.ellipse(cx2,my+16+bob,PW+10,6,0,0,7);ctx.fill();
+      ctx.fillStyle="#9aa4b0";ctx.beginPath();ctx.ellipse(cx2,my+11+bob,PW+7,6,0,0,7);ctx.fill();
+      ctx.fillStyle="#c8d0dc";ctx.beginPath();ctx.ellipse(cx2,my+8+bob,PW*0.55,6,0,Math.PI,0);ctx.fill();
+      for(let k=0;k<4;k++){ ctx.fillStyle=["#ff5a5a","#ffe27a","#5affa0","#5fd0ff"][k]; ctx.beginPath();ctx.arc(mx+5+k*9,my+13+bob,1.6,0,7);ctx.fill(); } }
     else { ctx.fillStyle="rgba(90,200,120,.85)"; roundRect(mx,my,PW+8,16,6); ctx.fill(); ctx.fillStyle="#fff"; ctx.fillRect(mx+4,my+5,3,3); ctx.fillRect(mx+PW,my+5,3,3); } }
   for(const m of minions){ const mx=m.x-cam.x,my=m.y-cam.y;
     if(m.kind==="spider"){ const lg=Math.sin((m.t||0)*16)*2; ctx.strokeStyle="#4a3a54";ctx.lineWidth=1.5; for(let k=0;k<3;k++){ ctx.beginPath();ctx.moveTo(mx-2,my);ctx.lineTo(mx-7+k,my+4+lg);ctx.stroke(); ctx.beginPath();ctx.moveTo(mx+2,my);ctx.lineTo(mx+7-k,my+4-lg);ctx.stroke(); } ctx.fillStyle="#6a5a74";ctx.beginPath();ctx.ellipse(mx,my+1,6,5,0,0,7);ctx.fill();ctx.beginPath();ctx.arc(mx,my-4,3,0,7);ctx.fill(); ctx.fillStyle="#c8ffb0";ctx.fillRect(mx-2,my-5,1,1);ctx.fillRect(mx+1,my-5,1,1); continue; }
