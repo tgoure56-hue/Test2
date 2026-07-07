@@ -131,7 +131,7 @@ const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAM
   PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39,MYTHRIL=40,
   BED=41,CAMPFIRE=42,HEARTLANTERN=43,SPIKE=44,ADAMANTITE=45,CGRASS=46,EBONSTONE=47,HGRASS=48,PEARLSTONE=49,CRYSTAL=50,LAMP=51,CHAIR=52,VASE=53,BANNER=54,COBALT=55,TITANIUM=56,DART_TRAP=57,PLATE=58,STATUE=59,
   MGRASS=60,GMUSH=61,MUSHBLOCK=62,MARBLE=63,GRANITE=64,SANDSTONE=65,STONEBRICK=66,CLOUDB=67,COBWEB=68,CACTUS=69,BOOKCASE=70,CANDLE=71,CHANDELIER=72,SAWMILL=73,
-  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106;
+  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106,SHARPENING=107,AMMOBOX=108,CRYSTALBALL=109,BEWITCH=110,FOUNTAIN=111,PIANO=112,DRESSER=113;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -248,6 +248,13 @@ const TILE={
   [BONEBRICK]:{name:"Brique d'os",solid:true,hard:3.2,drop:BONEBRICK,col:"#4a4a58"},
   [SPIDERNEST]:{name:"Pierre à toile",solid:true,hard:1.8,drop:SPIDERNEST,col:"#3a3040"},
   [SLIMEBLOCK]:{name:"Bloc de slime",solid:true,hard:0.6,drop:SLIMEBLOCK,col:"#5aa0d8"},
+  [SHARPENING]:{name:"Meule",solid:false,hard:0.8,drop:SHARPENING,col:"#8a8a92"},
+  [AMMOBOX]:{name:"Caisse de munitions",solid:false,hard:0.8,drop:AMMOBOX,col:"#8a6a3a"},
+  [CRYSTALBALL]:{name:"Boule de cristal",solid:false,hard:0.8,drop:CRYSTALBALL,col:"#9a7ad0",light:0.4},
+  [BEWITCH]:{name:"Table d'envoûtement",solid:false,hard:0.8,drop:BEWITCH,col:"#5a3a6a"},
+  [FOUNTAIN]:{name:"Fontaine",solid:false,hard:0.8,drop:FOUNTAIN,col:"#5a9ad0",light:0.2},
+  [PIANO]:{name:"Piano",solid:false,hard:0.8,drop:PIANO,col:"#2a2a30"},
+  [DRESSER]:{name:"Commode",solid:false,hard:0.8,drop:DRESSER,col:"#8a5a2b"},
 };
 const isSpike=id=>TILE[id]&&TILE[id].spike;
 const isPlatform=id=>TILE[id]&&TILE[id].platform;
@@ -564,6 +571,14 @@ const RECIPES=[
   R({kind:"tile",id:SLIMEBLOCK,n:4},[ma("gel",4)],"table"),
   R({kind:"summon",id:"slime_crown"},[ma("gel",20),ma("gold_bar",5)],"anvil"),
   R({kind:"tile",id:TORCH,n:4},[ma("gel",1),ti(LOG,1)],null),
+  // phase 38 (stations de confort & de combat + mobilier)
+  R({kind:"tile",id:SHARPENING},[ma("iron_bar",4),ti(STONE,6)],"table"),
+  R({kind:"tile",id:AMMOBOX},[ti(PLANK,6),ma("iron_bar",3)],"table"),
+  R({kind:"tile",id:CRYSTALBALL},[ma("crystal_bar",4),ma("gold_bar",2)],"table"),
+  R({kind:"tile",id:BEWITCH},[ma("bone",6),ti(PLANK,6)],"table"),
+  R({kind:"tile",id:FOUNTAIN},[ti(STONE,10),ma("silver_bar",3)],"table"),
+  R({kind:"tile",id:PIANO},[ti(PLANK,8),ma("gold_bar",2)],"sawmill"),
+  R({kind:"tile",id:DRESSER},[ti(PLANK,12)],"sawmill"),
 ];
 
 // =========================================================================
@@ -886,6 +901,13 @@ function makeTex(id){
   else if(id===SANDSTONEBRICK){g.fillStyle="#b8985a";g.fillRect(0,0,T,T);g.strokeStyle="#947842";g.lineWidth=1;g.strokeRect(0,0,T,T/2);g.strokeRect(0,T/2,T,T/2);g.beginPath();g.moveTo(T/2,0);g.lineTo(T/2,T/2);g.moveTo(0,T/2);g.lineTo(0,T);g.stroke();}
   else if(id===TEMPLEBRICK){g.fillStyle="#6a4a3a";g.fillRect(0,0,T,T);g.strokeStyle="#42281e";g.lineWidth=1;g.strokeRect(1,1,T-2,T-2);g.fillStyle="#e8702a";g.fillRect(T/2-1,4,2,T-8);g.fillRect(5,T/2-1,T-10,2);g.fillStyle="#3a241a";g.fillRect(4,4,2,2);g.fillRect(T-6,T-6,2,2);}
   else if(id===SLIMEBLOCK){g.clearRect(0,0,T,T);g.fillStyle="rgba(90,160,216,0.62)";g.fillRect(2,2,T-4,T-4);g.fillStyle="rgba(150,210,245,0.5)";g.beginPath();g.arc(T*0.34,T*0.34,3,0,7);g.fill();g.fillStyle="rgba(40,90,150,0.45)";g.beginPath();g.arc(T*0.68,T*0.66,2,0,7);g.fill();g.strokeStyle="rgba(180,225,250,0.55)";g.lineWidth=1;g.strokeRect(2.5,2.5,T-5,T-5);g.fillStyle="rgba(230,245,255,0.5)";g.fillRect(5,4,4,2);}
+  else if(id===SHARPENING){g.clearRect(0,0,T,T);g.fillStyle="#6e4520";g.fillRect(3,T-6,T-6,5);g.fillRect(5,T-11,3,6);g.fillRect(T-8,T-11,3,6);g.fillStyle="#8a8a92";g.beginPath();g.arc(T/2,T-11,6,0,7);g.fill();g.fillStyle="#b0b0b8";g.beginPath();g.arc(T/2,T-11,3,0,7);g.fill();g.fillStyle="#ffe27a";g.fillRect(T/2+5,T-15,2,2);g.fillRect(T/2+7,T-13,1,1);}
+  else if(id===AMMOBOX){g.clearRect(0,0,T,T);g.fillStyle="#8a6a3a";g.fillRect(2,5,T-4,T-7);g.strokeStyle="#5e4423";g.lineWidth=1;g.strokeRect(2,5,T-4,T-7);g.strokeRect(2,5,T-4,(T-7)/2);g.fillStyle="#c9c9d4";g.fillRect(5,8,2,5);g.fillRect(8,8,2,5);g.fillStyle="#e8c33a";g.fillRect(5,7,2,2);g.fillRect(8,7,2,2);g.fillStyle="#caa15a";g.fillRect(T-9,9,5,2);g.fillRect(T-6,9,2,6);}
+  else if(id===CRYSTALBALL){g.clearRect(0,0,T,T);g.fillStyle="#5a3a1a";g.beginPath();g.moveTo(T/2-6,T-2);g.lineTo(T/2+6,T-2);g.lineTo(T/2+4,T-7);g.lineTo(T/2-4,T-7);g.fill();g.fillStyle="rgba(154,122,208,0.85)";g.beginPath();g.arc(T/2,T-12,7,0,7);g.fill();g.fillStyle="rgba(210,180,250,0.9)";g.beginPath();g.arc(T/2-2,T-14,2.5,0,7);g.fill();g.fillStyle="rgba(230,210,255,0.7)";g.beginPath();g.arc(T/2+2,T-10,1.5,0,7);g.fill();}
+  else if(id===BEWITCH){g.clearRect(0,0,T,T);g.fillStyle="#4a2f5a";g.fillRect(2,9,T-4,5);g.fillStyle="#3a2448";g.fillRect(4,14,3,T-15);g.fillRect(T-7,14,3,T-15);g.fillStyle="#7fe0a0";g.beginPath();g.arc(T/2,7,3,0,7);g.fill();g.fillStyle="#2a5a3a";g.fillRect(T/2-1,8,2,2);g.fillStyle="rgba(127,224,160,0.4)";g.beginPath();g.arc(T/2,7,5,0,7);g.fill();}
+  else if(id===FOUNTAIN){g.clearRect(0,0,T,T);g.fillStyle="#7a8090";g.fillRect(3,T-6,T-6,5);g.fillStyle="#5a6070";g.fillRect(4,T-10,T-8,4);g.fillStyle="#5a9ad0";g.fillRect(5,T-9,T-10,3);g.fillStyle="#8ac0e8";g.fillRect(T/2-1,4,2,T-13);g.fillStyle="rgba(138,192,232,0.7)";g.beginPath();g.arc(T/2,4,3,0,7);g.fill();g.fillStyle="#bfe0f5";g.fillRect(T/2-3,T-9,1,2);g.fillRect(T/2+3,T-9,1,2);}
+  else if(id===PIANO){g.clearRect(0,0,T,T);g.fillStyle="#2a2a30";g.fillRect(2,3,T-4,9);g.fillRect(3,12,T-6,T-13);g.fillStyle="#e8e8ee";g.fillRect(4,12,T-8,3);g.fillStyle="#2a2a30";for(let k=6;k<T-4;k+=3)g.fillRect(k,12,1,2);g.fillStyle="#4a4a54";g.fillRect(4,5,T-8,2);}
+  else if(id===DRESSER){g.clearRect(0,0,T,T);g.fillStyle="#8a5a2b";g.fillRect(2,4,T-4,T-5);g.strokeStyle="#5e3d1c";g.lineWidth=1;g.strokeRect(4,6,T-8,6);g.strokeRect(4,13,T-8,6);g.fillStyle="#caa06a";g.fillRect(T/2-2,8,4,1);g.fillRect(T/2-2,15,4,1);g.fillStyle="#6e4520";g.fillRect(2,3,T-4,2);}
   else if(id===SPIDERNEST){speckle("#3a3040",18,22);g.strokeStyle="rgba(230,227,208,0.5)";g.lineWidth=1;for(let i=0;i<4;i++){g.beginPath();g.moveTo(rnd()*T,0);g.lineTo(rnd()*T,T);g.stroke();g.beginPath();g.moveTo(0,rnd()*T);g.lineTo(T,rnd()*T);g.stroke();}g.strokeStyle="rgba(230,227,208,0.35)";g.beginPath();g.arc(T*0.7,T*0.3,5,0,7);g.moveTo(T*0.3,T*0.7);g.arc(T*0.3,T*0.7,4,0,7);g.stroke();}
   else if(id===BONEBRICK){g.fillStyle="#4a4a58";g.fillRect(0,0,T,T);g.strokeStyle="#2e2e3a";g.lineWidth=1;g.strokeRect(0,0,T,T/2);g.strokeRect(0,T/2,T,T/2);g.beginPath();g.moveTo(T/2,0);g.lineTo(T/2,T/2);g.moveTo(0,T/2);g.lineTo(0,T);g.moveTo(T,T/2);g.lineTo(T,T);g.stroke();g.fillStyle="#d8d8cc";g.fillRect(4,T/2-4,7,2);g.fillRect(3,T/2-4,1,4);g.fillRect(11,T/2-4,1,4);g.fillStyle="#c8c8bc";g.fillRect(T-9,4,2,6);g.fillRect(T-11,4,6,1);g.fillRect(T-11,9,6,1);}
   else if(id===OBSIDIAN){g.fillStyle="#2a2438";g.fillRect(0,0,T,T);for(let i=0;i<5;i++){g.fillStyle=shade("#2a2438",Math.floor((rnd()-0.3)*30));g.fillRect(Math.floor(rnd()*T),Math.floor(rnd()*T),3,3);}g.strokeStyle="rgba(150,130,200,.4)";g.lineWidth=1;g.beginPath();g.moveTo(3,T-4);g.lineTo(T-5,4);g.stroke();}
@@ -968,6 +990,8 @@ function removeItem(kind,id,n){ for(let i=0;i<inv.length&&n>0;i++){const s=inv[i
 function bestPick(){ let p=0.5; for(const s of inv)if(s&&s.kind==="tool"&&(TOOLS[s.id].type==="pick"||TOOLS[s.id].type==="drill"))p=Math.max(p,TOOLS[s.id].power); return p; }
 // gemmes serties : rubis +20% dégâts, émeraude +12% et +4, saphir -40% de mana
 function gemBoost(sel,base){ if(!sel||!sel.gem)return base; if(sel.gem==="ruby")return Math.round(base*1.2); if(sel.gem==="emerald")return Math.round(base*1.12)+4; return base; }
+function stationMult(cat){ if(cat==="melee"&&nearTile(SHARPENING,8))return 1.15; if(cat==="ranged"&&nearTile(AMMOBOX,8))return 1.15; if(cat==="magic"&&nearTile(CRYSTALBALL,8))return 1.15; return 1; }
+function atkDmg(sel,base,cat){ return Math.round(gemBoost(sel,base)*stationMult(cat)); }
 function manaCost(sel){ const m=TOOLS[sel.id].mana||0; return sel&&sel.gem==="sapphire"?Math.max(1,Math.round(m*0.6)):m; }
 function drillArea(cx,cy){ for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){ if(!dx&&!dy)continue; const x=cx+dx,y=cy+dy; if(x<1||x>=WORLD_W-1||y<1||isBedrock(y))continue; const id=getT(x,y); if(id===AIR||isLiquid(id)||id===CHEST)continue; if(TILE[id].hard<=4)breakTile(x,y,id); } }
 // bonus de set : porter les 3 pièces d'une même famille d'armure
@@ -1039,9 +1063,9 @@ function update(dt){
   if(player.placeCd>0)player.placeCd-=dt;
   if(player.potionCd>0)player.potionCd-=dt;
   for(const k in player.buffs){ player.buffs[k]-=dt; if(player.buffs[k]<=0)delete player.buffs[k]; }
-  const regenRate=2+(player.buffs.regen>0?6:0)+(hasAcc("regen")?2:0)+(nearTile(CAMPFIRE,8)?3:0)+(nearTile(HEARTLANTERN,8)?2:0);
+  const regenRate=2+(player.buffs.regen>0?6:0)+(hasAcc("regen")?2:0)+(nearTile(CAMPFIRE,8)?3:0)+(nearTile(HEARTLANTERN,8)?2:0)+(nearTile(FOUNTAIN,8)?2:0);
   if(player.invuln<=0&&player.hp<player.maxHp)player.hp=Math.min(player.maxHp,player.hp+dt*regenRate);
-  player.mana=Math.min(player.maxMana,player.mana+dt*(4+(hasAcc("manaregen")?4:0)));
+  player.mana=Math.min(player.maxMana,player.mana+dt*(4+(hasAcc("manaregen")?4:0)+(nearTile(CRYSTALBALL,8)?4:0)));
   updateFishing(dt); updateCritters(dt,step); updateMinions(dt,step); updateCombatPet(dt,step); updateFireflies(dt,step); updateTraps(dt); updateArmy(dt); updatePumpkinMoon(dt); updateFrostMoon(dt); updateSlimeRain(dt); checkAchievements();
   if(!slimeRain&&!bloodMoon&&!pumpkinMoon&&!frostMoon&&bossKills>=1&&Math.random()<dt*0.006)startSlimeRain();
   if(isNight()&&bossKills>=1&&!meteorFell&&Math.random()<dt*0.01)meteorShower();
@@ -1108,17 +1132,17 @@ function handleActions(dt){
   }
   // clic gauche : arme ou minage
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="sword"){
-    if(mouse.left&&player.useCd<=0){player.swing=0.25;player.useCd=0.4;meleeAttack(gemBoost(sel,TOOLS[sel.id].dmg));} return; }
+    if(mouse.left&&player.useCd<=0){player.swing=0.25;player.useCd=0.4;meleeAttack(atkDmg(sel,TOOLS[sel.id].dmg,"melee"));} return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="spear"){
-    if(mouse.left&&player.useCd<=0){player.swing=0.28;player.useCd=0.5;spearAttack(gemBoost(sel,TOOLS[sel.id].dmg));} return; }
+    if(mouse.left&&player.useCd<=0){player.swing=0.28;player.useCd=0.5;spearAttack(atkDmg(sel,TOOLS[sel.id].dmg,"melee"));} return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="boomerang"){
-    if(mouse.left&&player.useCd<=0&&!projectiles.some(p=>p.type==="boomerang")){player.useCd=0.3;throwBoomerang(gemBoost(sel,TOOLS[sel.id].dmg));} return; }
+    if(mouse.left&&player.useCd<=0&&!projectiles.some(p=>p.type==="boomerang")){player.useCd=0.3;throwBoomerang(atkDmg(sel,TOOLS[sel.id].dmg,"melee"));} return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="yoyo"){
-    if(mouse.left&&!projectiles.some(p=>p.type==="yoyo"))projectiles.push({type:"yoyo",x:player.x+PW/2,y:player.y+PH/2,vx:0,vy:0,dmg:gemBoost(sel,TOOLS[sel.id].dmg),friendly:true,life:999}); return; }
+    if(mouse.left&&!projectiles.some(p=>p.type==="yoyo"))projectiles.push({type:"yoyo",x:player.x+PW/2,y:player.y+PH/2,vx:0,vy:0,dmg:atkDmg(sel,TOOLS[sel.id].dmg,"melee"),friendly:true,life:999}); return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="hook"){
     if(mouse.left&&player.useCd<=0&&!player.grapple&&!projectiles.some(p=>p.type==="hook")){ player.useCd=0.3; const dx=mouse.wx-(player.x+PW/2),dy=mouse.wy-(player.y+PH/2),d=Math.hypot(dx,dy)||1; projectiles.push({type:"hook",x:player.x+PW/2,y:player.y+PH/2,vx:dx/d*16,vy:dy/d*16,life:1.4}); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="flail"){
-    if(mouse.left&&player.useCd<=0&&!projectiles.some(p=>p.type==="flail")){ player.useCd=0.4; throwBoomerang(gemBoost(sel,TOOLS[sel.id].dmg),"flail"); } return; }
+    if(mouse.left&&player.useCd<=0&&!projectiles.some(p=>p.type==="flail")){ player.useCd=0.4; throwBoomerang(atkDmg(sel,TOOLS[sel.id].dmg,"melee"),"flail"); } return; }
   if(sel&&sel.kind==="throw"){
     if(mouse.left&&player.useCd<=0){ player.useCd=0.4; const pcx=player.x+PW/2,pcy=player.y+PH/2; let dx=mouse.wx-pcx,dy=mouse.wy-pcy,d=Math.hypot(dx,dy)||1; projectiles.push({type:"glow",x:pcx,y:pcy,vx:dx/d*8,vy:dy/d*8-2,life:5}); removeItem("throw",sel.id,1); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="rod"){
@@ -1128,15 +1152,15 @@ function handleActions(dt){
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="brush"){
     if(mouse.left&&player.placeCd<=0&&inReach&&getT(mouse.tx,mouse.ty)!==AIR){ tints[idx(mouse.tx,mouse.ty)]=paintColor; player.placeCd=0.08; if(DYES[paintColor])spawnParticles(mouse.tx*T+T/2,mouse.ty*T+T/2,DYES[paintColor],3); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="summoner"){
-    if(mouse.left&&player.useCd<=0){ player.useCd=0.5; const cap=3+(hasAcc("summonplus")?1:0); if(minions.length>=cap)flash("Maximum de familiers"); else if(player.mana<TOOLS[sel.id].mana)flash("Pas assez de mana"); else { player.mana-=TOOLS[sel.id].mana; minions.push({x:player.x,y:player.y,vx:0,vy:0,t:0,cd:0,dmg:TOOLS[sel.id].dmg,kind:TOOLS[sel.id].minion||"spirit"}); flash("Familier de combat invoqué !"); } } return; }
+    if(mouse.left&&player.useCd<=0){ player.useCd=0.5; const cap=3+(hasAcc("summonplus")?1:0)+(nearTile(BEWITCH,8)?1:0); if(minions.length>=cap)flash("Maximum de familiers"); else if(player.mana<TOOLS[sel.id].mana)flash("Pas assez de mana"); else { player.mana-=TOOLS[sel.id].mana; minions.push({x:player.x,y:player.y,vx:0,vy:0,t:0,cd:0,dmg:TOOLS[sel.id].dmg,kind:TOOLS[sel.id].minion||"spirit"}); flash("Familier de combat invoqué !"); } } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="mount"){
     if(mouse.left&&player.useCd<=0){ const mid=TOOLS[sel.id].mountId||"slime"; player.mount=(player.mount===mid)?null:mid; player.useCd=0.4; flash(player.mount?"En selle !":"Descendu de monture"); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="bow"){
-    if(mouse.left&&player.useCd<=0){ if(countItem("ammo","arrow")>0){removeItem("ammo","arrow",1);fireProjectile("arrow",gemBoost(sel,TOOLS[sel.id].dmg)+AMMO.arrow.dmg);player.useCd=0.35;} else flash("Plus de flèches"); } return; }
+    if(mouse.left&&player.useCd<=0){ if(countItem("ammo","arrow")>0){removeItem("ammo","arrow",1);fireProjectile("arrow",atkDmg(sel,TOOLS[sel.id].dmg,"ranged")+AMMO.arrow.dmg);player.useCd=0.35;} else flash("Plus de flèches"); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="gun"){
-    if(mouse.left&&player.useCd<=0){ if(countItem("ammo","arrow")>0){removeItem("ammo","arrow",1);fireProjectile("bullet",gemBoost(sel,TOOLS[sel.id].dmg));player.useCd=0.18;} else flash("Plus de munitions"); } return; }
+    if(mouse.left&&player.useCd<=0){ if(countItem("ammo","arrow")>0){removeItem("ammo","arrow",1);fireProjectile("bullet",atkDmg(sel,TOOLS[sel.id].dmg,"ranged"));player.useCd=0.18;} else flash("Plus de munitions"); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="staff"){
-    if(mouse.left&&player.useCd<=0){ const w=TOOLS[sel.id], mc=manaCost(sel); if(player.mana>=mc){ player.mana-=mc; const n=w.shots||1; for(let i=0;i<n;i++)fireProjectile(w.proj||"bolt",gemBoost(sel,w.dmg),(i-(n-1)/2)*(w.spread||0.2)); player.useCd=0.3; } else flash("Pas assez de mana"); } return; }
+    if(mouse.left&&player.useCd<=0){ const w=TOOLS[sel.id], mc=manaCost(sel); if(player.mana>=mc){ player.mana-=mc; const n=w.shots||1; for(let i=0;i<n;i++)fireProjectile(w.proj||"bolt",atkDmg(sel,w.dmg,"magic"),(i-(n-1)/2)*(w.spread||0.2)); player.useCd=0.3; } else flash("Pas assez de mana"); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="mirror"){
     if(mouse.left&&player.useCd<=0){ player.useCd=1.0; mirrorHome(); } return; }
   if(sel&&sel.kind==="bomb"){
