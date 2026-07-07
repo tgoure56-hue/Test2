@@ -131,7 +131,7 @@ const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAM
   PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39,MYTHRIL=40,
   BED=41,CAMPFIRE=42,HEARTLANTERN=43,SPIKE=44,ADAMANTITE=45,CGRASS=46,EBONSTONE=47,HGRASS=48,PEARLSTONE=49,CRYSTAL=50,LAMP=51,CHAIR=52,VASE=53,BANNER=54,COBALT=55,TITANIUM=56,DART_TRAP=57,PLATE=58,STATUE=59,
   MGRASS=60,GMUSH=61,MUSHBLOCK=62,MARBLE=63,GRANITE=64,SANDSTONE=65,STONEBRICK=66,CLOUDB=67,COBWEB=68,CACTUS=69,BOOKCASE=70,CANDLE=71,CHANDELIER=72,SAWMILL=73,
-  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106,SHARPENING=107,AMMOBOX=108,CRYSTALBALL=109,BEWITCH=110,FOUNTAIN=111,PIANO=112,DRESSER=113;
+  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106,SHARPENING=107,AMMOBOX=108,CRYSTALBALL=109,BEWITCH=110,FOUNTAIN=111,PIANO=112,DRESSER=113,ASTRALITE=114;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -255,6 +255,7 @@ const TILE={
   [FOUNTAIN]:{name:"Fontaine",solid:false,hard:0.8,drop:FOUNTAIN,col:"#5a9ad0",light:0.2},
   [PIANO]:{name:"Piano",solid:false,hard:0.8,drop:PIANO,col:"#2a2a30"},
   [DRESSER]:{name:"Commode",solid:false,hard:0.8,drop:DRESSER,col:"#8a5a2b"},
+  [ASTRALITE]:{name:"Astralite",solid:true,hard:5.0,drop:ASTRALITE,col:"#6a5ad8",light:0.3},
 };
 const isSpike=id=>TILE[id]&&TILE[id].spike;
 const isPlatform=id=>TILE[id]&&TILE[id].platform;
@@ -282,6 +283,7 @@ const TOOLS={
   staff4:{name:"Canon à plasma",type:"staff",dmg:54,mana:8,proj:"bolt"}, sword_titan:{name:"Lame céleste",type:"sword",dmg:230},
   staff5:{name:"Sceptre stellaire",type:"staff",dmg:62,mana:9,proj:"spark"}, staff6:{name:"Sceptre du néant",type:"staff",dmg:46,mana:12,proj:"bolt",shots:3,spread:0.22},
   summon_staff2:{name:"Bâton spectral",type:"summoner",dmg:40,mana:8,minion:"spirit"}, summon_staff3:{name:"Bâton des abysses",type:"summoner",dmg:58,mana:11,minion:"imp"}, spider_staff:{name:"Bâton d'araignée",type:"summoner",dmg:34,mana:7,minion:"spider"},
+  astral_sword:{name:"Lame astrale",type:"sword",dmg:155}, astral_gun:{name:"Fusil astral",type:"gun",dmg:58}, astral_staff:{name:"Sceptre astral",type:"staff",dmg:60,mana:7,proj:"bolt",shots:2,spread:0.18}, astral_summon:{name:"Bâton stellaire",type:"summoner",dmg:48,mana:9,minion:"spirit"},
   hook:{name:"Grappin",type:"hook"}, flail:{name:"Fléau",type:"flail",dmg:48},
   spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
@@ -308,13 +310,15 @@ const ARMOR={
   titanium_h:{name:"Casque de titane",slot:"head",def:11}, titanium_c:{name:"Plastron de titane",slot:"chest",def:16}, titanium_l:{name:"Jambières de titane",slot:"legs",def:11},
   bone_h:{name:"Crâne en os",slot:"head",def:3}, bone_c:{name:"Plastron en os",slot:"chest",def:5}, bone_l:{name:"Jambières en os",slot:"legs",def:3},
   meteor_h:{name:"Casque de météore",slot:"head",def:5}, meteor_c:{name:"Plastron de météore",slot:"chest",def:7}, meteor_l:{name:"Jambières de météore",slot:"legs",def:5},
+  astral_c:{name:"Plastron astral",slot:"chest",def:16}, astral_l:{name:"Jambières astrales",slot:"legs",def:11},
+  astral_war_h:{name:"Heaume astral du guerrier",slot:"head",def:11}, astral_arc_h:{name:"Capuche astrale du chasseur",slot:"head",def:9}, astral_mag_h:{name:"Chapeau astral du mage",slot:"head",def:8}, astral_sum_h:{name:"Diadème astral de l'invocateur",slot:"head",def:8},
 };
 const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Barre fer",col:"#c9c9d4"},
   silver_bar:{name:"Barre argent",col:"#dfe3ea"}, gold_bar:{name:"Barre or",col:"#e8c33a"}, lens:{name:"Lentille",col:"#7fd6e0"},
   mushroom:{name:"Champignon",col:"#d83a3a"}, hellstone_bar:{name:"Barre d'enfer",col:"#e8632a"},
   fish:{name:"Poisson",col:"#7fb0c8"}, tuna:{name:"Thon",col:"#4a7a9a"}, salmon:{name:"Saumon",col:"#e08a6a"}, swordfish:{name:"Espadon",col:"#9ab0c0"},
   icefish:{name:"Poisson des glaces",col:"#aee4ff"}, junglefish:{name:"Barbeau de jungle",col:"#5ac04a"}, voidfish:{name:"Poisson du néant",col:"#8a4ad0"}, prismfish:{name:"Poisson prismatique",col:"#e08ad0"},
-  mythril_bar:{name:"Barre de mythril",col:"#5fc9b0"}, adamantite_bar:{name:"Barre d'adamantite",col:"#d0506a"}, crystal_bar:{name:"Barre de cristal",col:"#7fe0ff"},
+  mythril_bar:{name:"Barre de mythril",col:"#5fc9b0"}, adamantite_bar:{name:"Barre d'adamantite",col:"#d0506a"}, crystal_bar:{name:"Barre de cristal",col:"#7fe0ff"}, astralite_bar:{name:"Barre d'astralite",col:"#8a7aff"},
   cobalt_bar:{name:"Barre de cobalt",col:"#2a6ad0"}, titanium_bar:{name:"Barre de titane",col:"#c0c4cc"}, mech_soul:{name:"Âme mécanique",col:"#9fe0ff"},
   glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"}, meteor_bar:{name:"Barre de météore",col:"#c8763a"}, herb:{name:"Herbe médicinale",col:"#3ac06a"}, nightmare_shard:{name:"Éclat de cauchemar",col:"#a03ad0"}, spider_fang:{name:"Croc d'araignée",col:"#c8b0d0"}, gel:{name:"Gel",col:"#6ab0e0"} };
 const AMMO={ arrow:{name:"Flèche",col:"#caa15a",dmg:5} };
@@ -582,6 +586,18 @@ const RECIPES=[
   // phase 39 (mobilité)
   R({kind:"acc",id:"dash_boots"},[ma("feather",3),ma("iron_bar",4)],"anvil"),
   R({kind:"tool",id:"mount4"},[ma("crystal_bar",8),ma("mech_soul",3)],"anvil"),
+  // phase 40 (astralite : minerai profond + panoplies de classe)
+  R({kind:"mat",id:"astralite_bar"},[ti(ASTRALITE,4)],"furnace"),
+  R({kind:"armor",id:"astral_c"},[ma("astralite_bar",14)],"anvil"),
+  R({kind:"armor",id:"astral_l"},[ma("astralite_bar",10)],"anvil"),
+  R({kind:"armor",id:"astral_war_h"},[ma("astralite_bar",8)],"anvil"),
+  R({kind:"armor",id:"astral_arc_h"},[ma("astralite_bar",8)],"anvil"),
+  R({kind:"armor",id:"astral_mag_h"},[ma("astralite_bar",8)],"anvil"),
+  R({kind:"armor",id:"astral_sum_h"},[ma("astralite_bar",8)],"anvil"),
+  R({kind:"tool",id:"astral_sword"},[ma("astralite_bar",12)],"anvil"),
+  R({kind:"tool",id:"astral_gun"},[ma("astralite_bar",12)],"anvil"),
+  R({kind:"tool",id:"astral_staff"},[ma("astralite_bar",12)],"anvil"),
+  R({kind:"tool",id:"astral_summon"},[ma("astralite_bar",12)],"anvil"),
 ];
 
 // =========================================================================
@@ -652,6 +668,7 @@ function genWorld(s){
   vein(rng,SILVER,300,45,180,4); vein(rng,GOLD,200,70,210,4); vein(rng,DIAMOND,80,120,250,3);
   vein(rng,RUBY,55,90,250,2); vein(rng,EMERALD,55,90,250,2); vein(rng,SAPPHIRE,55,90,250,2);
   vein(rng,MYTHRIL,110,110,145,3); vein(rng,ADAMANTITE,90,130,150,3); vein(rng,CRYSTAL,60,135,150,2);
+  vein(rng,ASTRALITE,120,115,205,4);
   // cristaux de vie / mana : on liste toutes les parois de grotte profondes puis on en tire au sort
   const cand=[];
   for(let x=2;x<WORLD_W-2;x++){ const sy=surfaceAt(x);
@@ -814,7 +831,7 @@ function tree(x,sy,rng){ const h=4+Math.floor(rng()*4); for(let i=1;i<=h;i++)if(
 const TEX={};
 function shade(hex,d){const n=parseInt(hex.slice(1),16);let r=clamp((n>>16)+d,0,255),g=clamp(((n>>8)&255)+d,0,255),b=clamp((n&255)+d,0,255);return"#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}
 // relief : bord clair en haut/gauche, bord sombre en bas/droite (rendu "bloc")
-const BEVEL=new Set([DIRT,GRASS,STONE,SAND,COAL,IRON,GOLD,DIAMOND,COPPER,SILVER,SNOW,ICE,CLAY,RUBY,EMERALD,SAPPHIRE,LOG,PLANK,BRICK,FURNACE,MUD,JGRASS,ASH,HELLSTONE,MYTHRIL,ADAMANTITE,CGRASS,EBONSTONE,HGRASS,PEARLSTONE,CRYSTAL,COBALT,TITANIUM,MGRASS,MUSHBLOCK,MARBLE,GRANITE,SANDSTONE,STONEBRICK,CLOUDB,PUMPKIN,JACKOLANTERN,HAY,GOLDBRICK,BLUEBRICK,GLOWSTONE,HIVE,HONEYBLOCK,ICEBRICK,SNOWBRICK,HARDSAND,FOSSIL,SANDSTONEBRICK,TEMPLEBRICK,OBSIDIAN,OBSIDIANBRICK,METEORITE,BONEBRICK,SPIDERNEST]);
+const BEVEL=new Set([DIRT,GRASS,STONE,SAND,COAL,IRON,GOLD,DIAMOND,COPPER,SILVER,SNOW,ICE,CLAY,RUBY,EMERALD,SAPPHIRE,LOG,PLANK,BRICK,FURNACE,MUD,JGRASS,ASH,HELLSTONE,MYTHRIL,ADAMANTITE,CGRASS,EBONSTONE,HGRASS,PEARLSTONE,CRYSTAL,COBALT,TITANIUM,MGRASS,MUSHBLOCK,MARBLE,GRANITE,SANDSTONE,STONEBRICK,CLOUDB,PUMPKIN,JACKOLANTERN,HAY,GOLDBRICK,BLUEBRICK,GLOWSTONE,HIVE,HONEYBLOCK,ICEBRICK,SNOWBRICK,HARDSAND,FOSSIL,SANDSTONEBRICK,TEMPLEBRICK,OBSIDIAN,OBSIDIANBRICK,METEORITE,BONEBRICK,SPIDERNEST,ASTRALITE]);
 function bevelTile(g){ g.lineWidth=1;
   g.strokeStyle="rgba(255,255,255,0.16)"; g.beginPath(); g.moveTo(0.5,0); g.lineTo(0.5,T); g.moveTo(0,0.5); g.lineTo(T,0.5); g.stroke();
   g.strokeStyle="rgba(0,0,0,0.34)"; g.beginPath(); g.moveTo(T-0.5,0); g.lineTo(T-0.5,T); g.moveTo(0,T-0.5); g.lineTo(T,T-0.5); g.stroke(); }
@@ -904,6 +921,7 @@ function makeTex(id){
   else if(id===SANDSTONEBRICK){g.fillStyle="#b8985a";g.fillRect(0,0,T,T);g.strokeStyle="#947842";g.lineWidth=1;g.strokeRect(0,0,T,T/2);g.strokeRect(0,T/2,T,T/2);g.beginPath();g.moveTo(T/2,0);g.lineTo(T/2,T/2);g.moveTo(0,T/2);g.lineTo(0,T);g.stroke();}
   else if(id===TEMPLEBRICK){g.fillStyle="#6a4a3a";g.fillRect(0,0,T,T);g.strokeStyle="#42281e";g.lineWidth=1;g.strokeRect(1,1,T-2,T-2);g.fillStyle="#e8702a";g.fillRect(T/2-1,4,2,T-8);g.fillRect(5,T/2-1,T-10,2);g.fillStyle="#3a241a";g.fillRect(4,4,2,2);g.fillRect(T-6,T-6,2,2);}
   else if(id===SLIMEBLOCK){g.clearRect(0,0,T,T);g.fillStyle="rgba(90,160,216,0.62)";g.fillRect(2,2,T-4,T-4);g.fillStyle="rgba(150,210,245,0.5)";g.beginPath();g.arc(T*0.34,T*0.34,3,0,7);g.fill();g.fillStyle="rgba(40,90,150,0.45)";g.beginPath();g.arc(T*0.68,T*0.66,2,0,7);g.fill();g.strokeStyle="rgba(180,225,250,0.55)";g.lineWidth=1;g.strokeRect(2.5,2.5,T-5,T-5);g.fillStyle="rgba(230,245,255,0.5)";g.fillRect(5,4,4,2);}
+  else if(id===ASTRALITE){speckle("#2a2450",22,26);g.fillStyle="#8a7aff";for(let i=0;i<6;i++){const px=3+Math.floor(rnd()*(T-6)),py=3+Math.floor(rnd()*(T-6));g.fillRect(px,py,3,3);}g.fillStyle="#c8b8ff";for(let i=0;i<5;i++)g.fillRect(Math.floor(rnd()*T),Math.floor(rnd()*T),1,1);g.fillStyle="#fff";g.fillRect(T/2-1,T/2-1,2,2);}
   else if(id===SHARPENING){g.clearRect(0,0,T,T);g.fillStyle="#6e4520";g.fillRect(3,T-6,T-6,5);g.fillRect(5,T-11,3,6);g.fillRect(T-8,T-11,3,6);g.fillStyle="#8a8a92";g.beginPath();g.arc(T/2,T-11,6,0,7);g.fill();g.fillStyle="#b0b0b8";g.beginPath();g.arc(T/2,T-11,3,0,7);g.fill();g.fillStyle="#ffe27a";g.fillRect(T/2+5,T-15,2,2);g.fillRect(T/2+7,T-13,1,1);}
   else if(id===AMMOBOX){g.clearRect(0,0,T,T);g.fillStyle="#8a6a3a";g.fillRect(2,5,T-4,T-7);g.strokeStyle="#5e4423";g.lineWidth=1;g.strokeRect(2,5,T-4,T-7);g.strokeRect(2,5,T-4,(T-7)/2);g.fillStyle="#c9c9d4";g.fillRect(5,8,2,5);g.fillRect(8,8,2,5);g.fillStyle="#e8c33a";g.fillRect(5,7,2,2);g.fillRect(8,7,2,2);g.fillStyle="#caa15a";g.fillRect(T-9,9,5,2);g.fillRect(T-6,9,2,6);}
   else if(id===CRYSTALBALL){g.clearRect(0,0,T,T);g.fillStyle="#5a3a1a";g.beginPath();g.moveTo(T/2-6,T-2);g.lineTo(T/2+6,T-2);g.lineTo(T/2+4,T-7);g.lineTo(T/2-4,T-7);g.fill();g.fillStyle="rgba(154,122,208,0.85)";g.beginPath();g.arc(T/2,T-12,7,0,7);g.fill();g.fillStyle="rgba(210,180,250,0.9)";g.beginPath();g.arc(T/2-2,T-14,2.5,0,7);g.fill();g.fillStyle="rgba(230,210,255,0.7)";g.beginPath();g.arc(T/2+2,T-10,1.5,0,7);g.fill();}
@@ -993,14 +1011,18 @@ function removeItem(kind,id,n){ for(let i=0;i<inv.length&&n>0;i++){const s=inv[i
 function bestPick(){ let p=0.5; for(const s of inv)if(s&&s.kind==="tool"&&(TOOLS[s.id].type==="pick"||TOOLS[s.id].type==="drill"))p=Math.max(p,TOOLS[s.id].power); return p; }
 // gemmes serties : rubis +20% dégâts, émeraude +12% et +4, saphir -40% de mana
 function gemBoost(sel,base){ if(!sel||!sel.gem)return base; if(sel.gem==="ruby")return Math.round(base*1.2); if(sel.gem==="emerald")return Math.round(base*1.12)+4; return base; }
-function stationMult(cat){ if(cat==="melee"&&nearTile(SHARPENING,8))return 1.15; if(cat==="ranged"&&nearTile(AMMOBOX,8))return 1.15; if(cat==="magic"&&nearTile(CRYSTALBALL,8))return 1.15; return 1; }
+function stationMult(cat){ let m=1;
+  if(cat==="melee"&&nearTile(SHARPENING,8))m*=1.15; if(cat==="ranged"&&nearTile(AMMOBOX,8))m*=1.15; if(cat==="magic"&&nearTile(CRYSTALBALL,8))m*=1.15;
+  if(armorClass()===cat)m*=1.25; return m; }
 function atkDmg(sel,base,cat){ return Math.round(gemBoost(sel,base)*stationMult(cat)); }
 function manaCost(sel){ const m=TOOLS[sel.id].mana||0; return sel&&sel.gem==="sapphire"?Math.max(1,Math.round(m*0.6)):m; }
 function drillArea(cx,cy){ for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){ if(!dx&&!dy)continue; const x=cx+dx,y=cy+dy; if(x<1||x>=WORLD_W-1||y<1||isBedrock(y))continue; const id=getT(x,y); if(id===AIR||isLiquid(id)||id===CHEST)continue; if(TILE[id].hard<=4)breakTile(x,y,id); } }
 // bonus de set : porter les 3 pièces d'une même famille d'armure
-const SET_BONUS={wood:1,iron:2,silver:3,gold:4,hell:5,myth:6,ada:7,crystal:8,cobalt:9,titanium:10,bone:4,meteor:6};
+const SET_BONUS={wood:1,iron:2,silver:3,gold:4,hell:5,myth:6,ada:7,crystal:8,cobalt:9,titanium:10,bone:4,meteor:6,astral:14};
 function armorSet(){ const a=player.armorArr; if(!a[0]||!a[1]||!a[2])return null; const p=a[0].id.split("_")[0];
   return (a[1].id.split("_")[0]===p&&a[2].id.split("_")[0]===p)?p:null; }
+function armorClass(){ if(armorSet()!=="astral")return null; const h=player.armorArr[0]; if(!h)return null;
+  if(h.id.indexOf("_war_")>=0)return "melee"; if(h.id.indexOf("_arc_")>=0)return "ranged"; if(h.id.indexOf("_mag_")>=0)return "magic"; if(h.id.indexOf("_sum_")>=0)return "summon"; return null; }
 function totalDef(){ let d=0; for(const a of player.armorArr)if(a)d+=ARMOR[a.id].def; for(const ac of [player.acc,player.acc2])if(ac&&ACC[ac.id].def)d+=ACC[ac.id].def; if(player.buffs.iron>0)d+=4; const s=armorSet(); if(s)d+=SET_BONUS[s]||0; return d; }
 function hasAcc(eff){ return !!((player.acc&&ACC[player.acc.id].eff===eff)||(player.acc2&&ACC[player.acc2.id].eff===eff)); }
 
@@ -1160,7 +1182,7 @@ function handleActions(dt){
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="brush"){
     if(mouse.left&&player.placeCd<=0&&inReach&&getT(mouse.tx,mouse.ty)!==AIR){ tints[idx(mouse.tx,mouse.ty)]=paintColor; player.placeCd=0.08; if(DYES[paintColor])spawnParticles(mouse.tx*T+T/2,mouse.ty*T+T/2,DYES[paintColor],3); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="summoner"){
-    if(mouse.left&&player.useCd<=0){ player.useCd=0.5; const cap=3+(hasAcc("summonplus")?1:0)+(nearTile(BEWITCH,8)?1:0); if(minions.length>=cap)flash("Maximum de familiers"); else if(player.mana<TOOLS[sel.id].mana)flash("Pas assez de mana"); else { player.mana-=TOOLS[sel.id].mana; minions.push({x:player.x,y:player.y,vx:0,vy:0,t:0,cd:0,dmg:TOOLS[sel.id].dmg,kind:TOOLS[sel.id].minion||"spirit"}); flash("Familier de combat invoqué !"); } } return; }
+    if(mouse.left&&player.useCd<=0){ player.useCd=0.5; const cap=3+(hasAcc("summonplus")?1:0)+(nearTile(BEWITCH,8)?1:0)+(armorClass()==="summon"?1:0); if(minions.length>=cap)flash("Maximum de familiers"); else if(player.mana<TOOLS[sel.id].mana)flash("Pas assez de mana"); else { player.mana-=TOOLS[sel.id].mana; minions.push({x:player.x,y:player.y,vx:0,vy:0,t:0,cd:0,dmg:TOOLS[sel.id].dmg,kind:TOOLS[sel.id].minion||"spirit"}); flash("Familier de combat invoqué !"); } } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="mount"){
     if(mouse.left&&player.useCd<=0){ const mid=TOOLS[sel.id].mountId||"slime"; player.mount=(player.mount===mid)?null:mid; player.useCd=0.4; flash(player.mount?"En selle !":"Descendu de monture"); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="bow"){
