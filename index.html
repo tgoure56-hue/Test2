@@ -131,7 +131,7 @@ const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAM
   PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39,MYTHRIL=40,
   BED=41,CAMPFIRE=42,HEARTLANTERN=43,SPIKE=44,ADAMANTITE=45,CGRASS=46,EBONSTONE=47,HGRASS=48,PEARLSTONE=49,CRYSTAL=50,LAMP=51,CHAIR=52,VASE=53,BANNER=54,COBALT=55,TITANIUM=56,DART_TRAP=57,PLATE=58,STATUE=59,
   MGRASS=60,GMUSH=61,MUSHBLOCK=62,MARBLE=63,GRANITE=64,SANDSTONE=65,STONEBRICK=66,CLOUDB=67,COBWEB=68,CACTUS=69,BOOKCASE=70,CANDLE=71,CHANDELIER=72,SAWMILL=73,
-  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106,SHARPENING=107,AMMOBOX=108,CRYSTALBALL=109,BEWITCH=110,FOUNTAIN=111,PIANO=112,DRESSER=113,ASTRALITE=114;
+  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106,SHARPENING=107,AMMOBOX=108,CRYSTALBALL=109,BEWITCH=110,FOUNTAIN=111,PIANO=112,DRESSER=113,ASTRALITE=114,CRIMGRASS=115,CRIMSTONE=116,CRIMTANE=117,CRIMHEART=118,FLESHBLOCK=119;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -256,6 +256,11 @@ const TILE={
   [PIANO]:{name:"Piano",solid:false,hard:0.8,drop:PIANO,col:"#2a2a30"},
   [DRESSER]:{name:"Commode",solid:false,hard:0.8,drop:DRESSER,col:"#8a5a2b"},
   [ASTRALITE]:{name:"Astralite",solid:true,hard:5.0,drop:ASTRALITE,col:"#6a5ad8",light:0.3},
+  [CRIMGRASS]:{name:"Herbe carmin",solid:true,hard:0.5,drop:DIRT,col:"#a02a3a"},
+  [CRIMSTONE]:{name:"Pierre carmin",solid:true,hard:1.8,drop:CRIMSTONE,col:"#6a2a34"},
+  [CRIMTANE]:{name:"Crimtane",solid:true,hard:2.2,drop:CRIMTANE,col:"#c0392b",light:0.15},
+  [CRIMHEART]:{name:"Cœur carmin",solid:true,hard:1.5,drop:-1,col:"#e0304a",light:0.25},
+  [FLESHBLOCK]:{name:"Bloc de chair",solid:true,hard:0.9,drop:FLESHBLOCK,col:"#b04a54"},
 };
 const isSpike=id=>TILE[id]&&TILE[id].spike;
 const isPlatform=id=>TILE[id]&&TILE[id].platform;
@@ -284,6 +289,7 @@ const TOOLS={
   staff5:{name:"Sceptre stellaire",type:"staff",dmg:62,mana:9,proj:"spark"}, staff6:{name:"Sceptre du néant",type:"staff",dmg:46,mana:12,proj:"bolt",shots:3,spread:0.22},
   summon_staff2:{name:"Bâton spectral",type:"summoner",dmg:40,mana:8,minion:"spirit"}, summon_staff3:{name:"Bâton des abysses",type:"summoner",dmg:58,mana:11,minion:"imp"}, spider_staff:{name:"Bâton d'araignée",type:"summoner",dmg:34,mana:7,minion:"spider"},
   astral_sword:{name:"Lame astrale",type:"sword",dmg:155}, astral_gun:{name:"Fusil astral",type:"gun",dmg:58}, astral_staff:{name:"Sceptre astral",type:"staff",dmg:60,mana:7,proj:"bolt",shots:2,spread:0.18}, astral_summon:{name:"Bâton stellaire",type:"summoner",dmg:48,mana:9,minion:"spirit"},
+  crim_sword:{name:"Tranche-sang",type:"sword",dmg:72},
   hook:{name:"Grappin",type:"hook"}, flail:{name:"Fléau",type:"flail",dmg:48},
   spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
@@ -312,6 +318,7 @@ const ARMOR={
   meteor_h:{name:"Casque de météore",slot:"head",def:5}, meteor_c:{name:"Plastron de météore",slot:"chest",def:7}, meteor_l:{name:"Jambières de météore",slot:"legs",def:5},
   astral_c:{name:"Plastron astral",slot:"chest",def:16}, astral_l:{name:"Jambières astrales",slot:"legs",def:11},
   astral_war_h:{name:"Heaume astral du guerrier",slot:"head",def:11}, astral_arc_h:{name:"Capuche astrale du chasseur",slot:"head",def:9}, astral_mag_h:{name:"Chapeau astral du mage",slot:"head",def:8}, astral_sum_h:{name:"Diadème astral de l'invocateur",slot:"head",def:8},
+  crim_h:{name:"Masque de crimtane",slot:"head",def:5}, crim_c:{name:"Plastron de crimtane",slot:"chest",def:7}, crim_l:{name:"Jambières de crimtane",slot:"legs",def:5},
 };
 const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Barre fer",col:"#c9c9d4"},
   silver_bar:{name:"Barre argent",col:"#dfe3ea"}, gold_bar:{name:"Barre or",col:"#e8c33a"}, lens:{name:"Lentille",col:"#7fd6e0"},
@@ -320,7 +327,7 @@ const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Bar
   icefish:{name:"Poisson des glaces",col:"#aee4ff"}, junglefish:{name:"Barbeau de jungle",col:"#5ac04a"}, voidfish:{name:"Poisson du néant",col:"#8a4ad0"}, prismfish:{name:"Poisson prismatique",col:"#e08ad0"},
   mythril_bar:{name:"Barre de mythril",col:"#5fc9b0"}, adamantite_bar:{name:"Barre d'adamantite",col:"#d0506a"}, crystal_bar:{name:"Barre de cristal",col:"#7fe0ff"}, astralite_bar:{name:"Barre d'astralite",col:"#8a7aff"},
   cobalt_bar:{name:"Barre de cobalt",col:"#2a6ad0"}, titanium_bar:{name:"Barre de titane",col:"#c0c4cc"}, mech_soul:{name:"Âme mécanique",col:"#9fe0ff"},
-  glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"}, meteor_bar:{name:"Barre de météore",col:"#c8763a"}, herb:{name:"Herbe médicinale",col:"#3ac06a"}, nightmare_shard:{name:"Éclat de cauchemar",col:"#a03ad0"}, spider_fang:{name:"Croc d'araignée",col:"#c8b0d0"}, gel:{name:"Gel",col:"#6ab0e0"} };
+  glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"}, meteor_bar:{name:"Barre de météore",col:"#c8763a"}, herb:{name:"Herbe médicinale",col:"#3ac06a"}, nightmare_shard:{name:"Éclat de cauchemar",col:"#a03ad0"}, spider_fang:{name:"Croc d'araignée",col:"#c8b0d0"}, gel:{name:"Gel",col:"#6ab0e0"}, crimtane_bar:{name:"Barre de crimtane",col:"#c0392b"}, tissue:{name:"Échantillon de tissu",col:"#e0304a"} };
 const AMMO={ arrow:{name:"Flèche",col:"#caa15a",dmg:5} };
 const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenbee:{name:"Larve royale"}, golem:{name:"Noyau de golem"}, worm:{name:"Nourriture maudite"}, moon:{name:"Tablette céleste"}, mechworm:{name:"Engrenage maudit"}, titan:{name:"Relique céleste"}, broodmother:{name:"Cocon royal"}, slime_crown:{name:"Couronne gluante"} };
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
@@ -598,6 +605,13 @@ const RECIPES=[
   R({kind:"tool",id:"astral_gun"},[ma("astralite_bar",12)],"anvil"),
   R({kind:"tool",id:"astral_staff"},[ma("astralite_bar",12)],"anvil"),
   R({kind:"tool",id:"astral_summon"},[ma("astralite_bar",12)],"anvil"),
+  // phase 41 (biome carmin)
+  R({kind:"mat",id:"crimtane_bar"},[ti(CRIMTANE,4)],"furnace"),
+  R({kind:"tile",id:FLESHBLOCK,n:4},[ma("tissue",1),ti(STONE,2)],"table"),
+  R({kind:"armor",id:"crim_h"},[ma("crimtane_bar",6),ma("tissue",2)],"anvil"),
+  R({kind:"armor",id:"crim_c"},[ma("crimtane_bar",9),ma("tissue",3)],"anvil"),
+  R({kind:"armor",id:"crim_l"},[ma("crimtane_bar",7),ma("tissue",2)],"anvil"),
+  R({kind:"tool",id:"crim_sword"},[ma("crimtane_bar",8),ma("tissue",3)],"anvil"),
 ];
 
 // =========================================================================
@@ -611,7 +625,7 @@ function vnoise(x,y){const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy,u=f
 function fbm(x,y,oct){let s=0,amp=0.5,f=1,norm=0;for(let i=0;i<oct;i++){s+=amp*vnoise(x*f,y*f);norm+=amp;amp*=0.5;f*=2;}return s/norm;}
 function surfaceAt(x){x=clamp(x|0,0,WORLD_W-1);const n=fbm(x*0.012+1000,7.7,4);return Math.floor(BASE_SURFACE+(n-0.5)*HILL_AMP);}
 // biomes : 0 forêt, 1 neige (gauche), 2 désert
-function biomeAt(x){ if(x<WORLD_W*0.045||x>WORLD_W*0.955) return 6; if(x<WORLD_W*0.16) return 1; if(x>WORLD_W*0.40&&x<WORLD_W*0.50) return 4; if(x>WORLD_W*0.62&&x<WORLD_W*0.80) return 3; if(x>WORLD_W*0.84&&x<WORLD_W*0.94) return 5; if(vnoise(x*0.006,555)>0.64) return 2; return 0; }
+function biomeAt(x){ if(x<WORLD_W*0.045||x>WORLD_W*0.955) return 6; if(x<WORLD_W*0.16) return 1; if(x>WORLD_W*0.24&&x<WORLD_W*0.34) return 7; if(x>WORLD_W*0.40&&x<WORLD_W*0.50) return 4; if(x>WORLD_W*0.62&&x<WORLD_W*0.80) return 3; if(x>WORLD_W*0.84&&x<WORLD_W*0.94) return 5; if(vnoise(x*0.006,555)>0.64) return 2; return 0; }
 
 // =========================================================================
 //  monde
@@ -644,9 +658,9 @@ function genWorld(s){
     for(let y=0;y<WORLD_H;y++){
       let t=AIR;
       if(y<sy)t=AIR;
-      else if(y===sy)t=b===2?SAND:b===1?SNOW:b===3?JGRASS:b===4?CGRASS:b===5?HGRASS:GRASS;
+      else if(y===sy)t=b===2?SAND:b===1?SNOW:b===3?JGRASS:b===4?CGRASS:b===7?CRIMGRASS:b===5?HGRASS:GRASS;
       else if(y<=sy+(b===2?6:b===3?8:4))t=b===2?SAND:b===1?(y<=sy+2?SNOW:DIRT):b===3?MUD:DIRT;
-      else t=b===4?EBONSTONE:b===5?PEARLSTONE:STONE;
+      else t=b===4?EBONSTONE:b===7?CRIMSTONE:b===5?PEARLSTONE:STONE;
       world[idx(x,y)]=t;
     }
     // poches d'argile sous la forêt
@@ -725,6 +739,12 @@ function genWorld(s){
   for(let x=3;x<WORLD_W-3;x++){ if(biomeAt(x)!==2)continue; const sy=surfaceAt(x); if(world[idx(x,sy)]===SAND&&world[idx(x,sy-1)]===AIR&&rng()<0.08){ const h=2+Math.floor(rng()*3); for(let k=1;k<=h;k++)if(world[idx(x,sy-k)]===AIR)world[idx(x,sy-k)]=CACTUS; } }
   // citrouilles et herbes médicinales sur l'herbe de la forêt
   for(let x=3;x<WORLD_W-3;x++){ if(biomeAt(x)!==0)continue; const sy=surfaceAt(x); if(world[idx(x,sy)]===GRASS&&world[idx(x,sy-1)]===AIR){ const r=rng(); if(r<0.02)world[idx(x,sy-1)]=PUMPKIN; else if(r<0.05)world[idx(x,sy-1)]=HERBGROWN; } }
+  // === carmin souterrain (crimtane + cœurs carmin) ===
+  for(let x=2;x<WORLD_W-2;x++){ if(biomeAt(x)!==7)continue; const sy=surfaceAt(x);
+    for(let y=sy+6;y<Math.min(sy+95,HELL_Y-2);y++){ if(world[idx(x,y)]===CRIMSTONE&&rng()<0.055)world[idx(x,y)]=CRIMTANE; } }
+  { let placed=0; for(let tries=0;tries<600&&placed<3;tries++){ const x=Math.floor(WORLD_W*0.25)+Math.floor(rng()*(WORLD_W*0.08)), y=surfaceAt(x)+28+Math.floor(rng()*55);
+    if(y<HELL_Y-4&&world[idx(x,y)]===CRIMSTONE){ for(let dx=-2;dx<=2;dx++)for(let dy=-2;dy<=2;dy++){ const X=x+dx,Y=y+dy; if(X<2||X>=WORLD_W-2||Y<2||Y>=HELL_Y-2)continue; if(dx*dx+dy*dy<=1){world[idx(X,Y)]=AIR;liquid[idx(X,Y)]=0;} else if(world[idx(X,Y)]!==AIR)world[idx(X,Y)]=CRIMSTONE; }
+      world[idx(x,y)]=CRIMHEART; placed++; } } }
   // toiles d'araignée dans les grottes profondes
   for(let i=0;i<220;i++){ const x=2+Math.floor(rng()*(WORLD_W-4)), y=surfaceAt(x)+22+Math.floor(rng()*120); if(y>=HELL_Y-2)continue;
     if(world[idx(x,y)]===AIR&&(solidAt(x-1,y)||solidAt(x+1,y)||solidAt(x,y-1)||solidAt(x,y+1))&&rng()<0.5)world[idx(x,y)]=COBWEB; }
@@ -831,7 +851,7 @@ function tree(x,sy,rng){ const h=4+Math.floor(rng()*4); for(let i=1;i<=h;i++)if(
 const TEX={};
 function shade(hex,d){const n=parseInt(hex.slice(1),16);let r=clamp((n>>16)+d,0,255),g=clamp(((n>>8)&255)+d,0,255),b=clamp((n&255)+d,0,255);return"#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}
 // relief : bord clair en haut/gauche, bord sombre en bas/droite (rendu "bloc")
-const BEVEL=new Set([DIRT,GRASS,STONE,SAND,COAL,IRON,GOLD,DIAMOND,COPPER,SILVER,SNOW,ICE,CLAY,RUBY,EMERALD,SAPPHIRE,LOG,PLANK,BRICK,FURNACE,MUD,JGRASS,ASH,HELLSTONE,MYTHRIL,ADAMANTITE,CGRASS,EBONSTONE,HGRASS,PEARLSTONE,CRYSTAL,COBALT,TITANIUM,MGRASS,MUSHBLOCK,MARBLE,GRANITE,SANDSTONE,STONEBRICK,CLOUDB,PUMPKIN,JACKOLANTERN,HAY,GOLDBRICK,BLUEBRICK,GLOWSTONE,HIVE,HONEYBLOCK,ICEBRICK,SNOWBRICK,HARDSAND,FOSSIL,SANDSTONEBRICK,TEMPLEBRICK,OBSIDIAN,OBSIDIANBRICK,METEORITE,BONEBRICK,SPIDERNEST,ASTRALITE]);
+const BEVEL=new Set([DIRT,GRASS,STONE,SAND,COAL,IRON,GOLD,DIAMOND,COPPER,SILVER,SNOW,ICE,CLAY,RUBY,EMERALD,SAPPHIRE,LOG,PLANK,BRICK,FURNACE,MUD,JGRASS,ASH,HELLSTONE,MYTHRIL,ADAMANTITE,CGRASS,EBONSTONE,HGRASS,PEARLSTONE,CRYSTAL,COBALT,TITANIUM,MGRASS,MUSHBLOCK,MARBLE,GRANITE,SANDSTONE,STONEBRICK,CLOUDB,PUMPKIN,JACKOLANTERN,HAY,GOLDBRICK,BLUEBRICK,GLOWSTONE,HIVE,HONEYBLOCK,ICEBRICK,SNOWBRICK,HARDSAND,FOSSIL,SANDSTONEBRICK,TEMPLEBRICK,OBSIDIAN,OBSIDIANBRICK,METEORITE,BONEBRICK,SPIDERNEST,ASTRALITE,CRIMSTONE,CRIMTANE,FLESHBLOCK]);
 function bevelTile(g){ g.lineWidth=1;
   g.strokeStyle="rgba(255,255,255,0.16)"; g.beginPath(); g.moveTo(0.5,0); g.lineTo(0.5,T); g.moveTo(0,0.5); g.lineTo(T,0.5); g.stroke();
   g.strokeStyle="rgba(0,0,0,0.34)"; g.beginPath(); g.moveTo(T-0.5,0); g.lineTo(T-0.5,T); g.moveTo(0,T-0.5); g.lineTo(T,T-0.5); g.stroke(); }
@@ -865,6 +885,11 @@ function makeTex(id){
   else if(id===HELLSTONE){speckle("#5a2218",20,24);for(let i=0;i<7;i++){const px=4+Math.floor(rnd()*16),py=4+Math.floor(rnd()*16);g.fillStyle="#ff7a2a";g.fillRect(px,py,3,3);}}
   else if(id===CGRASS){speckle(TILE[DIRT].col,40,40);g.fillStyle="#7a5a9a";g.fillRect(0,0,T,5);for(let i=0;i<10;i++){const px=Math.floor(rnd()*T);g.fillRect(px,4,1,2+Math.floor(rnd()*3));}}
   else if(id===EBONSTONE)speckle("#4a3a5a",22,24);
+  else if(id===CRIMGRASS){speckle(TILE[DIRT].col,40,40);g.fillStyle="#a02a3a";g.fillRect(0,0,T,5);for(let i=0;i<10;i++){const px=Math.floor(rnd()*T);g.fillRect(px,4,1,2+Math.floor(rnd()*3));}}
+  else if(id===CRIMSTONE){speckle("#6a2a34",22,22);g.strokeStyle="rgba(200,60,80,0.3)";g.lineWidth=1;g.beginPath();g.moveTo(rnd()*T,0);g.lineTo(rnd()*T,T);g.stroke();}
+  else if(id===CRIMTANE){speckle("#6a2a34",18,18);g.fillStyle="#e04a5a";for(let i=0;i<6;i++){const px=3+Math.floor(rnd()*(T-6)),py=3+Math.floor(rnd()*(T-6));g.fillRect(px,py,3,3);}g.fillStyle="#ff8a9a";for(let i=0;i<4;i++)g.fillRect(Math.floor(rnd()*T),Math.floor(rnd()*T),1,1);}
+  else if(id===CRIMHEART){g.fillStyle="#3a1218";g.fillRect(0,0,T,T);g.fillStyle="#e0304a";g.beginPath();g.arc(T*0.36,T*0.4,4,0,7);g.arc(T*0.64,T*0.4,4,0,7);g.moveTo(T*0.5,T-5);g.lineTo(T*0.22,T*0.45);g.lineTo(T*0.78,T*0.45);g.closePath();g.fill();g.fillStyle="#ff6a7a";g.beginPath();g.arc(T*0.42,T*0.38,1.5,0,7);g.fill();g.strokeStyle="#8a1a2a";g.lineWidth=1;g.strokeRect(0,0,T,T);}
+  else if(id===FLESHBLOCK){speckle("#b04a54",16,16);g.strokeStyle="rgba(120,30,40,0.6)";g.lineWidth=1;for(let i=0;i<3;i++){g.beginPath();g.moveTo(0,rnd()*T);g.lineTo(T,rnd()*T);g.stroke();}g.fillStyle="#c86a74";g.fillRect(Math.floor(T*0.3),Math.floor(T*0.3),3,3);}
   else if(id===HGRASS){speckle(TILE[DIRT].col,40,40);g.fillStyle="#e08ad0";g.fillRect(0,0,T,5);for(let i=0;i<10;i++){const px=Math.floor(rnd()*T);g.fillStyle=Math.random()<0.5?"#e08ad0":"#7fd0ff";g.fillRect(px,4,1,2+Math.floor(rnd()*3));}}
   else if(id===PEARLSTONE)speckle("#cfc6e0",22,20);
   else if(id===CRYSTAL)gem("#9aa0c0","#7fe0ff");
@@ -1018,7 +1043,7 @@ function atkDmg(sel,base,cat){ return Math.round(gemBoost(sel,base)*stationMult(
 function manaCost(sel){ const m=TOOLS[sel.id].mana||0; return sel&&sel.gem==="sapphire"?Math.max(1,Math.round(m*0.6)):m; }
 function drillArea(cx,cy){ for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){ if(!dx&&!dy)continue; const x=cx+dx,y=cy+dy; if(x<1||x>=WORLD_W-1||y<1||isBedrock(y))continue; const id=getT(x,y); if(id===AIR||isLiquid(id)||id===CHEST)continue; if(TILE[id].hard<=4)breakTile(x,y,id); } }
 // bonus de set : porter les 3 pièces d'une même famille d'armure
-const SET_BONUS={wood:1,iron:2,silver:3,gold:4,hell:5,myth:6,ada:7,crystal:8,cobalt:9,titanium:10,bone:4,meteor:6,astral:14};
+const SET_BONUS={wood:1,iron:2,silver:3,gold:4,hell:5,myth:6,ada:7,crystal:8,cobalt:9,titanium:10,bone:4,meteor:6,astral:14,crim:6};
 function armorSet(){ const a=player.armorArr; if(!a[0]||!a[1]||!a[2])return null; const p=a[0].id.split("_")[0];
   return (a[1].id.split("_")[0]===p&&a[2].id.split("_")[0]===p)?p:null; }
 function armorClass(){ if(armorSet()!=="astral")return null; const h=player.armorArr[0]; if(!h)return null;
@@ -1093,7 +1118,7 @@ function update(dt){
   if(player.dashCd>0)player.dashCd-=dt;
   if(player.tapWin>0)player.tapWin-=dt;
   for(const k in player.buffs){ player.buffs[k]-=dt; if(player.buffs[k]<=0)delete player.buffs[k]; }
-  const regenRate=2+(player.buffs.regen>0?6:0)+(hasAcc("regen")?2:0)+(nearTile(CAMPFIRE,8)?3:0)+(nearTile(HEARTLANTERN,8)?2:0)+(nearTile(FOUNTAIN,8)?2:0);
+  const regenRate=2+(player.buffs.regen>0?6:0)+(hasAcc("regen")?2:0)+(nearTile(CAMPFIRE,8)?3:0)+(nearTile(HEARTLANTERN,8)?2:0)+(nearTile(FOUNTAIN,8)?2:0)+(armorSet()==="crim"?3:0);
   if(player.invuln<=0&&player.hp<player.maxHp)player.hp=Math.min(player.maxHp,player.hp+dt*regenRate);
   player.mana=Math.min(player.maxMana,player.mana+dt*(4+(hasAcc("manaregen")?4:0)+(nearTile(CRYSTALBALL,8)?4:0)));
   updateFishing(dt); updateCritters(dt,step); updateMinions(dt,step); updateCombatPet(dt,step); updateFireflies(dt,step); updateTraps(dt); updateArmy(dt); updatePumpkinMoon(dt); updateFrostMoon(dt); updateSlimeRain(dt); checkAchievements();
@@ -1215,7 +1240,8 @@ function handleActions(dt){
 }
 function breakTile(x,y,id){ const drop=TILE[id].drop; if(id===CHEST){chestData.delete(x+","+y);chestNames.delete(x+","+y);}
   setT(x,y,AIR); blocksMined++;
-  if(id===LIFE)addItem("use","lifecrystal",1); else if(id===MANA)addItem("use","manacrystal",1);
+  if(id===CRIMHEART){ addItem("mat","tissue",2+Math.floor(Math.random()*3)); addItem("tile",CRIMTANE,4+Math.floor(Math.random()*5)); for(let k=0;k<2;k++)spawnEnemy("crimera",x*T,(y-1)*T); flash("💔 Un cœur carmin éclate ! Des crimeras surgissent..."); }
+  else if(id===LIFE)addItem("use","lifecrystal",1); else if(id===MANA)addItem("use","manacrystal",1);
   else if(id===MUSHROOM)addItem("mat","mushroom",1); else if(id===COBWEB)addItem("mat","silk",1); else if(id===GMUSH)addItem("mat","glowmush",1);
   else if(id===LARVA){ addItem("summon","queenbee",1); addItem("mat","honey",3); flash("👑 Larve royale récupérée !"); }
   else if(id===FOSSIL){ addItem("mat","bone",2+Math.floor(Math.random()*3)); }
@@ -1457,9 +1483,11 @@ const ENEMY={
   spider:{w:24,h:16,hp:70,dmg:20,col:"#3a2a44",fly:false},
   spiderling:{w:14,h:10,hp:22,dmg:12,col:"#4a3a54",fly:false},
   babyslime:{w:18,h:15,hp:18,dmg:11,col:"#6ab0e0",fly:false},
+  facemonster:{w:24,h:40,hp:120,dmg:26,col:"#a83a4a",fly:false},
+  crimera:{w:26,h:22,hp:60,dmg:20,col:"#c0392b",fly:true},
 };
-const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8,shark:14,jellyfish:6,wraith:25,possessed:30,spore:10,knight:16,general:120,harpy:14,pumpkinhead:22,reaper:40,hornet:9,iceslime:5,frostzombie:24,icegolem:110,antlion:11,vulture:8,templeguard:60,dungeon_guardian:90,spider:8,spiderling:2,babyslime:2};
-const ENEMY_NAMES={slime:"Slime",zombie:"Zombie",eye:"Œil démoniaque",bat:"Chauve-souris",skeleton:"Squelette",imp:"Diablotin",bee:"Abeille",goblin:"Gobelin",devourer:"Dévoreur",pixie:"Fée",shark:"Requin",jellyfish:"Méduse",wraith:"Spectre",possessed:"Armure possédée",spore:"Spore",knight:"Chevalier",general:"Général",harpy:"Harpie",pumpkinhead:"Tête de citrouille",reaper:"Faucheur",hornet:"Frelon",iceslime:"Slime de glace",frostzombie:"Zombie de givre",icegolem:"Golem de glace",antlion:"Fourmilion",vulture:"Vautour",templeguard:"Gardien du temple",dungeon_guardian:"Gardien du donjon",spider:"Araignée",spiderling:"Araignéau",babyslime:"Bébé slime"};
+const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8,shark:14,jellyfish:6,wraith:25,possessed:30,spore:10,knight:16,general:120,harpy:14,pumpkinhead:22,reaper:40,hornet:9,iceslime:5,frostzombie:24,icegolem:110,antlion:11,vulture:8,templeguard:60,dungeon_guardian:90,spider:8,spiderling:2,babyslime:2,facemonster:14,crimera:10};
+const ENEMY_NAMES={slime:"Slime",zombie:"Zombie",eye:"Œil démoniaque",bat:"Chauve-souris",skeleton:"Squelette",imp:"Diablotin",bee:"Abeille",goblin:"Gobelin",devourer:"Dévoreur",pixie:"Fée",shark:"Requin",jellyfish:"Méduse",wraith:"Spectre",possessed:"Armure possédée",spore:"Spore",knight:"Chevalier",general:"Général",harpy:"Harpie",pumpkinhead:"Tête de citrouille",reaper:"Faucheur",hornet:"Frelon",iceslime:"Slime de glace",frostzombie:"Zombie de givre",icegolem:"Golem de glace",antlion:"Fourmilion",vulture:"Vautour",templeguard:"Gardien du temple",dungeon_guardian:"Gardien du donjon",spider:"Araignée",spiderling:"Araignéau",babyslime:"Bébé slime",facemonster:"Monstre-visage",crimera:"Crimera"};
 function spawnEnemy(type,x,y){ const d=ENEMY[type], sc=(1+bossKills*0.12)*(nightmare?1.35:1), hp=Math.round(d.hp*sc); enemies.push({type,x,y,vx:0,vy:0,w:d.w,h:d.h,hp,maxHp:hp,dmg:Math.round(d.dmg*(1+bossKills*0.08)*(nightmare?1.25:1)),col:d.col,fly:d.fly,onGround:false,hop:Math.random(),t:Math.random()*9});
   if(nightmare&&Math.random()<0.15){ const e=enemies[enemies.length-1]; e.elite=true; e.hp=Math.round(e.hp*2); e.maxHp=e.hp; e.dmg=Math.round(e.dmg*1.5); } }
 function updateEnemies(dt,step){
@@ -1481,6 +1509,9 @@ function updateEnemies(dt,step){
   if(enemies.length<10&&Math.floor((player.y+PH/2)/T)>HELL_Y&&Math.random()<dt*1.0){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(7+Math.floor(Math.random()*7)),2,WORLD_W-3), sy=clamp(Math.floor(player.y/T)+Math.floor((Math.random()-0.5)*8),HELL_Y,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("imp",sx*T,sy*T); }
   // monstres de la corruption
   if(enemies.length<10&&biomeAt(Math.floor(player.x/T))===4&&dayLight()<0.7&&Math.random()<dt*1.1){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3), sy=clamp(Math.floor(player.y/T)+Math.floor((Math.random()-0.5)*12),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("devourer",sx*T,sy*T); }
+  // monstres du carmin (visages au sol, crimeras en vol)
+  if(enemies.length<10&&biomeAt(Math.floor(player.x/T))===7&&Math.random()<dt*1.1){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3), sy=clamp(Math.floor(player.y/T)+Math.floor((Math.random()-0.5)*12),2,WORLD_H-3);
+    if(getT(sx,sy)===AIR){ const underg=sy>surfaceAt(sx)+5; if(underg&&solidAt(sx,sy+1)&&Math.random()<0.6)spawnEnemy("facemonster",sx*T,sy*T); else spawnEnemy("crimera",sx*T,sy*T); } }
   // fées du sanctuaire
   if(enemies.length<10&&biomeAt(Math.floor(player.x/T))===5&&Math.random()<dt*0.9){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3), sy=clamp(Math.floor(player.y/T)+Math.floor((Math.random()-0.5)*12),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("pixie",sx*T,sy*T); }
   // créatures de l'océan
@@ -1534,6 +1565,7 @@ function updateEnemies(dt,step){
       if(e.type==="spider"){ if(Math.random()<0.7)addItem("mat","silk",1); if(Math.random()<0.5)addItem("mat","spider_fang",1); if(Math.random()<0.02)addItem("summon","broodmother",1); }
       if(e.type==="spiderling"&&Math.random()<0.3)addItem("mat","silk",1);
       if((e.type==="slime"||e.type==="iceslime"||e.type==="babyslime")&&Math.random()<0.7)addItem("mat","gel",1+Math.floor(Math.random()*2));
+      if((e.type==="facemonster"||e.type==="crimera")){ if(Math.random()<0.4)addItem("mat","tissue",1); if(Math.random()<0.3)addItem("tile",CRIMTANE,1); }
       if(slimeRain&&(e.type==="slime"||e.type==="babyslime"||e.type==="iceslime"))slimeKills++;
       if((e.type==="pumpkinhead"||e.type==="reaper")){ if(Math.random()<0.6)addItem("mat","candy",1); if(pumpkinMoon)pumpkinKills++; }
       if((e.type==="iceslime"||e.type==="frostzombie"||e.type==="icegolem")){ if(Math.random()<0.6)addItem("mat","ice_shard",1); if(frostMoon)frostKills++; }
@@ -2003,6 +2035,13 @@ function drawEnemy(e){ const sx=e.x-cam.x,sy=e.y-cam.y;
     for(let k=0;k<3;k++){ const ly=sy+e.h*0.4+k*3; ctx.beginPath();ctx.moveTo(sx+e.w*0.3,sy+e.h*0.5);ctx.lineTo(sx-2+k,ly+lg);ctx.stroke(); ctx.beginPath();ctx.moveTo(sx+e.w*0.7,sy+e.h*0.5);ctx.lineTo(sx+e.w+2-k,ly-lg);ctx.stroke(); }
     ctx.fillStyle=e.col;ctx.beginPath();ctx.ellipse(sx+e.w/2,sy+e.h*0.55,e.w*0.36,e.h*0.42,0,0,7);ctx.fill();ctx.beginPath();ctx.arc(sx+e.w/2,sy+e.h*0.32,e.w*0.22,0,7);ctx.fill();
     ctx.fillStyle="#e23a4a";const es=e.type==="spider"?2:1;ctx.fillRect(sx+e.w/2-4,sy+e.h*0.28,es,es);ctx.fillRect(sx+e.w/2+3,sy+e.h*0.28,es,es);ctx.fillRect(sx+e.w/2-1,sy+e.h*0.2,es,es); }
+  else if(e.type==="facemonster"){ ctx.fillStyle="#7a2a34";ctx.fillRect(sx+2,sy+24,6,16);ctx.fillRect(sx+e.w-8,sy+24,6,16);
+    ctx.fillStyle=e.col;ctx.fillRect(sx,sy+10,e.w,18);ctx.fillStyle="#c25a64";ctx.fillRect(sx+2,sy,e.w-4,13);
+    ctx.fillStyle="#ffe0a0";ctx.fillRect(sx+5,sy+3,3,3);ctx.fillRect(sx+e.w-8,sy+3,3,3);
+    ctx.fillStyle="#3a0a10";ctx.fillRect(sx+5,sy+8,e.w-10,3);ctx.fillStyle="#fff";for(let k=0;k<3;k++)ctx.fillRect(sx+6+k*5,sy+8,2,3); }
+  else if(e.type==="crimera"){ ctx.fillStyle=e.col;roundRect(sx+2,sy+2,e.w-4,e.h-4,6);ctx.fill();
+    const wob=Math.sin(e.t*10)*2; ctx.fillStyle="#7a1a24";ctx.beginPath();ctx.ellipse(sx+e.w/2,sy+e.h/2+2,e.w*0.28,e.h*0.22+wob,0,0,7);ctx.fill();
+    ctx.fillStyle="#ffe0a0";ctx.fillRect(sx+6,sy+5,3,3);ctx.fillRect(sx+e.w-9,sy+5,3,3);ctx.fillStyle="#3a0a10";ctx.fillRect(sx+7,sy+6,1,1);ctx.fillRect(sx+e.w-8,sy+6,1,1); }
   else if(e.type==="goblin"){ ctx.fillStyle="#3a6a30";ctx.fillRect(sx+2,sy+22,6,16);ctx.fillRect(sx+e.w-8,sy+22,6,16);
     ctx.fillStyle="#6a4a2a";ctx.fillRect(sx,sy+11,e.w,12);ctx.fillStyle=e.col;ctx.fillRect(sx+2,sy,e.w-4,12);
     ctx.beginPath();ctx.moveTo(sx+2,sy+4);ctx.lineTo(sx-4,sy+1);ctx.lineTo(sx+2,sy+8);ctx.fill();
