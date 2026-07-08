@@ -123,6 +123,7 @@ const GRAV=0.55, MAX_FALL=16, MOVE_ACC=1.0, MOVE_MAX=5.0, FRICTION=0.80, JUMP_V=
 const REACH=5.4*T, DAY_SEC=480, SAVE_KEY="terrabac_save_v2";
 const PW=18, PH=42, BASE_SURFACE=Math.floor(WORLD_H*0.28), HILL_AMP=46;
 const HELL_Y=WORLD_H-14; // début de la couche d'enfer
+const SPACE_Y=18; // au-dessus : espace (gravité réduite)
 
 // ---- tuiles ----
 const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAMOND=10,
@@ -131,7 +132,7 @@ const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAM
   PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39,MYTHRIL=40,
   BED=41,CAMPFIRE=42,HEARTLANTERN=43,SPIKE=44,ADAMANTITE=45,CGRASS=46,EBONSTONE=47,HGRASS=48,PEARLSTONE=49,CRYSTAL=50,LAMP=51,CHAIR=52,VASE=53,BANNER=54,COBALT=55,TITANIUM=56,DART_TRAP=57,PLATE=58,STATUE=59,
   MGRASS=60,GMUSH=61,MUSHBLOCK=62,MARBLE=63,GRANITE=64,SANDSTONE=65,STONEBRICK=66,CLOUDB=67,COBWEB=68,CACTUS=69,BOOKCASE=70,CANDLE=71,CHANDELIER=72,SAWMILL=73,
-  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106,SHARPENING=107,AMMOBOX=108,CRYSTALBALL=109,BEWITCH=110,FOUNTAIN=111,PIANO=112,DRESSER=113,ASTRALITE=114,CRIMGRASS=115,CRIMSTONE=116,CRIMTANE=117,CRIMHEART=118,FLESHBLOCK=119,CORAL=120,CORALBLOCK=121,TELEPORTER=122,HELLBRICK=123,HELLFORGE=124;
+  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106,SHARPENING=107,AMMOBOX=108,CRYSTALBALL=109,BEWITCH=110,FOUNTAIN=111,PIANO=112,DRESSER=113,ASTRALITE=114,CRIMGRASS=115,CRIMSTONE=116,CRIMTANE=117,CRIMHEART=118,FLESHBLOCK=119,CORAL=120,CORALBLOCK=121,TELEPORTER=122,HELLBRICK=123,HELLFORGE=124,STARBLOCK=125;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -266,6 +267,7 @@ const TILE={
   [TELEPORTER]:{name:"Téléporteur",solid:false,hard:1.2,drop:TELEPORTER,col:"#7affe0",light:0.4},
   [HELLBRICK]:{name:"Brique infernale",solid:true,hard:3.0,drop:HELLBRICK,col:"#5a1a1a"},
   [HELLFORGE]:{name:"Forge infernale",solid:false,hard:1.5,drop:HELLFORGE,col:"#e8632a",light:0.5,station:"hellforge"},
+  [STARBLOCK]:{name:"Bloc d'étoile",solid:true,hard:0.5,drop:STARBLOCK,col:"#ffe27a",light:0.5},
 };
 const isSpike=id=>TILE[id]&&TILE[id].spike;
 const isPlatform=id=>TILE[id]&&TILE[id].platform;
@@ -296,6 +298,7 @@ const TOOLS={
   astral_sword:{name:"Lame astrale",type:"sword",dmg:155}, astral_gun:{name:"Fusil astral",type:"gun",dmg:58}, astral_staff:{name:"Sceptre astral",type:"staff",dmg:60,mana:7,proj:"bolt",shots:2,spread:0.18}, astral_summon:{name:"Bâton stellaire",type:"summoner",dmg:48,mana:9,minion:"spirit"},
   crim_sword:{name:"Tranche-sang",type:"sword",dmg:72}, trident:{name:"Trident",type:"spear",dmg:52},
   flamberge:{name:"Flamberge",type:"sword",dmg:88}, demon_scythe:{name:"Faux démoniaque",type:"staff",dmg:70,mana:8,proj:"fire",shots:1},
+  star_cannon:{name:"Canon stellaire",type:"staff",dmg:64,mana:7,proj:"spark",shots:3,spread:0.3},
   hook:{name:"Grappin",type:"hook"}, flail:{name:"Fléau",type:"flail",dmg:48},
   spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
@@ -333,7 +336,7 @@ const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Bar
   icefish:{name:"Poisson des glaces",col:"#aee4ff"}, junglefish:{name:"Barbeau de jungle",col:"#5ac04a"}, voidfish:{name:"Poisson du néant",col:"#8a4ad0"}, prismfish:{name:"Poisson prismatique",col:"#e08ad0"},
   mythril_bar:{name:"Barre de mythril",col:"#5fc9b0"}, adamantite_bar:{name:"Barre d'adamantite",col:"#d0506a"}, crystal_bar:{name:"Barre de cristal",col:"#7fe0ff"}, astralite_bar:{name:"Barre d'astralite",col:"#8a7aff"},
   cobalt_bar:{name:"Barre de cobalt",col:"#2a6ad0"}, titanium_bar:{name:"Barre de titane",col:"#c0c4cc"}, mech_soul:{name:"Âme mécanique",col:"#9fe0ff"},
-  glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"}, meteor_bar:{name:"Barre de météore",col:"#c8763a"}, herb:{name:"Herbe médicinale",col:"#3ac06a"}, nightmare_shard:{name:"Éclat de cauchemar",col:"#a03ad0"}, spider_fang:{name:"Croc d'araignée",col:"#c8b0d0"}, gel:{name:"Gel",col:"#6ab0e0"}, crimtane_bar:{name:"Barre de crimtane",col:"#c0392b"}, tissue:{name:"Échantillon de tissu",col:"#e0304a"}, coral:{name:"Corail",col:"#ff7a9a"}, pearl:{name:"Perle",col:"#f0e8f4"}, soul_fire:{name:"Âme de feu",col:"#ff8a3a"} };
+  glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"}, meteor_bar:{name:"Barre de météore",col:"#c8763a"}, herb:{name:"Herbe médicinale",col:"#3ac06a"}, nightmare_shard:{name:"Éclat de cauchemar",col:"#a03ad0"}, spider_fang:{name:"Croc d'araignée",col:"#c8b0d0"}, gel:{name:"Gel",col:"#6ab0e0"}, crimtane_bar:{name:"Barre de crimtane",col:"#c0392b"}, tissue:{name:"Échantillon de tissu",col:"#e0304a"}, coral:{name:"Corail",col:"#ff7a9a"}, pearl:{name:"Perle",col:"#f0e8f4"}, soul_fire:{name:"Âme de feu",col:"#ff8a3a"}, stardust:{name:"Poussière d'étoile",col:"#ffe27a"} };
 const AMMO={ arrow:{name:"Flèche",col:"#caa15a",dmg:5} };
 const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenbee:{name:"Larve royale"}, golem:{name:"Noyau de golem"}, worm:{name:"Nourriture maudite"}, moon:{name:"Tablette céleste"}, mechworm:{name:"Engrenage maudit"}, titan:{name:"Relique céleste"}, broodmother:{name:"Cocon royal"}, slime_crown:{name:"Couronne gluante"} };
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
@@ -630,6 +633,9 @@ const RECIPES=[
   R({kind:"tile",id:HELLBRICK,n:4},[ma("hellstone_bar",1),ti(STONE,2)],"furnace"),
   R({kind:"tool",id:"flamberge"},[ma("hellstone_bar",8),ma("soul_fire",5)],"hellforge"),
   R({kind:"tool",id:"demon_scythe"},[ma("hellstone_bar",6),ma("soul_fire",6)],"hellforge"),
+  // phase 45 (espace)
+  R({kind:"tile",id:STARBLOCK,n:2},[ma("stardust",1)],"table"),
+  R({kind:"tool",id:"star_cannon"},[ma("stardust",12),ma("crystal_bar",4)],"anvil"),
 ];
 
 // =========================================================================
@@ -795,6 +801,10 @@ function genWorld(s){
     for(let dx=-iw;dx<=iw;dx++){ const X=cx+dx; if(X<2||X>=WORLD_W-2)continue; const th=Math.round(3*(1-(dx*dx)/(iw*iw)));
       for(let dy=0;dy<=th+1;dy++){ const Y=cy+dy; if(Y<2||Y>=WORLD_H-2)continue; world[idx(X,Y)]=(dy===0)?GRASS:CLOUDB; liquid[idx(X,Y)]=0; } }
     const chx=cx,chy=cy-1; if(chx>1&&chx<WORLD_W-1&&world[idx(chx,chy)]===AIR&&world[idx(chx,chy+1)]!==AIR){ world[idx(chx,chy)]=CHEST; chestData.set(chx+","+chy, skyLoot(rng)); } }
+  // === plateformes spatiales (au-dessus des îles, gravité réduite) ===
+  for(let m=0;m<3;m++){ const cx=30+Math.floor(rng()*(WORLD_W-60)), cy=3+Math.floor(rng()*(SPACE_Y-6)), pw=4+Math.floor(rng()*4);
+    for(let dx=-pw;dx<=pw;dx++){ const X=cx+dx; if(X<2||X>=WORLD_W-2)continue; world[idx(X,cy)]=STARBLOCK; liquid[idx(X,cy)]=0; }
+    if(cx>1&&cx<WORLD_W-1&&world[idx(cx,cy-1)]===AIR){ world[idx(cx,cy-1)]=CHEST; chestData.set(cx+","+(cy-1), skyLoot(rng)); } }
   genChests(rng);
   // socle indestructible
   for(let x=0;x<WORLD_W;x++){ world[idx(x,WORLD_H-1)]=STONE; world[idx(x,WORLD_H-2)]=STONE; }
@@ -850,6 +860,7 @@ function templeLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=i
   return a; }
 function skyLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=>{if(s<20)a[s++]=it;};
   put({kind:"tile",id:CLOUDB,n:20+Math.floor(rng()*20)}); put({kind:"mat",id:"feather",n:2+Math.floor(rng()*4)});
+  if(rng()<0.6)put({kind:"mat",id:"stardust",n:2+Math.floor(rng()*4)});
   if(rng()<0.55)put({kind:"acc",id:"cloud",n:1}); if(rng()<0.4)put({kind:"acc",id:"boots",n:1});
   put({kind:"tile",id:GOLD,n:3+Math.floor(rng()*4)}); if(rng()<0.5)put({kind:"use",id:"hp_potion",n:2});
   return a; }
@@ -928,6 +939,7 @@ function makeTex(id){
   else if(id===HELLSTONE){speckle("#5a2218",20,24);for(let i=0;i<7;i++){const px=4+Math.floor(rnd()*16),py=4+Math.floor(rnd()*16);g.fillStyle="#ff7a2a";g.fillRect(px,py,3,3);}}
   else if(id===CGRASS){speckle(TILE[DIRT].col,40,40);g.fillStyle="#7a5a9a";g.fillRect(0,0,T,5);for(let i=0;i<10;i++){const px=Math.floor(rnd()*T);g.fillRect(px,4,1,2+Math.floor(rnd()*3));}}
   else if(id===EBONSTONE)speckle("#4a3a5a",22,24);
+  else if(id===STARBLOCK){g.fillStyle="#2a2a3e";g.fillRect(0,0,T,T);g.fillStyle="#ffe27a";const scx=T/2,scy=T/2;g.beginPath();for(let i=0;i<5;i++){const a=-Math.PI/2+i*Math.PI*2/5;g.lineTo(scx+Math.cos(a)*8,scy+Math.sin(a)*8);const a2=a+Math.PI/5;g.lineTo(scx+Math.cos(a2)*3.4,scy+Math.sin(a2)*3.4);}g.closePath();g.fill();g.fillStyle="#fff7c0";g.beginPath();g.arc(scx,scy,2,0,7);g.fill();}
   else if(id===HELLBRICK){g.fillStyle="#5a1a1a";g.fillRect(0,0,T,T);g.strokeStyle="#340e0e";g.lineWidth=2;g.strokeRect(0,0,T,T/2);g.strokeRect(0,T/2,T,T/2);g.beginPath();g.moveTo(T/2,0);g.lineTo(T/2,T/2);g.moveTo(0,T/2);g.lineTo(0,T);g.moveTo(T,T/2);g.lineTo(T,T);g.stroke();g.fillStyle="#e8632a";g.fillRect(T/2-1,T/2-1,2,2);}
   else if(id===HELLFORGE){g.clearRect(0,0,T,T);g.fillStyle="#3a1010";g.fillRect(2,7,T-4,T-9);g.fillStyle="#1a0808";g.fillRect(4,9,T-8,7);g.fillStyle="#ffb03a";g.fillRect(5,11,T-10,4);g.fillStyle="#ff5a1a";g.fillRect(6,10,T-12,3);g.fillStyle="#5a1a1a";g.fillRect(2,4,T-4,3);g.fillStyle="#ffe27a";for(let i=0;i<3;i++)g.fillRect(6+i*4,8,1,1);}
   else if(id===TELEPORTER){g.clearRect(0,0,T,T);g.fillStyle="#2a2a3a";g.fillRect(1,T-5,T-2,4);g.fillStyle="#3a3a4e";g.fillRect(3,T-7,T-6,3);g.strokeStyle="#7affe0";g.lineWidth=2;g.beginPath();g.ellipse(T/2,T-7,T*0.36,4,0,0,7);g.stroke();g.strokeStyle="rgba(122,255,224,0.5)";g.beginPath();g.ellipse(T/2,T-9,T*0.28,3,0,0,7);g.stroke();g.fillStyle="#bfffe8";g.fillRect(T/2-1,4,2,T-12);g.fillStyle="#7affe0";g.fillRect(T/2-3,3,6,2);}
@@ -1149,7 +1161,8 @@ function update(dt){
     else if(jump&&player.mount==="bird"&&!inWater){ player.vy=Math.max(player.vy-1.4*step,-6.5); }
     else if(jumpEdge&&hasAcc("djump")&&player.djump&&!inWater){ player.vy=-JUMP_V*0.95; player.djump=false; spawnParticles(player.x+PW/2,player.y+PH,"#cfe6ff",6); }
     else if(jump&&hasAcc("fly")&&player.flyTime>0&&!inWater){ player.vy=Math.max(player.vy-1.5*step,-6); player.flyTime-=dt; }
-    const g=inWater?GRAV*0.35:(player.mount==="ufo"?GRAV*0.22:GRAV), mf=inWater?MAX_FALL*0.4:(player.mount==="ufo"?6:MAX_FALL);
+    const inSpace=player.y<SPACE_Y*T;
+    const g=inWater?GRAV*0.35:(player.mount==="ufo"?GRAV*0.22:inSpace?GRAV*0.4:GRAV), mf=inWater?MAX_FALL*0.4:(player.mount==="ufo"?6:inSpace?9:MAX_FALL);
     player.vy=Math.min(player.vy+g*step,mf);
   }
   const preVy=player.vy;
@@ -1555,9 +1568,10 @@ const ENEMY={
   crab_king:{w:44,h:32,hp:420,dmg:40,col:"#e0604a",fly:false},
   demon:{w:26,h:40,hp:200,dmg:34,col:"#8a2a3a",fly:true},
   lavaslime:{w:28,h:24,hp:90,dmg:24,col:"#e8632a",fly:false},
+  star_wisp:{w:20,h:20,hp:110,dmg:26,col:"#bfe0ff",fly:true},
 };
-const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8,shark:14,jellyfish:6,wraith:25,possessed:30,spore:10,knight:16,general:120,harpy:14,pumpkinhead:22,reaper:40,hornet:9,iceslime:5,frostzombie:24,icegolem:110,antlion:11,vulture:8,templeguard:60,dungeon_guardian:90,spider:8,spiderling:2,babyslime:2,facemonster:14,crimera:10,crab_king:80,demon:22,lavaslime:8};
-const ENEMY_NAMES={slime:"Slime",zombie:"Zombie",eye:"Œil démoniaque",bat:"Chauve-souris",skeleton:"Squelette",imp:"Diablotin",bee:"Abeille",goblin:"Gobelin",devourer:"Dévoreur",pixie:"Fée",shark:"Requin",jellyfish:"Méduse",wraith:"Spectre",possessed:"Armure possédée",spore:"Spore",knight:"Chevalier",general:"Général",harpy:"Harpie",pumpkinhead:"Tête de citrouille",reaper:"Faucheur",hornet:"Frelon",iceslime:"Slime de glace",frostzombie:"Zombie de givre",icegolem:"Golem de glace",antlion:"Fourmilion",vulture:"Vautour",templeguard:"Gardien du temple",dungeon_guardian:"Gardien du donjon",spider:"Araignée",spiderling:"Araignéau",babyslime:"Bébé slime",facemonster:"Monstre-visage",crimera:"Crimera",crab_king:"Roi Crabe",demon:"Démon",lavaslime:"Slime de lave"};
+const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8,shark:14,jellyfish:6,wraith:25,possessed:30,spore:10,knight:16,general:120,harpy:14,pumpkinhead:22,reaper:40,hornet:9,iceslime:5,frostzombie:24,icegolem:110,antlion:11,vulture:8,templeguard:60,dungeon_guardian:90,spider:8,spiderling:2,babyslime:2,facemonster:14,crimera:10,crab_king:80,demon:22,lavaslime:8,star_wisp:16};
+const ENEMY_NAMES={slime:"Slime",zombie:"Zombie",eye:"Œil démoniaque",bat:"Chauve-souris",skeleton:"Squelette",imp:"Diablotin",bee:"Abeille",goblin:"Gobelin",devourer:"Dévoreur",pixie:"Fée",shark:"Requin",jellyfish:"Méduse",wraith:"Spectre",possessed:"Armure possédée",spore:"Spore",knight:"Chevalier",general:"Général",harpy:"Harpie",pumpkinhead:"Tête de citrouille",reaper:"Faucheur",hornet:"Frelon",iceslime:"Slime de glace",frostzombie:"Zombie de givre",icegolem:"Golem de glace",antlion:"Fourmilion",vulture:"Vautour",templeguard:"Gardien du temple",dungeon_guardian:"Gardien du donjon",spider:"Araignée",spiderling:"Araignéau",babyslime:"Bébé slime",facemonster:"Monstre-visage",crimera:"Crimera",crab_king:"Roi Crabe",demon:"Démon",lavaslime:"Slime de lave",star_wisp:"Feu follet stellaire"};
 function spawnEnemy(type,x,y){ const d=ENEMY[type], sc=(1+bossKills*0.12)*(nightmare?1.35:1), hp=Math.round(d.hp*sc); enemies.push({type,x,y,vx:0,vy:0,w:d.w,h:d.h,hp,maxHp:hp,dmg:Math.round(d.dmg*(1+bossKills*0.08)*(nightmare?1.25:1)),col:d.col,fly:d.fly,onGround:false,hop:Math.random(),t:Math.random()*9});
   if(nightmare&&Math.random()<0.15){ const e=enemies[enemies.length-1]; e.elite=true; e.hp=Math.round(e.hp*2); e.maxHp=e.hp; e.dmg=Math.round(e.dmg*1.5); } }
 function updateEnemies(dt,step){
@@ -1598,6 +1612,8 @@ function updateEnemies(dt,step){
     if(near){ const sx=clamp(px+(Math.random()<0.5?-1:1)*(4+Math.floor(Math.random()*6)),2,WORLD_W-3), sy=clamp(py+Math.floor((Math.random()-0.5)*8),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("spore",sx*T,sy*T); } }
   // harpies des cieux (haute altitude)
   if(enemies.length<8&&Math.random()<dt*1.0){ const pcx=Math.floor(player.x/T),py=Math.floor(player.y/T); if(py<surfaceAt(pcx)-12){ const sx=clamp(pcx+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3), sy=clamp(py+Math.floor((Math.random()-0.5)*8),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("harpy",sx*T,sy*T); } }
+  // feux follets stellaires (espace, très haute altitude)
+  if(enemies.length<8&&Math.random()<dt*0.9){ const pcx=Math.floor(player.x/T),py=Math.floor(player.y/T); if(py<SPACE_Y+8){ const sx=clamp(pcx+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3), sy=clamp(py+Math.floor((Math.random()-0.5)*8),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("star_wisp",sx*T,sy*T); } }
   // frelons de la jungle (souterrain)
   if(enemies.length<10&&biomeAt(Math.floor(player.x/T))===3&&Math.floor(player.y/T)>surfaceAt(Math.floor(player.x/T))+4&&Math.random()<dt*0.9){ const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3), sy=clamp(Math.floor(player.y/T)+Math.floor((Math.random()-0.5)*10),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("hornet",sx*T,sy*T); }
   // limaces de glace dans la neige
@@ -1642,6 +1658,7 @@ function updateEnemies(dt,step){
       if(e.type==="crab_king"){ addItem("mat","coral",4+Math.floor(Math.random()*5)); addItem("mat","pearl",2+Math.floor(Math.random()*3)); if(Math.random()<0.5)addItem("acc","diving_gear",1); if(Math.random()<0.4)addItem("tool","trident",1); flash("🦀 Le Roi Crabe est vaincu !"); }
       if(e.type==="demon"){ if(Math.random()<0.5)addItem("mat","soul_fire",1); if(Math.random()<0.25)addItem("mat","hellstone_bar",1); }
       if(e.type==="lavaslime"&&Math.random()<0.4)addItem("mat","soul_fire",1);
+      if(e.type==="star_wisp")addItem("mat","stardust",1+Math.floor(Math.random()*2));
       if(slimeRain&&(e.type==="slime"||e.type==="babyslime"||e.type==="iceslime"))slimeKills++;
       if((e.type==="pumpkinhead"||e.type==="reaper")){ if(Math.random()<0.6)addItem("mat","candy",1); if(pumpkinMoon)pumpkinKills++; }
       if((e.type==="iceslime"||e.type==="frostzombie"||e.type==="icegolem")){ if(Math.random()<0.6)addItem("mat","ice_shard",1); if(frostMoon)frostKills++; }
@@ -1950,6 +1967,9 @@ function render(){
   if(frostMoon){ top=mixCol(top,[80,120,170],0.5); bot=mixCol(bot,[40,70,110],0.5); }
   const grd=ctx.createLinearGradient(0,0,0,VH); grd.addColorStop(0,`rgb(${top[0]},${top[1]},${top[2]})`); grd.addColorStop(1,`rgb(${bot[0]},${bot[1]},${bot[2]})`);
   ctx.fillStyle=grd; ctx.fillRect(0,0,VW,VH);
+  // champ d'étoiles en haute altitude (espace)
+  if(cam.y<SPACE_Y*T+VH){ const a=clamp((SPACE_Y*T+VH-cam.y)/VH,0,1);
+    for(let i=0;i<80;i++){ const sx=(i*167)%VW, sy=(((i*97)%VH)-(cam.y*0.4)%VH+VH)%VH, tw=0.6+0.4*Math.sin(frameCount*0.06+i*1.3); ctx.fillStyle="rgba(255,255,240,"+(a*tw*0.9).toFixed(2)+")"; ctx.fillRect(sx,sy,i%9===0?2:1,i%9===0?2:1); } }
   drawCelestial(dl); drawHills(dl);
   const x0=Math.max(0,Math.floor(cam.x/T)),x1=Math.min(WORLD_W-1,Math.floor((cam.x+VW)/T));
   const y0=Math.max(0,Math.floor(cam.y/T)),y1=Math.min(WORLD_H-1,Math.floor((cam.y+VH)/T));
@@ -2135,6 +2155,10 @@ function drawEnemy(e){ const sx=e.x-cam.x,sy=e.y-cam.y;
   else if(e.type==="lavaslime"){ ctx.fillStyle=e.col;ctx.globalAlpha=0.92;roundRect(sx,sy,e.w,e.h,7);ctx.fill();ctx.globalAlpha=1;
     ctx.strokeStyle="#ffd24a";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx+4,sy+e.h*0.6);ctx.lineTo(sx+e.w*0.4,sy+e.h*0.45);ctx.lineTo(sx+e.w*0.6,sy+e.h*0.65);ctx.lineTo(sx+e.w-4,sy+e.h*0.5);ctx.stroke();
     ctx.fillStyle="#ffe27a";ctx.fillRect(sx+6,sy+8,4,4);ctx.fillRect(sx+e.w-10,sy+8,4,4);ctx.fillStyle="#3a0a04";ctx.fillRect(sx+7,sy+9,2,2);ctx.fillRect(sx+e.w-9,sy+9,2,2); }
+  else if(e.type==="star_wisp"){ const cx2=sx+e.w/2,cy2=sy+e.h/2,rot=e.t*2;
+    ctx.fillStyle="rgba(191,224,255,.4)";ctx.beginPath();ctx.arc(cx2,cy2,e.w*0.6,0,7);ctx.fill();
+    ctx.fillStyle=e.col;ctx.beginPath();for(let i=0;i<5;i++){const a=rot-Math.PI/2+i*Math.PI*2/5;ctx.lineTo(cx2+Math.cos(a)*e.w*0.48,cy2+Math.sin(a)*e.w*0.48);const a2=a+Math.PI/5;ctx.lineTo(cx2+Math.cos(a2)*e.w*0.2,cy2+Math.sin(a2)*e.w*0.2);}ctx.closePath();ctx.fill();
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(cx2,cy2,2.5,0,7);ctx.fill(); }
   else if(e.type==="goblin"){ ctx.fillStyle="#3a6a30";ctx.fillRect(sx+2,sy+22,6,16);ctx.fillRect(sx+e.w-8,sy+22,6,16);
     ctx.fillStyle="#6a4a2a";ctx.fillRect(sx,sy+11,e.w,12);ctx.fillStyle=e.col;ctx.fillRect(sx+2,sy,e.w-4,12);
     ctx.beginPath();ctx.moveTo(sx+2,sy+4);ctx.lineTo(sx-4,sy+1);ctx.lineTo(sx+2,sy+8);ctx.fill();
