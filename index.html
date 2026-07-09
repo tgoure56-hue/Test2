@@ -312,14 +312,16 @@ const TOOLS={
   spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
   mirror:{name:"Miroir magique",type:"mirror"}, rod:{name:"Canne à pêche",type:"rod"}, wrench:{name:"Clé à molette",type:"wrench"}, gun1:{name:"Mousquet",type:"gun",dmg:34}, bone_sword:{name:"Épée en os",type:"sword",dmg:44}, brush:{name:"Pinceau",type:"brush"},
-  drill:{name:"Foreuse",type:"drill",power:8.5}, drill2:{name:"Foreuse lunaire",type:"drill",power:12.0},
+  drill:{name:"Foreuse",type:"drill",power:8.5,area:4}, drill2:{name:"Foreuse lunaire",type:"drill",power:12.0,area:5},
+  pick_astral:{name:"Pioche astrale",type:"pick",power:12.0}, drill3:{name:"Foreuse astrale",type:"drill",power:15.0,area:6},
   meteor_saber:{name:"Sabre de météore",type:"sword",dmg:75}, staff7:{name:"Pistolet spatial",type:"staff",dmg:38,mana:4,proj:"bolt"},
   sword14:{name:"Faux du cauchemar",type:"sword",dmg:280},
 };
 const ACC={ cloud:{name:"Bottes nuage",eff:"djump"}, boots:{name:"Bottes véloces",eff:"speed"}, band:{name:"Brassard de force",eff:"def",def:5},
   talisman:{name:"Talisman de régénération",eff:"regen"}, amulet:{name:"Amulette de mana",eff:"manaregen"}, wings:{name:"Ailes de cristal",eff:"fly"}, lavaboots:{name:"Bottes de lave",eff:"lava"}, headlamp:{name:"Lampe frontale",eff:"glow"}, tackle:{name:"Boîte à pêche",eff:"angler"},
   tinker_band:{name:"Brassard du bricoleur",eff:"def",def:8}, mech_heart:{name:"Cœur mécanique",eff:"def",def:10}, celestial_emblem:{name:"Emblème céleste",eff:"def",def:14}, aegis_nightmare:{name:"Égide du cauchemar",eff:"def",def:16},
-  spider_charm:{name:"Amulette d'araignée",eff:"summonplus",def:4}, ninja_hood:{name:"Cape ninja",eff:"speed",def:3}, dash_boots:{name:"Bottes d'élan",eff:"dash",def:2}, diving_gear:{name:"Équipement de plongée",eff:"gills",def:2}, cosmic_wings:{name:"Ailes cosmiques",eff:"fly",def:12}, pirate_hat:{name:"Tricorne de pirate",eff:"speed",def:4} };
+  spider_charm:{name:"Amulette d'araignée",eff:"summonplus",def:4}, ninja_hood:{name:"Cape ninja",eff:"speed",def:3}, dash_boots:{name:"Bottes d'élan",eff:"dash",def:2}, diving_gear:{name:"Équipement de plongée",eff:"gills",def:2}, cosmic_wings:{name:"Ailes cosmiques",eff:"fly",def:12}, pirate_hat:{name:"Tricorne de pirate",eff:"speed",def:4},
+  miner_charm:{name:"Amulette du mineur",eff:"mining",def:2}, lucky_coin:{name:"Pièce porte-bonheur",eff:"luck",def:1} };
 const THROWS={ glowstick:{name:"Bâton lumineux",col:"#7fff9f"} };
 const ARMOR={
   wood_h:{name:"Casque bois",slot:"head",def:1}, wood_c:{name:"Plastron bois",slot:"chest",def:2}, wood_l:{name:"Jambières bois",slot:"legs",def:1},
@@ -661,6 +663,11 @@ const RECIPES=[
   R({kind:"tool",id:"cutlass"},[ma("doubloon",8),ma("gold_bar",3)],"anvil"),
   R({kind:"tool",id:"cannon"},[ma("doubloon",8),ma("iron_bar",5)],"anvil"),
   R({kind:"acc",id:"pirate_hat"},[ma("doubloon",6),ma("silk",4)],"anvil"),
+  // phase 50 (outils astraux & fortune)
+  R({kind:"tool",id:"pick_astral"},[ma("astralite_bar",12)],"anvil"),
+  R({kind:"tool",id:"drill3"},[ma("astralite_bar",15),ma("crystal_bar",4)],"anvil"),
+  R({kind:"acc",id:"miner_charm"},[ma("gold_bar",4),ma("crystal_bar",2)],"anvil"),
+  R({kind:"acc",id:"lucky_coin"},[ma("gold_bar",8)],"anvil"),
 ];
 
 // =========================================================================
@@ -1135,7 +1142,7 @@ function stationMult(cat){ let m=1;
   if(armorClass()===cat)m*=1.25; return m; }
 function atkDmg(sel,base,cat){ return Math.round(gemBoost(sel,base)*stationMult(cat)); }
 function manaCost(sel){ const m=TOOLS[sel.id].mana||0; return sel&&sel.gem==="sapphire"?Math.max(1,Math.round(m*0.6)):m; }
-function drillArea(cx,cy){ for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){ if(!dx&&!dy)continue; const x=cx+dx,y=cy+dy; if(x<1||x>=WORLD_W-1||y<1||isBedrock(y))continue; const id=getT(x,y); if(id===AIR||isLiquid(id)||id===CHEST)continue; if(TILE[id].hard<=4)breakTile(x,y,id); } }
+function drillArea(cx,cy,maxHard){ maxHard=maxHard||4; for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){ if(!dx&&!dy)continue; const x=cx+dx,y=cy+dy; if(x<1||x>=WORLD_W-1||y<1||isBedrock(y))continue; const id=getT(x,y); if(id===AIR||isLiquid(id)||id===CHEST)continue; if(TILE[id].hard<=maxHard)breakTile(x,y,id); } }
 // bonus de set : porter les 3 pièces d'une même famille d'armure
 const SET_BONUS={wood:1,iron:2,silver:3,gold:4,hell:5,myth:6,ada:7,crystal:8,cobalt:9,titanium:10,bone:4,meteor:6,astral:14,crim:6};
 function armorSet(){ const a=player.armorArr; if(!a[0]||!a[1]||!a[2])return null; const p=a[0].id.split("_")[0];
@@ -1336,8 +1343,8 @@ function handleActions(dt){
     if(id!==AIR&&!isLiquid(id)&&!isBedrock(mouse.ty)){
       if(id===CHEST&&!chestEmpty(mouse.tx,mouse.ty)){ flash("Videz le coffre d'abord"); mining.x=-1; return; }
       if(mining.x!==mouse.tx||mining.y!==mouse.ty){mining.x=mouse.tx;mining.y=mouse.ty;mining.prog=0;}
-      mining.prog+=bestPick()*dt;
-      if(mining.prog>=TILE[id].hard){breakTile(mouse.tx,mouse.ty,id); if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="drill")drillArea(mouse.tx,mouse.ty); mining.x=-1;mining.prog=0;}
+      mining.prog+=bestPick()*(hasAcc("mining")?1.3:1)*dt;
+      if(mining.prog>=TILE[id].hard){breakTile(mouse.tx,mouse.ty,id); if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="drill")drillArea(mouse.tx,mouse.ty,TOOLS[sel.id].area); mining.x=-1;mining.prog=0;}
     } else if(id===AIR&&wallAt(mouse.tx,mouse.ty)){
       if(mining.x!==mouse.tx||mining.y!==mouse.ty){mining.x=mouse.tx;mining.y=mouse.ty;mining.prog=0;}
       mining.prog+=bestPick()*dt;
@@ -1710,7 +1717,7 @@ function updateEnemies(dt,step){
       if(quest&&quest.type==="kill"&&(quest.enemy==="any"||e.type===quest.enemy))quest.have++;
       bestiary[e.type]=(bestiary[e.type]||0)+1;
       if(e.elite&&!e.fromStatue){ coins+=20; if(Math.random()<0.35)addItem("mat","nightmare_shard",1); }
-      if(!e.fromStatue){ coins+=(COINS[e.type]||1)+Math.floor(Math.random()*3); spawnParticles(e.x+e.w/2,e.y+e.h/2,"#ffd24a",6); } dirtyUI=true; enemies.splice(i,1); continue; }
+      if(!e.fromStatue){ coins+=Math.round(((COINS[e.type]||1)+Math.floor(Math.random()*3))*(hasAcc("luck")?1.5:1)); spawnParticles(e.x+e.w/2,e.y+e.h/2,"#ffd24a",6); } dirtyUI=true; enemies.splice(i,1); continue; }
     if((!isNight()&&!e.fly&&!e.army&&!e.pirate&&e.type!=="dungeon_guardian"&&e.type!=="crab_king"&&Math.random()<dt*0.5)||Math.abs(e.x-player.x)>VW*1.8)enemies.splice(i,1);
   }
   if(boss)updateBoss(dt,step);
