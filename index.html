@@ -1184,8 +1184,21 @@ function armorSet(){ const a=player.armorArr; if(!a[0]||!a[1]||!a[2])return null
   return (a[1].id.split("_")[0]===p&&a[2].id.split("_")[0]===p)?p:null; }
 function armorClass(){ if(armorSet()!=="astral")return null; const h=player.armorArr[0]; if(!h)return null;
   if(h.id.indexOf("_war_")>=0)return "melee"; if(h.id.indexOf("_arc_")>=0)return "ranged"; if(h.id.indexOf("_mag_")>=0)return "magic"; if(h.id.indexOf("_sum_")>=0)return "summon"; return null; }
-function totalDef(){ let d=0; for(const a of player.armorArr)if(a)d+=ARMOR[a.id].def; for(const ac of [player.acc,player.acc2])if(ac){ if(ACC[ac.id].def)d+=ACC[ac.id].def; d+=prefixDef(ac); } if(player.buffs.iron>0)d+=4; const s=armorSet(); if(s)d+=SET_BONUS[s]||0; return d; }
-function hasAcc(eff){ return !!((player.acc&&ACC[player.acc.id].eff===eff)||(player.acc2&&ACC[player.acc2.id].eff===eff)); }
+// un accessoire combiné porte l'effet de sa base + ceux de ses composants (champ .combo)
+function accIds(ac){ return ac?[ac.id,...(ac.combo||[])]:[]; }
+function accEffs(ac){ return accIds(ac).map(id=>ACC[id]&&ACC[id].eff).filter(Boolean); }
+function accDef(ac){ let d=0; for(const id of accIds(ac))if(ACC[id]&&ACC[id].def)d+=ACC[id].def; return d+prefixDef(ac); }
+function totalDef(){ let d=0; for(const a of player.armorArr)if(a)d+=ARMOR[a.id].def; for(const ac of [player.acc,player.acc2])if(ac)d+=accDef(ac); if(player.buffs.iron>0)d+=4; const s=armorSet(); if(s)d+=SET_BONUS[s]||0; return d; }
+function hasAcc(eff){ return accEffs(player.acc).includes(eff)||accEffs(player.acc2).includes(eff); }
+// combine les deux accessoires équipés en un seul (libère un emplacement), chez le bricoleur
+const COMBINE_COST=150;
+function combineEquippedAcc(){ const a=player.acc,b=player.acc2;
+  if(!a||!b){ flash("Équipez deux accessoires à combiner"); return false; }
+  const ids=accIds(a), overlap=accIds(b).some(id=>ids.includes(id));
+  if(overlap){ flash("Ces accessoires partagent déjà un effet"); return false; }
+  if(coins<COMBINE_COST){ flash("Pas assez de pièces pour combiner ("+COMBINE_COST+")"); return false; }
+  coins-=COMBINE_COST; player.acc={kind:"acc",id:a.id,n:1,combo:[...(a.combo||[]),b.id,...(b.combo||[])],prefix:a.prefix||b.prefix};
+  player.acc2=null; flash("🔧 Accessoires combinés : "+itemName(player.acc)); dirtyUI=true; return true; }
 
 // =========================================================================
 //  entrées
@@ -2424,7 +2437,7 @@ const $hotbar=document.getElementById("hotbar"),$invGrid=document.getElementById
 function emoji(it){ if(it.kind==="tool"){const t=TOOLS[it.id].type;return t==="pick"?"⛏️":t==="sword"?"⚔️":t==="bow"?"🏹":t==="staff"?"🪄":t==="bucket"?"🪣":t==="rod"?"🎣":t==="spear"?"🔱":t==="boomerang"?"🪃":t==="summoner"?"🔮":t==="mount"?"🐴":t==="yoyo"?"🪀":"🪞";}
   if(it.kind==="bomb")return"💣"; if(it.kind==="summon")return"👁️"; if(it.kind==="armor"){const s=ARMOR[it.id].slot;return s==="head"?"🪖":s==="chest"?"🦺":"👖";}
   if(it.kind==="acc"){const e=ACC[it.id].eff;return e==="djump"?"☁️":e==="speed"?"👟":"💪";} return ""; }
-function itemName(it){ const d=defOf(it); return (it&&it.prefix?it.prefix+" ":"")+(d?d.name:"?")+(it&&it.gem?" ◆":""); }
+function itemName(it){ const d=defOf(it); return (it&&it.prefix?it.prefix+" ":"")+(d?d.name:"?")+(it&&it.gem?" ◆":"")+(it&&it.combo&&it.combo.length?" ✦":""); }
 function slotInner(it,keyNum){ let h=""; if(keyNum!=null)h+=`<span class="key">${keyNum}</span>`; if(it){
   if(it.kind==="tile")h+=`<span class="sq" style="background:${TILE[it.id].col}"></span><span class="lbl">${TILE[it.id].name}</span>`;
   else if(it.kind==="mat")h+=`<span class="sq" style="background:${MATS[it.id].col}"></span><span class="lbl">${MATS[it.id].name}</span>`;
@@ -2493,7 +2506,10 @@ function buildShop(){ $shopList.innerHTML=""; const mult=shopPriceMult();
   if(curShop===TINKERER_SHOP){ const sel=inv[selected], can=reforgeable(sel), d=document.createElement("div");
     d.className="recipe "+(can&&coins>=REFORGE_COST?"ok":"no");
     d.innerHTML=`<div class="ricon"><span>🔧</span></div><div class="rtxt"><b>Reforger${can?" : "+itemName(sel):""}</b><br><small>${can?"🪙 "+REFORGE_COST+" pièces — modificateur aléatoire":"Sélectionnez une arme/accessoire"}</small></div>`;
-    d.onclick=()=>{ reforgeSelected(); }; $shopList.appendChild(d); }
+    d.onclick=()=>{ reforgeSelected(); }; $shopList.appendChild(d);
+    const both=player.acc&&player.acc2, d2=document.createElement("div"); d2.className="recipe "+(both&&coins>=COMBINE_COST?"ok":"no");
+    d2.innerHTML=`<div class="ricon"><span>✦</span></div><div class="rtxt"><b>Combiner accessoires${both?" : "+itemName(player.acc)+" + "+itemName(player.acc2):""}</b><br><small>${both?"🪙 "+COMBINE_COST+" pièces — libère un emplacement":"Équipez deux accessoires"}</small></div>`;
+    d2.onclick=()=>{ combineEquippedAcc(); }; $shopList.appendChild(d2); }
   (curShop||SHOP).forEach(e=>{ const price=Math.max(1,Math.round(e.price*mult)), ok=coins>=price,d=document.createElement("div"); d.className="recipe "+(ok?"ok":"no"); const it=e.item;
     const col=it.kind==="tile"?TILE[it.id].col:it.kind==="use"?USES[it.id].col:it.kind==="ammo"?AMMO[it.id].col:it.kind==="wall"?WALLS[it.id].col:it.kind==="mat"?MATS[it.id].col:it.kind==="throw"?THROWS[it.id].col:null;
     const sq=col?`<span class="sq" style="display:inline-block;width:22px;height:22px;background:${col};border-radius:3px"></span>`:`<span>${emoji(it)}</span>`;
