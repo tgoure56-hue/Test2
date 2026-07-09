@@ -1262,7 +1262,7 @@ let trapCd=new Map();
 let army=null;
 let quest=null;
 let achievements={}, blocksPlaced=0, questsDone=0;
-let raining=false, weatherT=80, showMap=false, bloodMoon=false, eclipse=false, showWorldMap=false, worldMapRect=null;
+let raining=false, weatherT=80, showMap=false, bloodMoon=false, eclipse=false, showWorldMap=false, worldMapRect=null, storm=false, lightningFlash=0;
 let bestiary={}, showBestiary=false;
 let pumpkinMoon=false, pumpkinMoonT=0, pumpkinKills=0;
 let frostMoon=false, frostMoonT=0, frostKills=0;
@@ -1447,7 +1447,9 @@ function update(dt){
   mouse.wx=cam.x+mouse.x; mouse.wy=cam.y+mouse.y; mouse.tx=Math.floor(mouse.wx/T); mouse.ty=Math.floor(mouse.wy/T);
   handleActions(dt);
   gameTime=(gameTime+dt/DAY_SEC)%1; timePlayed+=dt;
-  weatherT-=dt; if(weatherT<=0){ raining=!raining; weatherT=raining?(20+Math.random()*35):(60+Math.random()*120); }
+  weatherT-=dt; if(weatherT<=0){ raining=!raining; storm=raining&&Math.random()<0.4; weatherT=raining?(20+Math.random()*35):(60+Math.random()*120); if(storm)flash("⛈ Un orage éclate !"); else if(raining)flash("🌧 Il commence à pleuvoir."); }
+  if(lightningFlash>0)lightningFlash-=dt;
+  if(storm&&raining&&Math.random()<dt*0.35)lightningStrike();
   if(isNight()){ eclipse=false; if(!bloodMoon&&bossKills>=1&&Math.random()<dt*0.012){ bloodMoon=true; flash("🩸 Lune de sang ! Les monstres déferlent..."); } }
   else { bloodMoon=false; if(!eclipse&&bossKills>=2&&Math.random()<dt*0.010){ eclipse=true; flash("🌑 Éclipse solaire ! Des monstres surgissent en plein jour..."); } }
 
@@ -2345,6 +2347,12 @@ function pickTravelerStock(){ const pool=TRAVELER_POOL.slice(); const out=[];
 // =========================================================================
 function spawnParticles(x,y,col,n){ for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-0.5)*4,vy:-Math.random()*4,life:0.5+Math.random()*0.4,col,s:2+Math.random()*2}); if(particles.length>500)particles.splice(0,particles.length-500); }
 function updateParticles(step){ for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.vy+=0.3*step;p.x+=p.vx*step;p.y+=p.vy*step;p.life-=0.016*step;if(p.life<=0)particles.splice(i,1);} }
+// éclair d'orage : frappe une colonne près du joueur, foudroie les ennemis qui s'y trouvent
+function lightningStrike(tx){ if(tx==null)tx=clamp(Math.floor((player.x+PW/2)/T)+Math.floor((Math.random()-0.5)*40),2,WORLD_W-3);
+  const sy=surfaceAt(tx); lightningFlash=0.3; spawnParticles(tx*T+T/2,Math.max(0,(sy-2))*T,"#ffffff",22);
+  const list=boss?enemies.concat([boss]):enemies;
+  for(const e of list){ if(Math.abs((e.x+e.w/2)-(tx*T+T/2))<T*1.8){ e.hp-=70; spawnParticles(e.x+e.w/2,e.y+e.h/2,"#ffe27a",8); } }
+  return tx; }
 // physique du sable : les blocs de sable tombent quand la case du dessous est vide (air ou liquide)
 function stepFallingSand(x0,y0,x1,y1){
   for(let y=y1;y>=y0;y--)for(let x=x0;x<=x1;x++){ if(world[idx(x,y)]!==SAND)continue;
@@ -2478,6 +2486,8 @@ function render(){
     if(wb===2){ ctx.strokeStyle="rgba(220,190,120,0.4)"; ctx.lineWidth=2; for(let i=0;i<180;i++){const rx=(i*97+frameCount*16)%VW,ry=(i*53+frameCount*3)%VH;ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(rx-14,ry+3);ctx.stroke();} }
     else if(wb===1){ ctx.fillStyle="rgba(240,248,255,0.7)"; for(let i=0;i<160;i++){const rx=(i*89+frameCount*3+Math.sin((frameCount+i)*0.1)*10)%VW,ry=(i*61+frameCount*4)%VH;ctx.fillRect(rx,ry,2,2);} }
     else { ctx.strokeStyle="rgba(170,190,220,0.45)"; ctx.lineWidth=1; for(let i=0;i<160;i++){const rx=(i*89+frameCount*7)%VW,ry=(i*61+frameCount*11)%VH;ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(rx-4,ry+12);ctx.stroke();} } }
+  if(storm&&raining){ ctx.strokeStyle="rgba(150,170,210,0.5)"; ctx.lineWidth=1; for(let i=0;i<120;i++){const rx=(i*71+frameCount*13)%VW,ry=(i*47+frameCount*17)%VH;ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(rx-6,ry+16);ctx.stroke();} }
+  if(lightningFlash>0){ ctx.fillStyle="rgba(230,240,255,"+(lightningFlash*0.7)+")"; ctx.fillRect(0,0,VW,VH); }
   if(slimeRain){ ctx.fillStyle="rgba(90,160,216,0.5)"; for(let i=0;i<70;i++){ const rx=(i*127+frameCount*5)%VW, ry=(i*83+frameCount*9)%VH; ctx.beginPath(); ctx.ellipse(rx,ry,3,4,0,0,7); ctx.fill(); } }
   if(showMap)drawMinimap();
   if(showWorldMap)drawWorldMap();
@@ -2900,7 +2910,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
 function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null]; player.acc=null; player.acc2=null;
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
-  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;hardcore=false;permadead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;nightmare=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;stylistArrived=false;player.hairDye=0;travelerHere=false;travelerStock=null;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;meteorFell=false;slimeRain=false;slimeRainT=0;slimeKills=0;pirateInvasion=false;pirateT=0;pirateKills=0;pirateBossUp=false;martianInvasion=false;martianT=0;martianKills=0;martianBossUp=false;lastBossTier=0;housedCount=0;houseRecalcT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;achievements={};blocksPlaced=0;questsDone=0;bestiary={};showBestiary=false;blocksMined=0;deaths=0;timePlayed=0;showStats=false;showWorldMap=false;curShop=null;player.buffs={};player.fishing=null;player.pet=null;player.combatPet=null;player.mount=null;player.flyTime=0;player.grapple=null;player.breath=100;glows=[];trapCd.clear();timerCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;player.whipLine=null;player.dye=0;player.abilityCd=0;
+  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;hardcore=false;permadead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;nightmare=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;stylistArrived=false;player.hairDye=0;travelerHere=false;travelerStock=null;raining=false;weatherT=80;storm=false;lightningFlash=0;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;meteorFell=false;slimeRain=false;slimeRainT=0;slimeKills=0;pirateInvasion=false;pirateT=0;pirateKills=0;pirateBossUp=false;martianInvasion=false;martianT=0;martianKills=0;martianBossUp=false;lastBossTier=0;housedCount=0;houseRecalcT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;achievements={};blocksPlaced=0;questsDone=0;bestiary={};showBestiary=false;blocksMined=0;deaths=0;timePlayed=0;showStats=false;showWorldMap=false;curShop=null;player.buffs={};player.fishing=null;player.pet=null;player.combatPet=null;player.mount=null;player.flyTime=0;player.grapple=null;player.breath=100;glows=[];trapCd.clear();timerCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;player.whipLine=null;player.dye=0;player.abilityCd=0;
   npcs=[]; spawnNPC("guide");
   document.getElementById("death").style.display="none";
   const c=Math.floor(WORLD_W/2);player.x=c*T;player.y=(surfaceAt(c)-6)*T;player.vx=player.vy=0;player.spawnX=player.x;player.spawnY=player.y;
