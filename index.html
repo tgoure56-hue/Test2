@@ -1262,7 +1262,7 @@ let trapCd=new Map();
 let army=null;
 let quest=null;
 let achievements={}, blocksPlaced=0, questsDone=0;
-let raining=false, weatherT=80, showMap=false, bloodMoon=false, eclipse=false;
+let raining=false, weatherT=80, showMap=false, bloodMoon=false, eclipse=false, showWorldMap=false, worldMapRect=null;
 let bestiary={}, showBestiary=false;
 let pumpkinMoon=false, pumpkinMoonT=0, pumpkinKills=0;
 let frostMoon=false, frostMoonT=0, frostKills=0;
@@ -1353,6 +1353,7 @@ addEventListener("keydown",e=>{ const fresh=!keys[e.code]; keys[e.code]=true;
   if(e.code>="Digit1"&&e.code<="Digit9"){selected=+e.code.slice(5)-1;dirtyUI=true;}
   if(e.code==="KeyE"||e.code==="KeyC")toggleInv();
   if(e.code==="KeyM")showMap=!showMap;
+  if(e.code==="KeyN")showWorldMap=!showWorldMap;
   if(e.code==="KeyB")showBestiary=!showBestiary;
   if(e.code==="KeyK")showStats=!showStats;
   if(fresh&&e.code==="KeyF")useSetAbility();
@@ -1360,7 +1361,7 @@ addEventListener("keydown",e=>{ const fresh=!keys[e.code]; keys[e.code]=true;
 });
 addEventListener("keyup",e=>keys[e.code]=false);
 canvas.addEventListener("mousemove",e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
-canvas.addEventListener("mousedown",e=>{ if(invOpen)return; if(e.button===0)mouse.left=true; if(e.button===2)mouse.right=true; });
+canvas.addEventListener("mousedown",e=>{ if(showWorldMap){ if(e.button===0&&worldMapRect){ fastTravel((e.clientX-worldMapRect.ox)/worldMapRect.scale*T,(e.clientY-worldMapRect.oy)/worldMapRect.scale*T); } return; } if(invOpen)return; if(e.button===0)mouse.left=true; if(e.button===2)mouse.right=true; });
 addEventListener("mouseup",e=>{ if(e.button===0){mouse.left=false;mining.x=-1;mining.prog=0;} if(e.button===2)mouse.right=false; });
 canvas.addEventListener("contextmenu",e=>e.preventDefault());
 canvas.addEventListener("wheel",e=>{ if(invOpen)return; selected=(selected+(e.deltaY>0?1:8))%9; dirtyUI=true; },{passive:true});
@@ -2467,9 +2468,30 @@ function render(){
     else { ctx.strokeStyle="rgba(170,190,220,0.45)"; ctx.lineWidth=1; for(let i=0;i<160;i++){const rx=(i*89+frameCount*7)%VW,ry=(i*61+frameCount*11)%VH;ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(rx-4,ry+12);ctx.stroke();} } }
   if(slimeRain){ ctx.fillStyle="rgba(90,160,216,0.5)"; for(let i=0;i<70;i++){ const rx=(i*127+frameCount*5)%VW, ry=(i*83+frameCount*9)%VH; ctx.beginPath(); ctx.ellipse(rx,ry,3,4,0,0,7); ctx.fill(); } }
   if(showMap)drawMinimap();
+  if(showWorldMap)drawWorldMap();
   if(showBestiary)drawBestiary();
   if(showStats)drawStats();
 }
+// voyage rapide : depuis la carte du monde, cliquer près d'un téléporteur ou du point d'apparition y téléporte
+function fastTravel(wx,wy){ const R=T*8; let best=null,bd=R;
+  for(let x=0;x<WORLD_W;x++)for(let y=0;y<WORLD_H;y++)if(world[idx(x,y)]===TELEPORTER){ const d=Math.hypot(x*T-wx,y*T-wy); if(d<bd){ bd=d; best=[x*T+(T-PW)/2,(y+1)*T-PH]; } }
+  { const d=Math.hypot(player.spawnX-wx,player.spawnY-wy); if(d<bd){ bd=d; best=[player.spawnX,player.spawnY]; } }
+  if(!best){ flash("🗺 Aucun point de voyage ici (téléporteur ou point d'apparition)"); return false; }
+  spawnParticles(player.x+PW/2,player.y+PH/2,"#7affe0",14); player.x=best[0]; player.y=best[1]; player.vx=player.vy=0; player.invuln=Math.max(player.invuln,0.6); showWorldMap=false; spawnParticles(player.x+PW/2,player.y+PH/2,"#7affe0",16); flash("🗺 Voyage rapide !"); return true; }
+function drawWorldMap(){ const availW=VW-70, availH=VH-110, scale=Math.min(availW/WORLD_W, availH/WORLD_H);
+  const mw=WORLD_W*scale, mh=WORLD_H*scale, ox=Math.floor((VW-mw)/2), oy=Math.floor((VH-mh)/2); worldMapRect={ox,oy,scale};
+  ctx.fillStyle="rgba(6,8,16,0.94)"; ctx.fillRect(0,0,VW,VH);
+  ctx.fillStyle="#080c14"; ctx.fillRect(ox,oy,mw,mh);
+  const step=2, ps=Math.max(1,Math.ceil(scale*step));
+  for(let x=0;x<WORLD_W;x+=step)for(let y=0;y<WORLD_H;y+=step){ const id=getT(x,y); let c=null; if(id!==AIR)c=TILE[id].col; else if(walls[idx(x,y)])c="#241f2b"; if(c){ ctx.fillStyle=c; ctx.fillRect(Math.floor(ox+x*scale),Math.floor(oy+y*scale),ps,ps); } }
+  const mark=(wtx,wty,col,s)=>{ ctx.fillStyle=col; ctx.fillRect(Math.floor(ox+wtx*scale)-s,Math.floor(oy+wty*scale)-s,s*2+1,s*2+1); };
+  for(let x=0;x<WORLD_W;x++)for(let y=0;y<WORLD_H;y++){ const id=getT(x,y); if(id===TELEPORTER)mark(x,y,"#7affe0",2); else if(id===ALTAR)mark(x,y,"#ff5a9a",2); }
+  mark(player.spawnX/T,player.spawnY/T,"#5aff8a",2);
+  for(const n of npcs)mark((n.x+n.w/2)/T,(n.y+n.h/2)/T,"#ffcf6a",1);
+  mark((player.x+PW/2)/T,(player.y+PH/2)/T,"#fff",2);
+  ctx.strokeStyle="#556"; ctx.lineWidth=1; ctx.strokeRect(ox,oy,mw,mh);
+  ctx.fillStyle="#cdd3e0"; ctx.font="12px sans-serif"; ctx.textAlign="center";
+  ctx.fillText("🗺 Carte du monde — cliquez un téléporteur (cyan) ou le point d'apparition (vert) pour voyager · N pour fermer", VW/2, oy-8); ctx.textAlign="left"; }
 function drawMinimap(){ const MW=160,MH=110,cx=Math.floor(player.x/T),cy=Math.floor(player.y/T),hw=MW>>1,hh=MH>>1,ox=VW-MW-12,oy=54;
   ctx.fillStyle="rgba(0,0,0,0.6)"; ctx.fillRect(ox-3,oy-3,MW+6,MH+6);
   for(let i=0;i<MW;i++)for(let j=0;j<MH;j++){ const tx=cx-hw+i,ty=cy-hh+j; if(tx<0||tx>=WORLD_W||ty<0||ty>=WORLD_H)continue;
@@ -2860,7 +2882,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
 function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null]; player.acc=null; player.acc2=null;
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
-  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;nightmare=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;stylistArrived=false;player.hairDye=0;travelerHere=false;travelerStock=null;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;meteorFell=false;slimeRain=false;slimeRainT=0;slimeKills=0;pirateInvasion=false;pirateT=0;pirateKills=0;pirateBossUp=false;martianInvasion=false;martianT=0;martianKills=0;martianBossUp=false;lastBossTier=0;housedCount=0;houseRecalcT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;achievements={};blocksPlaced=0;questsDone=0;bestiary={};showBestiary=false;blocksMined=0;deaths=0;timePlayed=0;showStats=false;curShop=null;player.buffs={};player.fishing=null;player.pet=null;player.combatPet=null;player.mount=null;player.flyTime=0;player.grapple=null;player.breath=100;glows=[];trapCd.clear();timerCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;player.whipLine=null;player.dye=0;player.abilityCd=0;
+  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;nightmare=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;stylistArrived=false;player.hairDye=0;travelerHere=false;travelerStock=null;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;meteorFell=false;slimeRain=false;slimeRainT=0;slimeKills=0;pirateInvasion=false;pirateT=0;pirateKills=0;pirateBossUp=false;martianInvasion=false;martianT=0;martianKills=0;martianBossUp=false;lastBossTier=0;housedCount=0;houseRecalcT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;achievements={};blocksPlaced=0;questsDone=0;bestiary={};showBestiary=false;blocksMined=0;deaths=0;timePlayed=0;showStats=false;showWorldMap=false;curShop=null;player.buffs={};player.fishing=null;player.pet=null;player.combatPet=null;player.mount=null;player.flyTime=0;player.grapple=null;player.breath=100;glows=[];trapCd.clear();timerCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;player.whipLine=null;player.dye=0;player.abilityCd=0;
   npcs=[]; spawnNPC("guide");
   document.getElementById("death").style.display="none";
   const c=Math.floor(WORLD_W/2);player.x=c*T;player.y=(surfaceAt(c)-6)*T;player.vx=player.vy=0;player.spawnX=player.x;player.spawnY=player.y;
