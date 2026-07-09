@@ -321,7 +321,7 @@ const TOOLS={
   hook:{name:"Grappin",type:"hook"}, flail:{name:"Fléau",type:"flail",dmg:48}, bugnet:{name:"Filet à papillons",type:"net"},
   spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30}, anchor:{name:"Ancre",type:"boomerang",dmg:58},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
-  mirror:{name:"Miroir magique",type:"mirror"}, rod:{name:"Canne à pêche",type:"rod"}, rod2:{name:"Canne dorée",type:"rod",power:2}, wrench:{name:"Clé à molette",type:"wrench"}, gun1:{name:"Mousquet",type:"gun",dmg:34}, laser_rifle:{name:"Fusil laser",type:"gun",dmg:58}, bone_sword:{name:"Épée en os",type:"sword",dmg:44}, brush:{name:"Pinceau",type:"brush"},
+  mirror:{name:"Miroir magique",type:"mirror"}, rod:{name:"Canne à pêche",type:"rod"}, rod2:{name:"Canne dorée",type:"rod",power:2}, wrench:{name:"Clé à molette",type:"wrench"}, gun1:{name:"Mousquet",type:"gun",dmg:34}, laser_rifle:{name:"Fusil laser",type:"gun",dmg:58}, bone_sword:{name:"Épée en os",type:"sword",dmg:44}, soulscythe:{name:"Faux des âmes",type:"sword",dmg:96}, brush:{name:"Pinceau",type:"brush"},
   drill:{name:"Foreuse",type:"drill",power:8.5,area:4}, drill2:{name:"Foreuse lunaire",type:"drill",power:12.0,area:5},
   pick_astral:{name:"Pioche astrale",type:"pick",power:12.0}, drill3:{name:"Foreuse astrale",type:"drill",power:15.0,area:6},
   meteor_saber:{name:"Sabre de météore",type:"sword",dmg:75}, staff7:{name:"Pistolet spatial",type:"staff",dmg:38,mana:4,proj:"bolt"},
@@ -895,7 +895,20 @@ function genWorld(s){
   genCorruptShrine(rng);
   genCrimsonShrine(rng);
   genShipwreck(rng);
+  genHellFortress(rng);
 }
+function hellFortressLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=>{if(s<20)a[s++]=it;};
+  put({kind:"tool",id:"soulscythe",n:1}); put({kind:"mat",id:"hellstone_bar",n:4+Math.floor(rng()*5)});
+  if(rng()<0.6)put({kind:"mat",id:"soul_fire",n:2+Math.floor(rng()*4)}); put({kind:"tile",id:GOLD,n:4+Math.floor(rng()*5)});
+  if(rng()<0.5)put({kind:"use",id:"hp_potion",n:4}); if(rng()<0.35)put({kind:"tile",id:HELLBRICK,n:20+Math.floor(rng()*20)}); return a; }
+// forteresse de l'enfer : bastion de briques d'enfer dans la couche de lave, avec trésor
+function genHellFortress(rng){ const px=clamp(Math.floor(WORLD_W*0.60),14,WORLD_W-14), fy=HELL_Y+8, w=11, h=5;
+  for(let dx=-w;dx<=w;dx++)for(let dy=-h;dy<=1;dy++){ const X=px+dx,Y=fy+dy; if(X<2||X>=WORLD_W-2||Y<2||Y>=WORLD_H-2)continue; const border=(Math.abs(dx)===w||dy===-h||dy===1); world[idx(X,Y)]=border?HELLBRICK:AIR; liquid[idx(X,Y)]=0; walls[idx(X,Y)]=WBRICK; }
+  // colonnes intérieures + pièges + coffre
+  for(const cx of [px-6,px+6]){ world[idx(cx,fy)]=HELLBRICK; world[idx(cx,fy-1)]=HELLBRICK; }
+  world[idx(px-w+2,fy)]=DART_TRAP; world[idx(px+w-2,fy)]=DART_TRAP;
+  world[idx(px,fy-h+1)]=GLOWSTONE;
+  world[idx(px,fy)]=CHEST; chestData.set(px+","+fy, hellFortressLoot(rng)); }
 function shipwreckLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=>{if(s<20)a[s++]=it;};
   put({kind:"tool",id:"anchor",n:1}); put({kind:"mat",id:"coral",n:3+Math.floor(rng()*4)});
   if(rng()<0.6)put({kind:"mat",id:"pearl",n:1+Math.floor(rng()*3)}); put({kind:"tile",id:GOLD,n:4+Math.floor(rng()*5)});
