@@ -1822,9 +1822,10 @@ const ENEMY={
   martian_saucer:{w:60,h:38,hp:1600,dmg:52,col:"#aab8c4",fly:true},
   medusa:{w:24,h:34,hp:130,dmg:26,col:"#9aa8b0",fly:true},
   granite_elemental:{w:28,h:34,hp:175,dmg:30,col:"#4a5560",fly:true},
+  wyvern:{w:42,h:26,hp:950,dmg:46,col:"#8a5ad0",fly:true},
 };
-const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8,shark:14,jellyfish:6,wraith:25,possessed:30,spore:10,knight:16,general:120,harpy:14,pumpkinhead:22,reaper:40,hornet:9,iceslime:5,frostzombie:24,icegolem:110,antlion:11,vulture:8,templeguard:60,dungeon_guardian:90,spider:8,spiderling:2,babyslime:2,facemonster:14,crimera:10,crab_king:80,demon:22,lavaslime:8,star_wisp:16,pirate:12,pirate_gunner:12,pirate_captain:130,martian:16,martian_ufo:16,martian_saucer:180,medusa:11,granite_elemental:13};
-const ENEMY_NAMES={slime:"Slime",zombie:"Zombie",eye:"Œil démoniaque",bat:"Chauve-souris",skeleton:"Squelette",imp:"Diablotin",bee:"Abeille",goblin:"Gobelin",devourer:"Dévoreur",pixie:"Fée",shark:"Requin",jellyfish:"Méduse",wraith:"Spectre",possessed:"Armure possédée",spore:"Spore",knight:"Chevalier",general:"Général",harpy:"Harpie",pumpkinhead:"Tête de citrouille",reaper:"Faucheur",hornet:"Frelon",iceslime:"Slime de glace",frostzombie:"Zombie de givre",icegolem:"Golem de glace",antlion:"Fourmilion",vulture:"Vautour",templeguard:"Gardien du temple",dungeon_guardian:"Gardien du donjon",spider:"Araignée",spiderling:"Araignéau",babyslime:"Bébé slime",facemonster:"Monstre-visage",crimera:"Crimera",crab_king:"Roi Crabe",demon:"Démon",lavaslime:"Slime de lave",star_wisp:"Feu follet stellaire",pirate:"Pirate",pirate_gunner:"Pirate tireur",pirate_captain:"Capitaine pirate",martian:"Soldat martien",martian_ufo:"Soucoupe martienne",martian_saucer:"Vaisseau-mère martien",medusa:"Gorgone",granite_elemental:"Élémentaire de granite"};
+const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8,shark:14,jellyfish:6,wraith:25,possessed:30,spore:10,knight:16,general:120,harpy:14,pumpkinhead:22,reaper:40,hornet:9,iceslime:5,frostzombie:24,icegolem:110,antlion:11,vulture:8,templeguard:60,dungeon_guardian:90,spider:8,spiderling:2,babyslime:2,facemonster:14,crimera:10,crab_king:80,demon:22,lavaslime:8,star_wisp:16,pirate:12,pirate_gunner:12,pirate_captain:130,martian:16,martian_ufo:16,martian_saucer:180,medusa:11,granite_elemental:13,wyvern:90};
+const ENEMY_NAMES={slime:"Slime",zombie:"Zombie",eye:"Œil démoniaque",bat:"Chauve-souris",skeleton:"Squelette",imp:"Diablotin",bee:"Abeille",goblin:"Gobelin",devourer:"Dévoreur",pixie:"Fée",shark:"Requin",jellyfish:"Méduse",wraith:"Spectre",possessed:"Armure possédée",spore:"Spore",knight:"Chevalier",general:"Général",harpy:"Harpie",pumpkinhead:"Tête de citrouille",reaper:"Faucheur",hornet:"Frelon",iceslime:"Slime de glace",frostzombie:"Zombie de givre",icegolem:"Golem de glace",antlion:"Fourmilion",vulture:"Vautour",templeguard:"Gardien du temple",dungeon_guardian:"Gardien du donjon",spider:"Araignée",spiderling:"Araignéau",babyslime:"Bébé slime",facemonster:"Monstre-visage",crimera:"Crimera",crab_king:"Roi Crabe",demon:"Démon",lavaslime:"Slime de lave",star_wisp:"Feu follet stellaire",pirate:"Pirate",pirate_gunner:"Pirate tireur",pirate_captain:"Capitaine pirate",martian:"Soldat martien",martian_ufo:"Soucoupe martienne",martian_saucer:"Vaisseau-mère martien",medusa:"Gorgone",granite_elemental:"Élémentaire de granite",wyvern:"Wyverne"};
 function spawnEnemy(type,x,y){ const d=ENEMY[type], sc=(1+bossKills*0.12)*(nightmare?1.35:1), hp=Math.round(d.hp*sc); enemies.push({type,x,y,vx:0,vy:0,w:d.w,h:d.h,hp,maxHp:hp,dmg:Math.round(d.dmg*(1+bossKills*0.08)*(nightmare?1.25:1)),col:d.col,fly:d.fly,onGround:false,hop:Math.random(),t:Math.random()*9});
   if(nightmare&&Math.random()<0.15){ const e=enemies[enemies.length-1]; e.elite=true; e.hp=Math.round(e.hp*2); e.maxHp=e.hp; e.dmg=Math.round(e.dmg*1.5); } }
 function updateEnemies(dt,step){
@@ -1865,6 +1866,8 @@ function updateEnemies(dt,step){
     if(near){ const sx=clamp(px+(Math.random()<0.5?-1:1)*(4+Math.floor(Math.random()*6)),2,WORLD_W-3), sy=clamp(py+Math.floor((Math.random()-0.5)*8),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("spore",sx*T,sy*T); } }
   // harpies des cieux (haute altitude)
   if(enemies.length<8&&Math.random()<dt*1.0){ const pcx=Math.floor(player.x/T),py=Math.floor(player.y/T); if(py<surfaceAt(pcx)-12){ const sx=clamp(pcx+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3), sy=clamp(py+Math.floor((Math.random()-0.5)*8),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("harpy",sx*T,sy*T); } }
+  // wyverne : mini-boss volant du mode difficile (haute altitude, une seule à la fois)
+  if(hardmode&&!enemies.some(e=>e.type==="wyvern")&&Math.random()<dt*0.22){ const pcx=Math.floor(player.x/T),py=Math.floor(player.y/T); if(py<surfaceAt(pcx)-10){ const sx=clamp(pcx+(Math.random()<0.5?-1:1)*(10+Math.floor(Math.random()*6)),2,WORLD_W-3), sy=clamp(py-6-Math.floor(Math.random()*6),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("wyvern",sx*T,sy*T); } }
   // feux follets stellaires (espace, très haute altitude)
   if(enemies.length<8&&Math.random()<dt*0.9){ const pcx=Math.floor(player.x/T),py=Math.floor(player.y/T); if(py<SPACE_Y+8){ const sx=clamp(pcx+(Math.random()<0.5?-1:1)*(6+Math.floor(Math.random()*8)),2,WORLD_W-3), sy=clamp(py+Math.floor((Math.random()-0.5)*8),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy("star_wisp",sx*T,sy*T); } }
   // frelons de la jungle (souterrain)
@@ -1919,6 +1922,7 @@ function updateEnemies(dt,step){
       if(e.type==="lavaslime"&&Math.random()<0.4)addItem("mat","soul_fire",1);
       if((e.type==="medusa"||e.type==="granite_elemental")&&Math.random()<0.45)addItem("mat","stone_tablet",1);
       if(e.type==="star_wisp"){ addItem("mat","stardust",1+Math.floor(Math.random()*2)); if(hardmode&&Math.random()<0.03)addItem("use","martian_beacon",1); }
+      if(e.type==="wyvern"){ addItem("mat","mech_soul",4+Math.floor(Math.random()*5)); addItem("mat","crystal_bar",2+Math.floor(Math.random()*3)); coins+=60+Math.floor(Math.random()*60); if(Math.random()<0.25)addItem("acc","cosmic_wings",1); flash("🐉 La Wyverne s'abat !"); }
       if(e.type==="pirate"||e.type==="pirate_gunner"){ if(pirateInvasion)pirateKills++; if(Math.random()<0.5)addItem("mat","doubloon",1); }
       if(e.type==="pirate_captain"){ addItem("mat","doubloon",8+Math.floor(Math.random()*8)); if(Math.random()<0.6)addItem("tool","cutlass",1); if(Math.random()<0.5)addItem("tool","cannon",1); if(Math.random()<0.4)addItem("acc","pirate_hat",1); flash("☠️ Le Capitaine pirate est vaincu !"); }
       if(e.type==="martian"||e.type==="martian_ufo"){ if(martianInvasion)martianKills++; if(Math.random()<0.5)addItem("mat","martian_plating",1); }
@@ -1932,7 +1936,7 @@ function updateEnemies(dt,step){
       bestiary[e.type]=(bestiary[e.type]||0)+1;
       if(e.elite&&!e.fromStatue){ coins+=20; if(Math.random()<0.35)addItem("mat","nightmare_shard",1); }
       if(!e.fromStatue){ coins+=Math.round(((COINS[e.type]||1)+Math.floor(Math.random()*3))*(hasAcc("luck")?1.5:1)); spawnParticles(e.x+e.w/2,e.y+e.h/2,"#ffd24a",6); } dirtyUI=true; enemies.splice(i,1); continue; }
-    if((!isNight()&&!e.fly&&!e.army&&!e.pirate&&!e.martian&&e.type!=="dungeon_guardian"&&e.type!=="crab_king"&&Math.random()<dt*0.5)||Math.abs(e.x-player.x)>VW*1.8)enemies.splice(i,1);
+    if((!isNight()&&!e.fly&&!e.army&&!e.pirate&&!e.martian&&e.type!=="dungeon_guardian"&&e.type!=="crab_king"&&Math.random()<dt*0.5)||(Math.abs(e.x-player.x)>VW*1.8&&e.type!=="wyvern"))enemies.splice(i,1);
   }
   if(boss)updateBoss(dt,step);
 }
@@ -2545,6 +2549,13 @@ function drawEnemy(e){ const sx=e.x-cam.x,sy=e.y-cam.y;
     ctx.fillStyle=e.col;ctx.fillRect(-e.w/2,-e.h/2,e.w,e.h);ctx.fillStyle="#5a6678";ctx.fillRect(-e.w/2+3,-e.h/2+3,e.w-6,e.h-6);
     ctx.fillStyle="#2a3240";ctx.fillRect(-e.w/2+6,-e.h/2+6,e.w-12,e.h-12);ctx.restore();
     ctx.fillStyle="#8ad0ff";ctx.fillRect(sx+e.w/2-6,sy+e.h/2-3,4,4);ctx.fillRect(sx+e.w/2+2,sy+e.h/2-3,4,4); }
+  else if(e.type==="wyvern"){ const d=Math.sign(player.x-e.x)||1, hx=sx+(d>0?e.w-8:8);
+    ctx.strokeStyle="#6a3aa0";ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(sx+e.w/2,sy+e.h/2);for(let k=1;k<=5;k++){const seg=k*8;ctx.lineTo(sx+e.w/2-d*seg,sy+e.h/2+Math.sin(e.t*4+k)*5);}ctx.stroke();
+    const wf=Math.sin(e.t*6)*8; ctx.fillStyle="#9a6ae0";ctx.beginPath();ctx.moveTo(sx+e.w/2,sy+e.h/2);ctx.lineTo(sx+e.w/2-d*6,sy-6-wf);ctx.lineTo(sx+e.w/2-d*16,sy+e.h/2);ctx.fill();
+    ctx.fillStyle=e.col;roundRect(sx+(d>0?e.w/2:e.w/2-e.w*0.55),sy+e.h*0.2,e.w*0.55,e.h*0.6,6);ctx.fill();
+    ctx.fillStyle="#b89ae8";ctx.beginPath();ctx.arc(hx,sy+e.h/2,7,0,7);ctx.fill();
+    ctx.fillStyle="#3a2050";ctx.beginPath();ctx.moveTo(hx,sy+e.h/2-6);ctx.lineTo(hx+d*3,sy+e.h/2-10);ctx.lineTo(hx+d*2,sy+e.h/2-5);ctx.fill();
+    ctx.fillStyle="#ff5a3a";ctx.fillRect(hx+(d>0?2:-5),sy+e.h/2-3,3,3);ctx.fillStyle="#fff";ctx.fillRect(hx+(d>0?7:-9),sy+e.h/2+1,3,2); }
   else { ctx.fillStyle=e.col; roundRect(sx,sy,e.w,e.h,4); ctx.fill(); ctx.fillStyle="#fff"; ctx.fillRect(sx+4,sy+5,3,3); ctx.fillRect(sx+e.w-7,sy+5,3,3); }
   if(e.hp<e.maxHp){ ctx.fillStyle="#000";ctx.fillRect(sx,sy-6,e.w,3);ctx.fillStyle="#e33";ctx.fillRect(sx,sy-6,e.w*(e.hp/e.maxHp),3); }
 }
