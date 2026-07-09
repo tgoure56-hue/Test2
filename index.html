@@ -318,7 +318,7 @@ const TOOLS={
   star_cannon:{name:"Canon stellaire",type:"staff",dmg:64,mana:7,proj:"spark",shots:3,spread:0.3},
   star_blade:{name:"Lame stellaire",type:"sword",dmg:210}, cutlass:{name:"Coutelas",type:"sword",dmg:62}, cannon:{name:"Canon de poche",type:"gun",dmg:52},
   hook:{name:"Grappin",type:"hook"}, flail:{name:"Fléau",type:"flail",dmg:48}, bugnet:{name:"Filet à papillons",type:"net"},
-  spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30},
+  spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30}, anchor:{name:"Ancre",type:"boomerang",dmg:58},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
   mirror:{name:"Miroir magique",type:"mirror"}, rod:{name:"Canne à pêche",type:"rod"}, rod2:{name:"Canne dorée",type:"rod",power:2}, wrench:{name:"Clé à molette",type:"wrench"}, gun1:{name:"Mousquet",type:"gun",dmg:34}, laser_rifle:{name:"Fusil laser",type:"gun",dmg:58}, bone_sword:{name:"Épée en os",type:"sword",dmg:44}, brush:{name:"Pinceau",type:"brush"},
   drill:{name:"Foreuse",type:"drill",power:8.5,area:4}, drill2:{name:"Foreuse lunaire",type:"drill",power:12.0,area:5},
@@ -888,7 +888,21 @@ function genWorld(s){
   genHallowShrine(rng);
   genCorruptShrine(rng);
   genCrimsonShrine(rng);
+  genShipwreck(rng);
 }
+function shipwreckLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=>{if(s<20)a[s++]=it;};
+  put({kind:"tool",id:"anchor",n:1}); put({kind:"mat",id:"coral",n:3+Math.floor(rng()*4)});
+  if(rng()<0.6)put({kind:"mat",id:"pearl",n:1+Math.floor(rng()*3)}); put({kind:"tile",id:GOLD,n:4+Math.floor(rng()*5)});
+  if(rng()<0.5)put({kind:"use",id:"pirate_map",n:1}); if(rng()<0.4)put({kind:"use",id:"hp_potion",n:3}); return a; }
+function genShipwreck(rng){
+  const findAt=(x0,x1,dir)=>{ for(let x=x0;dir>0?x<x1:x>x1;x+=dir){ for(let y=6;y<HELL_Y-6;y++){ const t=world[idx(x,y)]; if((t===SAND||t===STONE)&&(world[idx(x,y-1)]===WATER||world[idx(x,y-1)]===AIR)){ return [x,y]; } } } return null; };
+  const spot=findAt(8,Math.floor(WORLD_W*0.06),1)||findAt(WORLD_W-8,Math.floor(WORLD_W*0.94),-1);
+  if(!spot)return; const px=clamp(spot[0],7,WORLD_W-8), fy=spot[1];
+  // cabine de navire en planches posée sur le fond marin
+  for(let dx=-5;dx<=5;dx++)for(let dy=-5;dy<=0;dy++){ const X=px+dx,Y=fy+dy; if(X<2||X>=WORLD_W-2||Y<2)continue; const border=(Math.abs(dx)===5||dy===-5||dy===0); world[idx(X,Y)]=border?PLANK:AIR; liquid[idx(X,Y)]=0; walls[idx(X,Y)]=WBRICK; }
+  // petit mât
+  for(let dy=-9;dy<=-6;dy++){ const Y=fy+dy; if(Y>2)world[idx(px,Y)]=LOG; }
+  world[idx(px,fy-1)]=CHEST; chestData.set(px+","+(fy-1), shipwreckLoot(rng)); }
 function corruptShrineLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=>{if(s<20)a[s++]=it;};
   put({kind:"tool",id:"nightmare_bow",n:1}); put({kind:"mat",id:"nightmare_shard",n:3+Math.floor(rng()*4)});
   if(rng()<0.6)put({kind:"ammo",id:"arrow",n:40+Math.floor(rng()*30)}); put({kind:"tile",id:GOLD,n:3+Math.floor(rng()*4)});
