@@ -1925,7 +1925,7 @@ function updateBoss(dt,step){ const e=boss; e.t+=dt; if(e.yoyoCd>0)e.yoyoCd-=dt;
     else if(e.tier===9){ addItem("mat","spider_fang",10+Math.floor(Math.random()*8)); addItem("tool","spider_staff",1); addItem("acc","spider_charm",1); addItem("mat","silk",12); coins+=280; player.maxHp+=35; player.hp=player.maxHp; flash("🏆 Reine des araignées vaincue ! Bâton d'araignée + Amulette + 35 PV max !"); }
     else if(e.tier===10){ addItem("mat","gel",30+Math.floor(Math.random()*20)); addItem("acc","ninja_hood",1); addItem("tile",SLIMEBLOCK,25); coins+=220; player.maxHp+=25; player.hp=player.maxHp; slimeRain=false; slimeRainT=0; flash("🏆 Le Roi Slime est vaincu ! Cape ninja + 25 PV max !"); }
     else if(e.tier===11){ addItem("tool","star_blade",1); addItem("acc","cosmic_wings",1); addItem("mat","stardust",30); addItem("mat","astralite_bar",10); coins+=2500; player.maxHp+=120; player.hp=player.maxHp; flash("🏆 Le Dévoreur d'étoiles est vaincu ! Lame stellaire + Ailes cosmiques + 120 PV max !"); }
-    else if(e.tier===12){ addItem("tool","thorn_whip",1); addItem("acc","nature_charm",1); addItem("mat","honey",12); addItem("mat","herb",10); coins+=700; player.maxHp+=70; player.hp=player.maxHp; flash("🏆 La Fleur carnivore est vaincue ! Fouet d'épines + Charme de la nature + 70 PV max !"); }
+    else if(e.tier===12){ addItem("tool","thorn_whip",1); addItem("acc","nature_charm",1); addItem("mat","honey",12); addItem("mat","herb",10); coins+=700; player.maxHp+=70; player.hp=player.maxHp; unlock("botaniste"); flash("🏆 La Fleur carnivore est vaincue ! Fouet d'épines + Charme de la nature + 70 PV max !"); }
     else { addItem("mat","gold_bar",12); addItem("tool","bow2",1); coins+=120; player.maxHp+=20; player.hp=player.maxHp; flash("🏆 Boss vaincu ! +20 PV max, 120 pièces, butin reçu"); }
     boss=null; dirtyUI=true; }
   else if(e.tier===1&&!isNight()){ flash("L'Œil maléfique fuit le jour..."); boss=null; }
@@ -1961,13 +1961,18 @@ function questReward(){ coins+=quest.reward; addItem("use","hp_potion",1); quest
 // ---- succès ----
 const ACHIEVEMENTS={ premier_boss:"Premier boss vaincu", chasseur:"5 boss vaincus", legende:"9 boss vaincus",
   pecheur:"10 poissons pêchés", riche:"1000 pièces amassées", batisseur:"100 blocs placés",
-  enfer:"Descendre en enfer", cieux:"Toucher les cieux", chaos:"Survivre au mode difficile", questeur:"3 quêtes accomplies" };
+  enfer:"Descendre en enfer", cieux:"Toucher les cieux", chaos:"Survivre au mode difficile", questeur:"3 quêtes accomplies",
+  martien:"Repousser l'invasion martienne", corsaire:"Repousser l'invasion pirate", gorgone:"Croiser le regard d'une Gorgone",
+  reforgeur:"Reforger un équipement", assembleur:"Combiner deux accessoires", botaniste:"Vaincre la Fleur carnivore" };
 function unlock(id){ if(achievements[id])return; achievements[id]=true; flash("🏆 Succès débloqué : "+ACHIEVEMENTS[id]); spawnParticles(player.x+PW/2,player.y+PH/2,"#ffd24a",14); dirtyUI=true; }
 function checkAchievements(){
   if(bossKills>=1)unlock("premier_boss"); if(bossKills>=5)unlock("chasseur"); if(bossKills>=9)unlock("legende");
   if(fishCaught>=10)unlock("pecheur"); if(coins>=1000)unlock("riche"); if(blocksPlaced>=100)unlock("batisseur");
   const py=Math.floor((player.y+PH/2)/T); if(py>HELL_Y)unlock("enfer"); if(py<18)unlock("cieux");
-  if(hardmode)unlock("chaos"); if(questsDone>=3)unlock("questeur"); }
+  if(hardmode)unlock("chaos"); if(questsDone>=3)unlock("questeur");
+  if(bestiary["martian_saucer"])unlock("martien"); if(bestiary["pirate_captain"])unlock("corsaire"); if(bestiary["medusa"])unlock("gorgone");
+  if(inv.some(s=>s&&s.prefix)||(player.acc&&player.acc.prefix)||(player.acc2&&player.acc2.prefix))unlock("reforgeur");
+  if((player.acc&&player.acc.combo)||(player.acc2&&player.acc2.combo))unlock("assembleur"); }
 function questBoardInteract(){ if(!quest){ assignQuest(); flash("📜 Nouvelle quête : "+quest.desc); return; }
   if(quest.type==="kill"){ if(quest.have>=quest.need)questReward(); else flash("📜 "+quest.desc+" ("+quest.have+"/"+quest.need+")"); }
   else { const have=countItem(quest.kind,quest.id); if(have>=quest.need){ removeItem(quest.kind,quest.id,quest.need); questReward(); } else flash("📜 "+quest.desc+" ("+have+"/"+quest.need+")"); } }
