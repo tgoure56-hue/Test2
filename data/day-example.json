@@ -1,0 +1,25 @@
+{
+  "day": 1,
+  "totalRaised": 12,
+  "currencySymbol": "$",
+  "goal": 1000,
+  "conversations": [
+    {
+      "personLabel": "Inconnu #1",
+      "messages": [
+        { "from": "me", "text": "Salut ! Petite experience : tu me donnerais 1$ juste pour voir ? 😅" },
+        { "from": "them", "text": "mdr c'est quoi l'arnaque" },
+        { "from": "me", "text": "aucune, juste 1$, promis. Lien dans ma bio 🙏" },
+        { "from": "them", "text": "ok tiens 😂" }
+      ]
+    },
+    {
+      "personLabel": "Inconnu #2",
+      "messages": [
+        { "from": "me", "text": "Hello ! Je collecte des 1$ aupres d'inconnus, tu tentes ?" },
+        { "from": "them", "text": "pourquoi pas, ca m'amuse. Voila !" },
+        { "from": "me", "text": "merci beaucoup, t'es le 12eme 🙌" }
+      ]
+    }
+  ]
+}
