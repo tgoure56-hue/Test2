@@ -1703,14 +1703,16 @@ function spearAttack(dmg){ const dir=player.face,ax=player.x+PW/2,ay=player.y+PH
   for(const e of list){ const ex=e.x+e.w/2,ey=e.y+e.h/2; if(Math.abs(ey-ay)<30&&(ex-ax)*dir>0&&Math.abs(ex-ax)<72){ e.hp-=dmg; e.vx=dir*5; spawnParticles(ex,ey,"#ddd",5); } } }
 function throwBoomerang(dmg,type){ const pcx=player.x+PW/2,pcy=player.y+PH/2; let dx=mouse.wx-pcx,dy=mouse.wy-pcy; const d=Math.hypot(dx,dy)||1; const fl=type==="flail";
   projectiles.push({x:pcx,y:pcy,vx:dx/d*(fl?11:9),vy:dy/d*(fl?11:9),type:type||"boomerang",dmg,t:0,turn:fl?0.32:0.5,returning:false,life:fl?3:6,friendly:true,hitSet:new Set()}); }
-function castRod(sel){ if(player.fishing){ player.fishing=null; flash("Ligne retirée"); return; }
+function castRod(sel){ if(player.fishing){ if(player.fishing.bite){ catchFish(player.fishing.tx,player.fishing.rod||1,true); player.fishing=null; return; } player.fishing=null; flash("Ligne retirée"); return; }
   const power=(sel&&TOOLS[sel.id]&&TOOLS[sel.id].power)||1;
-  if(getT(mouse.tx,mouse.ty)===WATER){ const fast=(player.buffs.fishing>0||hasAcc("angler"))?0.5:1; player.fishing={tx:mouse.tx,ty:mouse.ty,t:(1.6+Math.random()*4)*fast/power,rod:power}; flash("Ligne lancée..."); } else flash("Vise un point d'eau"); }
+  if(getT(mouse.tx,mouse.ty)===WATER){ const fast=(player.buffs.fishing>0||hasAcc("angler"))?0.5:1; player.fishing={tx:mouse.tx,ty:mouse.ty,t:(1.6+Math.random()*4)*fast/power,rod:power,bite:false}; flash("Ligne lancée..."); } else flash("Vise un point d'eau"); }
+// mordu -> fenêtre de ferrage : cliquer pendant la morsure = prise bonus ; sinon capture auto
 function updateFishing(dt){ const f=player.fishing; if(!f)return; if(getT(f.tx,f.ty)!==WATER){player.fishing=null;return;}
   if(Math.hypot((f.tx*T+T/2)-(player.x+PW/2),(f.ty*T+T/2)-(player.y+PH/2))>REACH*1.4){player.fishing=null;return;}
-  f.t-=dt; if(f.t<=0){ catchFish(f.tx,f.rod||1); player.fishing=null; } }
-function catchFish(tx,rod){ fishCaught++; dirtyUI=true; rod=rod||1;
-  const ocean=biomeAt(tx)===6, lucky=(player.buffs.fishing>0?1:0)+(hasAcc("angler")?1:0)+(rod>=2?1:0), r=Math.random()+lucky*0.12;
+  if(!f.bite){ f.t-=dt; if(f.t<=0){ f.bite=true; f.biteT=1.4; flash("❗ Ça mord ! Cliquez pour ferrer !"); } }
+  else { f.biteT-=dt; if(f.biteT<=0){ catchFish(f.tx,f.rod||1,false); player.fishing=null; } } }
+function catchFish(tx,rod,reflex){ fishCaught++; dirtyUI=true; rod=rod||1;
+  const ocean=biomeAt(tx)===6, lucky=(player.buffs.fishing>0?1:0)+(hasAcc("angler")?1:0)+(rod>=2?1:0)+(reflex?1:0), r=Math.random()+lucky*0.12;
   // prise rare selon le biome (neige, désert, jungle, corruption, sanctuaire, carmin)
   const bf=({1:"icefish",2:"sandfish",3:"junglefish",4:"voidfish",5:"prismfish",7:"bloodfish"})[biomeAt(tx)];
   if(bf&&Math.random()<0.22+lucky*0.06){ addItem("mat",bf,1); flash("Prise rare : "+MATS[bf].name+" ! ✨🐟"); return; }
