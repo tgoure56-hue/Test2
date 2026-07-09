@@ -319,7 +319,7 @@ const TOOLS={
   hook:{name:"Grappin",type:"hook"}, flail:{name:"Fléau",type:"flail",dmg:48}, bugnet:{name:"Filet à papillons",type:"net"},
   spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
-  mirror:{name:"Miroir magique",type:"mirror"}, rod:{name:"Canne à pêche",type:"rod"}, wrench:{name:"Clé à molette",type:"wrench"}, gun1:{name:"Mousquet",type:"gun",dmg:34}, laser_rifle:{name:"Fusil laser",type:"gun",dmg:58}, bone_sword:{name:"Épée en os",type:"sword",dmg:44}, brush:{name:"Pinceau",type:"brush"},
+  mirror:{name:"Miroir magique",type:"mirror"}, rod:{name:"Canne à pêche",type:"rod"}, rod2:{name:"Canne dorée",type:"rod",power:2}, wrench:{name:"Clé à molette",type:"wrench"}, gun1:{name:"Mousquet",type:"gun",dmg:34}, laser_rifle:{name:"Fusil laser",type:"gun",dmg:58}, bone_sword:{name:"Épée en os",type:"sword",dmg:44}, brush:{name:"Pinceau",type:"brush"},
   drill:{name:"Foreuse",type:"drill",power:8.5,area:4}, drill2:{name:"Foreuse lunaire",type:"drill",power:12.0,area:5},
   pick_astral:{name:"Pioche astrale",type:"pick",power:12.0}, drill3:{name:"Foreuse astrale",type:"drill",power:15.0,area:6},
   meteor_saber:{name:"Sabre de météore",type:"sword",dmg:75}, staff7:{name:"Pistolet spatial",type:"staff",dmg:38,mana:4,proj:"bolt"},
@@ -352,7 +352,7 @@ const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Bar
   silver_bar:{name:"Barre argent",col:"#dfe3ea"}, gold_bar:{name:"Barre or",col:"#e8c33a"}, lens:{name:"Lentille",col:"#7fd6e0"},
   mushroom:{name:"Champignon",col:"#d83a3a"}, hellstone_bar:{name:"Barre d'enfer",col:"#e8632a"},
   fish:{name:"Poisson",col:"#7fb0c8"}, tuna:{name:"Thon",col:"#4a7a9a"}, salmon:{name:"Saumon",col:"#e08a6a"}, swordfish:{name:"Espadon",col:"#9ab0c0"},
-  icefish:{name:"Poisson des glaces",col:"#aee4ff"}, junglefish:{name:"Barbeau de jungle",col:"#5ac04a"}, voidfish:{name:"Poisson du néant",col:"#8a4ad0"}, prismfish:{name:"Poisson prismatique",col:"#e08ad0"},
+  icefish:{name:"Poisson des glaces",col:"#aee4ff"}, junglefish:{name:"Barbeau de jungle",col:"#5ac04a"}, voidfish:{name:"Poisson du néant",col:"#8a4ad0"}, prismfish:{name:"Poisson prismatique",col:"#e08ad0"}, sandfish:{name:"Poisson des sables",col:"#e0c87a"}, bloodfish:{name:"Poisson sanglant",col:"#c0392b"},
   mythril_bar:{name:"Barre de mythril",col:"#5fc9b0"}, adamantite_bar:{name:"Barre d'adamantite",col:"#d0506a"}, crystal_bar:{name:"Barre de cristal",col:"#7fe0ff"}, astralite_bar:{name:"Barre d'astralite",col:"#8a7aff"},
   cobalt_bar:{name:"Barre de cobalt",col:"#2a6ad0"}, titanium_bar:{name:"Barre de titane",col:"#c0c4cc"}, mech_soul:{name:"Âme mécanique",col:"#9fe0ff"},
   glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"}, meteor_bar:{name:"Barre de météore",col:"#c8763a"}, herb:{name:"Herbe médicinale",col:"#3ac06a"}, nightmare_shard:{name:"Éclat de cauchemar",col:"#a03ad0"}, spider_fang:{name:"Croc d'araignée",col:"#c8b0d0"}, gel:{name:"Gel",col:"#6ab0e0"}, crimtane_bar:{name:"Barre de crimtane",col:"#c0392b"}, tissue:{name:"Échantillon de tissu",col:"#e0304a"}, coral:{name:"Corail",col:"#ff7a9a"}, pearl:{name:"Perle",col:"#f0e8f4"}, soul_fire:{name:"Âme de feu",col:"#ff8a3a"}, stardust:{name:"Poussière d'étoile",col:"#ffe27a"}, doubloon:{name:"Doublon",col:"#e8c33a"}, frog:{name:"Grenouille",col:"#5aa04a"}, butterfly:{name:"Papillon",col:"#e0a0e0"}, firefly:{name:"Luciole",col:"#fff7a0"}, martian_plating:{name:"Plaque martienne",col:"#8ab0c0"}, stone_tablet:{name:"Tablette de pierre",col:"#8a94a0"} };
@@ -362,7 +362,7 @@ const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{nam
   hp_potion:{name:"Potion de soin",col:"#e23a4a"}, mp_potion:{name:"Potion de mana",col:"#3a6ae2"},
   cooked_fish:{name:"Poisson grillé",col:"#d8a25a"}, mushroom_soup:{name:"Soupe de champignons",col:"#c87a3a"},
   swift_potion:{name:"Potion de hâte",col:"#5ad6e0"}, ironskin_potion:{name:"Potion de fer",col:"#c9c9d4"}, pet_egg:{name:"Œuf de familier",col:"#8ad6a0"}, pet_cat:{name:"Panier à chat",col:"#e0a04a"}, pet_fairy:{name:"Bocal à fée",col:"#ff9ad0"}, shine_potion:{name:"Potion de lumière",col:"#ffe27a"},
-  fishing_potion:{name:"Potion de pêche",col:"#3a9ad6"}, crate:{name:"Caisse en bois",col:"#a87a48"},
+  fishing_potion:{name:"Potion de pêche",col:"#3a9ad6"}, crate:{name:"Caisse en bois",col:"#a87a48"}, gold_crate:{name:"Caisse dorée",col:"#e8c33a"},
   army_horn:{name:"Cor de guerre",col:"#b08a3a"}, glow_soup:{name:"Soupe lumineuse",col:"#7fe0ff"},
   pumpkin_medallion:{name:"Médaillon citrouille",col:"#ff8a2a"}, pumpkin_pie:{name:"Tarte à la citrouille",col:"#d2691e"},
   regen_potion:{name:"Potion de régénération",col:"#5ad65a"}, nightowl_potion:{name:"Potion de vision nocturne",col:"#9a7ad0"}, honey_potion:{name:"Potion de miel",col:"#e8a82a"},
@@ -441,6 +441,7 @@ const RECIPES=[
   R({kind:"use",id:"cooked_fish",n:2},[ma("voidfish",1)],"furnace"),
   R({kind:"use",id:"cooked_fish",n:2},[ma("prismfish",1)],"furnace"),
   R({kind:"use",id:"fishing_potion",n:1},[ma("fish",2),ma("mushroom",1)],"furnace"),
+  R({kind:"tool",id:"rod2"},[ma("gold_bar",8),ma("silk",4)],"anvil"),
   R({kind:"use",id:"mushroom_soup",n:1},[ma("mushroom",3)],"table"),
   R({kind:"use",id:"swift_potion",n:1},[ma("mushroom",1),ti(EMERALD,1)],"table"),
   R({kind:"use",id:"ironskin_potion",n:1},[ma("iron_bar",1),ma("mushroom",1)],"table"),
@@ -709,7 +710,7 @@ function vnoise(x,y){const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy,u=f
 function fbm(x,y,oct){let s=0,amp=0.5,f=1,norm=0;for(let i=0;i<oct;i++){s+=amp*vnoise(x*f,y*f);norm+=amp;amp*=0.5;f*=2;}return s/norm;}
 function surfaceAt(x){x=clamp(x|0,0,WORLD_W-1);const n=fbm(x*0.012+1000,7.7,4);return Math.floor(BASE_SURFACE+(n-0.5)*HILL_AMP);}
 // biomes : 0 forêt, 1 neige (gauche), 2 désert
-function biomeAt(x){ if(x<WORLD_W*0.045||x>WORLD_W*0.955) return 6; if(x<WORLD_W*0.16) return 1; if(x>WORLD_W*0.24&&x<WORLD_W*0.34) return 7; if(x>WORLD_W*0.40&&x<WORLD_W*0.50) return 4; if(x>WORLD_W*0.62&&x<WORLD_W*0.80) return 3; if(x>WORLD_W*0.84&&x<WORLD_W*0.94) return 5; if(vnoise(x*0.006,555)>0.64) return 2; return 0; }
+function biomeAt(x){ if(x<WORLD_W*0.045||x>WORLD_W*0.955) return 6; if(x<WORLD_W*0.16) return 1; if(x>WORLD_W*0.175&&x<WORLD_W*0.235) return 2; if(x>WORLD_W*0.24&&x<WORLD_W*0.34) return 7; if(x>WORLD_W*0.40&&x<WORLD_W*0.50) return 4; if(x>WORLD_W*0.62&&x<WORLD_W*0.80) return 3; if(x>WORLD_W*0.84&&x<WORLD_W*0.94) return 5; if(vnoise(x*0.006,555)>0.64) return 2; return 0; }
 
 // =========================================================================
 //  monde
@@ -906,7 +907,7 @@ function nestLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=
   if(rng()<0.55)put({kind:"summon",id:"broodmother",n:1}); if(rng()<0.5)put({kind:"use",id:"hp_potion",n:2});
   if(rng()<0.3)put({kind:"acc",id:"spider_charm",n:1}); if(rng()<0.4)put({kind:"tile",id:TORCH,n:6});
   return a; }
-function genSpiderNests(rng){ for(let m=0;m<3;m++){ const cx=30+Math.floor(rng()*(WORLD_W-60)), cy=surfaceAt(cx)+40+Math.floor(rng()*90);
+function genSpiderNests(rng){ for(let m=0;m<3;m++){ let cx=30+Math.floor(rng()*(WORLD_W-60)); if(cx>WORLD_W*0.06&&cx<WORLD_W*0.17)cx+=Math.floor(WORLD_W*0.17); /* éviter le donjon */ const cy=surfaceAt(cx)+40+Math.floor(rng()*90);
   if(cy>HELL_Y-10)continue; const rw=7+Math.floor(rng()*4), rh=5+Math.floor(rng()*3);
   for(let dx=-rw-2;dx<=rw+2;dx++)for(let dy=-rh-2;dy<=rh+2;dy++){ const X=cx+dx,Y=cy+dy; if(X<2||X>=WORLD_W-2||Y<2||Y>=HELL_Y-2)continue;
     const e=(dx*dx)/(rw*rw)+(dy*dy)/(rh*rh);
@@ -1385,7 +1386,7 @@ function handleActions(dt){
   if(sel&&sel.kind==="throw"){
     if(mouse.left&&player.useCd<=0){ player.useCd=0.4; const pcx=player.x+PW/2,pcy=player.y+PH/2; let dx=mouse.wx-pcx,dy=mouse.wy-pcy,d=Math.hypot(dx,dy)||1; projectiles.push({type:"glow",x:pcx,y:pcy,vx:dx/d*8,vy:dy/d*8-2,life:5}); removeItem("throw",sel.id,1); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="rod"){
-    if(mouse.left&&player.useCd<=0){player.useCd=0.4;castRod();} return; }
+    if(mouse.left&&player.useCd<=0){player.useCd=0.4;castRod(sel);} return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="wrench"){
     if(mouse.left&&player.placeCd<=0&&inReach){ const i=idx(mouse.tx,mouse.ty); wires[i]=wires[i]?0:1; player.placeCd=0.12; spawnParticles(mouse.tx*T+T/2,mouse.ty*T+T/2,"#ff5a5a",3); dirtyUI=true; } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="brush"){
@@ -1470,6 +1471,7 @@ function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("
   else if(sel.id==="frost_core"){ if(!isNight()){flash("À utiliser la nuit");return;} removeItem("use","frost_core",1); startFrostMoon(); }
   else if(sel.id==="frost_potion"){ player.buffs.iron=Math.max(player.buffs.iron||0,90); removeItem("use","frost_potion",1); flash("❄️ Armure de givre (90s)"); }
   else if(sel.id==="crate"){ openCrate(); }
+  else if(sel.id==="gold_crate"){ openCrate(true); }
   else if(sel.id==="recall_potion"){ mirrorHome(); removeItem("use","recall_potion",1); }
   else if(sel.id==="wormhole_potion"){ wormholeTeleport(); removeItem("use","wormhole_potion",1); }
   else if(sel.id==="combat_pet"){ if(player.combatPet){ player.combatPet=null; flash("Esprit combattant rangé"); } else { player.combatPet={lvl:1,xp:0,x:player.x,y:player.y-30,t:0,cd:0}; flash("⚔️ Un esprit combattant t'accompagne !"); } } }
@@ -1553,22 +1555,24 @@ function spearAttack(dmg){ const dir=player.face,ax=player.x+PW/2,ay=player.y+PH
   for(const e of list){ const ex=e.x+e.w/2,ey=e.y+e.h/2; if(Math.abs(ey-ay)<30&&(ex-ax)*dir>0&&Math.abs(ex-ax)<72){ e.hp-=dmg; e.vx=dir*5; spawnParticles(ex,ey,"#ddd",5); } } }
 function throwBoomerang(dmg,type){ const pcx=player.x+PW/2,pcy=player.y+PH/2; let dx=mouse.wx-pcx,dy=mouse.wy-pcy; const d=Math.hypot(dx,dy)||1; const fl=type==="flail";
   projectiles.push({x:pcx,y:pcy,vx:dx/d*(fl?11:9),vy:dy/d*(fl?11:9),type:type||"boomerang",dmg,t:0,turn:fl?0.32:0.5,returning:false,life:fl?3:6,friendly:true,hitSet:new Set()}); }
-function castRod(){ if(player.fishing){ player.fishing=null; flash("Ligne retirée"); return; }
-  if(getT(mouse.tx,mouse.ty)===WATER){ const fast=(player.buffs.fishing>0||hasAcc("angler"))?0.5:1; player.fishing={tx:mouse.tx,ty:mouse.ty,t:(1.6+Math.random()*4)*fast}; flash("Ligne lancée..."); } else flash("Vise un point d'eau"); }
+function castRod(sel){ if(player.fishing){ player.fishing=null; flash("Ligne retirée"); return; }
+  const power=(sel&&TOOLS[sel.id]&&TOOLS[sel.id].power)||1;
+  if(getT(mouse.tx,mouse.ty)===WATER){ const fast=(player.buffs.fishing>0||hasAcc("angler"))?0.5:1; player.fishing={tx:mouse.tx,ty:mouse.ty,t:(1.6+Math.random()*4)*fast/power,rod:power}; flash("Ligne lancée..."); } else flash("Vise un point d'eau"); }
 function updateFishing(dt){ const f=player.fishing; if(!f)return; if(getT(f.tx,f.ty)!==WATER){player.fishing=null;return;}
   if(Math.hypot((f.tx*T+T/2)-(player.x+PW/2),(f.ty*T+T/2)-(player.y+PH/2))>REACH*1.4){player.fishing=null;return;}
-  f.t-=dt; if(f.t<=0){ catchFish(f.tx); player.fishing=null; } }
-function catchFish(tx){ fishCaught++; dirtyUI=true;
-  const ocean=biomeAt(tx)===6, lucky=(player.buffs.fishing>0?1:0)+(hasAcc("angler")?1:0), r=Math.random()+lucky*0.12;
-  // prise rare selon le biome (neige, jungle, corruption, sanctuaire)
-  const bf=({1:"icefish",3:"junglefish",4:"voidfish",5:"prismfish"})[biomeAt(tx)];
+  f.t-=dt; if(f.t<=0){ catchFish(f.tx,f.rod||1); player.fishing=null; } }
+function catchFish(tx,rod){ fishCaught++; dirtyUI=true; rod=rod||1;
+  const ocean=biomeAt(tx)===6, lucky=(player.buffs.fishing>0?1:0)+(hasAcc("angler")?1:0)+(rod>=2?1:0), r=Math.random()+lucky*0.12;
+  // prise rare selon le biome (neige, désert, jungle, corruption, sanctuaire, carmin)
+  const bf=({1:"icefish",2:"sandfish",3:"junglefish",4:"voidfish",5:"prismfish",7:"bloodfish"})[biomeAt(tx)];
   if(bf&&Math.random()<0.22+lucky*0.06){ addItem("mat",bf,1); flash("Prise rare : "+MATS[bf].name+" ! ✨🐟"); return; }
+  const crateRoll=(g)=>{ if(Math.random()<g){addItem("use","gold_crate",1);flash("Caisse dorée remontée ! 🎁");} else {addItem("use","crate",1);flash("Caisse remontée ! 📦");} };
   if(ocean){
     if(r<0.28){addItem("mat","fish",1);flash("Ça mord ! 🐟");}
     else if(r<0.48){addItem("mat","salmon",1);flash("Saumon pêché ! 🐟");}
     else if(r<0.66){addItem("mat","tuna",1);flash("Thon pêché ! 🐟");}
     else if(r<0.79){addItem("mat","swordfish",1);flash("Espadon pêché ! 🐟");}
-    else if(r<0.90){addItem("use","crate",1);flash("Caisse remontée ! 📦");}
+    else if(r<0.90){crateRoll(0.18);}
     else if(r<0.97){addItem("mat","gold_bar",1);flash("Trésor pêché ! 💰");}
     else {addItem("acc","tackle",1);flash("Accessoire rare pêché ! 🎣");}
   } else {
@@ -1576,22 +1580,32 @@ function catchFish(tx){ fishCaught++; dirtyUI=true;
     else if(r<0.63){flash("Rien...");}
     else if(r<0.78){addItem("mat","salmon",1);flash("Saumon pêché ! 🐟");}
     else if(r<0.89){addItem("mat","mushroom",1);flash("Pêché un champignon");}
-    else if(r<0.96){addItem("use","crate",1);flash("Caisse remontée ! 📦");}
+    else if(r<0.96){crateRoll(0.08);}
     else {addItem("mat","gold_bar",1);flash("Trésor pêché !");}
   } }
-function openCrate(){ const snap=JSON.stringify(inv); removeItem("use","crate",1); const r=Math.random(); let msg="📦 ", ok=true;
-  if(r<0.30){ const g=8+Math.floor(Math.random()*20); coins+=g; msg+=g+" pièces"; }
-  else if(r<0.48){ ok=addItem("mat","iron_bar",3); msg+="3 barres de fer"; }
-  else if(r<0.62){ ok=addItem("mat","gold_bar",2); msg+="2 barres d'or"; }
-  else if(r<0.74){ ok=addItem("use","hp_potion",2); msg+="2 potions de soin"; }
-  else if(r<0.84){ ok=addItem("ammo","arrow",30); msg+="30 flèches"; }
-  else if(r<0.92){ ok=addItem("use","fishing_potion",1); msg+="potion de pêche"; }
-  else if(r<0.97){ ok=addItem("tile",GOLD,4); msg+="4 minerais d'or"; }
-  else { ok=addItem("acc","tackle",1); msg+="Boîte à pêche !"; }
+function openCrate(gold){ const snap=JSON.stringify(inv); removeItem("use",gold?"gold_crate":"crate",1); const r=Math.random(); let msg=gold?"🎁 ":"📦 ", ok=true;
+  if(gold){ // caisse dorée : butin premium
+    if(r<0.28){ const g=40+Math.floor(Math.random()*70); coins+=g; msg+=g+" pièces"; }
+    else if(r<0.46){ ok=addItem("mat","gold_bar",5); msg+="5 barres d'or"; }
+    else if(r<0.62){ ok=addItem("mat","crystal_bar",2); msg+="2 barres de cristal"; }
+    else if(r<0.74){ ok=addItem("use","hp_potion",4); msg+="4 potions de soin"; }
+    else if(r<0.85){ ok=addItem("tile",DIAMOND,2); msg+="2 diamants"; }
+    else if(r<0.94){ ok=addItem("use","fishing_potion",2); msg+="2 potions de pêche"; }
+    else { ok=addItem("acc","tackle",1); msg+="Boîte à pêche !"; }
+  } else {
+    if(r<0.30){ const g=8+Math.floor(Math.random()*20); coins+=g; msg+=g+" pièces"; }
+    else if(r<0.48){ ok=addItem("mat","iron_bar",3); msg+="3 barres de fer"; }
+    else if(r<0.62){ ok=addItem("mat","gold_bar",2); msg+="2 barres d'or"; }
+    else if(r<0.74){ ok=addItem("use","hp_potion",2); msg+="2 potions de soin"; }
+    else if(r<0.84){ ok=addItem("ammo","arrow",30); msg+="30 flèches"; }
+    else if(r<0.92){ ok=addItem("use","fishing_potion",1); msg+="potion de pêche"; }
+    else if(r<0.97){ ok=addItem("tile",GOLD,4); msg+="4 minerais d'or"; }
+    else { ok=addItem("acc","tackle",1); msg+="Boîte à pêche !"; }
+  }
   if(!ok){ inv=JSON.parse(snap); dirtyUI=true; return; }
   flash(msg); dirtyUI=true; }
 const QUEST_FISH=["fish","salmon","tuna","swordfish"];
-const RARE_QUEST_FISH=["icefish","junglefish","voidfish","prismfish"];
+const RARE_QUEST_FISH=["icefish","junglefish","voidfish","prismfish","sandfish","bloodfish"];
 function newAnglerQuest(){ if(Math.random()<0.3){ const f=RARE_QUEST_FISH[Math.floor(Math.random()*RARE_QUEST_FISH.length)]; anglerQuest={fish:f,qty:1+Math.floor(Math.random()*2),rare:true}; }
   else { const f=QUEST_FISH[Math.floor(Math.random()*QUEST_FISH.length)]; anglerQuest={fish:f,qty:2+Math.floor(Math.random()*3)}; } }
 function anglerInteract(){ if(!anglerQuest)newAnglerQuest();
@@ -2109,7 +2123,7 @@ const DRYAD_SHOP=[
 const ANGLER_SHOP=[
   {item:{kind:"tool",id:"rod",n:1},price:45}, {item:{kind:"use",id:"fishing_potion",n:1},price:20},
   {item:{kind:"use",id:"cooked_fish",n:1},price:10}, {item:{kind:"use",id:"crate",n:1},price:35},
-  {item:{kind:"acc",id:"tackle",n:1},price:200},
+  {item:{kind:"tool",id:"rod2",n:1},price:400}, {item:{kind:"acc",id:"tackle",n:1},price:200},
 ];
 const TINKERER_SHOP=[
   {item:{kind:"acc",id:"tinker_band",n:1},price:260}, {item:{kind:"tool",id:"hook",n:1},price:120},
