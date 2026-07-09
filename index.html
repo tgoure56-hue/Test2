@@ -305,6 +305,7 @@ const TOOLS={
   staff4:{name:"Canon à plasma",type:"staff",dmg:54,mana:8,proj:"bolt"}, sword_titan:{name:"Lame céleste",type:"sword",dmg:230},
   staff5:{name:"Sceptre stellaire",type:"staff",dmg:62,mana:9,proj:"spark"}, staff6:{name:"Sceptre du néant",type:"staff",dmg:46,mana:12,proj:"bolt",shots:3,spread:0.22},
   summon_staff2:{name:"Bâton spectral",type:"summoner",dmg:40,mana:8,minion:"spirit"}, summon_staff3:{name:"Bâton des abysses",type:"summoner",dmg:58,mana:11,minion:"imp"}, spider_staff:{name:"Bâton d'araignée",type:"summoner",dmg:34,mana:7,minion:"spider"},
+  whip1:{name:"Fouet du dresseur",type:"whip",dmg:16,tag:5,reach:150}, whip2:{name:"Fouet stellaire",type:"whip",dmg:34,tag:12,reach:210},
   astral_sword:{name:"Lame astrale",type:"sword",dmg:155}, astral_gun:{name:"Fusil astral",type:"gun",dmg:58}, astral_staff:{name:"Sceptre astral",type:"staff",dmg:60,mana:7,proj:"bolt",shots:2,spread:0.18}, astral_summon:{name:"Bâton stellaire",type:"summoner",dmg:48,mana:9,minion:"spirit"},
   crim_sword:{name:"Tranche-sang",type:"sword",dmg:72}, trident:{name:"Trident",type:"spear",dmg:52},
   flamberge:{name:"Flamberge",type:"sword",dmg:88}, demon_scythe:{name:"Faux démoniaque",type:"staff",dmg:70,mana:8,proj:"fire",shots:1},
@@ -675,6 +676,9 @@ const RECIPES=[
   R({kind:"acc",id:"frog_leg"},[ma("frog",3),ma("iron_bar",2)],"anvil"),
   R({kind:"tile",id:FIREFLYJAR},[ma("firefly",3),ti(GLASS,2)],"table"),
   R({kind:"tile",id:BUTTERFLYJAR},[ma("butterfly",3),ti(GLASS,2)],"table"),
+  // phase 54 (fouets — classe invocateur)
+  R({kind:"tool",id:"whip1"},[ma("silk",6),ma("iron_bar",4)],"anvil"),
+  R({kind:"tool",id:"whip2"},[ma("stardust",6),ma("astralite_bar",4)],"anvil"),
   // phase 53 (invasion martienne)
   R({kind:"use",id:"martian_beacon"},[ma("martian_plating",8),ma("soul_fire",2)],"hellforge"),
   R({kind:"tool",id:"laser_rifle"},[ma("martian_plating",12),ma("crystal_bar",4)],"hellforge"),
@@ -1245,6 +1249,7 @@ function update(dt){
 
   if(player.invuln>0)player.invuln-=dt;
   if(player.swing>0)player.swing-=dt;
+  if(player.whipLine&&player.whipLine.life>0)player.whipLine.life-=dt;
   if(player.useCd>0)player.useCd-=dt;
   if(player.placeCd>0)player.placeCd-=dt;
   if(player.potionCd>0)player.potionCd-=dt;
@@ -1346,6 +1351,8 @@ function handleActions(dt){
     if(mouse.left&&player.useCd<=0&&!projectiles.some(p=>p.type==="flail")){ player.useCd=0.4; throwBoomerang(atkDmg(sel,TOOLS[sel.id].dmg,"melee"),"flail"); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="net"){
     if(mouse.left&&player.useCd<=0){ player.useCd=0.35; player.swing=0.25; catchCritter(); } return; }
+  if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="whip"){
+    if(mouse.left&&player.useCd<=0){ player.useCd=0.3; player.swing=0.28; whipAttack(sel); } return; }
   if(sel&&sel.kind==="throw"){
     if(mouse.left&&player.useCd<=0){ player.useCd=0.4; const pcx=player.x+PW/2,pcy=player.y+PH/2; let dx=mouse.wx-pcx,dy=mouse.wy-pcy,d=Math.hypot(dx,dy)||1; projectiles.push({type:"glow",x:pcx,y:pcy,vx:dx/d*8,vy:dy/d*8-2,life:5}); removeItem("throw",sel.id,1); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="rod"){
@@ -1442,6 +1449,16 @@ function meleeAttack(dmg){ const dir=player.face,ax=player.x+PW/2+dir*12,ay=play
   for(const e of list){ const ex=e.x+e.w/2,ey=e.y+e.h/2; if(Math.hypot(ex-ax,ey-ay)<48){e.hp-=dmg;e.vx=dir*6;e.vy=-4;spawnParticles(ex,ey,"#ff5555",6);} }
   if(boss&&boss.mech){ const hx=boss.x+boss.w/2,hy=boss.y+boss.h/2; if(Math.hypot(hx-ax,hy-ay)<48){boss.hp-=dmg;spawnParticles(hx,hy,"#9fe0ff",6);}
     else for(const s of boss.segs)if(Math.hypot(s.x-ax,s.y-ay)<44){boss.hp-=dmg*0.8;spawnParticles(s.x,s.y,"#9fe0ff",5);break;} } }
+// fouet (classe invocateur) : frappe en ligne, marque les ennemis touchés
+// -> les familiers ciblent en priorité les ennemis marqués et leur infligent des dégâts bonus
+function whipAttack(sel){ const w=TOOLS[sel.id], reach=w.reach||160, dmg=atkDmg(sel,w.dmg,"summon");
+  const pcx=player.x+PW/2, pcy=player.y+PH/2; let ax=mouse.wx-pcx, ay=mouse.wy-pcy; const ad=Math.hypot(ax,ay)||1; ax/=ad; ay/=ad;
+  player.whipLine={x:pcx+ax*reach, y:pcy+ay*reach, life:0.18};
+  const list=boss&&!boss.mech?enemies.concat([boss]):enemies; let hit=false;
+  for(const e of list){ const ex=e.x+e.w/2-pcx, ey=e.y+e.h/2-pcy; const proj=ex*ax+ey*ay; if(proj<0||proj>reach)continue; if(Math.abs(ex*ay-ey*ax)>30)continue;
+    e.hp-=dmg; e.tagDmg=w.tag; e.tagT=6; e.vx=(e.vx||0)+ax*2; hit=true; spawnParticles(e.x+e.w/2,e.y+e.h/2,"#ffd24a",5); }
+  if(boss&&boss.mech){ const hx=boss.x+boss.w/2-pcx,hy=boss.y+boss.h/2-pcy; if((hx*ax+hy*ay)>=0&&(hx*ax+hy*ay)<=reach&&Math.abs(hx*ay-hy*ax)<34){ boss.hp-=dmg; boss.tagDmg=w.tag; boss.tagT=6; spawnParticles(boss.x+boss.w/2,boss.y+boss.h/2,"#ffd24a",5); hit=true; } }
+  return hit; }
 function fireProjectile(type,dmg,off){ const pcx=player.x+PW/2,pcy=player.y+PH/2;
   const a=Math.atan2(mouse.wy-pcy,mouse.wx-pcx)+(off||0), dirx=Math.cos(a),diry=Math.sin(a);
   const sp=type==="arrow"?13:type==="bullet"?19:type==="spark"?9:11; projectiles.push({x:pcx,y:pcy,vx:dirx*sp,vy:diry*sp,type,dmg,life:type==="arrow"?2.2:type==="bullet"?1.6:type==="spark"?2.4:1.4,friendly:true}); }
@@ -1560,13 +1577,15 @@ function catchCritter(){ const ax=player.x+PW/2+player.face*20, ay=player.y+PH/2
   return false; }
 function updateMinions(dt,step){
   for(const m of minions){ m.t+=dt; if(m.cd>0)m.cd-=dt; const ranged=m.kind==="imp";
-    let tgt=null,bd=1e9; const list=boss?enemies.concat([boss]):enemies;
-    for(const e of list){ const d=Math.hypot(e.x-m.x,e.y-m.y); if(d<bd&&d<(ranged?420:360)){bd=d;tgt=e;} }
+    let tgt=null,bd=1e9,ttag=null,btag=1e9; const list=boss?enemies.concat([boss]):enemies;
+    for(const e of list){ const d=Math.hypot(e.x-m.x,e.y-m.y); if(d<(ranged?420:360)){ if(d<bd){bd=d;tgt=e;} if(e.tagT>0&&d<btag){btag=d;ttag=e;} } }
+    if(ttag){tgt=ttag;bd=btag;} // priorité aux ennemis marqués par le fouet
+    const tbonus=(tgt&&tgt.tagT>0)?(tgt.tagDmg||0):0;
     let tx,ty; if(tgt&&!ranged){ tx=tgt.x+tgt.w/2; ty=tgt.y+tgt.h/2; } else { tx=player.x+PW/2+Math.sin(m.t*2)*30; ty=player.y-24; }
     const dx=tx-m.x,dy=ty-m.y,d=Math.hypot(dx,dy)||1, sp=(tgt&&!ranged)?4.6:3.2;
     m.vx=lerp(m.vx,dx/d*sp,0.1); m.vy=lerp(m.vy,dy/d*sp,0.1); m.x+=m.vx*step; m.y+=m.vy*step;
-    if(tgt&&ranged&&m.cd<=0){ const ax=tgt.x+tgt.w/2-m.x,ay=tgt.y+tgt.h/2-m.y,ad=Math.hypot(ax,ay)||1; projectiles.push({x:m.x,y:m.y,vx:ax/ad*9,vy:ay/ad*9,type:"spark",dmg:m.dmg,life:2,friendly:true}); m.cd=0.7; spawnParticles(m.x,m.y,"#caa0ff",3); }
-    else if(tgt&&!ranged&&bd<26&&m.cd<=0){ tgt.hp-=m.dmg; m.cd=0.4; spawnParticles(m.x,m.y,"#9fd6ff",4); } } }
+    if(tgt&&ranged&&m.cd<=0){ const ax=tgt.x+tgt.w/2-m.x,ay=tgt.y+tgt.h/2-m.y,ad=Math.hypot(ax,ay)||1; projectiles.push({x:m.x,y:m.y,vx:ax/ad*9,vy:ay/ad*9,type:"spark",dmg:m.dmg+tbonus,life:2,friendly:true}); m.cd=0.7; spawnParticles(m.x,m.y,"#caa0ff",3); }
+    else if(tgt&&!ranged&&bd<26&&m.cd<=0){ tgt.hp-=m.dmg+tbonus; m.cd=0.4; spawnParticles(m.x,m.y,"#9fd6ff",4); } } }
 function petStats(lvl){ return { dmg:6+lvl*8, cd:Math.max(0.6,1.2-lvl*0.1), range:280+lvl*20, count:lvl>=4?2:1 }; }
 function petXpNeeded(lvl){ return lvl*100; }
 function levelCombatPet(){ const cp=player.combatPet; if(!cp)return; while(cp.lvl<5&&cp.xp>=petXpNeeded(cp.lvl)){ cp.xp-=petXpNeeded(cp.lvl); cp.lvl++; spawnParticles(cp.x,cp.y,"#ffe27a",16); flash("✨ Ton esprit combattant évolue — niveau "+cp.lvl+" !"); } }
@@ -1575,8 +1594,8 @@ function updateCombatPet(dt,step){ const cp=player.combatPet; if(!cp)return; if(
   cp.x=lerp(cp.x,tx,0.12); cp.y=lerp(cp.y,ty,0.12);
   const st=petStats(cp.lvl); let tgt=null,bd=1e9; const list=(boss&&!boss.mech)?enemies.concat([boss]):enemies;
   for(const e of list){ const d=Math.hypot(e.x+e.w/2-cp.x,e.y+e.h/2-cp.y); if(d<bd&&d<st.range){bd=d;tgt=e;} }
-  if(tgt&&cp.cd<=0){ const bx=tgt.x+tgt.w/2-cp.x,by=tgt.y+tgt.h/2-cp.y,ba=Math.atan2(by,bx);
-    for(let k=0;k<st.count;k++){ const ca=ba+(k-(st.count-1)/2)*0.28; projectiles.push({x:cp.x,y:cp.y,vx:Math.cos(ca)*9,vy:Math.sin(ca)*9,type:"spark",dmg:st.dmg,life:2,friendly:true,pet:true}); }
+  if(tgt&&cp.cd<=0){ const bx=tgt.x+tgt.w/2-cp.x,by=tgt.y+tgt.h/2-cp.y,ba=Math.atan2(by,bx), tb=(tgt.tagT>0?(tgt.tagDmg||0):0);
+    for(let k=0;k<st.count;k++){ const ca=ba+(k-(st.count-1)/2)*0.28; projectiles.push({x:cp.x,y:cp.y,vx:Math.cos(ca)*9,vy:Math.sin(ca)*9,type:"spark",dmg:st.dmg+tb,life:2,friendly:true,pet:true}); }
     cp.cd=st.cd; spawnParticles(cp.x,cp.y,"#9ad6ff",3); } }
 function updateFireflies(dt,step){
   if(isNight()&&fireflies.length<14&&Math.random()<dt*3){ const fx=player.x+(Math.random()-0.5)*VW, fy=player.y+(Math.random()-0.5)*VH*0.7; if(getT(Math.floor(fx/T),Math.floor(fy/T))===AIR)fireflies.push({x:fx,y:fy,t:Math.random()*9}); }
@@ -1725,7 +1744,7 @@ function updateEnemies(dt,step){
   if(enemies.length<10&&Math.random()<dt*1.0){ const px=Math.floor(player.x/T),py=Math.floor(player.y/T); let near=false;
     for(let dx=-10;dx<=10&&!near;dx++)for(let dy=-8;dy<=8;dy++)if(getT(px+dx,py+dy)===SPIDERNEST||getT(px+dx,py+dy)===COBWEB){near=true;break;}
     if(near){ const sx=clamp(px+(Math.random()<0.5?-1:1)*(4+Math.floor(Math.random()*6)),2,WORLD_W-3), sy=clamp(py+Math.floor((Math.random()-0.5)*8),2,WORLD_H-3); if(getT(sx,sy)===AIR&&solidAt(sx,sy+1))spawnEnemy("spider",sx*T,sy*T); } }
-  for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; e.t+=dt; if(e.slow>0){e.slow-=dt;e.vx*=0.55;e.vy*=0.7;} if(e.yoyoCd>0)e.yoyoCd-=dt;
+  for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; e.t+=dt; if(e.slow>0){e.slow-=dt;e.vx*=0.55;e.vy*=0.7;} if(e.yoyoCd>0)e.yoyoCd-=dt; if(e.tagT>0)e.tagT-=dt;
     if(e.fly){ const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1; const sp=e.type==="eye"?2.4:2.0;
       e.vx=lerp(e.vx,dx/d*sp,0.05)+(e.type==="bat"?Math.sin(e.t*6)*0.6:0); e.vy=lerp(e.vy,dy/d*sp,0.05)+(e.type==="bat"?Math.cos(e.t*5)*0.6:0);
       e.x+=e.vx*step; e.y+=e.vy*step;
@@ -2231,6 +2250,8 @@ function drawPlayer(){ const sx=Math.floor(player.x-cam.x),sy=Math.floor(player.
   const sel=inv[selected];
   if(player.swing>0&&sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="sword"){ const t=1-player.swing/0.25,a=(-0.8+t*1.8)*player.face;
     ctx.save();ctx.translate(sx+PW/2,sy+18);ctx.rotate(a*player.face);ctx.scale(player.face,1);ctx.fillStyle="#ddd";ctx.fillRect(6,-3,26,5);ctx.fillStyle="#8a5a2b";ctx.fillRect(2,-4,6,7);ctx.restore(); }
+  if(player.whipLine&&player.whipLine.life>0){ ctx.strokeStyle="#ffe27a";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx+PW/2,sy+18);ctx.quadraticCurveTo(sx+PW/2+(player.whipLine.x-cam.x-sx-PW/2)*0.5,sy+8,player.whipLine.x-cam.x,player.whipLine.y-cam.y);ctx.stroke();
+    ctx.fillStyle="#ffd24a";ctx.beginPath();ctx.arc(player.whipLine.x-cam.x,player.whipLine.y-cam.y,3,0,7);ctx.fill(); }
   ctx.restore(); }
 function drawEnemy(e){ const sx=e.x-cam.x,sy=e.y-cam.y;
   if(e.elite){ ctx.strokeStyle="rgba(170,70,230,0.85)"; ctx.lineWidth=2; ctx.strokeRect(sx-3,sy-3,e.w+6,e.h+6); }
@@ -2545,7 +2566,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
 function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null]; player.acc=null; player.acc2=null;
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
-  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;nightmare=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;travelerHere=false;travelerStock=null;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;meteorFell=false;slimeRain=false;slimeRainT=0;slimeKills=0;pirateInvasion=false;pirateT=0;pirateKills=0;pirateBossUp=false;martianInvasion=false;martianT=0;martianKills=0;martianBossUp=false;housedCount=0;houseRecalcT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;achievements={};blocksPlaced=0;questsDone=0;bestiary={};showBestiary=false;blocksMined=0;deaths=0;timePlayed=0;showStats=false;curShop=null;player.buffs={};player.fishing=null;player.pet=null;player.combatPet=null;player.mount=null;player.flyTime=0;player.grapple=null;player.breath=100;glows=[];trapCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;
+  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;nightmare=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;travelerHere=false;travelerStock=null;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;meteorFell=false;slimeRain=false;slimeRainT=0;slimeKills=0;pirateInvasion=false;pirateT=0;pirateKills=0;pirateBossUp=false;martianInvasion=false;martianT=0;martianKills=0;martianBossUp=false;housedCount=0;houseRecalcT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;achievements={};blocksPlaced=0;questsDone=0;bestiary={};showBestiary=false;blocksMined=0;deaths=0;timePlayed=0;showStats=false;curShop=null;player.buffs={};player.fishing=null;player.pet=null;player.combatPet=null;player.mount=null;player.flyTime=0;player.grapple=null;player.breath=100;glows=[];trapCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;player.whipLine=null;
   npcs=[]; spawnNPC("guide");
   document.getElementById("death").style.display="none";
   const c=Math.floor(WORLD_W/2);player.x=c*T;player.y=(surfaceAt(c)-6)*T;player.vx=player.vy=0;player.spawnX=player.x;player.spawnY=player.y;
