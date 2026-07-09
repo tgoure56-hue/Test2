@@ -110,7 +110,7 @@
 </div>
 <div id="cursorItem"></div>
 
-<div id="death"><h1>💀 Vous êtes mort</h1><div class="btn" id="btnResp" style="font-size:16px;padding:10px 24px;">Réapparaître</div></div>
+<div id="death"><h1 id="deathTitle">💀 Vous êtes mort</h1><div class="btn" id="btnResp" style="font-size:16px;padding:10px 24px;">Réapparaître</div></div>
 
 <script>
 "use strict";
@@ -1277,7 +1277,8 @@ function altarSummon(){ if(boss){ flash("Un boss est déjà là"); return false;
   summonBoss({kind:"summon",id:TIER_SUMMON[lastBossTier]}); return !!boss; }
 let housedCount=0, houseRecalcT=0;
 let blocksMined=0, deaths=0, timePlayed=0, showStats=false;
-let invOpen=false, chestOpen=false, shopOpen=false, curChestKey=null, dead=false, autosaveT=0;
+let invOpen=false, chestOpen=false, shopOpen=false, curChestKey=null, dead=false, autosaveT=0, hardcore=false, permadead=false;
+function toggleHardcore(){ if(dead)return; hardcore=!hardcore; flash(hardcore?"☠️ Mode extrême activé : la mort sera définitive !":"Mode extrême désactivé"); dirtyUI=true; }
 const mining={x:-1,y:-1,prog:0};
 const keys={}, mouse={x:0,y:0,wx:0,wy:0,tx:0,ty:0,left:false,right:false};
 
@@ -1354,6 +1355,7 @@ addEventListener("keydown",e=>{ const fresh=!keys[e.code]; keys[e.code]=true;
   if(e.code==="KeyE"||e.code==="KeyC")toggleInv();
   if(e.code==="KeyM")showMap=!showMap;
   if(e.code==="KeyN")showWorldMap=!showWorldMap;
+  if(e.code==="KeyH")toggleHardcore();
   if(e.code==="KeyB")showBestiary=!showBestiary;
   if(e.code==="KeyK")showStats=!showStats;
   if(fresh&&e.code==="KeyF")useSetAbility();
@@ -2864,13 +2866,19 @@ function updateStatus(){ $hearts.textContent="❤️ "+Math.ceil(player.hp)+"/"+
 // =========================================================================
 //  mort / sauvegarde
 // =========================================================================
-function die(){ dead=true; deaths++; document.getElementById("death").style.display="flex"; }
-function respawn(){ dead=false; document.getElementById("death").style.display="none"; player.hp=player.maxHp; player.invuln=2; player.buffs={}; player.fishing=null; enemies=[]; boss=null; army=null; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0;
+function die(){ dead=true; deaths++;
+  if(hardcore){ permadead=true; try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
+  document.getElementById("deathTitle").textContent=hardcore?"☠️ Mort définitive (mode extrême)":"💀 Vous êtes mort";
+  document.getElementById("btnResp").textContent=hardcore?"Nouveau monde":"Réapparaître";
+  document.getElementById("death").style.display="flex"; }
+function respawn(){ document.getElementById("death").style.display="none";
+  if(permadead){ permadead=false; newGame(); dead=false; return; }
+  dead=false; player.hp=player.maxHp; player.invuln=2; player.buffs={}; player.fishing=null; enemies=[]; boss=null; army=null; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0;
   player.x=player.spawnX; player.y=player.spawnY; player.vx=player.vy=0; }
 function rle(arr){ const out=[];let v=arr[0],c=1; for(let i=1;i<arr.length;i++){if(arr[i]===v&&c<65535)c++;else{out.push(v,c);v=arr[i];c=1;}} out.push(v,c); return out; }
 function unrle(out,len){ const arr=new Uint8Array(len);let p=0; for(let i=0;i<out.length;i+=2){const v=out[i],c=out[i+1];for(let j=0;j<c;j++)arr[p++]=v;} return arr; }
 function save(){ try{ const chests=[]; chestData.forEach((v,k)=>chests.push([k,v])); const cnames=[]; chestNames.forEach((v,k)=>cnames.push([k,v]));
-  localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,seed,world:rle(world),liquid:rle(liquid),walls:rle(walls),wires:rle(wires),tints:rle(tints),chests,cnames,coins,merchantArrived,bossKills,nurseArrived,wizardArrived,blacksmithArrived,dryadArrived,anglerArrived,fishCaught,anglerQuest,hardmode,nightmare,tinkererArrived,armsDealerArrived,painterArrived,taxCollectorArrived,taxPool,stylistArrived,quest,achievements,blocksPlaced,questsDone,bestiary,travelerHere,travelerStock,blocksMined,deaths,timePlayed,slimeRain,slimeRainT,slimeKills,pirateInvasion,pirateT,pirateKills,pirateBossUp,martianInvasion,martianT,martianKills,martianBossUp,lastBossTier,
+  localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,seed,world:rle(world),liquid:rle(liquid),walls:rle(walls),wires:rle(wires),tints:rle(tints),chests,cnames,coins,merchantArrived,bossKills,nurseArrived,wizardArrived,blacksmithArrived,dryadArrived,anglerArrived,fishCaught,anglerQuest,hardmode,nightmare,hardcore,tinkererArrived,armsDealerArrived,painterArrived,taxCollectorArrived,taxPool,stylistArrived,quest,achievements,blocksPlaced,questsDone,bestiary,travelerHere,travelerStock,blocksMined,deaths,timePlayed,slimeRain,slimeRainT,slimeKills,pirateInvasion,pirateT,pirateKills,pirateBossUp,martianInvasion,martianT,martianKills,martianBossUp,lastBossTier,
     px:player.x,py:player.y,hp:player.hp,maxHp:player.maxHp,mana:player.mana,maxMana:player.maxMana,armor:player.armorArr,acc:player.acc,acc2:player.acc2,pet:player.pet,cpet:player.combatPet,mtd:player.mount,dye:player.dye,hairDye:player.hairDye,spx:player.spawnX,spy:player.spawnY,
     inv,cur:cursor,sel:selected,time:gameTime})); }catch(err){flash("Sauvegarde impossible (espace plein)");console.warn(err);} }
 function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
@@ -2881,7 +2889,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
     tints=d.tints?unrle(d.tints,WORLD_W*WORLD_H):new Uint8Array(WORLD_W*WORLD_H);
     chestData=new Map(); if(d.chests)d.chests.forEach(([k,v])=>chestData.set(k,v));
     chestNames=new Map(); if(d.cnames)d.cnames.forEach(([k,v])=>chestNames.set(k,v));
-    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; anglerArrived=!!d.anglerArrived; fishCaught=d.fishCaught||0; anglerQuest=d.anglerQuest||null; hardmode=!!d.hardmode; nightmare=!!d.nightmare; tinkererArrived=!!d.tinkererArrived; armsDealerArrived=!!d.armsDealerArrived; painterArrived=!!d.painterArrived; taxCollectorArrived=!!d.taxCollectorArrived; taxPool=d.taxPool||0; stylistArrived=!!d.stylistArrived; player.hairDye=d.hairDye||0; quest=d.quest||null; achievements=d.achievements||{}; blocksPlaced=d.blocksPlaced||0; questsDone=d.questsDone||0; bestiary=d.bestiary||{}; travelerHere=!!d.travelerHere; travelerStock=d.travelerStock||null; blocksMined=d.blocksMined||0; deaths=d.deaths||0; timePlayed=d.timePlayed||0; slimeRain=!!d.slimeRain; slimeRainT=d.slimeRainT||0; slimeKills=d.slimeKills||0; pirateInvasion=!!d.pirateInvasion; pirateT=d.pirateT||0; pirateKills=d.pirateKills||0; pirateBossUp=!!d.pirateBossUp; martianInvasion=!!d.martianInvasion; martianT=d.martianT||0; martianKills=d.martianKills||0; martianBossUp=!!d.martianBossUp; lastBossTier=d.lastBossTier||0; invasionT=0; army=null; bloodMoon=false; eclipse=false; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0; meteorFell=false;
+    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; anglerArrived=!!d.anglerArrived; fishCaught=d.fishCaught||0; anglerQuest=d.anglerQuest||null; hardmode=!!d.hardmode; nightmare=!!d.nightmare; hardcore=!!d.hardcore; tinkererArrived=!!d.tinkererArrived; armsDealerArrived=!!d.armsDealerArrived; painterArrived=!!d.painterArrived; taxCollectorArrived=!!d.taxCollectorArrived; taxPool=d.taxPool||0; stylistArrived=!!d.stylistArrived; player.hairDye=d.hairDye||0; quest=d.quest||null; achievements=d.achievements||{}; blocksPlaced=d.blocksPlaced||0; questsDone=d.questsDone||0; bestiary=d.bestiary||{}; travelerHere=!!d.travelerHere; travelerStock=d.travelerStock||null; blocksMined=d.blocksMined||0; deaths=d.deaths||0; timePlayed=d.timePlayed||0; slimeRain=!!d.slimeRain; slimeRainT=d.slimeRainT||0; slimeKills=d.slimeKills||0; pirateInvasion=!!d.pirateInvasion; pirateT=d.pirateT||0; pirateKills=d.pirateKills||0; pirateBossUp=!!d.pirateBossUp; martianInvasion=!!d.martianInvasion; martianT=d.martianT||0; martianKills=d.martianKills||0; martianBossUp=!!d.martianBossUp; lastBossTier=d.lastBossTier||0; invasionT=0; army=null; bloodMoon=false; eclipse=false; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0; meteorFell=false;
     player.x=d.px;player.y=d.py;player.hp=d.hp;player.maxHp=d.maxHp||100;player.mana=d.mana||0;player.maxMana=d.maxMana||20;player.armorArr=d.armor||[null,null,null];player.acc=d.acc||null;player.acc2=d.acc2||null;player.dye=d.dye||0;
     player.pet=typeof d.pet==="string"?d.pet:(d.pet?"sprite":null); player.combatPet=d.cpet||null; player.mount=typeof d.mtd==="string"?d.mtd:(d.mtd?"slime":null); player.spawnX=d.spx!=null?d.spx:Math.floor(WORLD_W/2)*T; player.spawnY=d.spy!=null?d.spy:(surfaceAt(Math.floor(WORLD_W/2))-6)*T; player.buffs={}; player.fishing=null; player.breath=100;
     selected=d.sel||0; gameTime=d.time||0.3; inv=d.inv?d.inv.slice(0,36):new Array(36).fill(null);
@@ -2892,7 +2900,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
 function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null]; player.acc=null; player.acc2=null;
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
-  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;nightmare=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;stylistArrived=false;player.hairDye=0;travelerHere=false;travelerStock=null;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;meteorFell=false;slimeRain=false;slimeRainT=0;slimeKills=0;pirateInvasion=false;pirateT=0;pirateKills=0;pirateBossUp=false;martianInvasion=false;martianT=0;martianKills=0;martianBossUp=false;lastBossTier=0;housedCount=0;houseRecalcT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;achievements={};blocksPlaced=0;questsDone=0;bestiary={};showBestiary=false;blocksMined=0;deaths=0;timePlayed=0;showStats=false;showWorldMap=false;curShop=null;player.buffs={};player.fishing=null;player.pet=null;player.combatPet=null;player.mount=null;player.flyTime=0;player.grapple=null;player.breath=100;glows=[];trapCd.clear();timerCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;player.whipLine=null;player.dye=0;player.abilityCd=0;
+  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;hardcore=false;permadead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;nightmare=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;stylistArrived=false;player.hairDye=0;travelerHere=false;travelerStock=null;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;meteorFell=false;slimeRain=false;slimeRainT=0;slimeKills=0;pirateInvasion=false;pirateT=0;pirateKills=0;pirateBossUp=false;martianInvasion=false;martianT=0;martianKills=0;martianBossUp=false;lastBossTier=0;housedCount=0;houseRecalcT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;achievements={};blocksPlaced=0;questsDone=0;bestiary={};showBestiary=false;blocksMined=0;deaths=0;timePlayed=0;showStats=false;showWorldMap=false;curShop=null;player.buffs={};player.fishing=null;player.pet=null;player.combatPet=null;player.mount=null;player.flyTime=0;player.grapple=null;player.breath=100;glows=[];trapCd.clear();timerCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;player.whipLine=null;player.dye=0;player.abilityCd=0;
   npcs=[]; spawnNPC("guide");
   document.getElementById("death").style.display="none";
   const c=Math.floor(WORLD_W/2);player.x=c*T;player.y=(surfaceAt(c)-6)*T;player.vx=player.vy=0;player.spawnX=player.x;player.spawnY=player.y;
