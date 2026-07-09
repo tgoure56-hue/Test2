@@ -304,7 +304,7 @@ const TOOLS={
   pick7:{name:"Pioche en adamantite",type:"pick",power:6.0}, sword8:{name:"Épée en adamantite",type:"sword",dmg:110},
   staff2:{name:"Bâton de feu",type:"staff",dmg:34,mana:7,proj:"bolt"}, staff3:{name:"Bâton de givre",type:"staff",dmg:28,mana:8,proj:"frost"},
   summon_staff:{name:"Bâton d'invocation",type:"summoner",dmg:22,mana:6}, mount:{name:"Monture slime",type:"mount",mountId:"slime"}, mount2:{name:"Monture oiseau",type:"mount",mountId:"bird"}, mount3:{name:"Monture licorne",type:"mount",mountId:"unicorn"}, mount4:{name:"Soucoupe volante",type:"mount",mountId:"ufo"}, sword9:{name:"Lame du néant",type:"sword",dmg:140},
-  pick8:{name:"Pioche de cristal",type:"pick",power:7.0}, sword10:{name:"Épée de cristal",type:"sword",dmg:135}, yoyo:{name:"Yo-yo",type:"yoyo",dmg:32},
+  pick8:{name:"Pioche de cristal",type:"pick",power:7.0}, sword10:{name:"Épée de cristal",type:"sword",dmg:135}, yoyo:{name:"Yo-yo",type:"yoyo",dmg:32}, frostbrand:{name:"Lame de givre",type:"sword",dmg:72},
   pick9:{name:"Pioche de cobalt",type:"pick",power:8.0}, sword11:{name:"Épée de cobalt",type:"sword",dmg:155},
   pick10:{name:"Pioche de titane",type:"pick",power:9.0}, sword12:{name:"Épée de titane",type:"sword",dmg:185}, bow3:{name:"Arc de titane",type:"bow",dmg:42},
   staff4:{name:"Canon à plasma",type:"staff",dmg:54,mana:8,proj:"bolt"}, sword_titan:{name:"Lame céleste",type:"sword",dmg:230},
@@ -874,7 +874,26 @@ function genWorld(s){
   genDungeon(rng);
   genSpiderNests(rng);
   genPyramid(rng);
+  genFrozenTomb(rng);
 }
+// === tombe gelée (structure de surface dans la neige, avec salle au trésor) ===
+function tombLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=>{if(s<20)a[s++]=it;};
+  put({kind:"tool",id:"frostbrand",n:1}); // récompense signature
+  put({kind:"mat",id:"ice_shard",n:4+Math.floor(rng()*5)}); if(rng()<0.5)put({kind:"use",id:"hp_potion",n:3});
+  put({kind:"tile",id:GOLD,n:3+Math.floor(rng()*4)}); if(rng()<0.4)put({kind:"tile",id:ICEBRICK,n:20+Math.floor(rng()*20)});
+  if(rng()<0.3)put({kind:"use",id:"frost_potion",n:2});
+  return a; }
+function genFrozenTomb(rng){ let px=Math.floor(WORLD_W*0.055);
+  if(biomeAt(px)!==1){ for(let x=Math.floor(WORLD_W*0.05);x<Math.floor(WORLD_W*0.08);x++){ if(biomeAt(x)===1){px=x;break;} } }
+  const baseY=surfaceAt(px);
+  // caveau de surface en briques de glace
+  for(let dx=-5;dx<=5;dx++)for(let dy=-6;dy<=0;dy++){ const X=px+dx,Y=baseY+dy; if(X<2||X>=WORLD_W-2||Y<2)continue; const border=(Math.abs(dx)===5||dy===-6||dy===0); world[idx(X,Y)]=border?ICEBRICK:AIR; if(!border)liquid[idx(X,Y)]=0; walls[idx(X,Y)]=WBRICK; }
+  // salle au trésor enterrée
+  const ry=baseY+6;
+  for(let dx=-3;dx<=3;dx++)for(let dy=-3;dy<=1;dy++){ const X=px+dx,Y=ry+dy; if(X<2||X>=WORLD_W-2||Y<2||Y>=HELL_Y-2)continue; const border=(Math.abs(dx)===3||dy===-3||dy===1); world[idx(X,Y)]=border?SNOWBRICK:AIR; if(!border)liquid[idx(X,Y)]=0; walls[idx(X,Y)]=WBRICK; }
+  // puits d'accès reliant le caveau à la salle
+  for(let y=baseY-5;y<ry-2;y++){ if(y>=2&&y<HELL_Y-2){ world[idx(px,y)]=AIR; liquid[idx(px,y)]=0; walls[idx(px,y)]=WBRICK; } }
+  world[idx(px,ry)]=CHEST; chestData.set(px+","+ry, tombLoot(rng)); }
 // === pyramide du désert (structure de surface avec salle au trésor) ===
 function pyramidLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=>{if(s<20)a[s++]=it;};
   put({kind:"acc",id:"flying_carpet",n:1}); // trésor signature de la pyramide
