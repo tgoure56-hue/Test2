@@ -1664,11 +1664,12 @@ function wormholeTeleport(){ for(let tries=0;tries<80;tries++){ const tx=2+Math.
   mirrorHome(); }
 function teleportNetwork(fx,fy){ const tps=[]; for(let x=0;x<WORLD_W;x++)for(let y=0;y<WORLD_H;y++)if(world[idx(x,y)]===TELEPORTER)tps.push([x,y]);
   if(tps.length<2){ flash("Aucun autre téléporteur relié"); return false; }
-  tps.sort((a,b)=>a[0]-b[0]||a[1]-b[1]); let cur=tps.findIndex(t=>t[0]===fx&&t[1]===fy); if(cur<0)cur=0;
-  const dest=tps[(cur+1)%tps.length];
+  // vise le téléporteur le plus proche du curseur (à défaut, le suivant dans l'ordre)
+  let dest=null,bd=1e18; for(const t of tps){ if(t[0]===fx&&t[1]===fy)continue; const d=Math.hypot(t[0]*T+T/2-mouse.wx,t[1]*T+T/2-mouse.wy); if(d<bd){bd=d;dest=t;} }
+  if(!dest){ tps.sort((a,b)=>a[0]-b[0]||a[1]-b[1]); let cur=tps.findIndex(t=>t[0]===fx&&t[1]===fy); dest=tps[(Math.max(0,cur)+1)%tps.length]; }
   spawnParticles(player.x+PW/2,player.y+PH/2,"#7affe0",16);
   player.x=dest[0]*T+(T-PW)/2; player.y=(dest[1]+1)*T-PH; player.vx=player.vy=0; player.invuln=Math.max(player.invuln,0.5);
-  spawnParticles(player.x+PW/2,player.y+PH/2,"#7affe0",18); flash("⟿ Téléportation ("+((cur+1)%tps.length+1)+"/"+tps.length+")"); return true; }
+  spawnParticles(player.x+PW/2,player.y+PH/2,"#7affe0",18); flash("⟿ Téléportation"); return true; }
 function doDash(dir){ player.vx=dir*15; player.dashTime=0.2; player.dashCd=0.9; player.face=dir; player.invuln=Math.max(player.invuln,0.2); player.tapWin=0; spawnParticles(player.x+PW/2,player.y+PH/2,"#cfe6ff",10); }
 // capacité active de l'armure solaire (touche F) : éruption solaire en aire de zone
 function useSetAbility(){ if(dead)return;
@@ -2442,6 +2443,11 @@ function drawMinimap(){ const MW=160,MH=110,cx=Math.floor(player.x/T),cy=Math.fl
   ctx.fillStyle="rgba(0,0,0,0.6)"; ctx.fillRect(ox-3,oy-3,MW+6,MH+6);
   for(let i=0;i<MW;i++)for(let j=0;j<MH;j++){ const tx=cx-hw+i,ty=cy-hh+j; if(tx<0||tx>=WORLD_W||ty<0||ty>=WORLD_H)continue;
     const id=getT(tx,ty); let c=null; if(id!==AIR)c=TILE[id].col; else if(walls[idx(tx,ty)])c="#28222e"; if(c){ctx.fillStyle=c;ctx.fillRect(ox+i,oy+j,1,1);} }
+  // marqueurs : téléporteurs (cyan), autels (magenta), point d'apparition (vert), PNJ (jaune)
+  const mark=(wx,wy,col)=>{ const i=wx-(cx-hw),j=wy-(cy-hh); if(i>=0&&i<MW&&j>=0&&j<MH){ ctx.fillStyle=col; ctx.fillRect(ox+i-1,oy+j-1,3,3); } };
+  for(let i=0;i<MW;i++)for(let j=0;j<MH;j++){ const tx=cx-hw+i,ty=cy-hh+j; if(tx<0||tx>=WORLD_W||ty<0||ty>=WORLD_H)continue; const id=getT(tx,ty); if(id===TELEPORTER)mark(tx,ty,"#7affe0"); else if(id===ALTAR)mark(tx,ty,"#ff5a9a"); }
+  mark(Math.floor(player.spawnX/T),Math.floor(player.spawnY/T),"#5aff8a");
+  for(const n of npcs)mark(Math.floor((n.x+n.w/2)/T),Math.floor((n.y+n.h/2)/T),"#ffd24a");
   ctx.fillStyle="#fff"; ctx.fillRect(ox+hw-1,oy+hh-1,3,3);
   ctx.strokeStyle="#888"; ctx.lineWidth=1; ctx.strokeRect(ox-3,oy-3,MW+6,MH+6); }
 function drawBestiary(){ const types=Object.keys(ENEMY), cols=2, rowH=15, rows=Math.ceil(types.length/cols);
