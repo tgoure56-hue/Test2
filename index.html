@@ -329,7 +329,7 @@ const ACC={ cloud:{name:"Bottes nuage",eff:"djump"}, boots:{name:"Bottes véloce
   talisman:{name:"Talisman de régénération",eff:"regen"}, amulet:{name:"Amulette de mana",eff:"manaregen"}, wings:{name:"Ailes de cristal",eff:"fly"}, lavaboots:{name:"Bottes de lave",eff:"lava"}, headlamp:{name:"Lampe frontale",eff:"glow"}, tackle:{name:"Boîte à pêche",eff:"angler"},
   tinker_band:{name:"Brassard du bricoleur",eff:"def",def:8}, mech_heart:{name:"Cœur mécanique",eff:"def",def:10}, celestial_emblem:{name:"Emblème céleste",eff:"def",def:14}, aegis_nightmare:{name:"Égide du cauchemar",eff:"def",def:16},
   spider_charm:{name:"Amulette d'araignée",eff:"summonplus",def:4}, ninja_hood:{name:"Cape ninja",eff:"speed",def:3}, dash_boots:{name:"Bottes d'élan",eff:"dash",def:2}, diving_gear:{name:"Équipement de plongée",eff:"gills",def:2}, cosmic_wings:{name:"Ailes cosmiques",eff:"fly",def:12}, pirate_hat:{name:"Tricorne de pirate",eff:"speed",def:4}, jetpack:{name:"Jetpack",eff:"fly",def:8}, tech_charm:{name:"Amulette technologique",eff:"manaregen",def:6},
-  miner_charm:{name:"Amulette du mineur",eff:"mining",def:2}, lucky_coin:{name:"Pièce porte-bonheur",eff:"luck",def:1}, frog_leg:{name:"Patte de grenouille",eff:"jump",def:1}, nature_charm:{name:"Charme de la nature",eff:"regen",def:6}, earth_charm:{name:"Amulette tellurique",eff:"def",def:7} };
+  miner_charm:{name:"Amulette du mineur",eff:"mining",def:2}, lucky_coin:{name:"Pièce porte-bonheur",eff:"luck",def:1}, frog_leg:{name:"Patte de grenouille",eff:"jump",def:1}, nature_charm:{name:"Charme de la nature",eff:"regen",def:6}, earth_charm:{name:"Amulette tellurique",eff:"def",def:7}, flying_carpet:{name:"Tapis volant",eff:"fly",def:2} };
 const THROWS={ glowstick:{name:"Bâton lumineux",col:"#7fff9f"} };
 const ARMOR={
   wood_h:{name:"Casque bois",slot:"head",def:1}, wood_c:{name:"Plastron bois",slot:"chest",def:2}, wood_l:{name:"Jambières bois",slot:"legs",def:1},
@@ -872,7 +872,27 @@ function genWorld(s){
   genWalls();
   genDungeon(rng);
   genSpiderNests(rng);
+  genPyramid(rng);
 }
+// === pyramide du désert (structure de surface avec salle au trésor) ===
+function pyramidLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=>{if(s<20)a[s++]=it;};
+  put({kind:"acc",id:"flying_carpet",n:1}); // trésor signature de la pyramide
+  put({kind:"tile",id:GOLD,n:4+Math.floor(rng()*5)}); if(rng()<0.6)put({kind:"mat",id:"gold_bar",n:2+Math.floor(rng()*3)});
+  if(rng()<0.5)put({kind:"use",id:"hp_potion",n:3}); if(rng()<0.4)put({kind:"tile",id:SANDSTONEBRICK,n:20+Math.floor(rng()*20)});
+  if(rng()<0.3)put({kind:"tile",id:DIAMOND,n:1+Math.floor(rng()*2)});
+  return a; }
+function genPyramid(rng){ let px=-1;
+  for(let x=Math.floor(WORLD_W*0.178);x<Math.floor(WORLD_W*0.232);x++){ if(biomeAt(x)===2){px=x;break;} }
+  if(px<0)return; px=clamp(px+9,12,WORLD_W-14); const baseY=surfaceAt(px), ph=10;
+  // corps plein de briques de grès (triangle)
+  for(let r=0;r<ph;r++)for(let dx=-r;dx<=r;dx++){ const X=px+dx,Y=baseY-(ph-r); if(X>=2&&X<WORLD_W-2&&Y>=2){ world[idx(X,Y)]=SANDSTONEBRICK; liquid[idx(X,Y)]=0; walls[idx(X,Y)]=WBRICK; } }
+  // salle au trésor enterrée sous la base
+  const ry=baseY+5;
+  for(let dx=-3;dx<=3;dx++)for(let dy=-3;dy<=1;dy++){ const X=px+dx,Y=ry+dy; if(X<2||X>=WORLD_W-2||Y<2||Y>=HELL_Y-2)continue; const border=(Math.abs(dx)===3||dy===-3||dy===1); world[idx(X,Y)]=border?SANDSTONEBRICK:AIR; if(!border)liquid[idx(X,Y)]=0; walls[idx(X,Y)]=WBRICK; }
+  // puits d'accès reliant la surface à la salle
+  for(let y=baseY-1;y<ry-2;y++){ if(y>=2&&y<HELL_Y-2){ world[idx(px,y)]=AIR; liquid[idx(px,y)]=0; walls[idx(px,y)]=WBRICK; } }
+  world[idx(px-2,ry)]=DART_TRAP; world[idx(px+2,ry)]=DART_TRAP;
+  world[idx(px,ry)]=CHEST; chestData.set(px+","+ry, pyramidLoot(rng)); }
 function carveRoom(rx,ry,w,h,border){ for(let x=rx;x<rx+w;x++)for(let y=ry;y<ry+h;y++){ if(x<1||x>=WORLD_W-1||y<1||y>=WORLD_H-3)continue;
     const edge=(x===rx||x===rx+w-1||y===ry||y===ry+h-1); world[idx(x,y)]=edge?border:AIR; liquid[idx(x,y)]=0; walls[idx(x,y)]=WBRICK; } }
 function dungeonShaft(x,y0,y1){ for(let y=y0;y<=y1;y++){ if(x<1||x>=WORLD_W-1||y<1||y>=WORLD_H-3)continue; world[idx(x,y)]=AIR; walls[idx(x,y)]=WBRICK; } }
