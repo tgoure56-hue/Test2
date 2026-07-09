@@ -313,7 +313,7 @@ const TOOLS={
   summon_staff2:{name:"Bâton spectral",type:"summoner",dmg:40,mana:8,minion:"spirit"}, summon_staff3:{name:"Bâton des abysses",type:"summoner",dmg:58,mana:11,minion:"imp"}, spider_staff:{name:"Bâton d'araignée",type:"summoner",dmg:34,mana:7,minion:"spider"},
   whip1:{name:"Fouet du dresseur",type:"whip",dmg:16,tag:5,reach:150}, whip2:{name:"Fouet stellaire",type:"whip",dmg:34,tag:12,reach:210}, thorn_whip:{name:"Fouet d'épines",type:"whip",dmg:26,tag:9,reach:190},
   astral_sword:{name:"Lame astrale",type:"sword",dmg:155}, astral_gun:{name:"Fusil astral",type:"gun",dmg:58}, astral_staff:{name:"Sceptre astral",type:"staff",dmg:60,mana:7,proj:"bolt",shots:2,spread:0.18}, astral_summon:{name:"Bâton stellaire",type:"summoner",dmg:48,mana:9,minion:"spirit"},
-  crim_sword:{name:"Tranche-sang",type:"sword",dmg:72}, trident:{name:"Trident",type:"spear",dmg:52},
+  crim_sword:{name:"Tranche-sang",type:"sword",dmg:72}, trident:{name:"Trident",type:"spear",dmg:52}, nightmare_bow:{name:"Arc du cauchemar",type:"bow",dmg:48}, bloodthorn:{name:"Ronce sanglante",type:"spear",dmg:64},
   flamberge:{name:"Flamberge",type:"sword",dmg:88}, demon_scythe:{name:"Faux démoniaque",type:"staff",dmg:70,mana:8,proj:"fire",shots:1},
   star_cannon:{name:"Canon stellaire",type:"staff",dmg:64,mana:7,proj:"spark",shots:3,spread:0.3},
   star_blade:{name:"Lame stellaire",type:"sword",dmg:210}, cutlass:{name:"Coutelas",type:"sword",dmg:62}, cannon:{name:"Canon de poche",type:"gun",dmg:52},
@@ -886,7 +886,21 @@ function genWorld(s){
   genFrozenTomb(rng);
   genJungleShrine(rng);
   genHallowShrine(rng);
+  genCorruptShrine(rng);
+  genCrimsonShrine(rng);
 }
+function corruptShrineLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=>{if(s<20)a[s++]=it;};
+  put({kind:"tool",id:"nightmare_bow",n:1}); put({kind:"mat",id:"nightmare_shard",n:3+Math.floor(rng()*4)});
+  if(rng()<0.6)put({kind:"ammo",id:"arrow",n:40+Math.floor(rng()*30)}); put({kind:"tile",id:GOLD,n:3+Math.floor(rng()*4)});
+  if(rng()<0.5)put({kind:"use",id:"hp_potion",n:3}); return a; }
+function crimsonShrineLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=>{if(s<20)a[s++]=it;};
+  put({kind:"tool",id:"bloodthorn",n:1}); put({kind:"mat",id:"tissue",n:3+Math.floor(rng()*4)});
+  if(rng()<0.6)put({kind:"mat",id:"crimtane_bar",n:2+Math.floor(rng()*3)}); put({kind:"tile",id:GOLD,n:3+Math.floor(rng()*4)});
+  if(rng()<0.5)put({kind:"use",id:"hp_potion",n:3}); return a; }
+function genCorruptShrine(rng){ let px=Math.floor(WORLD_W*0.45); if(biomeAt(px)!==4){ for(let x=Math.floor(WORLD_W*0.40);x<Math.floor(WORLD_W*0.50);x++){ if(biomeAt(x)===4){px=x+4;break;} } }
+  buildShrine(clamp(px,12,WORLD_W-14),EBONSTONE,EBONSTONE,corruptShrineLoot(rng)); }
+function genCrimsonShrine(rng){ let px=Math.floor(WORLD_W*0.29); if(biomeAt(px)!==7){ for(let x=Math.floor(WORLD_W*0.24);x<Math.floor(WORLD_W*0.34);x++){ if(biomeAt(x)===7){px=x+4;break;} } }
+  buildShrine(clamp(px,12,WORLD_W-14),CRIMSTONE,FLESHBLOCK,crimsonShrineLoot(rng)); }
 // === sanctuaires de biome (jungle & sanctuaire), structures de surface avec trésor ===
 function buildShrine(px,wallTile,floorTile,loot){ const baseY=surfaceAt(px);
   for(let dx=-5;dx<=5;dx++)for(let dy=-6;dy<=0;dy++){ const X=px+dx,Y=baseY+dy; if(X<2||X>=WORLD_W-2||Y<2)continue; const border=(Math.abs(dx)===5||dy===-6||dy===0); world[idx(X,Y)]=border?wallTile:AIR; if(!border)liquid[idx(X,Y)]=0; walls[idx(X,Y)]=WBRICK; }
