@@ -307,7 +307,7 @@ const TOOLS={
   crim_sword:{name:"Tranche-sang",type:"sword",dmg:72}, trident:{name:"Trident",type:"spear",dmg:52},
   flamberge:{name:"Flamberge",type:"sword",dmg:88}, demon_scythe:{name:"Faux démoniaque",type:"staff",dmg:70,mana:8,proj:"fire",shots:1},
   star_cannon:{name:"Canon stellaire",type:"staff",dmg:64,mana:7,proj:"spark",shots:3,spread:0.3},
-  star_blade:{name:"Lame stellaire",type:"sword",dmg:210},
+  star_blade:{name:"Lame stellaire",type:"sword",dmg:210}, cutlass:{name:"Coutelas",type:"sword",dmg:62}, cannon:{name:"Canon de poche",type:"gun",dmg:52},
   hook:{name:"Grappin",type:"hook"}, flail:{name:"Fléau",type:"flail",dmg:48},
   spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
@@ -319,7 +319,7 @@ const TOOLS={
 const ACC={ cloud:{name:"Bottes nuage",eff:"djump"}, boots:{name:"Bottes véloces",eff:"speed"}, band:{name:"Brassard de force",eff:"def",def:5},
   talisman:{name:"Talisman de régénération",eff:"regen"}, amulet:{name:"Amulette de mana",eff:"manaregen"}, wings:{name:"Ailes de cristal",eff:"fly"}, lavaboots:{name:"Bottes de lave",eff:"lava"}, headlamp:{name:"Lampe frontale",eff:"glow"}, tackle:{name:"Boîte à pêche",eff:"angler"},
   tinker_band:{name:"Brassard du bricoleur",eff:"def",def:8}, mech_heart:{name:"Cœur mécanique",eff:"def",def:10}, celestial_emblem:{name:"Emblème céleste",eff:"def",def:14}, aegis_nightmare:{name:"Égide du cauchemar",eff:"def",def:16},
-  spider_charm:{name:"Amulette d'araignée",eff:"summonplus",def:4}, ninja_hood:{name:"Cape ninja",eff:"speed",def:3}, dash_boots:{name:"Bottes d'élan",eff:"dash",def:2}, diving_gear:{name:"Équipement de plongée",eff:"gills",def:2}, cosmic_wings:{name:"Ailes cosmiques",eff:"fly",def:12} };
+  spider_charm:{name:"Amulette d'araignée",eff:"summonplus",def:4}, ninja_hood:{name:"Cape ninja",eff:"speed",def:3}, dash_boots:{name:"Bottes d'élan",eff:"dash",def:2}, diving_gear:{name:"Équipement de plongée",eff:"gills",def:2}, cosmic_wings:{name:"Ailes cosmiques",eff:"fly",def:12}, pirate_hat:{name:"Tricorne de pirate",eff:"speed",def:4} };
 const THROWS={ glowstick:{name:"Bâton lumineux",col:"#7fff9f"} };
 const ARMOR={
   wood_h:{name:"Casque bois",slot:"head",def:1}, wood_c:{name:"Plastron bois",slot:"chest",def:2}, wood_l:{name:"Jambières bois",slot:"legs",def:1},
@@ -345,7 +345,7 @@ const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Bar
   icefish:{name:"Poisson des glaces",col:"#aee4ff"}, junglefish:{name:"Barbeau de jungle",col:"#5ac04a"}, voidfish:{name:"Poisson du néant",col:"#8a4ad0"}, prismfish:{name:"Poisson prismatique",col:"#e08ad0"},
   mythril_bar:{name:"Barre de mythril",col:"#5fc9b0"}, adamantite_bar:{name:"Barre d'adamantite",col:"#d0506a"}, crystal_bar:{name:"Barre de cristal",col:"#7fe0ff"}, astralite_bar:{name:"Barre d'astralite",col:"#8a7aff"},
   cobalt_bar:{name:"Barre de cobalt",col:"#2a6ad0"}, titanium_bar:{name:"Barre de titane",col:"#c0c4cc"}, mech_soul:{name:"Âme mécanique",col:"#9fe0ff"},
-  glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"}, meteor_bar:{name:"Barre de météore",col:"#c8763a"}, herb:{name:"Herbe médicinale",col:"#3ac06a"}, nightmare_shard:{name:"Éclat de cauchemar",col:"#a03ad0"}, spider_fang:{name:"Croc d'araignée",col:"#c8b0d0"}, gel:{name:"Gel",col:"#6ab0e0"}, crimtane_bar:{name:"Barre de crimtane",col:"#c0392b"}, tissue:{name:"Échantillon de tissu",col:"#e0304a"}, coral:{name:"Corail",col:"#ff7a9a"}, pearl:{name:"Perle",col:"#f0e8f4"}, soul_fire:{name:"Âme de feu",col:"#ff8a3a"}, stardust:{name:"Poussière d'étoile",col:"#ffe27a"} };
+  glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"}, meteor_bar:{name:"Barre de météore",col:"#c8763a"}, herb:{name:"Herbe médicinale",col:"#3ac06a"}, nightmare_shard:{name:"Éclat de cauchemar",col:"#a03ad0"}, spider_fang:{name:"Croc d'araignée",col:"#c8b0d0"}, gel:{name:"Gel",col:"#6ab0e0"}, crimtane_bar:{name:"Barre de crimtane",col:"#c0392b"}, tissue:{name:"Échantillon de tissu",col:"#e0304a"}, coral:{name:"Corail",col:"#ff7a9a"}, pearl:{name:"Perle",col:"#f0e8f4"}, soul_fire:{name:"Âme de feu",col:"#ff8a3a"}, stardust:{name:"Poussière d'étoile",col:"#ffe27a"}, doubloon:{name:"Doublon",col:"#e8c33a"} };
 const AMMO={ arrow:{name:"Flèche",col:"#caa15a",dmg:5} };
 const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenbee:{name:"Larve royale"}, golem:{name:"Noyau de golem"}, worm:{name:"Nourriture maudite"}, moon:{name:"Tablette céleste"}, mechworm:{name:"Engrenage maudit"}, titan:{name:"Relique céleste"}, broodmother:{name:"Cocon royal"}, slime_crown:{name:"Couronne gluante"}, celestial_sigil:{name:"Sceau céleste"} };
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
@@ -357,7 +357,8 @@ const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{nam
   pumpkin_medallion:{name:"Médaillon citrouille",col:"#ff8a2a"}, pumpkin_pie:{name:"Tarte à la citrouille",col:"#d2691e"},
   regen_potion:{name:"Potion de régénération",col:"#5ad65a"}, nightowl_potion:{name:"Potion de vision nocturne",col:"#9a7ad0"}, honey_potion:{name:"Potion de miel",col:"#e8a82a"},
   frost_core:{name:"Noyau de gel",col:"#aae0ff"}, frost_potion:{name:"Potion de givre",col:"#8ad0e8"},
-  recall_potion:{name:"Potion de rappel",col:"#c9b0ff"}, wormhole_potion:{name:"Potion trou de ver",col:"#7a5ad0"}, combat_pet:{name:"Esprit combattant",col:"#9ad6ff"} };
+  recall_potion:{name:"Potion de rappel",col:"#c9b0ff"}, wormhole_potion:{name:"Potion trou de ver",col:"#7a5ad0"}, combat_pet:{name:"Esprit combattant",col:"#9ad6ff"},
+  pirate_map:{name:"Carte au trésor",col:"#caa86a"} };
 const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"}, shine:{name:"Lumière",col:"#ffe27a"}, fishing:{name:"Pêche chanceuse",col:"#3a9ad6"} };
 
 // ---- recettes ----
@@ -656,6 +657,10 @@ const RECIPES=[
   R({kind:"tile",id:WINDOW,n:2},[ti(GLASS,2),ti(PLANK,1)],"table"),
   R({kind:"tile",id:RAINBOWBRICK,n:4},[ti(STONE,4),ti(RUBY,1),ti(EMERALD,1),ti(SAPPHIRE,1)],"furnace"),
   R({kind:"tile",id:BARREL},[ti(PLANK,6)],"sawmill"),
+  // phase 48 (invasion pirate)
+  R({kind:"tool",id:"cutlass"},[ma("doubloon",8),ma("gold_bar",3)],"anvil"),
+  R({kind:"tool",id:"cannon"},[ma("doubloon",8),ma("iron_bar",5)],"anvil"),
+  R({kind:"acc",id:"pirate_hat"},[ma("doubloon",6),ma("silk",4)],"anvil"),
 ];
 
 // =========================================================================
@@ -887,6 +892,7 @@ function skyLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=>
 function seaLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=>{if(s<20)a[s++]=it;};
   put({kind:"mat",id:"coral",n:3+Math.floor(rng()*5)}); if(rng()<0.6)put({kind:"mat",id:"pearl",n:1+Math.floor(rng()*2)});
   if(rng()<0.35)put({kind:"acc",id:"diving_gear",n:1}); if(rng()<0.3)put({kind:"tool",id:"trident",n:1});
+  if(rng()<0.35)put({kind:"use",id:"pirate_map",n:1});
   put({kind:"tile",id:GOLD,n:2+Math.floor(rng()*4)}); if(rng()<0.4)put({kind:"use",id:"hp_potion",n:2});
   return a; }
 function hellLoot(rng){ const a=new Array(20).fill(null); let s=0; const put=it=>{if(s<20)a[s++]=it;};
@@ -1099,6 +1105,7 @@ let pumpkinMoon=false, pumpkinMoonT=0, pumpkinKills=0;
 let frostMoon=false, frostMoonT=0, frostKills=0;
 let meteorFell=false;
 let slimeRain=false, slimeRainT=0, slimeKills=0;
+let pirateInvasion=false, pirateT=0, pirateKills=0, pirateBossUp=false;
 let blocksMined=0, deaths=0, timePlayed=0, showStats=false;
 let invOpen=false, chestOpen=false, shopOpen=false, curChestKey=null, dead=false, autosaveT=0;
 const mining={x:-1,y:-1,prog:0};
@@ -1208,8 +1215,9 @@ function update(dt){
   const regenRate=2+(player.buffs.regen>0?6:0)+(hasAcc("regen")?2:0)+(nearTile(CAMPFIRE,8)?3:0)+(nearTile(HEARTLANTERN,8)?2:0)+(nearTile(FOUNTAIN,8)?2:0)+(armorSet()==="crim"?3:0);
   if(player.invuln<=0&&player.hp<player.maxHp)player.hp=Math.min(player.maxHp,player.hp+dt*regenRate);
   player.mana=Math.min(player.maxMana,player.mana+dt*(4+(hasAcc("manaregen")?4:0)+(nearTile(CRYSTALBALL,8)?4:0)));
-  updateFishing(dt); updateCritters(dt,step); updateMinions(dt,step); updateCombatPet(dt,step); updateFireflies(dt,step); updateTraps(dt); updateArmy(dt); updatePumpkinMoon(dt); updateFrostMoon(dt); updateSlimeRain(dt); checkAchievements();
+  updateFishing(dt); updateCritters(dt,step); updateMinions(dt,step); updateCombatPet(dt,step); updateFireflies(dt,step); updateTraps(dt); updateArmy(dt); updatePumpkinMoon(dt); updateFrostMoon(dt); updateSlimeRain(dt); updatePirateInvasion(dt); checkAchievements();
   if(!slimeRain&&!bloodMoon&&!pumpkinMoon&&!frostMoon&&bossKills>=1&&Math.random()<dt*0.006)startSlimeRain();
+  if(!pirateInvasion&&!bloodMoon&&!pumpkinMoon&&!frostMoon&&bossKills>=2&&Math.random()<dt*0.0035)startPirateInvasion();
   if(isNight()&&bossKills>=1&&!meteorFell&&Math.random()<dt*0.01)meteorShower();
   if(!isNight()&&meteorFell)meteorFell=false;
   growthPass();
@@ -1373,6 +1381,7 @@ function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("
   else if(sel.id==="fishing_potion"){ player.buffs.fishing=120; removeItem("use","fishing_potion",1); flash("🎣 Pêche chanceuse (120s)"); }
   else if(sel.id==="glow_soup"){ player.buffs.regen=Math.max(player.buffs.regen||0,80); player.buffs.shine=Math.max(player.buffs.shine||0,80); removeItem("use","glow_soup",1); flash("🍲 Régén + lumière (80s)"); }
   else if(sel.id==="army_horn"){ removeItem("use","army_horn",1); startArmy(); }
+  else if(sel.id==="pirate_map"){ removeItem("use","pirate_map",1); startPirateInvasion(); }
   else if(sel.id==="pumpkin_medallion"){ if(!isNight()){flash("À utiliser la nuit");return;} removeItem("use","pumpkin_medallion",1); startPumpkinMoon(); }
   else if(sel.id==="pumpkin_pie"){ player.buffs.regen=Math.max(player.buffs.regen||0,120); player.hp=Math.min(player.maxHp,player.hp+40); removeItem("use","pumpkin_pie",1); flash("🥧 Régénération (120s)"); }
   else if(sel.id==="regen_potion"){ player.buffs.regen=Math.max(player.buffs.regen||0,90); removeItem("use","regen_potion",1); flash("💚 Régénération (90s)"); }
@@ -1595,9 +1604,12 @@ const ENEMY={
   demon:{w:26,h:40,hp:200,dmg:34,col:"#8a2a3a",fly:true},
   lavaslime:{w:28,h:24,hp:90,dmg:24,col:"#e8632a",fly:false},
   star_wisp:{w:20,h:20,hp:110,dmg:26,col:"#bfe0ff",fly:true},
+  pirate:{w:22,h:40,hp:130,dmg:28,col:"#5a4a3a",fly:false},
+  pirate_gunner:{w:22,h:40,hp:110,dmg:24,col:"#6a5a4a",fly:false},
+  pirate_captain:{w:32,h:48,hp:850,dmg:46,col:"#8a2a2a",fly:false},
 };
-const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8,shark:14,jellyfish:6,wraith:25,possessed:30,spore:10,knight:16,general:120,harpy:14,pumpkinhead:22,reaper:40,hornet:9,iceslime:5,frostzombie:24,icegolem:110,antlion:11,vulture:8,templeguard:60,dungeon_guardian:90,spider:8,spiderling:2,babyslime:2,facemonster:14,crimera:10,crab_king:80,demon:22,lavaslime:8,star_wisp:16};
-const ENEMY_NAMES={slime:"Slime",zombie:"Zombie",eye:"Œil démoniaque",bat:"Chauve-souris",skeleton:"Squelette",imp:"Diablotin",bee:"Abeille",goblin:"Gobelin",devourer:"Dévoreur",pixie:"Fée",shark:"Requin",jellyfish:"Méduse",wraith:"Spectre",possessed:"Armure possédée",spore:"Spore",knight:"Chevalier",general:"Général",harpy:"Harpie",pumpkinhead:"Tête de citrouille",reaper:"Faucheur",hornet:"Frelon",iceslime:"Slime de glace",frostzombie:"Zombie de givre",icegolem:"Golem de glace",antlion:"Fourmilion",vulture:"Vautour",templeguard:"Gardien du temple",dungeon_guardian:"Gardien du donjon",spider:"Araignée",spiderling:"Araignéau",babyslime:"Bébé slime",facemonster:"Monstre-visage",crimera:"Crimera",crab_king:"Roi Crabe",demon:"Démon",lavaslime:"Slime de lave",star_wisp:"Feu follet stellaire"};
+const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8,shark:14,jellyfish:6,wraith:25,possessed:30,spore:10,knight:16,general:120,harpy:14,pumpkinhead:22,reaper:40,hornet:9,iceslime:5,frostzombie:24,icegolem:110,antlion:11,vulture:8,templeguard:60,dungeon_guardian:90,spider:8,spiderling:2,babyslime:2,facemonster:14,crimera:10,crab_king:80,demon:22,lavaslime:8,star_wisp:16,pirate:12,pirate_gunner:12,pirate_captain:130};
+const ENEMY_NAMES={slime:"Slime",zombie:"Zombie",eye:"Œil démoniaque",bat:"Chauve-souris",skeleton:"Squelette",imp:"Diablotin",bee:"Abeille",goblin:"Gobelin",devourer:"Dévoreur",pixie:"Fée",shark:"Requin",jellyfish:"Méduse",wraith:"Spectre",possessed:"Armure possédée",spore:"Spore",knight:"Chevalier",general:"Général",harpy:"Harpie",pumpkinhead:"Tête de citrouille",reaper:"Faucheur",hornet:"Frelon",iceslime:"Slime de glace",frostzombie:"Zombie de givre",icegolem:"Golem de glace",antlion:"Fourmilion",vulture:"Vautour",templeguard:"Gardien du temple",dungeon_guardian:"Gardien du donjon",spider:"Araignée",spiderling:"Araignéau",babyslime:"Bébé slime",facemonster:"Monstre-visage",crimera:"Crimera",crab_king:"Roi Crabe",demon:"Démon",lavaslime:"Slime de lave",star_wisp:"Feu follet stellaire",pirate:"Pirate",pirate_gunner:"Pirate tireur",pirate_captain:"Capitaine pirate"};
 function spawnEnemy(type,x,y){ const d=ENEMY[type], sc=(1+bossKills*0.12)*(nightmare?1.35:1), hp=Math.round(d.hp*sc); enemies.push({type,x,y,vx:0,vy:0,w:d.w,h:d.h,hp,maxHp:hp,dmg:Math.round(d.dmg*(1+bossKills*0.08)*(nightmare?1.25:1)),col:d.col,fly:d.fly,onGround:false,hop:Math.random(),t:Math.random()*9});
   if(nightmare&&Math.random()<0.15){ const e=enemies[enemies.length-1]; e.elite=true; e.hp=Math.round(e.hp*2); e.maxHp=e.hp; e.dmg=Math.round(e.dmg*1.5); } }
 function updateEnemies(dt,step){
@@ -1667,7 +1679,8 @@ function updateEnemies(dt,step){
       if(e.type==="imp"||e.type==="demon"){ e.fireCd=(e.fireCd==null?1.5:e.fireCd-dt); if(e.fireCd<=0&&Math.hypot(player.x-e.x,player.y-e.y)<480){ enemyFire(e.x+e.w/2,e.y+e.h/2,e.dmg); e.fireCd=e.type==="demon"?1.4:1.8; } }
     } else { e.vy=Math.min(e.vy+GRAV*step,MAX_FALL); e.hop-=dt;
       if(e.onGround&&e.hop<=0){ const d=Math.sign(player.x-e.x)||1; e.vx=d*(e.type==="zombie"?1.6:2.2); if(e.type!=="zombie"||Math.random()<0.5)e.vy=-8; e.hop=(e.type==="zombie"?0.4:0.9)+Math.random()*0.6; }
-      e.vx*=Math.pow(0.96,step); moveEntity(e,e.w,e.h,step); }
+      e.vx*=Math.pow(0.96,step); moveEntity(e,e.w,e.h,step);
+      if(e.type==="pirate_gunner"){ e.fireCd=(e.fireCd==null?1.0:e.fireCd-dt); if(e.fireCd<=0&&Math.hypot(player.x-e.x,player.y-e.y)<420){ enemyFire(e.x+e.w/2,e.y+e.h/2,e.dmg); e.fireCd=1.6; } } }
     if(player.invuln<=0&&rectHit(e.x,e.y,e.w,e.h,player.x,player.y,PW,PH)) hurtPlayer(e.dmg,Math.sign(player.x-e.x)||1);
     if(getT(Math.floor((e.x+e.w/2)/T),Math.floor((e.y+e.h-2)/T))===SPIKE)e.hp-=dt*40;
     if(e.hp<=0){ spawnParticles(e.x+e.w/2,e.y+e.h/2,e.col,14); if(e.type==="eye"&&Math.random()<0.5)addItem("mat","lens",1);
@@ -1685,6 +1698,9 @@ function updateEnemies(dt,step){
       if(e.type==="demon"){ if(Math.random()<0.5)addItem("mat","soul_fire",1); if(Math.random()<0.25)addItem("mat","hellstone_bar",1); }
       if(e.type==="lavaslime"&&Math.random()<0.4)addItem("mat","soul_fire",1);
       if(e.type==="star_wisp")addItem("mat","stardust",1+Math.floor(Math.random()*2));
+      if(e.type==="pirate"||e.type==="pirate_gunner"){ if(pirateInvasion)pirateKills++; if(Math.random()<0.5)addItem("mat","doubloon",1); }
+      if(e.type==="pirate_captain"){ addItem("mat","doubloon",8+Math.floor(Math.random()*8)); if(Math.random()<0.6)addItem("tool","cutlass",1); if(Math.random()<0.5)addItem("tool","cannon",1); if(Math.random()<0.4)addItem("acc","pirate_hat",1); flash("☠️ Le Capitaine pirate est vaincu !"); }
+      if((e.type==="shark"||e.type==="jellyfish")&&Math.random()<0.04)addItem("use","pirate_map",1);
       if(slimeRain&&(e.type==="slime"||e.type==="babyslime"||e.type==="iceslime"))slimeKills++;
       if((e.type==="pumpkinhead"||e.type==="reaper")){ if(Math.random()<0.6)addItem("mat","candy",1); if(pumpkinMoon)pumpkinKills++; }
       if((e.type==="iceslime"||e.type==="frostzombie"||e.type==="icegolem")){ if(Math.random()<0.6)addItem("mat","ice_shard",1); if(frostMoon)frostKills++; }
@@ -1693,7 +1709,7 @@ function updateEnemies(dt,step){
       bestiary[e.type]=(bestiary[e.type]||0)+1;
       if(e.elite&&!e.fromStatue){ coins+=20; if(Math.random()<0.35)addItem("mat","nightmare_shard",1); }
       if(!e.fromStatue){ coins+=(COINS[e.type]||1)+Math.floor(Math.random()*3); spawnParticles(e.x+e.w/2,e.y+e.h/2,"#ffd24a",6); } dirtyUI=true; enemies.splice(i,1); continue; }
-    if((!isNight()&&!e.fly&&!e.army&&e.type!=="dungeon_guardian"&&e.type!=="crab_king"&&Math.random()<dt*0.5)||Math.abs(e.x-player.x)>VW*1.5)enemies.splice(i,1);
+    if((!isNight()&&!e.fly&&!e.army&&!e.pirate&&e.type!=="dungeon_guardian"&&e.type!=="crab_king"&&Math.random()<dt*0.5)||Math.abs(e.x-player.x)>VW*1.8)enemies.splice(i,1);
   }
   if(boss)updateBoss(dt,step);
 }
@@ -1838,6 +1854,13 @@ function updateFrostMoon(dt){ if(!frostMoon)return; frostMoonT-=dt;
   if(enemies.length<14&&Math.random()<dt*2.2){ const side=Math.random()<0.5?-1:1, sx=clamp(Math.floor((player.x+side*(VW/2+60))/T),2,WORLD_W-3), sy=clamp(surfaceAt(sx)-2,2,WORLD_H-3);
     if(Math.abs(sx*T-player.x)<VW*1.2){ const r=Math.random(); spawnEnemy(r<0.55?"frostzombie":r<0.85?"iceslime":"icegolem",sx*T,sy*T); enemies[enemies.length-1].fmoon=true; } } }
 function startSlimeRain(){ if(slimeRain){return;} slimeRain=true; slimeRainT=75; slimeKills=0; flash("🟦 Une pluie de slimes s'abat !"); }
+function startPirateInvasion(){ if(pirateInvasion)return; pirateInvasion=true; pirateT=90; pirateKills=0; pirateBossUp=false; flash("🏴‍☠️ Une invasion pirate déferle du large !"); }
+function updatePirateInvasion(dt){ if(!pirateInvasion)return; pirateT-=dt;
+  if(pirateKills>=15&&!pirateBossUp&&!enemies.some(e=>e.type==="pirate_captain")){ const side=Math.random()<0.5?-1:1, sx=clamp(Math.floor((player.x+side*(VW/2+40))/T),2,WORLD_W-3), sy=clamp(surfaceAt(sx)-2,2,WORLD_H-3); spawnEnemy("pirate_captain",sx*T,sy*T); enemies[enemies.length-1].pirate=true; pirateBossUp=true; flash("🏴‍☠️ Le Capitaine pirate débarque !"); }
+  if(pirateBossUp&&!enemies.some(e=>e.type==="pirate_captain")){ pirateInvasion=false; pirateBossUp=false; coins+=500; player.maxHp+=15; player.hp=player.maxHp; addItem("mat","doubloon",8); flash("🏆 Invasion pirate repoussée ! +15 PV max, 500 pièces"); dirtyUI=true; return; }
+  if(!pirateBossUp&&pirateT<=0){ pirateInvasion=false; flash("🏴‍☠️ Les pirates se retirent."); dirtyUI=true; return; }
+  if(enemies.length<12&&Math.random()<dt*2.0){ const side=Math.random()<0.5?-1:1, sx=clamp(Math.floor((player.x+side*(VW/2+50))/T),2,WORLD_W-3), sy=clamp(surfaceAt(sx)-2,2,WORLD_H-3);
+    if(Math.abs(sx*T-player.x)<VW*1.2){ spawnEnemy(Math.random()<0.6?"pirate":"pirate_gunner",sx*T,sy*T); enemies[enemies.length-1].pirate=true; } } }
 function spawnKingSlime(){ if(boss){flash("Le boss est déjà là");return;} boss={type:"boss",tier:10,slime:true,x:player.x+(gameTime>0.5?-200:200),y:player.y-220,vx:0,vy:0,w:88,h:64,hp:2200,maxHp:2200,dmg:34,col:"#4a9ad8",t:0,hopCd:1,spawnCd:3,tpCd:5}; flash("👑 Le Roi Slime surgit !"); }
 function updateSlimeRain(dt){ if(!slimeRain)return; slimeRainT-=dt;
   if(slimeKills>=18&&!boss){ spawnKingSlime(); }
@@ -2193,6 +2216,18 @@ function drawEnemy(e){ const sx=e.x-cam.x,sy=e.y-cam.y;
     ctx.fillStyle="rgba(191,224,255,.4)";ctx.beginPath();ctx.arc(cx2,cy2,e.w*0.6,0,7);ctx.fill();
     ctx.fillStyle=e.col;ctx.beginPath();for(let i=0;i<5;i++){const a=rot-Math.PI/2+i*Math.PI*2/5;ctx.lineTo(cx2+Math.cos(a)*e.w*0.48,cy2+Math.sin(a)*e.w*0.48);const a2=a+Math.PI/5;ctx.lineTo(cx2+Math.cos(a2)*e.w*0.2,cy2+Math.sin(a2)*e.w*0.2);}ctx.closePath();ctx.fill();
     ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(cx2,cy2,2.5,0,7);ctx.fill(); }
+  else if(e.type==="pirate"||e.type==="pirate_gunner"){ ctx.fillStyle="#2a2a30";ctx.fillRect(sx+3,sy+26,6,14);ctx.fillRect(sx+e.w-9,sy+26,6,14);
+    ctx.fillStyle=e.col;ctx.fillRect(sx+1,sy+12,e.w-2,16);ctx.fillStyle="#8a2a2a";ctx.fillRect(sx+1,sy+18,e.w-2,3);
+    ctx.fillStyle="#caa07a";ctx.fillRect(sx+4,sy+2,e.w-8,11);ctx.fillStyle="#3a2a1a";ctx.fillRect(sx+3,sy,e.w-6,4);
+    ctx.fillStyle="#fff";ctx.fillRect(sx+e.w/2-1,sy+1,2,2);ctx.fillStyle="#2a2a2a";ctx.fillRect(sx+6,sy+6,2,2);
+    if(e.type==="pirate_gunner"){ const d=Math.sign(player.x-e.x)||1; ctx.fillStyle="#3a3a44";ctx.fillRect(sx+(d>0?e.w-2:-6),sy+16,8,3); }
+    else { ctx.fillStyle="#cfd4dc";ctx.fillRect(sx+e.w-2,sy+8,3,18); } }
+  else if(e.type==="pirate_captain"){ ctx.fillStyle="#2a2a30";ctx.fillRect(sx+4,sy+32,7,16);ctx.fillRect(sx+e.w-11,sy+32,7,16);
+    ctx.fillStyle=e.col;ctx.fillRect(sx+1,sy+14,e.w-2,20);ctx.fillStyle="#e8c33a";ctx.fillRect(sx+e.w/2-1,sy+16,2,16);ctx.fillRect(sx+4,sy+22,e.w-8,2);
+    ctx.fillStyle="#caa07a";ctx.fillRect(sx+6,sy+2,e.w-12,13);
+    ctx.fillStyle="#1a1a1a";ctx.beginPath();ctx.moveTo(sx+2,sy+3);ctx.lineTo(sx+e.w-2,sy+3);ctx.lineTo(sx+e.w/2,sy-4);ctx.closePath();ctx.fill();ctx.fillStyle="#e8e8e8";ctx.fillRect(sx+e.w/2-3,sy-1,6,3);
+    ctx.fillStyle="#2a2a2a";ctx.fillRect(sx+9,sy+7,2,2);ctx.fillStyle="#8a2a2a";ctx.fillRect(sx+e.w-13,sy+6,4,4);
+    ctx.fillStyle="#cfd4dc";ctx.fillRect(sx+e.w-1,sy+10,4,24); }
   else if(e.type==="goblin"){ ctx.fillStyle="#3a6a30";ctx.fillRect(sx+2,sy+22,6,16);ctx.fillRect(sx+e.w-8,sy+22,6,16);
     ctx.fillStyle="#6a4a2a";ctx.fillRect(sx,sy+11,e.w,12);ctx.fillStyle=e.col;ctx.fillRect(sx+2,sy,e.w-4,12);
     ctx.beginPath();ctx.moveTo(sx+2,sy+4);ctx.lineTo(sx-4,sy+1);ctx.lineTo(sx+2,sy+8);ctx.fill();
@@ -2376,7 +2411,7 @@ function respawn(){ dead=false; document.getElementById("death").style.display="
 function rle(arr){ const out=[];let v=arr[0],c=1; for(let i=1;i<arr.length;i++){if(arr[i]===v&&c<65535)c++;else{out.push(v,c);v=arr[i];c=1;}} out.push(v,c); return out; }
 function unrle(out,len){ const arr=new Uint8Array(len);let p=0; for(let i=0;i<out.length;i+=2){const v=out[i],c=out[i+1];for(let j=0;j<c;j++)arr[p++]=v;} return arr; }
 function save(){ try{ const chests=[]; chestData.forEach((v,k)=>chests.push([k,v])); const cnames=[]; chestNames.forEach((v,k)=>cnames.push([k,v]));
-  localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,seed,world:rle(world),liquid:rle(liquid),walls:rle(walls),wires:rle(wires),tints:rle(tints),chests,cnames,coins,merchantArrived,bossKills,nurseArrived,wizardArrived,blacksmithArrived,dryadArrived,anglerArrived,fishCaught,anglerQuest,hardmode,nightmare,tinkererArrived,armsDealerArrived,painterArrived,taxCollectorArrived,taxPool,quest,achievements,blocksPlaced,questsDone,bestiary,travelerHere,travelerStock,blocksMined,deaths,timePlayed,slimeRain,slimeRainT,slimeKills,
+  localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,seed,world:rle(world),liquid:rle(liquid),walls:rle(walls),wires:rle(wires),tints:rle(tints),chests,cnames,coins,merchantArrived,bossKills,nurseArrived,wizardArrived,blacksmithArrived,dryadArrived,anglerArrived,fishCaught,anglerQuest,hardmode,nightmare,tinkererArrived,armsDealerArrived,painterArrived,taxCollectorArrived,taxPool,quest,achievements,blocksPlaced,questsDone,bestiary,travelerHere,travelerStock,blocksMined,deaths,timePlayed,slimeRain,slimeRainT,slimeKills,pirateInvasion,pirateT,pirateKills,pirateBossUp,
     px:player.x,py:player.y,hp:player.hp,maxHp:player.maxHp,mana:player.mana,maxMana:player.maxMana,armor:player.armorArr,acc:player.acc,acc2:player.acc2,pet:player.pet,cpet:player.combatPet,mtd:player.mount,spx:player.spawnX,spy:player.spawnY,
     inv,cur:cursor,sel:selected,time:gameTime})); }catch(err){flash("Sauvegarde impossible (espace plein)");console.warn(err);} }
 function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
@@ -2387,7 +2422,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
     tints=d.tints?unrle(d.tints,WORLD_W*WORLD_H):new Uint8Array(WORLD_W*WORLD_H);
     chestData=new Map(); if(d.chests)d.chests.forEach(([k,v])=>chestData.set(k,v));
     chestNames=new Map(); if(d.cnames)d.cnames.forEach(([k,v])=>chestNames.set(k,v));
-    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; anglerArrived=!!d.anglerArrived; fishCaught=d.fishCaught||0; anglerQuest=d.anglerQuest||null; hardmode=!!d.hardmode; nightmare=!!d.nightmare; tinkererArrived=!!d.tinkererArrived; armsDealerArrived=!!d.armsDealerArrived; painterArrived=!!d.painterArrived; taxCollectorArrived=!!d.taxCollectorArrived; taxPool=d.taxPool||0; quest=d.quest||null; achievements=d.achievements||{}; blocksPlaced=d.blocksPlaced||0; questsDone=d.questsDone||0; bestiary=d.bestiary||{}; travelerHere=!!d.travelerHere; travelerStock=d.travelerStock||null; blocksMined=d.blocksMined||0; deaths=d.deaths||0; timePlayed=d.timePlayed||0; slimeRain=!!d.slimeRain; slimeRainT=d.slimeRainT||0; slimeKills=d.slimeKills||0; invasionT=0; army=null; bloodMoon=false; eclipse=false; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0; meteorFell=false;
+    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; anglerArrived=!!d.anglerArrived; fishCaught=d.fishCaught||0; anglerQuest=d.anglerQuest||null; hardmode=!!d.hardmode; nightmare=!!d.nightmare; tinkererArrived=!!d.tinkererArrived; armsDealerArrived=!!d.armsDealerArrived; painterArrived=!!d.painterArrived; taxCollectorArrived=!!d.taxCollectorArrived; taxPool=d.taxPool||0; quest=d.quest||null; achievements=d.achievements||{}; blocksPlaced=d.blocksPlaced||0; questsDone=d.questsDone||0; bestiary=d.bestiary||{}; travelerHere=!!d.travelerHere; travelerStock=d.travelerStock||null; blocksMined=d.blocksMined||0; deaths=d.deaths||0; timePlayed=d.timePlayed||0; slimeRain=!!d.slimeRain; slimeRainT=d.slimeRainT||0; slimeKills=d.slimeKills||0; pirateInvasion=!!d.pirateInvasion; pirateT=d.pirateT||0; pirateKills=d.pirateKills||0; pirateBossUp=!!d.pirateBossUp; invasionT=0; army=null; bloodMoon=false; eclipse=false; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0; meteorFell=false;
     player.x=d.px;player.y=d.py;player.hp=d.hp;player.maxHp=d.maxHp||100;player.mana=d.mana||0;player.maxMana=d.maxMana||20;player.armorArr=d.armor||[null,null,null];player.acc=d.acc||null;player.acc2=d.acc2||null;
     player.pet=typeof d.pet==="string"?d.pet:(d.pet?"sprite":null); player.combatPet=d.cpet||null; player.mount=typeof d.mtd==="string"?d.mtd:(d.mtd?"slime":null); player.spawnX=d.spx!=null?d.spx:Math.floor(WORLD_W/2)*T; player.spawnY=d.spy!=null?d.spy:(surfaceAt(Math.floor(WORLD_W/2))-6)*T; player.buffs={}; player.fishing=null; player.breath=100;
     selected=d.sel||0; gameTime=d.time||0.3; inv=d.inv?d.inv.slice(0,36):new Array(36).fill(null);
@@ -2398,7 +2433,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
 function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null]; player.acc=null; player.acc2=null;
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
-  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;nightmare=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;travelerHere=false;travelerStock=null;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;meteorFell=false;slimeRain=false;slimeRainT=0;slimeKills=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;achievements={};blocksPlaced=0;questsDone=0;bestiary={};showBestiary=false;blocksMined=0;deaths=0;timePlayed=0;showStats=false;curShop=null;player.buffs={};player.fishing=null;player.pet=null;player.combatPet=null;player.mount=null;player.flyTime=0;player.grapple=null;player.breath=100;glows=[];trapCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;
+  selected=0;gameTime=0.30;enemies=[];projectiles=[];particles=[];boss=null;dead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;nightmare=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;travelerHere=false;travelerStock=null;raining=false;weatherT=80;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;meteorFell=false;slimeRain=false;slimeRainT=0;slimeKills=0;pirateInvasion=false;pirateT=0;pirateKills=0;pirateBossUp=false;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;achievements={};blocksPlaced=0;questsDone=0;bestiary={};showBestiary=false;blocksMined=0;deaths=0;timePlayed=0;showStats=false;curShop=null;player.buffs={};player.fishing=null;player.pet=null;player.combatPet=null;player.mount=null;player.flyTime=0;player.grapple=null;player.breath=100;glows=[];trapCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;
   npcs=[]; spawnNPC("guide");
   document.getElementById("death").style.display="none";
   const c=Math.floor(WORLD_W/2);player.x=c*T;player.y=(surfaceAt(c)-6)*T;player.vx=player.vy=0;player.spawnX=player.x;player.spawnY=player.y;
