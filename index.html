@@ -364,7 +364,7 @@ const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenb
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
   hp_potion:{name:"Potion de soin",col:"#e23a4a"}, mp_potion:{name:"Potion de mana",col:"#3a6ae2"},
   cooked_fish:{name:"Poisson grillé",col:"#d8a25a"}, mushroom_soup:{name:"Soupe de champignons",col:"#c87a3a"},
-  swift_potion:{name:"Potion de hâte",col:"#5ad6e0"}, ironskin_potion:{name:"Potion de fer",col:"#c9c9d4"}, pet_egg:{name:"Œuf de familier",col:"#8ad6a0"}, pet_cat:{name:"Panier à chat",col:"#e0a04a"}, pet_fairy:{name:"Bocal à fée",col:"#ff9ad0"}, pet_dog:{name:"Niche à chien",col:"#b0824a"}, pet_bunny:{name:"Cage à lapin",col:"#e8e0d0"}, pet_dragon:{name:"Œuf de dragonneau",col:"#4a9a5a"}, shine_potion:{name:"Potion de lumière",col:"#ffe27a"},
+  swift_potion:{name:"Potion de hâte",col:"#5ad6e0"}, ironskin_potion:{name:"Potion de fer",col:"#c9c9d4"}, wrath_potion:{name:"Potion de furie",col:"#ff5a3a"}, endurance_potion:{name:"Potion d'endurance",col:"#c8a05a"}, summoning_potion:{name:"Potion d'invocation",col:"#9a6ae0"}, pet_egg:{name:"Œuf de familier",col:"#8ad6a0"}, pet_cat:{name:"Panier à chat",col:"#e0a04a"}, pet_fairy:{name:"Bocal à fée",col:"#ff9ad0"}, pet_dog:{name:"Niche à chien",col:"#b0824a"}, pet_bunny:{name:"Cage à lapin",col:"#e8e0d0"}, pet_dragon:{name:"Œuf de dragonneau",col:"#4a9a5a"}, shine_potion:{name:"Potion de lumière",col:"#ffe27a"},
   fishing_potion:{name:"Potion de pêche",col:"#3a9ad6"}, crate:{name:"Caisse en bois",col:"#a87a48"}, gold_crate:{name:"Caisse dorée",col:"#e8c33a"}, dye_kit:{name:"Kit de teinture",col:"#e85a8a"},
   army_horn:{name:"Cor de guerre",col:"#b08a3a"}, glow_soup:{name:"Soupe lumineuse",col:"#7fe0ff"},
   pumpkin_medallion:{name:"Médaillon citrouille",col:"#ff8a2a"}, pumpkin_pie:{name:"Tarte à la citrouille",col:"#d2691e"},
@@ -372,7 +372,7 @@ const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{nam
   frost_core:{name:"Noyau de gel",col:"#aae0ff"}, frost_potion:{name:"Potion de givre",col:"#8ad0e8"},
   recall_potion:{name:"Potion de rappel",col:"#c9b0ff"}, wormhole_potion:{name:"Potion trou de ver",col:"#7a5ad0"}, combat_pet:{name:"Esprit combattant",col:"#9ad6ff"},
   pirate_map:{name:"Carte au trésor",col:"#caa86a"}, martian_beacon:{name:"Balise martienne",col:"#6ac0d0"} };
-const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"}, shine:{name:"Lumière",col:"#ffe27a"}, fishing:{name:"Pêche chanceuse",col:"#3a9ad6"} };
+const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"}, shine:{name:"Lumière",col:"#ffe27a"}, fishing:{name:"Pêche chanceuse",col:"#3a9ad6"}, wrath:{name:"Furie",col:"#ff5a3a"}, endurance:{name:"Endurance",col:"#c8a05a"}, summoning:{name:"Invocation",col:"#9a6ae0"} };
 
 // ---- recettes ----
 const R=(out,ins,station)=>({out,ins,station});
@@ -554,6 +554,9 @@ const RECIPES=[
   R({kind:"use",id:"nightowl_potion"},[ma("glowmush",2)],"alchemy"),
   R({kind:"use",id:"swift_potion"},[ma("mushroom",1),ma("feather",1)],"alchemy"),
   R({kind:"use",id:"ironskin_potion"},[ma("mushroom",1),ma("iron_bar",1)],"alchemy"),
+  R({kind:"use",id:"wrath_potion"},[ma("herb",1),ma("soul_fire",1)],"alchemy"),
+  R({kind:"use",id:"endurance_potion"},[ma("herb",1),ma("iron_bar",2)],"alchemy"),
+  R({kind:"use",id:"summoning_potion"},[ma("herb",1),ma("spider_fang",1)],"alchemy"),
   // phase 17 (câblage)
   R({kind:"tool",id:"wrench"},[ma("iron_bar",2)],"anvil"),
   R({kind:"tile",id:LEVER},[ti(STONE,2),ma("iron_bar",1)],"anvil"),
@@ -1315,7 +1318,7 @@ function gemBoost(sel,base){ if(!sel||!sel.gem)return base; if(sel.gem==="ruby")
 function stationMult(cat){ let m=1;
   if(cat==="melee"&&nearTile(SHARPENING,8))m*=1.15; if(cat==="ranged"&&nearTile(AMMOBOX,8))m*=1.15; if(cat==="magic"&&nearTile(CRYSTALBALL,8))m*=1.15;
   if(armorClass()===cat)m*=1.25; return m; }
-function atkDmg(sel,base,cat){ return Math.round(gemBoost(sel,base)*stationMult(cat)*prefixDmg(sel)); }
+function atkDmg(sel,base,cat){ return Math.round(gemBoost(sel,base)*stationMult(cat)*prefixDmg(sel)*(player.buffs.wrath>0?1.15:1)); }
 function manaCost(sel){ const m=TOOLS[sel.id].mana||0; return sel&&sel.gem==="sapphire"?Math.max(1,Math.round(m*0.6)):m; }
 function drillArea(cx,cy,maxHard){ maxHard=maxHard||4; for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){ if(!dx&&!dy)continue; const x=cx+dx,y=cy+dy; if(x<1||x>=WORLD_W-1||y<1||isBedrock(y))continue; const id=getT(x,y); if(id===AIR||isLiquid(id)||id===CHEST)continue; if(TILE[id].hard<=maxHard)breakTile(x,y,id); } }
 // bonus de set : porter les 3 pièces d'une même famille d'armure
@@ -1518,7 +1521,7 @@ function handleActions(dt){
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="brush"){
     if(mouse.left&&player.placeCd<=0&&inReach&&getT(mouse.tx,mouse.ty)!==AIR){ tints[idx(mouse.tx,mouse.ty)]=paintColor; player.placeCd=0.08; if(DYES[paintColor])spawnParticles(mouse.tx*T+T/2,mouse.ty*T+T/2,DYES[paintColor],3); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="summoner"){
-    if(mouse.left&&player.useCd<=0){ player.useCd=0.5; const cap=3+(hasAcc("summonplus")?1:0)+(nearTile(BEWITCH,8)?1:0)+(armorClass()==="summon"?1:0); if(minions.length>=cap)flash("Maximum de familiers"); else if(player.mana<TOOLS[sel.id].mana)flash("Pas assez de mana"); else { player.mana-=TOOLS[sel.id].mana; minions.push({x:player.x,y:player.y,vx:0,vy:0,t:0,cd:0,dmg:TOOLS[sel.id].dmg,kind:TOOLS[sel.id].minion||"spirit"}); flash("Familier de combat invoqué !"); } } return; }
+    if(mouse.left&&player.useCd<=0){ player.useCd=0.5; const cap=3+(hasAcc("summonplus")?1:0)+(nearTile(BEWITCH,8)?1:0)+(armorClass()==="summon"?1:0)+(player.buffs.summoning>0?1:0); if(minions.length>=cap)flash("Maximum de familiers"); else if(player.mana<TOOLS[sel.id].mana)flash("Pas assez de mana"); else { player.mana-=TOOLS[sel.id].mana; minions.push({x:player.x,y:player.y,vx:0,vy:0,t:0,cd:0,dmg:TOOLS[sel.id].dmg,kind:TOOLS[sel.id].minion||"spirit"}); flash("Familier de combat invoqué !"); } } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="mount"){
     if(mouse.left&&player.useCd<=0){ const mid=TOOLS[sel.id].mountId||"slime"; player.mount=(player.mount===mid)?null:mid; player.useCd=0.4; flash(player.mount?"En selle !":"Descendu de monture"); } return; }
   if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="bow"){
@@ -1579,6 +1582,9 @@ function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("
   else if(sel.id==="cooked_fish"){ player.buffs.regen=60; player.hp=Math.min(player.maxHp,player.hp+30); removeItem("use","cooked_fish",1); flash("🍴 Régénération (60s)"); }
   else if(sel.id==="mushroom_soup"){ player.buffs.regen=Math.max(player.buffs.regen||0,90); removeItem("use","mushroom_soup",1); flash("🍲 Régénération (90s)"); }
   else if(sel.id==="swift_potion"){ player.buffs.swift=45; removeItem("use","swift_potion",1); flash("💨 Hâte (45s)"); }
+  else if(sel.id==="wrath_potion"){ player.buffs.wrath=Math.max(player.buffs.wrath||0,120); removeItem("use","wrath_potion",1); flash("🔥 Furie : +15% de dégâts (120s)"); }
+  else if(sel.id==="endurance_potion"){ player.buffs.endurance=Math.max(player.buffs.endurance||0,120); removeItem("use","endurance_potion",1); flash("🛡 Endurance : -15% de dégâts subis (120s)"); }
+  else if(sel.id==="summoning_potion"){ player.buffs.summoning=Math.max(player.buffs.summoning||0,180); removeItem("use","summoning_potion",1); flash("🔮 Invocation : +1 familier max (180s)"); }
   else if(sel.id==="ironskin_potion"){ player.buffs.iron=45; removeItem("use","ironskin_potion",1); flash("🛡️ Peau de fer (45s)"); }
   else if(sel.id==="pet_egg"){ player.pet=(player.pet==="sprite")?null:"sprite"; flash(player.pet?"🐾 Un esprit te suit !":"Familier rangé"); }
   else if(sel.id==="pet_cat"){ player.pet=(player.pet==="cat")?null:"cat"; flash(player.pet?"🐱 Un chat te suit !":"Familier rangé"); }
@@ -1994,7 +2000,7 @@ function updateEnemies(dt,step){
   if(boss)updateBoss(dt,step);
 }
 function rectHit(ax,ay,aw,ah,bx,by,bw,bh){return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by;}
-function hurtPlayer(dmg,dir){ const real=Math.max(1,dmg-totalDef()); player.hp-=real; player.invuln=0.8; player.vx=dir*7; player.vy=-6; spawnParticles(player.x+PW/2,player.y+PH/2,"#ff3030",8);
+function hurtPlayer(dmg,dir){ const base=player.buffs.endurance>0?Math.round(dmg*0.85):dmg; const real=Math.max(1,base-totalDef()); player.hp-=real; player.invuln=0.8; player.vx=dir*7; player.vy=-6; spawnParticles(player.x+PW/2,player.y+PH/2,"#ff3030",8);
   if(armorSet()==="titanium"){ for(const e of enemies){ if(Math.hypot(e.x+e.w/2-(player.x+PW/2),e.y+e.h/2-(player.y+PH/2))<72){ e.hp-=18; spawnParticles(e.x+e.w/2,e.y+e.h/2,"#dce0e8",4); } } } }
 function summonBoss(sel){ if(boss){flash("Le boss est déjà là");return;}
   if(sel.id==="eye"){ if(!isNight()){flash("L'Œil maléfique n'apparaît que la nuit");return;}
