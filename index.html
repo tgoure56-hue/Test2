@@ -329,7 +329,7 @@ const ACC={ cloud:{name:"Bottes nuage",eff:"djump"}, boots:{name:"Bottes véloce
   talisman:{name:"Talisman de régénération",eff:"regen"}, amulet:{name:"Amulette de mana",eff:"manaregen"}, wings:{name:"Ailes de cristal",eff:"fly"}, lavaboots:{name:"Bottes de lave",eff:"lava"}, headlamp:{name:"Lampe frontale",eff:"glow"}, tackle:{name:"Boîte à pêche",eff:"angler"},
   tinker_band:{name:"Brassard du bricoleur",eff:"def",def:8}, mech_heart:{name:"Cœur mécanique",eff:"def",def:10}, celestial_emblem:{name:"Emblème céleste",eff:"def",def:14}, aegis_nightmare:{name:"Égide du cauchemar",eff:"def",def:16},
   spider_charm:{name:"Amulette d'araignée",eff:"summonplus",def:4}, ninja_hood:{name:"Cape ninja",eff:"speed",def:3}, dash_boots:{name:"Bottes d'élan",eff:"dash",def:2}, diving_gear:{name:"Équipement de plongée",eff:"gills",def:2}, cosmic_wings:{name:"Ailes cosmiques",eff:"fly",def:12}, pirate_hat:{name:"Tricorne de pirate",eff:"speed",def:4}, jetpack:{name:"Jetpack",eff:"fly",def:8}, tech_charm:{name:"Amulette technologique",eff:"manaregen",def:6},
-  miner_charm:{name:"Amulette du mineur",eff:"mining",def:2}, lucky_coin:{name:"Pièce porte-bonheur",eff:"luck",def:1}, frog_leg:{name:"Patte de grenouille",eff:"jump",def:1}, nature_charm:{name:"Charme de la nature",eff:"regen",def:6} };
+  miner_charm:{name:"Amulette du mineur",eff:"mining",def:2}, lucky_coin:{name:"Pièce porte-bonheur",eff:"luck",def:1}, frog_leg:{name:"Patte de grenouille",eff:"jump",def:1}, nature_charm:{name:"Charme de la nature",eff:"regen",def:6}, earth_charm:{name:"Amulette tellurique",eff:"def",def:7} };
 const THROWS={ glowstick:{name:"Bâton lumineux",col:"#7fff9f"} };
 const ARMOR={
   wood_h:{name:"Casque bois",slot:"head",def:1}, wood_c:{name:"Plastron bois",slot:"chest",def:2}, wood_l:{name:"Jambières bois",slot:"legs",def:1},
@@ -355,7 +355,7 @@ const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Bar
   icefish:{name:"Poisson des glaces",col:"#aee4ff"}, junglefish:{name:"Barbeau de jungle",col:"#5ac04a"}, voidfish:{name:"Poisson du néant",col:"#8a4ad0"}, prismfish:{name:"Poisson prismatique",col:"#e08ad0"},
   mythril_bar:{name:"Barre de mythril",col:"#5fc9b0"}, adamantite_bar:{name:"Barre d'adamantite",col:"#d0506a"}, crystal_bar:{name:"Barre de cristal",col:"#7fe0ff"}, astralite_bar:{name:"Barre d'astralite",col:"#8a7aff"},
   cobalt_bar:{name:"Barre de cobalt",col:"#2a6ad0"}, titanium_bar:{name:"Barre de titane",col:"#c0c4cc"}, mech_soul:{name:"Âme mécanique",col:"#9fe0ff"},
-  glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"}, meteor_bar:{name:"Barre de météore",col:"#c8763a"}, herb:{name:"Herbe médicinale",col:"#3ac06a"}, nightmare_shard:{name:"Éclat de cauchemar",col:"#a03ad0"}, spider_fang:{name:"Croc d'araignée",col:"#c8b0d0"}, gel:{name:"Gel",col:"#6ab0e0"}, crimtane_bar:{name:"Barre de crimtane",col:"#c0392b"}, tissue:{name:"Échantillon de tissu",col:"#e0304a"}, coral:{name:"Corail",col:"#ff7a9a"}, pearl:{name:"Perle",col:"#f0e8f4"}, soul_fire:{name:"Âme de feu",col:"#ff8a3a"}, stardust:{name:"Poussière d'étoile",col:"#ffe27a"}, doubloon:{name:"Doublon",col:"#e8c33a"}, frog:{name:"Grenouille",col:"#5aa04a"}, butterfly:{name:"Papillon",col:"#e0a0e0"}, firefly:{name:"Luciole",col:"#fff7a0"}, martian_plating:{name:"Plaque martienne",col:"#8ab0c0"} };
+  glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"}, meteor_bar:{name:"Barre de météore",col:"#c8763a"}, herb:{name:"Herbe médicinale",col:"#3ac06a"}, nightmare_shard:{name:"Éclat de cauchemar",col:"#a03ad0"}, spider_fang:{name:"Croc d'araignée",col:"#c8b0d0"}, gel:{name:"Gel",col:"#6ab0e0"}, crimtane_bar:{name:"Barre de crimtane",col:"#c0392b"}, tissue:{name:"Échantillon de tissu",col:"#e0304a"}, coral:{name:"Corail",col:"#ff7a9a"}, pearl:{name:"Perle",col:"#f0e8f4"}, soul_fire:{name:"Âme de feu",col:"#ff8a3a"}, stardust:{name:"Poussière d'étoile",col:"#ffe27a"}, doubloon:{name:"Doublon",col:"#e8c33a"}, frog:{name:"Grenouille",col:"#5aa04a"}, butterfly:{name:"Papillon",col:"#e0a0e0"}, firefly:{name:"Luciole",col:"#fff7a0"}, martian_plating:{name:"Plaque martienne",col:"#8ab0c0"}, stone_tablet:{name:"Tablette de pierre",col:"#8a94a0"} };
 const AMMO={ arrow:{name:"Flèche",col:"#caa15a",dmg:5} };
 const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenbee:{name:"Larve royale"}, golem:{name:"Noyau de golem"}, worm:{name:"Nourriture maudite"}, moon:{name:"Tablette céleste"}, mechworm:{name:"Engrenage maudit"}, titan:{name:"Relique céleste"}, broodmother:{name:"Cocon royal"}, slime_crown:{name:"Couronne gluante"}, celestial_sigil:{name:"Sceau céleste"}, bulb:{name:"Bulbe carnivore"} };
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
@@ -685,6 +685,7 @@ const RECIPES=[
   // phase 51 (filet à papillons & bocaux)
   R({kind:"tool",id:"bugnet"},[ma("silk",4),ti(PLANK,4)],"table"),
   R({kind:"acc",id:"frog_leg"},[ma("frog",3),ma("iron_bar",2)],"anvil"),
+  R({kind:"acc",id:"earth_charm"},[ma("stone_tablet",6),ma("iron_bar",3)],"anvil"),
   R({kind:"tile",id:FIREFLYJAR},[ma("firefly",3),ti(GLASS,2)],"table"),
   R({kind:"tile",id:BUTTERFLYJAR},[ma("butterfly",3),ti(GLASS,2)],"table"),
   // phase 54 (fouets — classe invocateur)
@@ -1717,9 +1718,11 @@ const ENEMY={
   martian:{w:22,h:40,hp:200,dmg:32,col:"#7a8a9a",fly:false},
   martian_ufo:{w:32,h:22,hp:150,dmg:28,col:"#9ab0c0",fly:true},
   martian_saucer:{w:60,h:38,hp:1600,dmg:52,col:"#aab8c4",fly:true},
+  medusa:{w:24,h:34,hp:130,dmg:26,col:"#9aa8b0",fly:true},
+  granite_elemental:{w:28,h:34,hp:175,dmg:30,col:"#4a5560",fly:true},
 };
-const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8,shark:14,jellyfish:6,wraith:25,possessed:30,spore:10,knight:16,general:120,harpy:14,pumpkinhead:22,reaper:40,hornet:9,iceslime:5,frostzombie:24,icegolem:110,antlion:11,vulture:8,templeguard:60,dungeon_guardian:90,spider:8,spiderling:2,babyslime:2,facemonster:14,crimera:10,crab_king:80,demon:22,lavaslime:8,star_wisp:16,pirate:12,pirate_gunner:12,pirate_captain:130,martian:16,martian_ufo:16,martian_saucer:180};
-const ENEMY_NAMES={slime:"Slime",zombie:"Zombie",eye:"Œil démoniaque",bat:"Chauve-souris",skeleton:"Squelette",imp:"Diablotin",bee:"Abeille",goblin:"Gobelin",devourer:"Dévoreur",pixie:"Fée",shark:"Requin",jellyfish:"Méduse",wraith:"Spectre",possessed:"Armure possédée",spore:"Spore",knight:"Chevalier",general:"Général",harpy:"Harpie",pumpkinhead:"Tête de citrouille",reaper:"Faucheur",hornet:"Frelon",iceslime:"Slime de glace",frostzombie:"Zombie de givre",icegolem:"Golem de glace",antlion:"Fourmilion",vulture:"Vautour",templeguard:"Gardien du temple",dungeon_guardian:"Gardien du donjon",spider:"Araignée",spiderling:"Araignéau",babyslime:"Bébé slime",facemonster:"Monstre-visage",crimera:"Crimera",crab_king:"Roi Crabe",demon:"Démon",lavaslime:"Slime de lave",star_wisp:"Feu follet stellaire",pirate:"Pirate",pirate_gunner:"Pirate tireur",pirate_captain:"Capitaine pirate",martian:"Soldat martien",martian_ufo:"Soucoupe martienne",martian_saucer:"Vaisseau-mère martien"};
+const COINS={slime:2,zombie:4,eye:5,bat:1,skeleton:7,imp:12,bee:1,goblin:6,devourer:9,pixie:8,shark:14,jellyfish:6,wraith:25,possessed:30,spore:10,knight:16,general:120,harpy:14,pumpkinhead:22,reaper:40,hornet:9,iceslime:5,frostzombie:24,icegolem:110,antlion:11,vulture:8,templeguard:60,dungeon_guardian:90,spider:8,spiderling:2,babyslime:2,facemonster:14,crimera:10,crab_king:80,demon:22,lavaslime:8,star_wisp:16,pirate:12,pirate_gunner:12,pirate_captain:130,martian:16,martian_ufo:16,martian_saucer:180,medusa:11,granite_elemental:13};
+const ENEMY_NAMES={slime:"Slime",zombie:"Zombie",eye:"Œil démoniaque",bat:"Chauve-souris",skeleton:"Squelette",imp:"Diablotin",bee:"Abeille",goblin:"Gobelin",devourer:"Dévoreur",pixie:"Fée",shark:"Requin",jellyfish:"Méduse",wraith:"Spectre",possessed:"Armure possédée",spore:"Spore",knight:"Chevalier",general:"Général",harpy:"Harpie",pumpkinhead:"Tête de citrouille",reaper:"Faucheur",hornet:"Frelon",iceslime:"Slime de glace",frostzombie:"Zombie de givre",icegolem:"Golem de glace",antlion:"Fourmilion",vulture:"Vautour",templeguard:"Gardien du temple",dungeon_guardian:"Gardien du donjon",spider:"Araignée",spiderling:"Araignéau",babyslime:"Bébé slime",facemonster:"Monstre-visage",crimera:"Crimera",crab_king:"Roi Crabe",demon:"Démon",lavaslime:"Slime de lave",star_wisp:"Feu follet stellaire",pirate:"Pirate",pirate_gunner:"Pirate tireur",pirate_captain:"Capitaine pirate",martian:"Soldat martien",martian_ufo:"Soucoupe martienne",martian_saucer:"Vaisseau-mère martien",medusa:"Gorgone",granite_elemental:"Élémentaire de granite"};
 function spawnEnemy(type,x,y){ const d=ENEMY[type], sc=(1+bossKills*0.12)*(nightmare?1.35:1), hp=Math.round(d.hp*sc); enemies.push({type,x,y,vx:0,vy:0,w:d.w,h:d.h,hp,maxHp:hp,dmg:Math.round(d.dmg*(1+bossKills*0.08)*(nightmare?1.25:1)),col:d.col,fly:d.fly,onGround:false,hop:Math.random(),t:Math.random()*9});
   if(nightmare&&Math.random()<0.15){ const e=enemies[enemies.length-1]; e.elite=true; e.hp=Math.round(e.hp*2); e.maxHp=e.hp; e.dmg=Math.round(e.dmg*1.5); } }
 function updateEnemies(dt,step){
@@ -1782,6 +1785,10 @@ function updateEnemies(dt,step){
   if(enemies.length<10&&Math.random()<dt*1.0){ const px=Math.floor(player.x/T),py=Math.floor(player.y/T); let near=false;
     for(let dx=-10;dx<=10&&!near;dx++)for(let dy=-8;dy<=8;dy++)if(getT(px+dx,py+dy)===SPIDERNEST||getT(px+dx,py+dy)===COBWEB){near=true;break;}
     if(near){ const sx=clamp(px+(Math.random()<0.5?-1:1)*(4+Math.floor(Math.random()*6)),2,WORLD_W-3), sy=clamp(py+Math.floor((Math.random()-0.5)*8),2,WORLD_H-3); if(getT(sx,sy)===AIR&&solidAt(sx,sy+1))spawnEnemy("spider",sx*T,sy*T); } }
+  // gorgones (marbre) et élémentaires (granite) dans les grottes correspondantes
+  if(enemies.length<9&&Math.random()<dt*1.0){ const px=Math.floor(player.x/T),py=Math.floor(player.y/T); let kind=null;
+    for(let dx=-9;dx<=9&&!kind;dx++)for(let dy=-7;dy<=7;dy++){ const g=getT(px+dx,py+dy); if(g===MARBLE){kind="medusa";break;} if(g===GRANITE){kind="granite_elemental";break;} }
+    if(kind){ const sx=clamp(px+(Math.random()<0.5?-1:1)*(4+Math.floor(Math.random()*6)),2,WORLD_W-3), sy=clamp(py+Math.floor((Math.random()-0.5)*8),2,WORLD_H-3); if(getT(sx,sy)===AIR)spawnEnemy(kind,sx*T,sy*T); } }
   for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; e.t+=dt; if(e.slow>0){e.slow-=dt;e.vx*=0.55;e.vy*=0.7;} if(e.yoyoCd>0)e.yoyoCd-=dt; if(e.tagT>0)e.tagT-=dt;
     if(e.fly){ const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1; const sp=e.type==="eye"?2.4:2.0;
       e.vx=lerp(e.vx,dx/d*sp,0.05)+(e.type==="bat"?Math.sin(e.t*6)*0.6:0); e.vy=lerp(e.vy,dy/d*sp,0.05)+(e.type==="bat"?Math.cos(e.t*5)*0.6:0);
@@ -1808,6 +1815,7 @@ function updateEnemies(dt,step){
       if(e.type==="crab_king"){ addItem("mat","coral",4+Math.floor(Math.random()*5)); addItem("mat","pearl",2+Math.floor(Math.random()*3)); if(Math.random()<0.5)addItem("acc","diving_gear",1); if(Math.random()<0.4)addItem("tool","trident",1); flash("🦀 Le Roi Crabe est vaincu !"); }
       if(e.type==="demon"){ if(Math.random()<0.5)addItem("mat","soul_fire",1); if(Math.random()<0.25)addItem("mat","hellstone_bar",1); }
       if(e.type==="lavaslime"&&Math.random()<0.4)addItem("mat","soul_fire",1);
+      if((e.type==="medusa"||e.type==="granite_elemental")&&Math.random()<0.45)addItem("mat","stone_tablet",1);
       if(e.type==="star_wisp"){ addItem("mat","stardust",1+Math.floor(Math.random()*2)); if(hardmode&&Math.random()<0.03)addItem("use","martian_beacon",1); }
       if(e.type==="pirate"||e.type==="pirate_gunner"){ if(pirateInvasion)pirateKills++; if(Math.random()<0.5)addItem("mat","doubloon",1); }
       if(e.type==="pirate_captain"){ addItem("mat","doubloon",8+Math.floor(Math.random()*8)); if(Math.random()<0.6)addItem("tool","cutlass",1); if(Math.random()<0.5)addItem("tool","cannon",1); if(Math.random()<0.4)addItem("acc","pirate_hat",1); flash("☠️ Le Capitaine pirate est vaincu !"); }
@@ -2406,6 +2414,14 @@ function drawEnemy(e){ const sx=e.x-cam.x,sy=e.y-cam.y;
     ctx.fillStyle="#cdeeff";ctx.beginPath();ctx.arc(sx+e.w/2,sy+6+bob,10,Math.PI,0);ctx.fill();
     ctx.fillStyle="#ff5a5a";for(let k=-2;k<=2;k++){ctx.beginPath();ctx.arc(sx+e.w/2+k*10,sy+e.h/2+10+bob,2,0,7);ctx.fill();}
     ctx.fillStyle="#3a4a5a";ctx.fillRect(sx+e.w/2-3,sy+e.h/2+14+bob,6,4); }
+  else if(e.type==="medusa"){ ctx.fillStyle=e.col;roundRect(sx+3,sy+10,e.w-6,e.h-12,6);ctx.fill();
+    ctx.fillStyle="#c2ccd4";ctx.beginPath();ctx.arc(sx+e.w/2,sy+10,8,Math.PI,0);ctx.fill();ctx.fillRect(sx+e.w/2-8,sy+10,16,4);
+    ctx.strokeStyle="#5a7a52";ctx.lineWidth=2;for(let k=-2;k<=2;k++){ctx.beginPath();ctx.moveTo(sx+e.w/2+k*3,sy+4);ctx.lineTo(sx+e.w/2+k*4,sy-4+Math.sin(e.t*6+k)*2);ctx.stroke();}
+    ctx.fillStyle="#ffe27a";ctx.fillRect(sx+e.w/2-5,sy+7,3,3);ctx.fillRect(sx+e.w/2+2,sy+7,3,3);ctx.fillStyle="#b03a3a";ctx.fillRect(sx+e.w/2-4,sy+8,1,1);ctx.fillRect(sx+e.w/2+3,sy+8,1,1); }
+  else if(e.type==="granite_elemental"){ ctx.save();ctx.translate(sx+e.w/2,sy+e.h/2);ctx.rotate(Math.sin(e.t)*0.2);
+    ctx.fillStyle=e.col;ctx.fillRect(-e.w/2,-e.h/2,e.w,e.h);ctx.fillStyle="#5a6678";ctx.fillRect(-e.w/2+3,-e.h/2+3,e.w-6,e.h-6);
+    ctx.fillStyle="#2a3240";ctx.fillRect(-e.w/2+6,-e.h/2+6,e.w-12,e.h-12);ctx.restore();
+    ctx.fillStyle="#8ad0ff";ctx.fillRect(sx+e.w/2-6,sy+e.h/2-3,4,4);ctx.fillRect(sx+e.w/2+2,sy+e.h/2-3,4,4); }
   else { ctx.fillStyle=e.col; roundRect(sx,sy,e.w,e.h,4); ctx.fill(); ctx.fillStyle="#fff"; ctx.fillRect(sx+4,sy+5,3,3); ctx.fillRect(sx+e.w-7,sy+5,3,3); }
   if(e.hp<e.maxHp){ ctx.fillStyle="#000";ctx.fillRect(sx,sy-6,e.w,3);ctx.fillStyle="#e33";ctx.fillRect(sx,sy-6,e.w*(e.hp/e.maxHp),3); }
 }
