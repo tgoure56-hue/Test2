@@ -2111,12 +2111,37 @@ const QUESTS=[
   {type:"kill",enemy:"slime",need:8,reward:60,desc:"Vaincre 8 slimes"},
   {type:"kill",enemy:"zombie",need:6,reward:90,desc:"Vaincre 6 zombies"},
   {type:"kill",enemy:"any",need:12,reward:80,desc:"Vaincre 12 monstres"},
+  {type:"kill",enemy:"skeleton",need:8,reward:130,desc:"Vaincre 8 squelettes"},
+  {type:"kill",enemy:"bat",need:10,reward:90,desc:"Vaincre 10 chauves-souris"},
+  {type:"kill",enemy:"spider",need:6,reward:150,desc:"Vaincre 6 araignées"},
+  {type:"kill",enemy:"harpy",need:6,reward:160,desc:"Vaincre 6 harpies"},
+  {type:"kill",enemy:"imp",need:8,reward:200,desc:"Vaincre 8 diablotins (enfer)"},
+  {type:"kill",enemy:"demon",need:6,reward:280,desc:"Vaincre 6 démons (enfer)"},
+  {type:"kill",enemy:"medusa",need:5,reward:240,desc:"Vaincre 5 gorgones"},
+  {type:"kill",enemy:"pirate",need:8,reward:220,desc:"Repousser 8 pirates"},
+  {type:"kill",enemy:"martian",need:8,reward:320,desc:"Repousser 8 martiens"},
   {type:"collect",kind:"tile",id:LOG,need:25,reward:50,desc:"Récolter 25 bois"},
+  {type:"collect",kind:"tile",id:STONE,need:40,reward:60,desc:"Miner 40 pierres"},
   {type:"collect",kind:"mat",id:"iron_bar",need:6,reward:120,desc:"Forger 6 barres de fer"},
+  {type:"collect",kind:"mat",id:"gold_bar",need:5,reward:170,desc:"Forger 5 barres d'or"},
+  {type:"collect",kind:"mat",id:"silk",need:8,reward:130,desc:"Filer 8 soies"},
+  {type:"collect",kind:"mat",id:"gel",need:12,reward:90,desc:"Récupérer 12 gels"},
   {type:"collect",kind:"mat",id:"mushroom",need:8,reward:70,desc:"Cueillir 8 champignons"},
+  {type:"collect",kind:"mat",id:"herb",need:6,reward:110,desc:"Cueillir 6 herbes médicinales"},
+  {type:"collect",kind:"mat",id:"coral",need:6,reward:150,desc:"Récolter 6 coraux (océan)"},
 ];
-function assignQuest(){ const q=QUESTS[Math.floor(Math.random()*QUESTS.length)]; quest={type:q.type,enemy:q.enemy,kind:q.kind,id:q.id,need:q.need,reward:q.reward,desc:q.desc,have:0}; }
-function questReward(){ coins+=quest.reward; addItem("use","hp_potion",1); questsDone++; flash("🏆 Quête accomplie ! +"+quest.reward+" pièces"); quest=null; dirtyUI=true; }
+let lastQuestDesc="";
+function assignQuest(){ let q; do{ q=QUESTS[Math.floor(Math.random()*QUESTS.length)]; }while(QUESTS.length>1&&q.desc===lastQuestDesc); lastQuestDesc=q.desc;
+  quest={type:q.type,enemy:q.enemy,kind:q.kind,id:q.id,need:q.need,reward:q.reward,desc:q.desc,have:0}; }
+// récompense : les pièces augmentent avec le nombre de quêtes accomplies, + un objet bonus varié
+function questReward(){ const total=quest.reward+questsDone*8; coins+=total; questsDone++;
+  const r=Math.random();
+  if(r<0.4)addItem("use","hp_potion",2);
+  else if(r<0.65)addItem("use","mp_potion",2);
+  else if(r<0.85)addItem("use","crate",1);
+  else addItem("use","fishing_potion",1);
+  if(questsDone%5===0){ addItem("use","gold_crate",1); flash("🏆 Quête accomplie ! +"+total+" pièces + caisse dorée (palier de "+questsDone+" !)"); }
+  else flash("🏆 Quête accomplie ! +"+total+" pièces"); quest=null; dirtyUI=true; }
 // ---- succès ----
 const ACHIEVEMENTS={ premier_boss:"Premier boss vaincu", chasseur:"5 boss vaincus", legende:"9 boss vaincus",
   pecheur:"10 poissons pêchés", riche:"1000 pièces amassées", batisseur:"100 blocs placés",
