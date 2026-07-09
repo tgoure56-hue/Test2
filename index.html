@@ -310,7 +310,7 @@ const TOOLS={
   staff4:{name:"Canon à plasma",type:"staff",dmg:54,mana:8,proj:"bolt"}, sword_titan:{name:"Lame céleste",type:"sword",dmg:230},
   staff5:{name:"Sceptre stellaire",type:"staff",dmg:62,mana:9,proj:"spark"}, staff6:{name:"Sceptre du néant",type:"staff",dmg:46,mana:12,proj:"bolt",shots:3,spread:0.22},
   summon_staff2:{name:"Bâton spectral",type:"summoner",dmg:40,mana:8,minion:"spirit"}, summon_staff3:{name:"Bâton des abysses",type:"summoner",dmg:58,mana:11,minion:"imp"}, spider_staff:{name:"Bâton d'araignée",type:"summoner",dmg:34,mana:7,minion:"spider"},
-  whip1:{name:"Fouet du dresseur",type:"whip",dmg:16,tag:5,reach:150}, whip2:{name:"Fouet stellaire",type:"whip",dmg:34,tag:12,reach:210},
+  whip1:{name:"Fouet du dresseur",type:"whip",dmg:16,tag:5,reach:150}, whip2:{name:"Fouet stellaire",type:"whip",dmg:34,tag:12,reach:210}, thorn_whip:{name:"Fouet d'épines",type:"whip",dmg:26,tag:9,reach:190},
   astral_sword:{name:"Lame astrale",type:"sword",dmg:155}, astral_gun:{name:"Fusil astral",type:"gun",dmg:58}, astral_staff:{name:"Sceptre astral",type:"staff",dmg:60,mana:7,proj:"bolt",shots:2,spread:0.18}, astral_summon:{name:"Bâton stellaire",type:"summoner",dmg:48,mana:9,minion:"spirit"},
   crim_sword:{name:"Tranche-sang",type:"sword",dmg:72}, trident:{name:"Trident",type:"spear",dmg:52},
   flamberge:{name:"Flamberge",type:"sword",dmg:88}, demon_scythe:{name:"Faux démoniaque",type:"staff",dmg:70,mana:8,proj:"fire",shots:1},
@@ -329,7 +329,7 @@ const ACC={ cloud:{name:"Bottes nuage",eff:"djump"}, boots:{name:"Bottes véloce
   talisman:{name:"Talisman de régénération",eff:"regen"}, amulet:{name:"Amulette de mana",eff:"manaregen"}, wings:{name:"Ailes de cristal",eff:"fly"}, lavaboots:{name:"Bottes de lave",eff:"lava"}, headlamp:{name:"Lampe frontale",eff:"glow"}, tackle:{name:"Boîte à pêche",eff:"angler"},
   tinker_band:{name:"Brassard du bricoleur",eff:"def",def:8}, mech_heart:{name:"Cœur mécanique",eff:"def",def:10}, celestial_emblem:{name:"Emblème céleste",eff:"def",def:14}, aegis_nightmare:{name:"Égide du cauchemar",eff:"def",def:16},
   spider_charm:{name:"Amulette d'araignée",eff:"summonplus",def:4}, ninja_hood:{name:"Cape ninja",eff:"speed",def:3}, dash_boots:{name:"Bottes d'élan",eff:"dash",def:2}, diving_gear:{name:"Équipement de plongée",eff:"gills",def:2}, cosmic_wings:{name:"Ailes cosmiques",eff:"fly",def:12}, pirate_hat:{name:"Tricorne de pirate",eff:"speed",def:4}, jetpack:{name:"Jetpack",eff:"fly",def:8}, tech_charm:{name:"Amulette technologique",eff:"manaregen",def:6},
-  miner_charm:{name:"Amulette du mineur",eff:"mining",def:2}, lucky_coin:{name:"Pièce porte-bonheur",eff:"luck",def:1}, frog_leg:{name:"Patte de grenouille",eff:"jump",def:1} };
+  miner_charm:{name:"Amulette du mineur",eff:"mining",def:2}, lucky_coin:{name:"Pièce porte-bonheur",eff:"luck",def:1}, frog_leg:{name:"Patte de grenouille",eff:"jump",def:1}, nature_charm:{name:"Charme de la nature",eff:"regen",def:6} };
 const THROWS={ glowstick:{name:"Bâton lumineux",col:"#7fff9f"} };
 const ARMOR={
   wood_h:{name:"Casque bois",slot:"head",def:1}, wood_c:{name:"Plastron bois",slot:"chest",def:2}, wood_l:{name:"Jambières bois",slot:"legs",def:1},
@@ -357,7 +357,7 @@ const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Bar
   cobalt_bar:{name:"Barre de cobalt",col:"#2a6ad0"}, titanium_bar:{name:"Barre de titane",col:"#c0c4cc"}, mech_soul:{name:"Âme mécanique",col:"#9fe0ff"},
   glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"}, meteor_bar:{name:"Barre de météore",col:"#c8763a"}, herb:{name:"Herbe médicinale",col:"#3ac06a"}, nightmare_shard:{name:"Éclat de cauchemar",col:"#a03ad0"}, spider_fang:{name:"Croc d'araignée",col:"#c8b0d0"}, gel:{name:"Gel",col:"#6ab0e0"}, crimtane_bar:{name:"Barre de crimtane",col:"#c0392b"}, tissue:{name:"Échantillon de tissu",col:"#e0304a"}, coral:{name:"Corail",col:"#ff7a9a"}, pearl:{name:"Perle",col:"#f0e8f4"}, soul_fire:{name:"Âme de feu",col:"#ff8a3a"}, stardust:{name:"Poussière d'étoile",col:"#ffe27a"}, doubloon:{name:"Doublon",col:"#e8c33a"}, frog:{name:"Grenouille",col:"#5aa04a"}, butterfly:{name:"Papillon",col:"#e0a0e0"}, firefly:{name:"Luciole",col:"#fff7a0"}, martian_plating:{name:"Plaque martienne",col:"#8ab0c0"} };
 const AMMO={ arrow:{name:"Flèche",col:"#caa15a",dmg:5} };
-const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenbee:{name:"Larve royale"}, golem:{name:"Noyau de golem"}, worm:{name:"Nourriture maudite"}, moon:{name:"Tablette céleste"}, mechworm:{name:"Engrenage maudit"}, titan:{name:"Relique céleste"}, broodmother:{name:"Cocon royal"}, slime_crown:{name:"Couronne gluante"}, celestial_sigil:{name:"Sceau céleste"} };
+const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenbee:{name:"Larve royale"}, golem:{name:"Noyau de golem"}, worm:{name:"Nourriture maudite"}, moon:{name:"Tablette céleste"}, mechworm:{name:"Engrenage maudit"}, titan:{name:"Relique céleste"}, broodmother:{name:"Cocon royal"}, slime_crown:{name:"Couronne gluante"}, celestial_sigil:{name:"Sceau céleste"}, bulb:{name:"Bulbe carnivore"} };
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
   hp_potion:{name:"Potion de soin",col:"#e23a4a"}, mp_potion:{name:"Potion de mana",col:"#3a6ae2"},
   cooked_fish:{name:"Poisson grillé",col:"#d8a25a"}, mushroom_soup:{name:"Soupe de champignons",col:"#c87a3a"},
@@ -430,6 +430,7 @@ const RECIPES=[
   R({kind:"bomb",id:"bomb",n:3},[ti(COAL,2),ti(IRON,1)],"anvil"),
   R({kind:"tool",id:"mirror"},[ti(GLASS,5),ma("silver_bar",3)],"anvil"),
   R({kind:"summon",id:"queenbee"},[ma("gold_bar",6),ti(EMERALD,4)],"anvil"),
+  R({kind:"summon",id:"bulb"},[ma("honey",8),ma("herb",6)],"anvil"),
   // phase 6
   R({kind:"tool",id:"rod"},[ti(PLANK,8)],"table"),
   R({kind:"use",id:"cooked_fish",n:1},[ma("fish",1)],"furnace"),
@@ -1796,7 +1797,7 @@ function updateEnemies(dt,step){
     if(e.hp<=0){ spawnParticles(e.x+e.w/2,e.y+e.h/2,e.col,14); if(e.type==="eye"&&Math.random()<0.5)addItem("mat","lens",1);
       if(e.type==="spore"&&Math.random()<0.5)addItem("mat","glowmush",1);
       if(e.type==="harpy"&&Math.random()<0.6)addItem("mat","feather",1);
-      if(e.type==="hornet"&&Math.random()<0.6)addItem("mat","honey",1);
+      if(e.type==="hornet"){ if(Math.random()<0.6)addItem("mat","honey",1); if(!e.army&&Math.random()<0.02)addItem("summon","bulb",1); }
       if((e.type==="antlion"||e.type==="vulture")&&Math.random()<0.5)addItem("mat","bone",1);
       if(e.type==="templeguard"){ addItem("tile",OBSIDIAN,2+Math.floor(Math.random()*3)); if(Math.random()<0.3)addItem("mat","gold_bar",1); }
       if(e.type==="dungeon_guardian"){ addItem("mat","bone",5+Math.floor(Math.random()*6)); addItem("use","recall_potion",1); addItem("tile",BONEBRICK,8+Math.floor(Math.random()*10)); if(Math.random()<0.4)addItem("acc","band",1); if(Math.random()<0.3)addItem("use","combat_pet",1); flash("☠️ Le gardien du donjon est vaincu !"); }
@@ -1860,7 +1861,10 @@ function summonBoss(sel){ if(boss){flash("Le boss est déjà là");return;}
   else if(sel.id==="slime_crown"){ removeItem("summon","slime_crown",1); spawnKingSlime(); }
   else if(sel.id==="celestial_sigil"){ removeItem("summon","celestial_sigil",1);
     boss={type:"boss",tier:11,x:player.x+340,y:player.y-260,vx:0,vy:0,w:104,h:104,hp:18000,maxHp:18000,dmg:66,col:"#8a7aff",charge:0,t:0,fireCd:1.6,spawnCd:3,rainCd:2,enraged:false};
-    flash("🌟 Le Dévoreur d'étoiles émerge du néant !"); } }
+    flash("🌟 Le Dévoreur d'étoiles émerge du néant !"); }
+  else if(sel.id==="bulb"){ removeItem("summon","bulb",1);
+    boss={type:"boss",tier:12,x:player.x+260,y:player.y-150,vx:0,vy:0,w:74,h:64,hp:4200,maxHp:4200,dmg:44,col:"#3aa04a",charge:0,t:0,fire:false,spawnCd:2.4,seedCd:1.8,enraged:false};
+    flash("🌸 La Fleur carnivore éclôt et se déchaîne !"); } }
 function updateMechWorm(dt,step){ const e=boss;
   const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1;
   e.vx+=dx/d*0.35*step; e.vy+=dy/d*0.35*step; const sp=Math.hypot(e.vx,e.vy),mx=7.5;
@@ -1896,6 +1900,9 @@ function updateBoss(dt,step){ const e=boss; e.t+=dt; if(e.yoyoCd>0)e.yoyoCd-=dt;
     e.spawnCd-=dt; if(e.spawnCd<=0&&enemies.length<16){ spawnEnemy("star_wisp",e.x+e.w/2,e.y+e.h/2); e.spawnCd=e.enraged?2:3.2; }
     e.fireCd-=dt; if(e.fireCd<=0){ const a0=Math.atan2(dy,dx),n=e.enraged?7:5; for(let k=-(n>>1);k<=(n>>1);k++){ const a=a0+k*0.2; projectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,vx:Math.cos(a)*6.5,vy:Math.sin(a)*6.5,type:"spark",dmg:e.dmg,life:3,friendly:false}); } e.fireCd=e.enraged?1.0:1.7; }
     e.rainCd-=dt; if(e.rainCd<=0){ const n=e.enraged?7:5; for(let k=0;k<n;k++){ const rx=player.x+PW/2+(Math.random()-0.5)*VW*0.9; projectiles.push({x:rx,y:player.y-VH*0.6,vx:(Math.random()-0.5)*1.5,vy:6.5,type:"star",dmg:Math.round(e.dmg*0.7),life:4,friendly:false}); } e.rainCd=e.enraged?1.6:2.8; } }
+  if(e.tier===12){ if(!e.enraged&&e.hp<e.maxHp*0.45){ e.enraged=true; flash("🌸 La Fleur carnivore entre en furie !"); }
+    e.spawnCd-=dt; if(e.spawnCd<=0&&enemies.length<15){ spawnEnemy("hornet",e.x+e.w/2,e.y+e.h/2); e.spawnCd=e.enraged?1.8:2.8; }
+    e.seedCd-=dt; if(e.seedCd<=0&&d<620){ const a0=Math.atan2(dy,dx),n=e.enraged?5:3; for(let k=-(n>>1);k<=(n>>1);k++){ const a=a0+k*0.24; projectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,vx:Math.cos(a)*6,vy:Math.sin(a)*6,type:"venom",dmg:Math.round(e.dmg*0.75),life:3,friendly:false}); } e.seedCd=e.enraged?1.1:1.9; } }
   if(player.invuln<=0&&rectHit(e.x,e.y,e.w,e.h,player.x,player.y,PW,PH))hurtPlayer(e.dmg,Math.sign(player.x-e.x)||1);
   }
   if(e.hp<=0){ spawnParticles(e.x+e.w/2,e.y+e.h/2,e.col,40); bossKills++; addItem("tile",TROPHY,1);
@@ -1910,6 +1917,7 @@ function updateBoss(dt,step){ const e=boss; e.t+=dt; if(e.yoyoCd>0)e.yoyoCd-=dt;
     else if(e.tier===9){ addItem("mat","spider_fang",10+Math.floor(Math.random()*8)); addItem("tool","spider_staff",1); addItem("acc","spider_charm",1); addItem("mat","silk",12); coins+=280; player.maxHp+=35; player.hp=player.maxHp; flash("🏆 Reine des araignées vaincue ! Bâton d'araignée + Amulette + 35 PV max !"); }
     else if(e.tier===10){ addItem("mat","gel",30+Math.floor(Math.random()*20)); addItem("acc","ninja_hood",1); addItem("tile",SLIMEBLOCK,25); coins+=220; player.maxHp+=25; player.hp=player.maxHp; slimeRain=false; slimeRainT=0; flash("🏆 Le Roi Slime est vaincu ! Cape ninja + 25 PV max !"); }
     else if(e.tier===11){ addItem("tool","star_blade",1); addItem("acc","cosmic_wings",1); addItem("mat","stardust",30); addItem("mat","astralite_bar",10); coins+=2500; player.maxHp+=120; player.hp=player.maxHp; flash("🏆 Le Dévoreur d'étoiles est vaincu ! Lame stellaire + Ailes cosmiques + 120 PV max !"); }
+    else if(e.tier===12){ addItem("tool","thorn_whip",1); addItem("acc","nature_charm",1); addItem("mat","honey",12); addItem("mat","herb",10); coins+=700; player.maxHp+=70; player.hp=player.maxHp; flash("🏆 La Fleur carnivore est vaincue ! Fouet d'épines + Charme de la nature + 70 PV max !"); }
     else { addItem("mat","gold_bar",12); addItem("tool","bow2",1); coins+=120; player.maxHp+=20; player.hp=player.maxHp; flash("🏆 Boss vaincu ! +20 PV max, 120 pièces, butin reçu"); }
     boss=null; dirtyUI=true; }
   else if(e.tier===1&&!isNight()){ flash("L'Œil maléfique fuit le jour..."); boss=null; }
@@ -2445,6 +2453,13 @@ function drawBoss(e){ const sx=e.x-cam.x,sy=e.y-cam.y,t2=e.tier===2;
     ctx.fillStyle="#3a2a44";ctx.beginPath();ctx.arc(sx+e.w/2,sy+e.h*0.3,e.w*0.26,0,7);ctx.fill();
     const oxq=clamp((player.x-e.x)/30,-6,6);ctx.fillStyle="#ff3a4a";for(let r=0;r<4;r++){ctx.beginPath();ctx.arc(sx+e.w/2-8+(r%2)*16+oxq,sy+e.h*0.26+Math.floor(r/2)*6,2.5,0,7);ctx.fill();}
     ctx.fillStyle="#c8b0d0";ctx.beginPath();ctx.moveTo(sx+e.w/2-6,sy+e.h*0.36);ctx.lineTo(sx+e.w/2-3,sy+e.h*0.46);ctx.lineTo(sx+e.w/2,sy+e.h*0.36);ctx.fill();ctx.beginPath();ctx.moveTo(sx+e.w/2+6,sy+e.h*0.36);ctx.lineTo(sx+e.w/2+3,sy+e.h*0.46);ctx.lineTo(sx+e.w/2,sy+e.h*0.36);ctx.fill(); return; }
+  if(e.tier===12){ const cx2=sx+e.w/2,cy2=sy+e.h/2, petal=e.enraged?"#e04a7a":"#e88ab0", sway=Math.sin(e.t*3)*0.15;
+    ctx.strokeStyle="#2a6a34";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(cx2,cy2);ctx.lineTo(cx2-Math.sin(e.t*2)*10,cy2+e.h*0.7);ctx.stroke();
+    ctx.fillStyle=petal;for(let k=0;k<8;k++){ const a=k*Math.PI/4+sway; ctx.beginPath();ctx.ellipse(cx2+Math.cos(a)*e.w*0.34,cy2+Math.sin(a)*e.w*0.34,e.w*0.16,e.w*0.09,a,0,7);ctx.fill(); }
+    ctx.fillStyle=e.enraged?"#7a1020":"#3a6a2a";ctx.beginPath();ctx.arc(cx2,cy2,e.w*0.26,0,7);ctx.fill();
+    ctx.fillStyle="#ffe27a";ctx.beginPath();ctx.arc(cx2,cy2,e.w*0.12,0,7);ctx.fill();
+    ctx.fillStyle="#fff";const ox12=clamp((player.x-e.x)/30,-5,5);for(let r=0;r<6;r++){const a=r*Math.PI/3;ctx.beginPath();ctx.arc(cx2+Math.cos(a)*5+ox12,cy2+Math.sin(a)*5,1.6,0,7);ctx.fill();}
+    ctx.strokeStyle=e.enraged?"#ff5a7a":"#8ac04a";ctx.lineWidth=2;for(let k=0;k<6;k++){const a=k*Math.PI/3+e.t;ctx.beginPath();ctx.moveTo(cx2+Math.cos(a)*e.w*0.24,cy2+Math.sin(a)*e.w*0.24);ctx.lineTo(cx2+Math.cos(a)*e.w*0.34,cy2+Math.sin(a)*e.w*0.34);ctx.stroke();} return; }
   ctx.fillStyle=t2?"#c98a6a":"#e8e0e4";roundRect(sx,sy,e.w,e.h,e.h/2);ctx.fill();
   ctx.fillStyle=t2?"#8a1f15":"#a33";roundRect(sx+4,sy+6,e.w-8,e.h-12,8);ctx.fill(); const ox=clamp((player.x-e.x)/30,-12,12);
   ctx.fillStyle=t2?"#2a0600":"#600";ctx.beginPath();ctx.arc(sx+e.w/2+ox,sy+e.h/2,t2?17:12,0,7);ctx.fill();ctx.fillStyle="#000";ctx.beginPath();ctx.arc(sx+e.w/2+ox,sy+e.h/2,t2?9:6,0,7);ctx.fill();
@@ -2573,7 +2588,7 @@ function updateStatus(){ $hearts.textContent="❤️ "+Math.ceil(player.hp)+"/"+
   $clock.textContent=(isNight()?"🌙 ":"☀️ ")+String(h).padStart(2,"0")+":00 · "+dl2+(player.breath<100?" · 🫧 "+Math.ceil(player.breath)+"%":"");
   const ab=Object.keys(player.buffs), nAch=Object.keys(achievements).length;
   if(ab.length||nAch){$buffs.style.display="block";$buffs.textContent=ab.map(k=>BUFFS[k].name+" "+Math.ceil(player.buffs[k])+"s").concat(nAch?["🏆 "+nAch+"/"+Object.keys(ACHIEVEMENTS).length]:[]).join(" · ");}else $buffs.style.display="none";
-  if(boss){$bossbar.style.display="block";document.getElementById("bossName").textContent=boss.tier===2?"Gardien des Enfers":boss.tier===3?"Reine des abeilles":boss.tier===4?"Golem":boss.tier===5?"Dévoreur des mondes":boss.tier===6?"Seigneur de Lune":boss.tier===7?"Le Destructeur":boss.tier===8?"Le Titan céleste":boss.tier===9?"Reine des araignées":boss.tier===10?"Roi Slime":boss.tier===11?"Le Dévoreur d'étoiles":"Œil maléfique";$bossFg.style.width=(100*Math.max(0,boss.hp)/boss.maxHp)+"%";}else $bossbar.style.display="none"; }
+  if(boss){$bossbar.style.display="block";document.getElementById("bossName").textContent=boss.tier===2?"Gardien des Enfers":boss.tier===3?"Reine des abeilles":boss.tier===4?"Golem":boss.tier===5?"Dévoreur des mondes":boss.tier===6?"Seigneur de Lune":boss.tier===7?"Le Destructeur":boss.tier===8?"Le Titan céleste":boss.tier===9?"Reine des araignées":boss.tier===10?"Roi Slime":boss.tier===11?"Le Dévoreur d'étoiles":boss.tier===12?"Fleur carnivore":"Œil maléfique";$bossFg.style.width=(100*Math.max(0,boss.hp)/boss.maxHp)+"%";}else $bossbar.style.display="none"; }
 
 // =========================================================================
 //  mort / sauvegarde
