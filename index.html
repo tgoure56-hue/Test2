@@ -1291,6 +1291,10 @@ function ascend(){ if(bossKills<3){ flash("✨ Transcendance : vainquez au moins
 // codex du chasseur : découvrir des types d'ennemis (bestiaire) accorde des bonus permanents
 const CODEX_TIERS=[5,10,15,20,25,30];
 function hunterMult(){ return 1+Object.keys(codexClaimed).length*0.02; }
+// bannières de chasse : maîtriser un type d'ennemi (50 éliminations) réduit de 15% les dégâts qu'il inflige
+const BANNER_KILLS=50;
+function bannerActive(type){ return (bestiary[type]||0)>=BANNER_KILLS; }
+function bannerCount(){ let n=0; for(const k in bestiary)if(bestiary[k]>=BANNER_KILLS)n++; return n; }
 function checkCodex(){ const seen=Object.keys(bestiary).length;
   for(const n of CODEX_TIERS){ if(seen>=n&&!codexClaimed[n]){ codexClaimed[n]=true; player.maxHp+=12; player.hp=player.maxHp;
     flash("📖 Codex du chasseur : "+n+" espèces répertoriées ! +12 PV max, +2% de dégâts"); spawnParticles(player.x+PW/2,player.y+PH/2,"#ffd24a",16); dirtyUI=true; } } }
@@ -2012,7 +2016,7 @@ function updateEnemies(dt,step){
       if(e.onGround&&e.hop<=0){ const d=Math.sign(player.x-e.x)||1; e.vx=d*(e.type==="zombie"?1.6:2.2); if(e.type!=="zombie"||Math.random()<0.5)e.vy=-8; e.hop=(e.type==="zombie"?0.4:0.9)+Math.random()*0.6; }
       e.vx*=Math.pow(0.96,step); moveEntity(e,e.w,e.h,step);
       if(e.type==="pirate_gunner"){ e.fireCd=(e.fireCd==null?1.0:e.fireCd-dt); if(e.fireCd<=0&&Math.hypot(player.x-e.x,player.y-e.y)<420){ enemyFire(e.x+e.w/2,e.y+e.h/2,e.dmg); e.fireCd=1.6; } } }
-    if(player.invuln<=0&&rectHit(e.x,e.y,e.w,e.h,player.x,player.y,PW,PH)) hurtPlayer(e.dmg,Math.sign(player.x-e.x)||1);
+    if(player.invuln<=0&&rectHit(e.x,e.y,e.w,e.h,player.x,player.y,PW,PH)) hurtPlayer(e.dmg,Math.sign(player.x-e.x)||1,e.type);
     if(getT(Math.floor((e.x+e.w/2)/T),Math.floor((e.y+e.h-2)/T))===SPIKE)e.hp-=dt*40;
     if(e.hp<=0){ spawnParticles(e.x+e.w/2,e.y+e.h/2,e.col,14); if(e.type==="eye"&&Math.random()<0.5)addItem("mat","lens",1);
       if(e.type==="spore"&&Math.random()<0.5)addItem("mat","glowmush",1);
@@ -2042,6 +2046,7 @@ function updateEnemies(dt,step){
       if(army&&e.army){ army.kills++; if(e.type==="general")armyDefeated(); }
       if(quest&&quest.type==="kill"&&(quest.enemy==="any"||e.type===quest.enemy))quest.have++;
       bestiary[e.type]=(bestiary[e.type]||0)+1;
+      if(bestiary[e.type]===BANNER_KILLS)flash("🏳️ Bannière obtenue : "+(ENEMY_NAMES[e.type]||e.type)+" — dégâts réduits");
       if(e.elite&&!e.fromStatue){ coins+=20; if(Math.random()<0.35)addItem("mat","nightmare_shard",1); }
       if(!e.fromStatue){ coins+=Math.round(((COINS[e.type]||1)+Math.floor(Math.random()*3))*(hasAcc("luck")?1.5:1)); spawnParticles(e.x+e.w/2,e.y+e.h/2,"#ffd24a",6); } dirtyUI=true; enemies.splice(i,1); continue; }
     if((!isNight()&&!e.fly&&!e.army&&!e.pirate&&!e.martian&&e.type!=="dungeon_guardian"&&e.type!=="crab_king"&&Math.random()<dt*0.5)||(Math.abs(e.x-player.x)>VW*1.8&&e.type!=="wyvern"))enemies.splice(i,1);
@@ -2049,7 +2054,7 @@ function updateEnemies(dt,step){
   if(boss)updateBoss(dt,step);
 }
 function rectHit(ax,ay,aw,ah,bx,by,bw,bh){return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by;}
-function hurtPlayer(dmg,dir){ const base=player.buffs.endurance>0?Math.round(dmg*0.85):dmg; const real=Math.max(1,base-totalDef()); player.hp-=real; player.invuln=0.8; player.vx=dir*7; player.vy=-6; spawnParticles(player.x+PW/2,player.y+PH/2,"#ff3030",8); sfx(150,0.14,"sawtooth");
+function hurtPlayer(dmg,dir,srcType){ if(srcType&&bannerActive(srcType))dmg=Math.round(dmg*0.85); const base=player.buffs.endurance>0?Math.round(dmg*0.85):dmg; const real=Math.max(1,base-totalDef()); player.hp-=real; player.invuln=0.8; player.vx=dir*7; player.vy=-6; spawnParticles(player.x+PW/2,player.y+PH/2,"#ff3030",8); sfx(150,0.14,"sawtooth");
   if(armorSet()==="titanium"){ for(const e of enemies){ if(Math.hypot(e.x+e.w/2-(player.x+PW/2),e.y+e.h/2-(player.y+PH/2))<72){ e.hp-=18; spawnParticles(e.x+e.w/2,e.y+e.h/2,"#dce0e8",4); } } } }
 function summonBoss(sel){ if(boss){flash("Le boss est déjà là");return;}
   if(sel.id==="eye"){ if(!isNight()){flash("L'Œil maléfique n'apparaît que la nuit");return;}
