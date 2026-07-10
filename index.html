@@ -380,7 +380,7 @@ const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{nam
   pumpkin_medallion:{name:"Médaillon citrouille",col:"#ff8a2a"}, pumpkin_pie:{name:"Tarte à la citrouille",col:"#d2691e"},
   regen_potion:{name:"Potion de régénération",col:"#5ad65a"}, nightowl_potion:{name:"Potion de vision nocturne",col:"#9a7ad0"}, honey_potion:{name:"Potion de miel",col:"#e8a82a"}, mining_potion:{name:"Potion de mineur",col:"#b0864a"},
   frost_core:{name:"Noyau de gel",col:"#aae0ff"}, frost_potion:{name:"Potion de givre",col:"#8ad0e8"},
-  recall_potion:{name:"Potion de rappel",col:"#c9b0ff"}, wormhole_potion:{name:"Potion trou de ver",col:"#7a5ad0"}, combat_pet:{name:"Esprit combattant",col:"#9ad6ff"}, spore_sprite:{name:"Sprite des spores",col:"#7fe0ff"}, treasure_bag:{name:"Sac au trésor",col:"#e8b84a"},
+  recall_potion:{name:"Potion de rappel",col:"#c9b0ff"}, wormhole_potion:{name:"Potion trou de ver",col:"#7a5ad0"}, combat_pet:{name:"Esprit combattant",col:"#9ad6ff"}, spore_sprite:{name:"Sprite des spores",col:"#7fe0ff"}, treasure_bag:{name:"Sac au trésor",col:"#e8b84a"}, arena_totem:{name:"Totem d'arène",col:"#c05a3a"},
   pirate_map:{name:"Carte au trésor",col:"#caa86a"}, martian_beacon:{name:"Balise martienne",col:"#6ac0d0"}, hearty_stew:{name:"Ragoût copieux",col:"#b5651d"}, purification_powder:{name:"Poudre de purification",col:"#e0d6f0"} };
 const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"}, shine:{name:"Lumière",col:"#ffe27a"}, fishing:{name:"Pêche chanceuse",col:"#3a9ad6"}, wrath:{name:"Furie",col:"#ff5a3a"}, endurance:{name:"Endurance",col:"#c8a05a"}, summoning:{name:"Invocation",col:"#9a6ae0"}, wellfed:{name:"Rassasié",col:"#e0a860"}, mining:{name:"Mineur",col:"#b0864a"} };
 
@@ -650,6 +650,7 @@ const RECIPES=[
   R({kind:"use",id:"recall_potion"},[ti(DIAMOND,1),ma("herb",1)],"alchemy"),
   R({kind:"use",id:"wormhole_potion"},[ma("crystal_bar",1),ma("herb",2)],"alchemy"),
   R({kind:"use",id:"combat_pet"},[ma("crystal_bar",3),ma("gold_bar",2),ma("bone",5)],"anvil"),
+  R({kind:"use",id:"arena_totem"},[ti(STONE,12),ma("bone",6),ma("soul_fire",1)],"anvil"),
   R({kind:"use",id:"spore_sprite"},[ma("glowmush",10),ma("iron_bar",4),ti(MUSHBLOCK,4)],"anvil"),
   // phase 36 (grottes d'araignées)
   R({kind:"tile",id:SPIDERNEST,n:4},[ma("silk",2),ti(STONE,2)],"table"),
@@ -1299,7 +1300,7 @@ let armsDealerArrived=false, painterArrived=false, taxCollectorArrived=false, ta
 let travelerHere=false, travelerStock=null;
 let hardmode=false, tinkererArrived=false, nightmare=false;
 let trapCd=new Map();
-let army=null;
+let army=null, arena=null;
 let quest=null;
 let achievements={}, blocksPlaced=0, questsDone=0;
 let raining=false, weatherT=80, showMap=false, bloodMoon=false, eclipse=false, showWorldMap=false, worldMapRect=null, storm=false, lightningFlash=0, sandstorm=false, sandstormT=0;
@@ -1483,7 +1484,7 @@ function update(dt){
   const regenRate=2+(player.buffs.regen>0?6:0)+(player.buffs.wellfed>0?2:0)+(hasAcc("regen")?2:0)+(nearTile(CAMPFIRE,8)?3:0)+(nearTile(HEARTLANTERN,8)?2:0)+(nearTile(FOUNTAIN,8)?2:0)+(armorSet()==="crim"?3:0);
   if(player.invuln<=0&&player.hp<player.maxHp)player.hp=Math.min(player.maxHp,player.hp+dt*regenRate);
   player.mana=Math.min(player.maxMana,player.mana+dt*(4+(hasAcc("manaregen")?4:0)+(nearTile(CRYSTALBALL,8)?4:0)+(armorSet()==="shroom"?4:0)));
-  updateFishing(dt); updateCritters(dt,step); updateMinions(dt,step); updateCombatPet(dt,step); updateFireflies(dt,step); updateStars(dt,step); updateTraps(dt); updateTimers(dt); updateArmy(dt); updatePumpkinMoon(dt); updateFrostMoon(dt); updateSlimeRain(dt); updateSandstorm(dt); updatePirateInvasion(dt); updateMartianInvasion(dt); checkAchievements(); checkCodex();
+  updateFishing(dt); updateCritters(dt,step); updateMinions(dt,step); updateCombatPet(dt,step); updateFireflies(dt,step); updateStars(dt,step); updateTraps(dt); updateTimers(dt); updateArmy(dt); updateArena(dt); updatePumpkinMoon(dt); updateFrostMoon(dt); updateSlimeRain(dt); updateSandstorm(dt); updatePirateInvasion(dt); updateMartianInvasion(dt); checkAchievements(); checkCodex();
   if(!slimeRain&&!bloodMoon&&!pumpkinMoon&&!frostMoon&&bossKills>=1&&Math.random()<dt*0.006)startSlimeRain();
   if(!pirateInvasion&&!bloodMoon&&!pumpkinMoon&&!frostMoon&&bossKills>=2&&Math.random()<dt*0.0035)startPirateInvasion();
   if(hardmode&&!martianInvasion&&!pirateInvasion&&!bloodMoon&&!pumpkinMoon&&!frostMoon&&Math.random()<dt*0.0022)startMartianInvasion();
@@ -1689,7 +1690,8 @@ function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("
   else if(sel.id==="wormhole_potion"){ wormholeTeleport(); removeItem("use","wormhole_potion",1); }
   else if(sel.id==="combat_pet"){ if(player.combatPet){ player.combatPet=null; flash("Esprit combattant rangé"); } else { player.combatPet={lvl:1,xp:0,x:player.x,y:player.y-30,t:0,cd:0,kind:"spirit"}; flash("⚔️ Un esprit combattant t'accompagne !"); } }
   else if(sel.id==="spore_sprite"){ if(player.combatPet){ player.combatPet=null; flash("Sprite des spores rangé"); } else { player.combatPet={lvl:1,xp:0,x:player.x,y:player.y-30,t:0,cd:0,kind:"spore"}; flash("🍄 Un sprite des spores voltige à tes côtés !"); } }
-  else if(sel.id==="treasure_bag"){ removeItem("use","treasure_bag",1); openTreasureBag(); } }
+  else if(sel.id==="treasure_bag"){ removeItem("use","treasure_bag",1); openTreasureBag(); }
+  else if(sel.id==="arena_totem"){ if(arena){flash("Une arène est déjà en cours !");return;} removeItem("use","arena_totem",1); startArena(); } }
 // sac au trésor de boss : butin bonus aléatoire, d'autant meilleur qu'on a vaincu de boss
 function openTreasureBag(){ coins+=120+bossKills*30; addItem("use","hp_potion",3);
   const gems=[RUBY,EMERALD,SAPPHIRE,DIAMOND]; if(Math.random()<0.6)addItem("tile",gems[Math.floor(Math.random()*gems.length)],2+Math.floor(Math.random()*3));
@@ -2090,6 +2092,7 @@ function updateEnemies(dt,step){
       if((e.type==="pumpkinhead"||e.type==="reaper")){ if(Math.random()<0.6)addItem("mat","candy",1); if(pumpkinMoon)pumpkinKills++; }
       if((e.type==="iceslime"||e.type==="frostzombie"||e.type==="icegolem")){ if(Math.random()<0.6)addItem("mat","ice_shard",1); if(frostMoon)frostKills++; }
       if(army&&e.army){ army.kills++; if(e.type==="general")armyDefeated(); }
+      if(arena&&e.arena)arena.kills++;
       if(quest&&quest.type==="kill"&&(quest.enemy==="any"||e.type===quest.enemy))quest.have++;
       bestiary[e.type]=(bestiary[e.type]||0)+1;
       if(bestiary[e.type]===BANNER_KILLS)flash("🏳️ Bannière obtenue : "+(ENEMY_NAMES[e.type]||e.type)+" — dégâts réduits");
@@ -2217,6 +2220,15 @@ function activateHardmode(){ if(hardmode)return; hardmode=true;
   const rng=mulberry32((seed^0x9e3779b9)>>>0);
   vein(rng,COBALT,130,80,205,4); vein(rng,TITANIUM,95,120,230,3);
   flash("☠️ Le monde sombre dans le chaos ! Cobalt et titane sont apparus en profondeur."); dirtyUI=true; }
+// mode arène : vagues d'ennemis à survivre, déclenchées par le joueur, récompense finale
+function startArena(){ if(arena){flash("Une arène est déjà en cours !");return;} if(army){flash("Terminez l'invasion en cours d'abord");return;} arena={wave:1,kills:0,need:6,maxWave:5}; flash("🏟️ Arène : vague 1/5 !"); }
+function updateArena(dt){ if(!arena)return;
+  if(arena.kills>=arena.need){ if(arena.wave<arena.maxWave){ arena.wave++; arena.kills=0; arena.need+=3; flash("🏟️ Vague "+arena.wave+"/"+arena.maxWave+" !"); }
+    else { const rw=200+arena.maxWave*40; coins+=rw; addItem("use","treasure_bag",1); addItem("use","hp_potion",5); player.maxHp+=10; player.hp=player.maxHp; arena=null; flash("🏆 Arène vaincue ! "+rw+" pièces + sac au trésor !"); dirtyUI=true; return; } }
+  const cur=enemies.reduce((a,e)=>a+(e.arena?1:0),0);
+  if(cur<8&&Math.random()<dt*3){ const pool=arena.wave<=2?["slime","zombie","bat"]:arena.wave<=4?["skeleton","goblin","eye"]:["knight","wraith","harpy"];
+    const sx=clamp(Math.floor(player.x/T)+(Math.random()<0.5?-1:1)*(7+Math.floor(Math.random()*6)),2,WORLD_W-3), sy=clamp(Math.floor(player.y/T),2,WORLD_H-3);
+    spawnEnemy(pool[Math.floor(Math.random()*pool.length)],sx*T,sy*T); enemies[enemies.length-1].arena=true; } }
 function startArmy(){ if(army){flash("Une armée déferle déjà !");return;}
   army={wave:1,kills:0,need:8,maxWave:3,generalSpawned:false}; flash("⚔️ L'armée approche ! Vague 1/3"); }
 function spawnArmyEnemy(type,x,y){ spawnEnemy(type,x,y); enemies[enemies.length-1].army=true; }
@@ -3079,7 +3091,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
     tints=d.tints?unrle(d.tints,WORLD_W*WORLD_H):new Uint8Array(WORLD_W*WORLD_H);
     chestData=new Map(); if(d.chests)d.chests.forEach(([k,v])=>chestData.set(k,v));
     chestNames=new Map(); if(d.cnames)d.cnames.forEach(([k,v])=>chestNames.set(k,v));
-    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; anglerArrived=!!d.anglerArrived; fishCaught=d.fishCaught||0; anglerQuest=d.anglerQuest||null; hardmode=!!d.hardmode; nightmare=!!d.nightmare; hardcore=!!d.hardcore; tinkererArrived=!!d.tinkererArrived; armsDealerArrived=!!d.armsDealerArrived; painterArrived=!!d.painterArrived; taxCollectorArrived=!!d.taxCollectorArrived; taxPool=d.taxPool||0; stylistArrived=!!d.stylistArrived; player.hairDye=d.hairDye||0; quest=d.quest||null; achievements=d.achievements||{}; codexClaimed=d.codexClaimed||{}; blocksPlaced=d.blocksPlaced||0; questsDone=d.questsDone||0; bestiary=d.bestiary||{}; travelerHere=!!d.travelerHere; travelerStock=d.travelerStock||null; blocksMined=d.blocksMined||0; deaths=d.deaths||0; timePlayed=d.timePlayed||0; slimeRain=!!d.slimeRain; slimeRainT=d.slimeRainT||0; slimeKills=d.slimeKills||0; sandstorm=!!d.sandstorm; sandstormT=d.sandstormT||0; pirateInvasion=!!d.pirateInvasion; pirateT=d.pirateT||0; pirateKills=d.pirateKills||0; pirateBossUp=!!d.pirateBossUp; martianInvasion=!!d.martianInvasion; martianT=d.martianT||0; martianKills=d.martianKills||0; martianBossUp=!!d.martianBossUp; lastBossTier=d.lastBossTier||0; prestige=d.prestige||0; invasionT=0; army=null; bloodMoon=false; eclipse=false; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0; meteorFell=false;
+    coins=d.coins||0; merchantArrived=!!d.merchantArrived; bossKills=d.bossKills||0; nurseArrived=!!d.nurseArrived; wizardArrived=!!d.wizardArrived; blacksmithArrived=!!d.blacksmithArrived; dryadArrived=!!d.dryadArrived; anglerArrived=!!d.anglerArrived; fishCaught=d.fishCaught||0; anglerQuest=d.anglerQuest||null; hardmode=!!d.hardmode; nightmare=!!d.nightmare; hardcore=!!d.hardcore; tinkererArrived=!!d.tinkererArrived; armsDealerArrived=!!d.armsDealerArrived; painterArrived=!!d.painterArrived; taxCollectorArrived=!!d.taxCollectorArrived; taxPool=d.taxPool||0; stylistArrived=!!d.stylistArrived; player.hairDye=d.hairDye||0; quest=d.quest||null; achievements=d.achievements||{}; codexClaimed=d.codexClaimed||{}; blocksPlaced=d.blocksPlaced||0; questsDone=d.questsDone||0; bestiary=d.bestiary||{}; travelerHere=!!d.travelerHere; travelerStock=d.travelerStock||null; blocksMined=d.blocksMined||0; deaths=d.deaths||0; timePlayed=d.timePlayed||0; slimeRain=!!d.slimeRain; slimeRainT=d.slimeRainT||0; slimeKills=d.slimeKills||0; sandstorm=!!d.sandstorm; sandstormT=d.sandstormT||0; pirateInvasion=!!d.pirateInvasion; pirateT=d.pirateT||0; pirateKills=d.pirateKills||0; pirateBossUp=!!d.pirateBossUp; martianInvasion=!!d.martianInvasion; martianT=d.martianT||0; martianKills=d.martianKills||0; martianBossUp=!!d.martianBossUp; lastBossTier=d.lastBossTier||0; prestige=d.prestige||0; invasionT=0; army=null; arena=null; bloodMoon=false; eclipse=false; pumpkinMoon=false; pumpkinMoonT=0; frostMoon=false; frostMoonT=0; meteorFell=false;
     player.x=d.px;player.y=d.py;player.hp=d.hp;player.maxHp=d.maxHp||100;player.mana=d.mana||0;player.maxMana=d.maxMana||20;player.armorArr=d.armor||[null,null,null];player.acc=d.acc||null;player.acc2=d.acc2||null;player.dye=d.dye||0;
     player.pet=typeof d.pet==="string"?d.pet:(d.pet?"sprite":null); player.combatPet=d.cpet||null; player.mount=typeof d.mtd==="string"?d.mtd:(d.mtd?"slime":null); player.spawnX=d.spx!=null?d.spx:Math.floor(WORLD_W/2)*T; player.spawnY=d.spy!=null?d.spy:(surfaceAt(Math.floor(WORLD_W/2))-6)*T; player.buffs={}; player.fishing=null; player.breath=100;
     selected=d.sel||0; gameTime=d.time||0.3; timeSkipCd=d.tsc||0; inv=d.inv?d.inv.slice(0,36):new Array(36).fill(null);
@@ -3090,7 +3102,7 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
 function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null]; player.acc=null; player.acc2=null;
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
-  selected=0;gameTime=0.30;timeSkipCd=0;enemies=[];projectiles=[];particles=[];boss=null;dead=false;hardcore=false;permadead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;nightmare=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;stylistArrived=false;player.hairDye=0;travelerHere=false;travelerStock=null;raining=false;weatherT=80;storm=false;lightningFlash=0;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;meteorFell=false;slimeRain=false;slimeRainT=0;slimeKills=0;sandstorm=false;sandstormT=0;pirateInvasion=false;pirateT=0;pirateKills=0;pirateBossUp=false;martianInvasion=false;martianT=0;martianKills=0;martianBossUp=false;lastBossTier=0;housedCount=0;houseRecalcT=0;critters=[];minions=[];fireflies=[];stars=[];invasionT=0;army=null;quest=null;achievements={};codexClaimed={};prestige=0;blocksPlaced=0;questsDone=0;bestiary={};showBestiary=false;blocksMined=0;deaths=0;timePlayed=0;showStats=false;showWorldMap=false;curShop=null;curShopType=null;player.buffs={};player.fishing=null;player.pet=null;player.combatPet=null;player.mount=null;player.flyTime=0;player.grapple=null;player.breath=100;glows=[];trapCd.clear();timerCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;player.whipLine=null;player.dye=0;player.abilityCd=0;
+  selected=0;gameTime=0.30;timeSkipCd=0;enemies=[];projectiles=[];particles=[];boss=null;dead=false;hardcore=false;permadead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;nightmare=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;stylistArrived=false;player.hairDye=0;travelerHere=false;travelerStock=null;raining=false;weatherT=80;storm=false;lightningFlash=0;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;meteorFell=false;slimeRain=false;slimeRainT=0;slimeKills=0;sandstorm=false;sandstormT=0;pirateInvasion=false;pirateT=0;pirateKills=0;pirateBossUp=false;martianInvasion=false;martianT=0;martianKills=0;martianBossUp=false;lastBossTier=0;housedCount=0;houseRecalcT=0;critters=[];minions=[];fireflies=[];stars=[];invasionT=0;army=null;arena=null;quest=null;achievements={};codexClaimed={};prestige=0;blocksPlaced=0;questsDone=0;bestiary={};showBestiary=false;blocksMined=0;deaths=0;timePlayed=0;showStats=false;showWorldMap=false;curShop=null;curShopType=null;player.buffs={};player.fishing=null;player.pet=null;player.combatPet=null;player.mount=null;player.flyTime=0;player.grapple=null;player.breath=100;glows=[];trapCd.clear();timerCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;player.whipLine=null;player.dye=0;player.abilityCd=0;
   npcs=[]; spawnNPC("guide");
   document.getElementById("death").style.display="none";
   const c=Math.floor(WORLD_W/2);player.x=c*T;player.y=(surfaceAt(c)-6)*T;player.vx=player.vy=0;player.spawnX=player.x;player.spawnY=player.y;
