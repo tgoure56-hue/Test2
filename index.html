@@ -132,7 +132,7 @@ const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAM
   PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39,MYTHRIL=40,
   BED=41,CAMPFIRE=42,HEARTLANTERN=43,SPIKE=44,ADAMANTITE=45,CGRASS=46,EBONSTONE=47,HGRASS=48,PEARLSTONE=49,CRYSTAL=50,LAMP=51,CHAIR=52,VASE=53,BANNER=54,COBALT=55,TITANIUM=56,DART_TRAP=57,PLATE=58,STATUE=59,
   MGRASS=60,GMUSH=61,MUSHBLOCK=62,MARBLE=63,GRANITE=64,SANDSTONE=65,STONEBRICK=66,CLOUDB=67,COBWEB=68,CACTUS=69,BOOKCASE=70,CANDLE=71,CHANDELIER=72,SAWMILL=73,
-  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106,SHARPENING=107,AMMOBOX=108,CRYSTALBALL=109,BEWITCH=110,FOUNTAIN=111,PIANO=112,DRESSER=113,ASTRALITE=114,CRIMGRASS=115,CRIMSTONE=116,CRIMTANE=117,CRIMHEART=118,FLESHBLOCK=119,CORAL=120,CORALBLOCK=121,TELEPORTER=122,HELLBRICK=123,HELLFORGE=124,STARBLOCK=125,REDTORCH=126,GREENTORCH=127,PURPLETORCH=128,REDBRICK=129,GREENBRICK=130,WINDOW=131,RAINBOWBRICK=132,BARREL=133,FIREFLYJAR=134,BUTTERFLYJAR=135,HEARTSTATUE=136,STARSTATUE=137,CRITTERSTATUE=138,TIMER1=139,TIMER5=140,ALTAR=141,SELLBOX=142,SUNDIAL=143,MOONDIAL=144,SAFE=145;
+  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106,SHARPENING=107,AMMOBOX=108,CRYSTALBALL=109,BEWITCH=110,FOUNTAIN=111,PIANO=112,DRESSER=113,ASTRALITE=114,CRIMGRASS=115,CRIMSTONE=116,CRIMTANE=117,CRIMHEART=118,FLESHBLOCK=119,CORAL=120,CORALBLOCK=121,TELEPORTER=122,HELLBRICK=123,HELLFORGE=124,STARBLOCK=125,REDTORCH=126,GREENTORCH=127,PURPLETORCH=128,REDBRICK=129,GREENBRICK=130,WINDOW=131,RAINBOWBRICK=132,BARREL=133,FIREFLYJAR=134,BUTTERFLYJAR=135,HEARTSTATUE=136,STARSTATUE=137,CRITTERSTATUE=138,TIMER1=139,TIMER5=140,ALTAR=141,SELLBOX=142,SUNDIAL=143,MOONDIAL=144,SAFE=145,SKELSTATUE=146,BOLTSTATUE=147;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -202,6 +202,8 @@ const TILE={
   [DART_TRAP]:{name:"Piège à fléchettes",solid:true,hard:2.0,drop:DART_TRAP,col:"#5a6a7a"},
   [PLATE]:{name:"Plaque de pression",solid:false,hard:0.4,drop:PLATE,col:"#b0a060"},
   [STATUE]:{name:"Statue de slime",solid:true,hard:1.0,drop:STATUE,col:"#8a8a92"},
+  [SKELSTATUE]:{name:"Statue de squelette",solid:true,hard:1.0,drop:SKELSTATUE,col:"#c8c8ba"},
+  [BOLTSTATUE]:{name:"Statue de foudre",solid:true,hard:1.0,drop:BOLTSTATUE,col:"#b0a24a"},
   [HEARTSTATUE]:{name:"Statue de cœur",solid:true,hard:1.0,drop:HEARTSTATUE,col:"#b85a68"},
   [STARSTATUE]:{name:"Statue d'étoile",solid:true,hard:1.0,drop:STARSTATUE,col:"#c8b83a"},
   [CRITTERSTATUE]:{name:"Statue de bestiole",solid:true,hard:1.0,drop:CRITTERSTATUE,col:"#5a9a5a"},
@@ -532,6 +534,8 @@ const RECIPES=[
   R({kind:"tile",id:DART_TRAP},[ma("iron_bar",2),ti(STONE,5)],"anvil"),
   R({kind:"tile",id:PLATE,n:2},[ti(STONE,4)],"table"),
   R({kind:"tile",id:STATUE},[ti(STONE,8)],"table"),
+  R({kind:"tile",id:SKELSTATUE},[ti(STONE,8),ma("bone",3)],"table"),
+  R({kind:"tile",id:BOLTSTATUE},[ti(STONE,8),ma("gold_bar",2)],"anvil"),
   R({kind:"tile",id:HEARTSTATUE},[ti(STONE,10),ma("herb",1)],"table"),
   R({kind:"tile",id:STARSTATUE},[ti(STONE,10),ma("glowmush",1)],"table"),
   R({kind:"tile",id:CRITTERSTATUE},[ti(STONE,10),ma("feather",1)],"table"),
@@ -1176,6 +1180,8 @@ function makeTex(id){
   else if(id===DART_TRAP){speckle("#5a6a7a",16,20);g.fillStyle="#2a323a";g.fillRect(T/2-3,T/2-3,6,6);g.fillStyle="#11161a";g.fillRect(T/2-2,T/2-2,4,4);g.strokeStyle="#39434d";g.lineWidth=1;g.strokeRect(1,1,T-2,T-2);}
   else if(id===PLATE){g.clearRect(0,0,T,T);g.fillStyle="#9a8a48";g.fillRect(2,T-7,T-4,5);g.fillStyle="#b0a060";g.fillRect(2,T-7,T-4,2);g.fillStyle="#6e6230";g.fillRect(4,T-3,T-8,1);}
   else if(id===STATUE){g.clearRect(0,0,T,T);g.fillStyle="#6e6e76";g.fillRect(4,T-3,T-8,3);g.fillStyle="#8a8a92";g.fillRect(7,4,T-14,T-6);g.beginPath();g.arc(T/2,5,4,0,7);g.fill();g.fillStyle="#a6a6ae";g.fillRect(6,8,2,T-12);g.fillRect(T-8,8,2,T-12);g.fillStyle="#5a5a62";g.fillRect(T/2-3,7,2,2);g.fillRect(T/2+1,7,2,2);}
+  else if(id===SKELSTATUE){g.clearRect(0,0,T,T);g.fillStyle="#6e6e76";g.fillRect(4,T-3,T-8,3);g.fillStyle="#b8b8ac";g.fillRect(7,6,T-14,T-8);g.fillStyle="#e8e0c8";g.beginPath();g.arc(T/2,7,4.5,0,7);g.fill();g.fillStyle="#3a3a3a";g.fillRect(T/2-3,6,2,2);g.fillRect(T/2+1,6,2,2);g.fillStyle="#c8c0aa";g.fillRect(6,10,2,T-14);g.fillRect(T-8,10,2,T-14);g.fillStyle="#e8e0c8";g.fillRect(T/2-1,10,2,4);}
+  else if(id===BOLTSTATUE){g.clearRect(0,0,T,T);g.fillStyle="#5a542a";g.fillRect(4,T-3,T-8,3);g.fillStyle="#b0a24a";g.fillRect(7,4,T-14,T-6);g.fillStyle="#ffe27a";g.beginPath();g.moveTo(T/2+2,6);g.lineTo(T/2-3,T/2+1);g.lineTo(T/2,T/2+1);g.lineTo(T/2-2,T-6);g.lineTo(T/2+4,T/2-2);g.lineTo(T/2,T/2-2);g.closePath();g.fill();g.fillStyle="#8a7a2a";g.fillRect(6,8,2,T-12);g.fillRect(T-8,8,2,T-12);}
   else if(id===HEARTSTATUE){g.clearRect(0,0,T,T);g.fillStyle="#5a4048";g.fillRect(4,T-3,T-8,3);g.fillStyle="#8a6a72";g.fillRect(7,4,T-14,T-6);g.fillStyle="#e0455a";g.beginPath();g.arc(T/2-2,T/2-1,2.2,0,7);g.arc(T/2+2,T/2-1,2.2,0,7);g.moveTo(T/2-4,T/2);g.lineTo(T/2,T/2+5);g.lineTo(T/2+4,T/2);g.fill();}
   else if(id===STARSTATUE){g.clearRect(0,0,T,T);g.fillStyle="#5a5230";g.fillRect(4,T-3,T-8,3);g.fillStyle="#8a8250";g.fillRect(7,4,T-14,T-6);g.fillStyle="#ffe27a";g.beginPath();for(let i=0;i<5;i++){const a=-Math.PI/2+i*Math.PI*2/5;g.lineTo(T/2+Math.cos(a)*5,T/2+Math.sin(a)*5);const a2=a+Math.PI/5;g.lineTo(T/2+Math.cos(a2)*2,T/2+Math.sin(a2)*2);}g.closePath();g.fill();}
   else if(id===CRITTERSTATUE){g.clearRect(0,0,T,T);g.fillStyle="#3a5a3a";g.fillRect(4,T-3,T-8,3);g.fillStyle="#6a8a6a";g.fillRect(7,4,T-14,T-6);g.fillStyle="#8ae08a";g.beginPath();g.ellipse(T/2,T/2+1,4,3,0,0,7);g.fill();g.fillStyle="#cfeecf";g.fillRect(T/2-3,T/2-4,2,3);g.fillRect(T/2+1,T/2-4,2,3);}
@@ -1708,6 +1714,8 @@ function updateTimers(dt){ if(timerCd.size>600)timerCd.clear();
 function triggerDevice(x,y){ const t=getT(x,y);
   if(t===DART_TRAP){ const key="W"+x+","+y; if(!trapCd.has(key)){ fireDart(x,y); trapCd.set(key,0.6); } }
   else if(t===STATUE){ const key="S"+x+","+y; if(!trapCd.has(key)&&enemies.length<12){ spawnEnemy("slime",x*T-4,(y-1)*T); enemies[enemies.length-1].fromStatue=true; spawnParticles(x*T+T/2,y*T,"#9ad0ff",8); trapCd.set(key,1.5); } }
+  else if(t===SKELSTATUE){ const key="K"+x+","+y; if(!trapCd.has(key)&&enemies.length<12){ spawnEnemy("skeleton",x*T-4,(y-1)*T); enemies[enemies.length-1].fromStatue=true; spawnParticles(x*T+T/2,y*T,"#e8e0c8",8); trapCd.set(key,2.2); } }
+  else if(t===BOLTSTATUE){ const key="B"+x+","+y; if(!trapCd.has(key)){ lightningStrike(x); trapCd.set(key,3); } }
   else if(t===HEARTSTATUE){ const key="H"+x+","+y; if(!trapCd.has(key)&&player.hp<player.maxHp&&Math.hypot((x+0.5)*T-(player.x+PW/2),(y+0.5)*T-(player.y+PH/2))<T*7){ player.hp=Math.min(player.maxHp,player.hp+20); trapCd.set(key,8); spawnParticles(x*T+T/2,y*T,"#ff5a7a",8); dirtyUI=true; } }
   else if(t===STARSTATUE){ const key="A"+x+","+y; if(!trapCd.has(key)&&player.mana<player.maxMana&&Math.hypot((x+0.5)*T-(player.x+PW/2),(y+0.5)*T-(player.y+PH/2))<T*7){ player.mana=Math.min(player.maxMana,player.mana+20); trapCd.set(key,8); spawnParticles(x*T+T/2,y*T,"#ffe27a",8); dirtyUI=true; } }
   else if(t===CRITTERSTATUE){ const key="C"+x+","+y; if(!trapCd.has(key)&&critters.length<8){ critters.push({x:x*T,y:(y-1)*T,vx:0,vy:0,w:14,h:12,onGround:false,hop:Math.random(),type:["frog","bird","butterfly"][Math.floor(Math.random()*3)]}); trapCd.set(key,3); spawnParticles(x*T+T/2,y*T,"#8ae08a",6); } }
