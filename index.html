@@ -1358,7 +1358,11 @@ function reforgeSelected(){ const sel=inv[selected];
   if(coins<REFORGE_COST){ flash("Pas assez de pièces pour reforger ("+REFORGE_COST+")"); return false; }
   coins-=REFORGE_COST; reforge(sel); flash("🔧 Reforgé : "+itemName(sel)); dirtyUI=true; return true; }
 // gemmes serties : rubis +20% dégâts, émeraude +12% et +4, saphir -40% de mana
-function gemBoost(sel,base){ if(!sel||!sel.gem)return base; if(sel.gem==="ruby")return Math.round(base*1.2); if(sel.gem==="emerald")return Math.round(base*1.12)+4; return base; }
+function gemBoost(sel,base){ if(!sel||!sel.gem)return base; if(sel.gem==="ruby")return Math.round(base*1.2); if(sel.gem==="emerald")return Math.round(base*1.12)+4; if(sel.gem==="diamond")return Math.round(base*1.18)+8; return base; }
+// sertissage de gemmes : rubis/émeraude/diamant -> dégâts, saphir -> coût de mana
+function gemName(gemId){ return gemId===RUBY?"ruby":gemId===SAPPHIRE?"sapphire":gemId===EMERALD?"emerald":gemId===DIAMOND?"diamond":null; }
+function socketable(it){ return !!(it&&it.kind==="tool"&&TOOLS[it.id]&&(TOOLS[it.id].dmg||TOOLS[it.id].type==="staff")); }
+function socketGem(it,gemId){ const g=gemName(gemId); if(!g||!socketable(it))return false; it.gem=g; return true; }
 function stationMult(cat){ let m=1;
   if(cat==="melee"&&nearTile(SHARPENING,8))m*=1.15; if(cat==="ranged"&&nearTile(AMMOBOX,8))m*=1.15; if(cat==="magic"&&nearTile(CRYSTALBALL,8))m*=1.15;
   if(armorClass()===cat)m*=1.25; return m; }
@@ -2918,8 +2922,8 @@ function handleSlot(c,i){
   if(!arr)return; const it=arr[i];
   if(!cursor){ if(it){cursor=it;arr[i]=null; if(c==="armor")dirtyUI=true;} }
   else{ // sertir une gemme (rubis/saphir/émeraude) sur une arme
-    if(c==="inv"&&cursor.kind==="tile"&&(cursor.id===RUBY||cursor.id===SAPPHIRE||cursor.id===EMERALD)&&it&&it.kind==="tool"&&TOOLS[it.id]&&(TOOLS[it.id].dmg||TOOLS[it.id].type==="staff")){
-      if(it.gem){ flash("Cette arme est déjà sertie"); } else { it.gem=cursor.id===RUBY?"ruby":cursor.id===SAPPHIRE?"sapphire":"emerald"; cursor.n--; if(cursor.n<=0)cursor=null; flash("💎 Arme sertie : "+itemName(it)); }
+    if(c==="inv"&&cursor.kind==="tile"&&(cursor.id===RUBY||cursor.id===SAPPHIRE||cursor.id===EMERALD||cursor.id===DIAMOND)&&socketable(it)){
+      if(it.gem){ flash("Cette arme est déjà sertie"); } else { socketGem(it,cursor.id); cursor.n--; if(cursor.n<=0)cursor=null; flash("💎 Arme sertie : "+itemName(it)); }
       dirtyUI=true; return; }
     if(allow&&!(cursor.kind==="armor"&&ARMOR[cursor.id].slot===allow)){ /* refuse */ }
     else if(!it){arr[i]=cursor;cursor=null;}
