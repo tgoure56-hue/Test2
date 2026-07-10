@@ -363,7 +363,7 @@ const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Bar
   icefish:{name:"Poisson des glaces",col:"#aee4ff"}, junglefish:{name:"Barbeau de jungle",col:"#5ac04a"}, voidfish:{name:"Poisson du néant",col:"#8a4ad0"}, prismfish:{name:"Poisson prismatique",col:"#e08ad0"}, sandfish:{name:"Poisson des sables",col:"#e0c87a"}, bloodfish:{name:"Poisson sanglant",col:"#c0392b"},
   mythril_bar:{name:"Barre de mythril",col:"#5fc9b0"}, adamantite_bar:{name:"Barre d'adamantite",col:"#d0506a"}, crystal_bar:{name:"Barre de cristal",col:"#7fe0ff"}, astralite_bar:{name:"Barre d'astralite",col:"#8a7aff"},
   cobalt_bar:{name:"Barre de cobalt",col:"#2a6ad0"}, titanium_bar:{name:"Barre de titane",col:"#c0c4cc"}, mech_soul:{name:"Âme mécanique",col:"#9fe0ff"},
-  glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"}, meteor_bar:{name:"Barre de météore",col:"#c8763a"}, herb:{name:"Herbe médicinale",col:"#3ac06a"}, nightmare_shard:{name:"Éclat de cauchemar",col:"#a03ad0"}, spider_fang:{name:"Croc d'araignée",col:"#c8b0d0"}, gel:{name:"Gel",col:"#6ab0e0"}, crimtane_bar:{name:"Barre de crimtane",col:"#c0392b"}, tissue:{name:"Échantillon de tissu",col:"#e0304a"}, coral:{name:"Corail",col:"#ff7a9a"}, pearl:{name:"Perle",col:"#f0e8f4"}, soul_fire:{name:"Âme de feu",col:"#ff8a3a"}, stardust:{name:"Poussière d'étoile",col:"#ffe27a"}, doubloon:{name:"Doublon",col:"#e8c33a"}, frog:{name:"Grenouille",col:"#5aa04a"}, butterfly:{name:"Papillon",col:"#e0a0e0"}, firefly:{name:"Luciole",col:"#fff7a0"}, martian_plating:{name:"Plaque martienne",col:"#8ab0c0"}, stone_tablet:{name:"Tablette de pierre",col:"#8a94a0"} };
+  glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"}, meteor_bar:{name:"Barre de météore",col:"#c8763a"}, herb:{name:"Herbe médicinale",col:"#3ac06a"}, nightmare_shard:{name:"Éclat de cauchemar",col:"#a03ad0"}, spider_fang:{name:"Croc d'araignée",col:"#c8b0d0"}, gel:{name:"Gel",col:"#6ab0e0"}, crimtane_bar:{name:"Barre de crimtane",col:"#c0392b"}, tissue:{name:"Échantillon de tissu",col:"#e0304a"}, coral:{name:"Corail",col:"#ff7a9a"}, pearl:{name:"Perle",col:"#f0e8f4"}, soul_fire:{name:"Âme de feu",col:"#ff8a3a"}, stardust:{name:"Poussière d'étoile",col:"#ffe27a"}, doubloon:{name:"Doublon",col:"#e8c33a"}, frog:{name:"Grenouille",col:"#5aa04a"}, butterfly:{name:"Papillon",col:"#e0a0e0"}, firefly:{name:"Luciole",col:"#fff7a0"}, martian_plating:{name:"Plaque martienne",col:"#8ab0c0"}, stone_tablet:{name:"Tablette de pierre",col:"#8a94a0"}, fallen_star:{name:"Étoile filante",col:"#fff2a0"} };
 const AMMO={ arrow:{name:"Flèche",col:"#caa15a",dmg:5} };
 const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenbee:{name:"Larve royale"}, golem:{name:"Noyau de golem"}, worm:{name:"Nourriture maudite"}, moon:{name:"Tablette céleste"}, mechworm:{name:"Engrenage maudit"}, titan:{name:"Relique céleste"}, broodmother:{name:"Cocon royal"}, slime_crown:{name:"Couronne gluante"}, celestial_sigil:{name:"Sceau céleste"}, bulb:{name:"Bulbe carnivore"}, spore_pod:{name:"Bulbe de spores"} };
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
@@ -416,6 +416,7 @@ const RECIPES=[
   // potions
   R({kind:"use",id:"hp_potion",n:1},[ma("mushroom",2)],"table"),
   R({kind:"use",id:"mp_potion",n:1},[ma("mushroom",1),ti(SAPPHIRE,1)],"table"),
+  R({kind:"use",id:"manacrystal"},[ma("fallen_star",3)],"table"),
   // murs d'arrière-plan
   R({kind:"wall",id:WWOOD,n:4},[ti(PLANK,1)],"table"),
   R({kind:"wall",id:WSTONE,n:4},[ti(STONE,1)],"table"),
@@ -1265,7 +1266,7 @@ window.addEventListener("resize",resize);resize();
 
 const player={x:0,y:0,vx:0,vy:0,onGround:false,hp:100,maxHp:100,mana:20,maxMana:20,
   face:1,invuln:0,swing:0,useCd:0,placeCd:0,potionCd:0,dashCd:0,tapDir:0,tapWin:0,dashTime:0,breath:100,teleCd:0,downWas:false,acc:null,acc2:null,djump:false,jumpWas:false,drop:false,buffs:{},fishing:null,pet:null,combatPet:null,mount:null,flyTime:0,grapple:null,abilityCd:0,spawnX:0,spawnY:0,armorArr:[null,null,null]};
-let critters=[], minions=[], fireflies=[], glows=[];
+let critters=[], minions=[], fireflies=[], glows=[], stars=[];
 let invasionT=0, wizardArrived=false, blacksmithArrived=false, dryadArrived=false, curShop=null;
 const cam={x:0,y:0};
 let inv=new Array(36).fill(null);
@@ -1457,7 +1458,7 @@ function update(dt){
   const regenRate=2+(player.buffs.regen>0?6:0)+(player.buffs.wellfed>0?2:0)+(hasAcc("regen")?2:0)+(nearTile(CAMPFIRE,8)?3:0)+(nearTile(HEARTLANTERN,8)?2:0)+(nearTile(FOUNTAIN,8)?2:0)+(armorSet()==="crim"?3:0);
   if(player.invuln<=0&&player.hp<player.maxHp)player.hp=Math.min(player.maxHp,player.hp+dt*regenRate);
   player.mana=Math.min(player.maxMana,player.mana+dt*(4+(hasAcc("manaregen")?4:0)+(nearTile(CRYSTALBALL,8)?4:0)+(armorSet()==="shroom"?4:0)));
-  updateFishing(dt); updateCritters(dt,step); updateMinions(dt,step); updateCombatPet(dt,step); updateFireflies(dt,step); updateTraps(dt); updateTimers(dt); updateArmy(dt); updatePumpkinMoon(dt); updateFrostMoon(dt); updateSlimeRain(dt); updatePirateInvasion(dt); updateMartianInvasion(dt); checkAchievements(); checkCodex();
+  updateFishing(dt); updateCritters(dt,step); updateMinions(dt,step); updateCombatPet(dt,step); updateFireflies(dt,step); updateStars(dt,step); updateTraps(dt); updateTimers(dt); updateArmy(dt); updatePumpkinMoon(dt); updateFrostMoon(dt); updateSlimeRain(dt); updatePirateInvasion(dt); updateMartianInvasion(dt); checkAchievements(); checkCodex();
   if(!slimeRain&&!bloodMoon&&!pumpkinMoon&&!frostMoon&&bossKills>=1&&Math.random()<dt*0.006)startSlimeRain();
   if(!pirateInvasion&&!bloodMoon&&!pumpkinMoon&&!frostMoon&&bossKills>=2&&Math.random()<dt*0.0035)startPirateInvasion();
   if(hardmode&&!martianInvasion&&!pirateInvasion&&!bloodMoon&&!pumpkinMoon&&!frostMoon&&Math.random()<dt*0.0022)startMartianInvasion();
@@ -1851,6 +1852,14 @@ function updateCombatPet(dt,step){ const cp=player.combatPet; if(!cp)return; if(
 function updateFireflies(dt,step){
   if(isNight()&&fireflies.length<14&&Math.random()<dt*3){ const fx=player.x+(Math.random()-0.5)*VW, fy=player.y+(Math.random()-0.5)*VH*0.7; if(getT(Math.floor(fx/T),Math.floor(fy/T))===AIR)fireflies.push({x:fx,y:fy,t:Math.random()*9}); }
   for(let i=fireflies.length-1;i>=0;i--){ const f=fireflies[i]; f.t+=dt; f.x+=Math.sin(f.t*1.5)*0.7; f.y+=Math.cos(f.t*1.2)*0.5; if(!isNight()||Math.abs(f.x-player.x)>VW||Math.abs(f.y-player.y)>VH)fireflies.splice(i,1); } }
+// chutes d'étoiles nocturnes : tombent du ciel, se ramassent au contact (matériau + mana)
+function updateStars(dt,step){
+  const span=VW||900, high=(VH||600)*0.55;
+  if(isNight()&&stars.length<7&&Math.random()<dt*0.9){ const sx=player.x+PW/2+(Math.random()-0.5)*span; stars.push({x:sx,y:player.y-high,vy:110+Math.random()*60,land:0,t:0}); }
+  for(let i=stars.length-1;i>=0;i--){ const s=stars[i]; s.t+=dt;
+    if(!s.land){ s.vy=Math.min(s.vy+420*dt,340); s.y+=s.vy*dt; if(solidAt(Math.floor(s.x/T),Math.floor((s.y+5)/T))){ s.land=1; s.vy=0; } }
+    if(rectHit(s.x-6,s.y-6,12,12,player.x,player.y,PW,PH)){ stars.splice(i,1); addItem("mat","fallen_star",1); player.mana=Math.min(player.maxMana,player.mana+40); spawnParticles(s.x,s.y,"#fff2a0",10); continue; }
+    if(!isNight()||Math.abs(s.x-player.x)>span*1.3||(s.land&&s.t>24))stars.splice(i,1); } }
 
 // =========================================================================
 //  projectiles
@@ -2452,6 +2461,7 @@ function computeLight(x0,y0,x1,y1){ const rw=x1-x0+1,rh=y1-y0+1;
   for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){ const t=getT(x,y); if(TILE[t]&&TILE[t].light)L[at(x,y)]=Math.max(L[at(x,y)],TILE[t].light); }
   if(player.buffs.shine>0||hasAcc("glow")||player.pet==="fairy"||player.combatPet||armorSet()==="crystal"||armorSet()==="shroom"){ const lx=Math.floor((player.x+PW/2)/T),ly=Math.floor((player.y+PH/2)/T); if(lx>=x0&&lx<=x1&&ly>=y0&&ly<=y1)L[at(lx,ly)]=Math.max(L[at(lx,ly)],(player.buffs.shine>0||hasAcc("glow"))?0.95:0.6); }
   for(const f of fireflies){ const fx=Math.floor(f.x/T),fy=Math.floor(f.y/T); if(fx>=x0&&fx<=x1&&fy>=y0&&fy<=y1)L[at(fx,fy)]=Math.max(L[at(fx,fy)],0.45); }
+  for(const s of stars){ const sx=Math.floor(s.x/T),sy=Math.floor(s.y/T); if(sx>=x0&&sx<=x1&&sy>=y0&&sy<=y1)L[at(sx,sy)]=Math.max(L[at(sx,sy)],0.7); }
   for(const g of glows){ const gx=Math.floor(g.x/T),gy=Math.floor(g.y/T); if(gx>=x0&&gx<=x1&&gy>=y0&&gy<=y1)L[at(gx,gy)]=Math.max(L[at(gx,gy)],0.85); }
   for(let pass=0;pass<6;pass++){
     for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){ const i=at(x,y);let m=L[i];const fo=blocksLight(x,y)?0.22:0.10;
@@ -2539,6 +2549,7 @@ function render(){
     if(m.kind==="spider"){ const lg=Math.sin((m.t||0)*16)*2; ctx.strokeStyle="#4a3a54";ctx.lineWidth=1.5; for(let k=0;k<3;k++){ ctx.beginPath();ctx.moveTo(mx-2,my);ctx.lineTo(mx-7+k,my+4+lg);ctx.stroke(); ctx.beginPath();ctx.moveTo(mx+2,my);ctx.lineTo(mx+7-k,my+4-lg);ctx.stroke(); } ctx.fillStyle="#6a5a74";ctx.beginPath();ctx.ellipse(mx,my+1,6,5,0,0,7);ctx.fill();ctx.beginPath();ctx.arc(mx,my-4,3,0,7);ctx.fill(); ctx.fillStyle="#c8ffb0";ctx.fillRect(mx-2,my-5,1,1);ctx.fillRect(mx+1,my-5,1,1); continue; }
     ctx.fillStyle="rgba(120,190,255,.5)"; ctx.beginPath(); ctx.arc(mx,my,8,0,7); ctx.fill(); ctx.fillStyle="#bfe6ff"; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill(); ctx.fillStyle="#225"; ctx.fillRect(mx-2,my-1,2,2); ctx.fillRect(mx+1,my-1,2,2); }
   for(const f of fireflies){ ctx.fillStyle="rgba(255,240,150,.5)"; ctx.beginPath(); ctx.arc(f.x-cam.x,f.y-cam.y,4,0,7); ctx.fill(); ctx.fillStyle="#fff7c0"; ctx.beginPath(); ctx.arc(f.x-cam.x,f.y-cam.y,2,0,7); ctx.fill(); }
+  for(const s of stars){ const px=s.x-cam.x,py=s.y-cam.y; ctx.fillStyle="rgba(255,240,140,.4)"; ctx.beginPath(); ctx.arc(px,py,7,0,7); ctx.fill(); ctx.save(); ctx.translate(px,py); ctx.rotate(s.t*2); ctx.fillStyle="#fff2a0"; ctx.beginPath(); for(let k=0;k<8;k++){ const a=k*Math.PI/4, r=(k%2?2:6); ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r); } ctx.closePath(); ctx.fill(); ctx.restore(); ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(px,py,1.6,0,7); ctx.fill(); }
   for(const g of glows){ ctx.fillStyle="rgba(127,255,159,.5)"; ctx.beginPath(); ctx.arc(g.x-cam.x,g.y-cam.y,5,0,7); ctx.fill(); ctx.fillStyle="#d0ffd6"; ctx.beginPath(); ctx.arc(g.x-cam.x,g.y-cam.y,2.5,0,7); ctx.fill(); }
   if(player.grapple){ ctx.strokeStyle="#aaa"; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(player.x+PW/2-cam.x,player.y+PH/2-cam.y); ctx.lineTo(player.grapple.x-cam.x,player.grapple.y-cam.y); ctx.stroke(); ctx.fillStyle="#888"; ctx.fillRect(player.grapple.x-cam.x-3,player.grapple.y-cam.y-3,6,6); }
   for(const p of projectiles){ if(p.type==="bomb"){ ctx.fillStyle="#222"; ctx.beginPath(); ctx.arc(p.x-cam.x,p.y-cam.y,5,0,7); ctx.fill(); ctx.fillStyle="#ff7a1a"; ctx.fillRect(p.x-cam.x-1,p.y-cam.y-7,2,3); continue; }
@@ -3001,13 +3012,13 @@ function load(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw)return false;
     player.pet=typeof d.pet==="string"?d.pet:(d.pet?"sprite":null); player.combatPet=d.cpet||null; player.mount=typeof d.mtd==="string"?d.mtd:(d.mtd?"slime":null); player.spawnX=d.spx!=null?d.spx:Math.floor(WORLD_W/2)*T; player.spawnY=d.spy!=null?d.spy:(surfaceAt(Math.floor(WORLD_W/2))-6)*T; player.buffs={}; player.fishing=null; player.breath=100;
     selected=d.sel||0; gameTime=d.time||0.3; timeSkipCd=d.tsc||0; inv=d.inv?d.inv.slice(0,36):new Array(36).fill(null);
     while(inv.length<36)inv.push(null); cursor=null; if(d.cur){ if(!addItem(d.cur.kind,d.cur.id,d.cur.n))cursor=d.cur; }
-    critters=[]; minions=[]; fireflies=[]; glows=[]; trapCd.clear(); timerCd.clear(); player.grapple=null;
+    critters=[]; minions=[]; fireflies=[]; glows=[]; stars=[]; trapCd.clear(); timerCd.clear(); player.grapple=null;
     npcs=[]; spawnNPC("guide"); if(merchantArrived)spawnNPC("merchant"); if(nurseArrived)spawnNPC("nurse"); if(wizardArrived)spawnNPC("wizard"); if(blacksmithArrived)spawnNPC("blacksmith"); if(dryadArrived)spawnNPC("dryad"); if(anglerArrived)spawnNPC("angler"); if(tinkererArrived)spawnNPC("tinkerer"); if(armsDealerArrived)spawnNPC("arms_dealer"); if(painterArrived)spawnNPC("painter"); if(taxCollectorArrived)spawnNPC("tax_collector"); if(stylistArrived)spawnNPC("stylist"); if(travelerHere)spawnNPC("traveler"); return true;
   }catch(err){console.warn("Sauvegarde corrompue",err);return false;} }
 function newGame(){ genWorld((Math.random()*1e9)>>>0); inv=new Array(36).fill(null); player.armorArr=[null,null,null]; player.acc=null; player.acc2=null;
   player.maxHp=100;player.hp=100;player.maxMana=20;player.mana=20;
   addItem("tool","pick1",1);addItem("tool","sword1",1);addItem("tool","bow1",1);addItem("ammo","arrow",40);addItem("tile",TORCH,20);
-  selected=0;gameTime=0.30;timeSkipCd=0;enemies=[];projectiles=[];particles=[];boss=null;dead=false;hardcore=false;permadead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;nightmare=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;stylistArrived=false;player.hairDye=0;travelerHere=false;travelerStock=null;raining=false;weatherT=80;storm=false;lightningFlash=0;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;meteorFell=false;slimeRain=false;slimeRainT=0;slimeKills=0;pirateInvasion=false;pirateT=0;pirateKills=0;pirateBossUp=false;martianInvasion=false;martianT=0;martianKills=0;martianBossUp=false;lastBossTier=0;housedCount=0;houseRecalcT=0;critters=[];minions=[];fireflies=[];invasionT=0;army=null;quest=null;achievements={};codexClaimed={};prestige=0;blocksPlaced=0;questsDone=0;bestiary={};showBestiary=false;blocksMined=0;deaths=0;timePlayed=0;showStats=false;showWorldMap=false;curShop=null;player.buffs={};player.fishing=null;player.pet=null;player.combatPet=null;player.mount=null;player.flyTime=0;player.grapple=null;player.breath=100;glows=[];trapCd.clear();timerCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;player.whipLine=null;player.dye=0;player.abilityCd=0;
+  selected=0;gameTime=0.30;timeSkipCd=0;enemies=[];projectiles=[];particles=[];boss=null;dead=false;hardcore=false;permadead=false;coins=0;merchantArrived=false;bossKills=0;nurseArrived=false;wizardArrived=false;blacksmithArrived=false;dryadArrived=false;anglerArrived=false;fishCaught=0;anglerQuest=null;hardmode=false;nightmare=false;tinkererArrived=false;armsDealerArrived=false;painterArrived=false;taxCollectorArrived=false;taxPool=0;stylistArrived=false;player.hairDye=0;travelerHere=false;travelerStock=null;raining=false;weatherT=80;storm=false;lightningFlash=0;bloodMoon=false;eclipse=false;pumpkinMoon=false;pumpkinMoonT=0;frostMoon=false;frostMoonT=0;meteorFell=false;slimeRain=false;slimeRainT=0;slimeKills=0;pirateInvasion=false;pirateT=0;pirateKills=0;pirateBossUp=false;martianInvasion=false;martianT=0;martianKills=0;martianBossUp=false;lastBossTier=0;housedCount=0;houseRecalcT=0;critters=[];minions=[];fireflies=[];stars=[];invasionT=0;army=null;quest=null;achievements={};codexClaimed={};prestige=0;blocksPlaced=0;questsDone=0;bestiary={};showBestiary=false;blocksMined=0;deaths=0;timePlayed=0;showStats=false;showWorldMap=false;curShop=null;player.buffs={};player.fishing=null;player.pet=null;player.combatPet=null;player.mount=null;player.flyTime=0;player.grapple=null;player.breath=100;glows=[];trapCd.clear();timerCd.clear();player.useCd=0;player.placeCd=0;player.swing=0;player.whipLine=null;player.dye=0;player.abilityCd=0;
   npcs=[]; spawnNPC("guide");
   document.getElementById("death").style.display="none";
   const c=Math.floor(WORLD_W/2);player.x=c*T;player.y=(surfaceAt(c)-6)*T;player.vx=player.vy=0;player.spawnX=player.x;player.spawnY=player.y;
