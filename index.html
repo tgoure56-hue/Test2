@@ -1372,6 +1372,7 @@ addEventListener("keydown",e=>{ const fresh=!keys[e.code]; keys[e.code]=true;
   if(e.code==="KeyN")showWorldMap=!showWorldMap;
   if(e.code==="KeyH")toggleHardcore();
   if(e.code==="KeyP")ascend();
+  if(e.code==="KeyO")toggleAudio();
   if(e.code==="KeyB")showBestiary=!showBestiary;
   if(e.code==="KeyK")showStats=!showStats;
   if(fresh&&e.code==="KeyF")useSetAbility();
@@ -1576,7 +1577,7 @@ function handleActions(dt){
   } else if(!mouse.left){mining.x=-1;mining.prog=0;}
 }
 function breakTile(x,y,id){ const drop=TILE[id].drop; if(id===CHEST){chestData.delete(x+","+y);chestNames.delete(x+","+y);}
-  setT(x,y,AIR); blocksMined++;
+  setT(x,y,AIR); blocksMined++; sfx(230+biomeAt(x)*26,0.05,"triangle"); // hauteur teintée par le biome
   if(id===CRIMHEART){ addItem("mat","tissue",2+Math.floor(Math.random()*3)); addItem("tile",CRIMTANE,4+Math.floor(Math.random()*5)); for(let k=0;k<2;k++)spawnEnemy("crimera",x*T,(y-1)*T); flash("💔 Un cœur carmin éclate ! Des crimeras surgissent..."); }
   else if(id===LIFE)addItem("use","lifecrystal",1); else if(id===MANA)addItem("use","manacrystal",1);
   else if(id===MUSHROOM)addItem("mat","mushroom",1); else if(id===COBWEB)addItem("mat","silk",1); else if(id===GMUSH)addItem("mat","glowmush",1);
@@ -2025,7 +2026,7 @@ function updateEnemies(dt,step){
   if(boss)updateBoss(dt,step);
 }
 function rectHit(ax,ay,aw,ah,bx,by,bw,bh){return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by;}
-function hurtPlayer(dmg,dir){ const base=player.buffs.endurance>0?Math.round(dmg*0.85):dmg; const real=Math.max(1,base-totalDef()); player.hp-=real; player.invuln=0.8; player.vx=dir*7; player.vy=-6; spawnParticles(player.x+PW/2,player.y+PH/2,"#ff3030",8);
+function hurtPlayer(dmg,dir){ const base=player.buffs.endurance>0?Math.round(dmg*0.85):dmg; const real=Math.max(1,base-totalDef()); player.hp-=real; player.invuln=0.8; player.vx=dir*7; player.vy=-6; spawnParticles(player.x+PW/2,player.y+PH/2,"#ff3030",8); sfx(150,0.14,"sawtooth");
   if(armorSet()==="titanium"){ for(const e of enemies){ if(Math.hypot(e.x+e.w/2-(player.x+PW/2),e.y+e.h/2-(player.y+PH/2))<72){ e.hp-=18; spawnParticles(e.x+e.w/2,e.y+e.h/2,"#dce0e8",4); } } } }
 function summonBoss(sel){ if(boss){flash("Le boss est déjà là");return;}
   if(sel.id==="eye"){ if(!isNight()){flash("L'Œil maléfique n'apparaît que la nuit");return;}
@@ -2165,7 +2166,7 @@ let lastQuestDesc="";
 function assignQuest(){ let q; do{ q=QUESTS[Math.floor(Math.random()*QUESTS.length)]; }while(QUESTS.length>1&&q.desc===lastQuestDesc); lastQuestDesc=q.desc;
   quest={type:q.type,enemy:q.enemy,kind:q.kind,id:q.id,need:q.need,reward:q.reward,desc:q.desc,have:0}; }
 // récompense : les pièces augmentent avec le nombre de quêtes accomplies, + un objet bonus varié
-function questReward(){ const total=quest.reward+questsDone*8; coins+=total; questsDone++;
+function questReward(){ const total=quest.reward+questsDone*8; coins+=total; questsDone++; sfx(880,0.15,"square");
   const r=Math.random();
   if(r<0.4)addItem("use","hp_potion",2);
   else if(r<0.65)addItem("use","mp_potion",2);
@@ -2907,6 +2908,13 @@ function refreshUI(){ buildSlots(); if(invOpen&&!chestOpen&&!shopOpen)buildCraft
 addEventListener("mousemove",e=>{ if(invOpen&&cursor){$cursorItem.style.left=(e.clientX-20)+"px";$cursorItem.style.top=(e.clientY-20)+"px";} });
 let flashT=0; const $msg=document.getElementById("msg");
 function flash(t){ $msg.textContent=t; $msg.style.opacity=1; flashT=2.5; }
+// audio procédural (navigateur uniquement) : effets sonores + ambiance, entièrement protégé pour ne jamais planter
+let audioOn=false, audioCtx=null;
+function initAudio(){ if(audioCtx)return audioCtx; try{ const AC=(typeof AudioContext!=="undefined")?AudioContext:(typeof webkitAudioContext!=="undefined")?webkitAudioContext:null; if(AC)audioCtx=new AC(); }catch(e){} return audioCtx; }
+function sfx(freq,dur,type){ if(!audioOn)return; const ac=initAudio(); if(!ac)return;
+  try{ const o=ac.createOscillator(),g=ac.createGain(); o.type=type||"square"; o.frequency.value=freq; g.gain.value=0.05; o.connect(g); g.connect(ac.destination);
+    const t=ac.currentTime; o.start(t); g.gain.exponentialRampToValueAtTime(0.0001,t+(dur||0.12)); o.stop(t+(dur||0.14)); }catch(e){} }
+function toggleAudio(){ audioOn=!audioOn; if(audioOn)initAudio(); flash(audioOn?"🔊 Son activé":"🔇 Son coupé"); }
 const $hearts=document.getElementById("hearts"),$mana=document.getElementById("mana"),$def=document.getElementById("def"),$coins=document.getElementById("coins"),$clock=document.getElementById("clock"),$buffs=document.getElementById("buffs"),$bossbar=document.getElementById("bossbar"),$bossFg=document.getElementById("bossFg");
 function updateStatus(){ $hearts.textContent="❤️ "+Math.ceil(player.hp)+"/"+player.maxHp; $mana.textContent="🔷 "+Math.floor(player.mana)+"/"+player.maxMana;
   $def.textContent="🛡️ "+totalDef(); $coins.textContent="🪙 "+coins; const h=Math.floor(((gameTime+0.5)%1)*24);
