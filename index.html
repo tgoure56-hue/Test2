@@ -314,7 +314,7 @@ const TOOLS={
   pick9:{name:"Pioche de cobalt",type:"pick",power:8.0}, sword11:{name:"Épée de cobalt",type:"sword",dmg:155},
   pick10:{name:"Pioche de titane",type:"pick",power:9.0}, sword12:{name:"Épée de titane",type:"sword",dmg:185}, bow3:{name:"Arc de titane",type:"bow",dmg:42},
   staff4:{name:"Canon à plasma",type:"staff",dmg:54,mana:8,proj:"bolt"}, sword_titan:{name:"Lame céleste",type:"sword",dmg:230},
-  staff5:{name:"Sceptre stellaire",type:"staff",dmg:62,mana:9,proj:"spark"}, staff6:{name:"Sceptre du néant",type:"staff",dmg:46,mana:12,proj:"bolt",shots:3,spread:0.22},
+  staff5:{name:"Sceptre stellaire",type:"staff",dmg:62,mana:9,proj:"spark"}, staff6:{name:"Sceptre du néant",type:"staff",dmg:46,mana:12,proj:"bolt",shots:3,spread:0.22}, staff_spore:{name:"Sceptre sporifère",type:"staff",dmg:40,mana:7,proj:"venom",shots:3,spread:0.26},
   summon_staff2:{name:"Bâton spectral",type:"summoner",dmg:40,mana:8,minion:"spirit"}, summon_staff3:{name:"Bâton des abysses",type:"summoner",dmg:58,mana:11,minion:"imp"}, spider_staff:{name:"Bâton d'araignée",type:"summoner",dmg:34,mana:7,minion:"spider"},
   whip1:{name:"Fouet du dresseur",type:"whip",dmg:16,tag:5,reach:150}, whip2:{name:"Fouet stellaire",type:"whip",dmg:34,tag:12,reach:210}, thorn_whip:{name:"Fouet d'épines",type:"whip",dmg:26,tag:9,reach:190},
   astral_sword:{name:"Lame astrale",type:"sword",dmg:155}, astral_gun:{name:"Fusil astral",type:"gun",dmg:58}, astral_staff:{name:"Sceptre astral",type:"staff",dmg:60,mana:7,proj:"bolt",shots:2,spread:0.18}, astral_summon:{name:"Bâton stellaire",type:"summoner",dmg:48,mana:9,minion:"spirit"},
@@ -603,6 +603,7 @@ const RECIPES=[
   R({kind:"tile",id:OBSIDIANBRICK,n:4},[ti(OBSIDIAN,4)],"furnace"),
   // phase 26 (arsenal magique)
   R({kind:"tool",id:"staff5"},[ma("crystal_bar",8),ti(DIAMOND,2)],"anvil"),
+  R({kind:"tool",id:"staff_spore"},[ma("glowmush",14),ma("iron_bar",6),ti(MUSHBLOCK,4)],"anvil"),
   R({kind:"tool",id:"staff6"},[ma("crystal_bar",6),ma("adamantite_bar",4)],"anvil"),
   R({kind:"tool",id:"summon_staff2"},[ma("mythril_bar",6),ti(EMERALD,2)],"anvil"),
   R({kind:"tool",id:"summon_staff3"},[ma("crystal_bar",6),ma("mech_soul",3)],"anvil"),
@@ -2145,7 +2146,7 @@ function updateBoss(dt,step){ const e=boss; e.t+=dt; if(e.yoyoCd>0)e.yoyoCd-=dt;
     else if(e.tier===10){ addItem("mat","gel",30+Math.floor(Math.random()*20)); addItem("acc","ninja_hood",1); addItem("tile",SLIMEBLOCK,25); coins+=220; player.maxHp+=25; player.hp=player.maxHp; slimeRain=false; slimeRainT=0; flash("🏆 Le Roi Slime est vaincu ! Cape ninja + 25 PV max !"); }
     else if(e.tier===11){ addItem("tool","star_blade",1); addItem("acc","cosmic_wings",1); addItem("mat","stardust",30); addItem("mat","astralite_bar",10); coins+=2500; player.maxHp+=120; player.hp=player.maxHp; flash("🏆 Le Dévoreur d'étoiles est vaincu ! Lame stellaire + Ailes cosmiques + 120 PV max !"); }
     else if(e.tier===12){ addItem("tool","thorn_whip",1); addItem("acc","nature_charm",1); addItem("mat","honey",12); addItem("mat","herb",10); coins+=700; player.maxHp+=70; player.hp=player.maxHp; unlock("botaniste"); flash("🏆 La Fleur carnivore est vaincue ! Fouet d'épines + Charme de la nature + 70 PV max !"); }
-    else if(e.tier===13){ addItem("mat","glowmush",22+Math.floor(Math.random()*10)); addItem("tile",MUSHBLOCK,30); addItem("acc","talisman",1); coins+=200; player.maxHp+=25; player.hp=player.maxHp; flash("🏆 La Reine des spores est vaincue ! Talisman de régén + 25 PV max !"); }
+    else if(e.tier===13){ addItem("mat","glowmush",22+Math.floor(Math.random()*10)); addItem("tile",MUSHBLOCK,30); addItem("tool","staff_spore",1); addItem("acc","talisman",1); coins+=200; player.maxHp+=25; player.hp=player.maxHp; flash("🏆 La Reine des spores est vaincue ! Sceptre sporifère + Talisman + 25 PV max !"); }
     else { addItem("mat","gold_bar",12); addItem("tool","bow2",1); coins+=120; player.maxHp+=20; player.hp=player.maxHp; flash("🏆 Boss vaincu ! +20 PV max, 120 pièces, butin reçu"); }
     boss=null; dirtyUI=true; }
   else if(e.tier===1&&!isNight()){ flash("L'Œil maléfique fuit le jour..."); boss=null; }
