@@ -1499,7 +1499,7 @@ function handleActions(dt){
   if(mouse.right&&inReach){
     const tt=getT(mouse.tx,mouse.ty);
     let npc=null; for(const n of npcs) if(mouse.wx>n.x&&mouse.wx<n.x+n.w&&mouse.wy>n.y&&mouse.wy<n.y+n.h){npc=n;break;}
-    if(npc){ if(npc.type==="merchant")openShop(SHOP); else if(npc.type==="wizard")openShop(WIZARD_SHOP); else if(npc.type==="blacksmith")openShop(BLACKSMITH_SHOP); else if(npc.type==="dryad")openShop(DRYAD_SHOP); else if(npc.type==="angler")anglerInteract(); else if(npc.type==="tinkerer")openShop(TINKERER_SHOP); else if(npc.type==="arms_dealer")openShop(ARMS_SHOP); else if(npc.type==="painter")openShop(PAINTER_SHOP); else if(npc.type==="traveler")openShop(travelerStock||[]); else if(npc.type==="tax_collector")collectTaxes(); else if(npc.type==="nurse")nurseHeal(); else if(npc.type==="stylist")stylistInteract(); else flash(guideTip()); mouse.right=false; }
+    if(npc){ if(npc.type!=="guide")flash(npcGreeting(npc.type)); if(npc.type==="merchant")openShop(SHOP); else if(npc.type==="wizard")openShop(WIZARD_SHOP); else if(npc.type==="blacksmith")openShop(BLACKSMITH_SHOP); else if(npc.type==="dryad")openShop(DRYAD_SHOP); else if(npc.type==="angler")anglerInteract(); else if(npc.type==="tinkerer")openShop(TINKERER_SHOP); else if(npc.type==="arms_dealer")openShop(ARMS_SHOP); else if(npc.type==="painter")openShop(PAINTER_SHOP); else if(npc.type==="traveler")openShop(travelerStock||[]); else if(npc.type==="tax_collector")collectTaxes(); else if(npc.type==="nurse")nurseHeal(); else if(npc.type==="stylist")stylistInteract(); else flash(guideTip()); mouse.right=false; }
     else if(tt===BED){ player.spawnX=mouse.tx*T; player.spawnY=(mouse.ty-2)*T; if(isNight()){gameTime=0.27;player.hp=Math.min(player.maxHp,player.hp+20);flash("Vous dormez jusqu'au matin");}else flash("Point de réapparition défini"); mouse.right=false; }
     else if(isDoor(tt)){ if(player.placeCd<=0){ toggleDoor(mouse.tx,mouse.ty); player.placeCd=0.2; } }
     else if(tt===CHEST){ openChest(mouse.tx,mouse.ty); mouse.right=false; }
@@ -2243,6 +2243,23 @@ function growthPass(){ for(let k=0;k<60;k++){ const x=2+Math.floor(Math.random()
 // =========================================================================
 const GUIDE_TIPS=["Casse des arbres pour du bois, puis fabrique un établi.","Une fournaise fond les minerais en barres.","Place des torches pour explorer les grottes en sécurité.","Les cristaux de vie augmentent tes PV max.","Tue des yeux démoniaques la nuit pour des lentilles : elles invoquent le boss.","Construis des murs pour empêcher les monstres d'apparaître chez toi.","Le marchand arrive quand tu as assez de pièces."];
 function guideTip(){ return "💬 "+GUIDE_TIPS[Math.floor(Math.random()*GUIDE_TIPS.length)]; }
+// personnalité des PNJ : répliques propres à chaque habitant (parfois selon le contexte)
+const NPC_LINES={
+  merchant:["Des affaires en or aujourd'hui !","Achetez, achetez, tout doit partir !","La qualité a un prix, l'ami."],
+  nurse:["Ne saignez pas sur le comptoir.","Encore blessé ? Tenez bon.","Un petit bobo ? Je m'en occupe."],
+  wizard:["La magie coule dans ces reliques...","Les astres sont favorables ce soir.","Gare aux sorts mal maîtrisés."],
+  blacksmith:["Le métal ne ment jamais.","Encore chaud, prends garde !","Une bonne lame vaut mille mots."],
+  dryad:["La nature vous observe.","Les corruptions s'étendent, prudence.","Plantez, la terre vous le rendra."],
+  angler:["Ça mord aujourd'hui !","Tu as ma prise du jour ?","La patience, voilà le secret."],
+  tinkerer:["Je peux reforger ça, gob !","Deux accessoires valent mieux qu'un.","Bidouiller, tout un art !"],
+  arms_dealer:["De la poudre, ça vous dit ?","Vise juste, la munition coûte cher.","Boum ! Voilà ce que je vends."],
+  painter:["Un peu de couleur, que diable !","Le monde est ma toile.","Rouge, bleu... à vous de choisir."],
+  tax_collector:["Vos impôts, s'il vous plaît.","L'argent ne dort jamais.","Je perçois, donc je suis."],
+  traveler:["Je ne reste qu'un jour, profitez-en !","Marchandises rares, ici et maintenant.","Le voyage forme la fortune."],
+  stylist:["Un nouveau look ? Asseyez-vous !","Ces cheveux méritent mieux.","La mode avant tout !"] };
+function npcGreeting(type){ if(bloodMoon)return "💬 « Rentrons vite, la lune est rouge... »";
+  if(hardmode&&Math.random()<0.25)return "💬 « Le monde a changé... tout est plus dangereux désormais. »";
+  const a=NPC_LINES[type]; if(!a)return guideTip(); return "💬 « "+a[Math.floor(Math.random()*a.length)]+" »"; }
 function spawnNPC(type){ const hx=Math.floor(WORLD_W/2)+(type==="merchant"?6:type==="nurse"?12:type==="wizard"?-14:type==="blacksmith"?18:type==="dryad"?-20:type==="angler"?24:type==="tinkerer"?-28:type==="arms_dealer"?30:type==="painter"?-34:type==="tax_collector"?36:type==="traveler"?-40:type==="stylist"?42:-6), sy=surfaceAt(hx);
   npcs.push({type,x:hx*T,y:(sy-3)*T,vx:0,vy:0,w:18,h:40,onGround:false,t:0,next:1,dir:0,home:hx*T,col:type==="merchant"?"#caa23a":type==="nurse"?"#e87a9a":type==="wizard"?"#9a5ad0":type==="blacksmith"?"#8a6a4a":type==="dryad"?"#4a9a5a":type==="angler"?"#2a8ab0":type==="tinkerer"?"#6a9a4a":type==="arms_dealer"?"#5a6a7a":type==="painter"?"#c87a4a":type==="tax_collector"?"#7a8a3a":type==="traveler"?"#c05ad0":type==="stylist"?"#e05a9a":"#3aa0c9"}); }
 // styliste : recolore tenue + cheveux du joueur contre une petite somme
