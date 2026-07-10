@@ -376,7 +376,7 @@ const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{nam
   regen_potion:{name:"Potion de régénération",col:"#5ad65a"}, nightowl_potion:{name:"Potion de vision nocturne",col:"#9a7ad0"}, honey_potion:{name:"Potion de miel",col:"#e8a82a"}, mining_potion:{name:"Potion de mineur",col:"#b0864a"},
   frost_core:{name:"Noyau de gel",col:"#aae0ff"}, frost_potion:{name:"Potion de givre",col:"#8ad0e8"},
   recall_potion:{name:"Potion de rappel",col:"#c9b0ff"}, wormhole_potion:{name:"Potion trou de ver",col:"#7a5ad0"}, combat_pet:{name:"Esprit combattant",col:"#9ad6ff"},
-  pirate_map:{name:"Carte au trésor",col:"#caa86a"}, martian_beacon:{name:"Balise martienne",col:"#6ac0d0"}, hearty_stew:{name:"Ragoût copieux",col:"#b5651d"} };
+  pirate_map:{name:"Carte au trésor",col:"#caa86a"}, martian_beacon:{name:"Balise martienne",col:"#6ac0d0"}, hearty_stew:{name:"Ragoût copieux",col:"#b5651d"}, purification_powder:{name:"Poudre de purification",col:"#e0d6f0"} };
 const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"}, shine:{name:"Lumière",col:"#ffe27a"}, fishing:{name:"Pêche chanceuse",col:"#3a9ad6"}, wrath:{name:"Furie",col:"#ff5a3a"}, endurance:{name:"Endurance",col:"#c8a05a"}, summoning:{name:"Invocation",col:"#9a6ae0"}, wellfed:{name:"Rassasié",col:"#e0a860"}, mining:{name:"Mineur",col:"#b0864a"} };
 
 // ---- recettes ----
@@ -417,6 +417,7 @@ const RECIPES=[
   R({kind:"use",id:"hp_potion",n:1},[ma("mushroom",2)],"table"),
   R({kind:"use",id:"mp_potion",n:1},[ma("mushroom",1),ti(SAPPHIRE,1)],"table"),
   R({kind:"use",id:"manacrystal"},[ma("fallen_star",3)],"table"),
+  R({kind:"use",id:"purification_powder",n:5},[ma("herb",1)],"alchemy"),
   // murs d'arrière-plan
   R({kind:"wall",id:WWOOD,n:4},[ti(PLANK,1)],"table"),
   R({kind:"wall",id:WSTONE,n:4},[ti(STONE,1)],"table"),
@@ -1465,7 +1466,7 @@ function update(dt){
   houseRecalcT-=dt; if(houseRecalcT<=0){ housedCount=countHouses(); houseRecalcT=4; }
   if(isNight()&&bossKills>=1&&!meteorFell&&Math.random()<dt*0.01)meteorShower();
   if(!isNight()&&meteorFell)meteorFell=false;
-  growthPass();
+  growthPass(); spreadPass();
   for(let i=glows.length-1;i>=0;i--){ glows[i].life-=dt; if(glows[i].life<=0)glows.splice(i,1); }
   // dégâts de lave
   const ptx=Math.floor((player.x+PW/2)/T);
@@ -1652,6 +1653,7 @@ function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("
   else if(sel.id==="mining_potion"){ player.buffs.mining=Math.max(player.buffs.mining||0,300); removeItem("use","mining_potion",1); flash("⛏️ Minage accéléré (300s)"); }
   else if(sel.id==="nightowl_potion"){ player.buffs.shine=Math.max(player.buffs.shine||0,240); removeItem("use","nightowl_potion",1); flash("🦉 Vision nocturne (240s)"); }
   else if(sel.id==="honey_potion"){ player.buffs.regen=Math.max(player.buffs.regen||0,75); player.hp=Math.min(player.maxHp,player.hp+25); removeItem("use","honey_potion",1); flash("🍯 Miel régénérant (75s)"); }
+  else if(sel.id==="purification_powder"){ const n=purifyArea(mouse.tx,mouse.ty,4); if(n>0){ removeItem("use","purification_powder",1); flash("✨ "+n+" blocs purifiés"); } else flash("Rien à purifier ici"); }
   else if(sel.id==="hearty_stew"){ player.buffs.wellfed=Math.max(player.buffs.wellfed||0,480); player.buffs.regen=Math.max(player.buffs.regen||0,120); player.hp=Math.min(player.maxHp,player.hp+50); removeItem("use","hearty_stew",1); flash("🥘 Ragoût copieux : Rassasié (480s)"); }
   else if(sel.id==="frost_core"){ if(!isNight()){flash("À utiliser la nuit");return;} removeItem("use","frost_core",1); startFrostMoon(); }
   else if(sel.id==="frost_potion"){ player.buffs.iron=Math.max(player.buffs.iron||0,90); removeItem("use","frost_potion",1); flash("❄️ Armure de givre (90s)"); }
@@ -2289,6 +2291,17 @@ function tryGrow(x,y){ const t=getT(x,y);
   if(t===HERBSPROUT&&solidAt(x,y+1)){ setT(x,y,HERBGROWN); return true; } return false; }
 function growthPass(){ for(let k=0;k<60;k++){ const x=2+Math.floor(Math.random()*(WORLD_W-4)), y=2+Math.floor(Math.random()*(WORLD_H-4));
   const t=world[idx(x,y)]; if((t===SAPLING||t===HERBSPROUT)&&Math.random()<0.4)tryGrow(x,y); } }
+// propagation des biomes maléfiques/sacrés en mode difficile (corruption=0, carmin=1, consécration=2)
+function famOf(t){ if(t===EBONSTONE||t===CGRASS)return 0; if(t===CRIMSTONE||t===CRIMGRASS)return 1; if(t===PEARLSTONE||t===HGRASS)return 2; return -1; }
+function convertTile(t,fam){ if(t===STONE)return fam===0?EBONSTONE:fam===1?CRIMSTONE:PEARLSTONE; if(t===GRASS)return fam===0?CGRASS:fam===1?CRIMGRASS:HGRASS; return -1; }
+function spreadAt(x,y){ const t=getT(x,y); if(t!==STONE&&t!==GRASS)return false;
+  let fam=famOf(getT(x+1,y)); if(fam<0)fam=famOf(getT(x-1,y)); if(fam<0)fam=famOf(getT(x,y+1)); if(fam<0)fam=famOf(getT(x,y-1));
+  if(fam<0)return false; const nt=convertTile(t,fam); if(nt<0)return false; setT(x,y,nt); return true; }
+function spreadPass(){ if(!hardmode)return; for(let k=0;k<18;k++){ const x=2+Math.floor(Math.random()*(WORLD_W-4)), y=2+Math.floor(Math.random()*(WORLD_H-4)); if(Math.random()<0.5)spreadAt(x,y); } }
+// purification : rend les blocs maléfiques/sacrés à leur état normal dans un rayon
+function purifyArea(cx,cy,r){ let n=0; for(let dx=-r;dx<=r;dx++)for(let dy=-r;dy<=r;dy++){ if(dx*dx+dy*dy>r*r)continue; const x=cx+dx,y=cy+dy,t=getT(x,y); let nt=-1;
+  if(t===EBONSTONE||t===CRIMSTONE||t===PEARLSTONE)nt=STONE; else if(t===CGRASS||t===CRIMGRASS||t===HGRASS)nt=GRASS;
+  if(nt>=0){ setT(x,y,nt); n++; } } return n; }
 
 // =========================================================================
 //  PNJ (guide + marchand) et boutique
