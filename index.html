@@ -353,6 +353,7 @@ const ARMOR={
   astral_war_h:{name:"Heaume astral du guerrier",slot:"head",def:11}, astral_arc_h:{name:"Capuche astrale du chasseur",slot:"head",def:9}, astral_mag_h:{name:"Chapeau astral du mage",slot:"head",def:8}, astral_sum_h:{name:"Diadème astral de l'invocateur",slot:"head",def:8},
   crim_h:{name:"Masque de crimtane",slot:"head",def:5}, crim_c:{name:"Plastron de crimtane",slot:"chest",def:7}, crim_l:{name:"Jambières de crimtane",slot:"legs",def:5},
   solar_h:{name:"Casque solaire",slot:"head",def:12}, solar_c:{name:"Plastron solaire",slot:"chest",def:18}, solar_l:{name:"Jambières solaires",slot:"legs",def:13},
+  shroom_h:{name:"Chapeau de champignon",slot:"head",def:5}, shroom_c:{name:"Plastron myconide",slot:"chest",def:7}, shroom_l:{name:"Jambières sporifères",slot:"legs",def:5},
 };
 const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Barre fer",col:"#c9c9d4"},
   silver_bar:{name:"Barre argent",col:"#dfe3ea"}, gold_bar:{name:"Barre or",col:"#e8c33a"}, lens:{name:"Lentille",col:"#7fd6e0"},
@@ -408,6 +409,7 @@ const RECIPES=[
   R({kind:"armor",id:"iron_h"},[ma("iron_bar",6)],"anvil"), R({kind:"armor",id:"iron_c"},[ma("iron_bar",9)],"anvil"), R({kind:"armor",id:"iron_l"},[ma("iron_bar",7)],"anvil"),
   R({kind:"armor",id:"silver_h"},[ma("silver_bar",6)],"anvil"), R({kind:"armor",id:"silver_c"},[ma("silver_bar",9)],"anvil"), R({kind:"armor",id:"silver_l"},[ma("silver_bar",7)],"anvil"),
   R({kind:"armor",id:"gold_h"},[ma("gold_bar",6)],"anvil"), R({kind:"armor",id:"gold_c"},[ma("gold_bar",9)],"anvil"), R({kind:"armor",id:"gold_l"},[ma("gold_bar",7)],"anvil"),
+  R({kind:"armor",id:"shroom_h"},[ma("glowmush",8),ti(MUSHBLOCK,6)],"table"), R({kind:"armor",id:"shroom_c"},[ma("glowmush",12),ti(MUSHBLOCK,10)],"table"), R({kind:"armor",id:"shroom_l"},[ma("glowmush",10),ti(MUSHBLOCK,8)],"table"),
   // boss
   R({kind:"summon",id:"eye"},[ma("lens",6)],"table"),
   // potions
@@ -1345,7 +1347,7 @@ function atkDmg(sel,base,cat){ return Math.round(gemBoost(sel,base)*stationMult(
 function manaCost(sel){ const m=TOOLS[sel.id].mana||0; return sel&&sel.gem==="sapphire"?Math.max(1,Math.round(m*0.6)):m; }
 function drillArea(cx,cy,maxHard){ maxHard=maxHard||4; for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){ if(!dx&&!dy)continue; const x=cx+dx,y=cy+dy; if(x<1||x>=WORLD_W-1||y<1||isBedrock(y))continue; const id=getT(x,y); if(id===AIR||isLiquid(id)||id===CHEST)continue; if(TILE[id].hard<=maxHard)breakTile(x,y,id); } }
 // bonus de set : porter les 3 pièces d'une même famille d'armure
-const SET_BONUS={wood:1,iron:2,silver:3,gold:4,hell:5,myth:6,ada:7,crystal:8,cobalt:9,titanium:10,bone:4,meteor:6,astral:14,crim:6,solar:12};
+const SET_BONUS={wood:1,iron:2,silver:3,gold:4,hell:5,myth:6,ada:7,crystal:8,cobalt:9,titanium:10,bone:4,meteor:6,astral:14,crim:6,solar:12,shroom:7};
 function armorSet(){ const a=player.armorArr; if(!a[0]||!a[1]||!a[2])return null; const p=a[0].id.split("_")[0];
   return (a[1].id.split("_")[0]===p&&a[2].id.split("_")[0]===p)?p:null; }
 function armorClass(){ if(armorSet()!=="astral")return null; const h=player.armorArr[0]; if(!h)return null;
@@ -1443,7 +1445,7 @@ function update(dt){
   for(const k in player.buffs){ player.buffs[k]-=dt; if(player.buffs[k]<=0)delete player.buffs[k]; }
   const regenRate=2+(player.buffs.regen>0?6:0)+(player.buffs.wellfed>0?2:0)+(hasAcc("regen")?2:0)+(nearTile(CAMPFIRE,8)?3:0)+(nearTile(HEARTLANTERN,8)?2:0)+(nearTile(FOUNTAIN,8)?2:0)+(armorSet()==="crim"?3:0);
   if(player.invuln<=0&&player.hp<player.maxHp)player.hp=Math.min(player.maxHp,player.hp+dt*regenRate);
-  player.mana=Math.min(player.maxMana,player.mana+dt*(4+(hasAcc("manaregen")?4:0)+(nearTile(CRYSTALBALL,8)?4:0)));
+  player.mana=Math.min(player.maxMana,player.mana+dt*(4+(hasAcc("manaregen")?4:0)+(nearTile(CRYSTALBALL,8)?4:0)+(armorSet()==="shroom"?4:0)));
   updateFishing(dt); updateCritters(dt,step); updateMinions(dt,step); updateCombatPet(dt,step); updateFireflies(dt,step); updateTraps(dt); updateTimers(dt); updateArmy(dt); updatePumpkinMoon(dt); updateFrostMoon(dt); updateSlimeRain(dt); updatePirateInvasion(dt); updateMartianInvasion(dt); checkAchievements(); checkCodex();
   if(!slimeRain&&!bloodMoon&&!pumpkinMoon&&!frostMoon&&bossKills>=1&&Math.random()<dt*0.006)startSlimeRain();
   if(!pirateInvasion&&!bloodMoon&&!pumpkinMoon&&!frostMoon&&bossKills>=2&&Math.random()<dt*0.0035)startPirateInvasion();
@@ -2427,7 +2429,7 @@ function computeLight(x0,y0,x1,y1){ const rw=x1-x0+1,rh=y1-y0+1;
   const sky=dayLight()*(raining?0.8:1)*(eclipse?0.5:1),at=(x,y)=>(x-x0)*rh+(y-y0);
   for(let x=x0;x<=x1;x++){ let sh=0; while(sh<WORLD_H&&!blocksLight(x,sh))sh++; for(let y=y0;y<=Math.min(y1,sh);y++)if(y>=0)L[at(x,y)]=Math.max(L[at(x,y)],sky); }
   for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){ const t=getT(x,y); if(TILE[t]&&TILE[t].light)L[at(x,y)]=Math.max(L[at(x,y)],TILE[t].light); }
-  if(player.buffs.shine>0||hasAcc("glow")||player.pet==="fairy"||player.combatPet||armorSet()==="crystal"){ const lx=Math.floor((player.x+PW/2)/T),ly=Math.floor((player.y+PH/2)/T); if(lx>=x0&&lx<=x1&&ly>=y0&&ly<=y1)L[at(lx,ly)]=Math.max(L[at(lx,ly)],(player.buffs.shine>0||hasAcc("glow"))?0.95:0.6); }
+  if(player.buffs.shine>0||hasAcc("glow")||player.pet==="fairy"||player.combatPet||armorSet()==="crystal"||armorSet()==="shroom"){ const lx=Math.floor((player.x+PW/2)/T),ly=Math.floor((player.y+PH/2)/T); if(lx>=x0&&lx<=x1&&ly>=y0&&ly<=y1)L[at(lx,ly)]=Math.max(L[at(lx,ly)],(player.buffs.shine>0||hasAcc("glow"))?0.95:0.6); }
   for(const f of fireflies){ const fx=Math.floor(f.x/T),fy=Math.floor(f.y/T); if(fx>=x0&&fx<=x1&&fy>=y0&&fy<=y1)L[at(fx,fy)]=Math.max(L[at(fx,fy)],0.45); }
   for(const g of glows){ const gx=Math.floor(g.x/T),gy=Math.floor(g.y/T); if(gx>=x0&&gx<=x1&&gy>=y0&&gy<=y1)L[at(gx,gy)]=Math.max(L[at(gx,gy)],0.85); }
   for(let pass=0;pass<6;pass++){
