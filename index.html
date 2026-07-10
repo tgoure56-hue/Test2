@@ -132,7 +132,7 @@ const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAM
   PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39,MYTHRIL=40,
   BED=41,CAMPFIRE=42,HEARTLANTERN=43,SPIKE=44,ADAMANTITE=45,CGRASS=46,EBONSTONE=47,HGRASS=48,PEARLSTONE=49,CRYSTAL=50,LAMP=51,CHAIR=52,VASE=53,BANNER=54,COBALT=55,TITANIUM=56,DART_TRAP=57,PLATE=58,STATUE=59,
   MGRASS=60,GMUSH=61,MUSHBLOCK=62,MARBLE=63,GRANITE=64,SANDSTONE=65,STONEBRICK=66,CLOUDB=67,COBWEB=68,CACTUS=69,BOOKCASE=70,CANDLE=71,CHANDELIER=72,SAWMILL=73,
-  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106,SHARPENING=107,AMMOBOX=108,CRYSTALBALL=109,BEWITCH=110,FOUNTAIN=111,PIANO=112,DRESSER=113,ASTRALITE=114,CRIMGRASS=115,CRIMSTONE=116,CRIMTANE=117,CRIMHEART=118,FLESHBLOCK=119,CORAL=120,CORALBLOCK=121,TELEPORTER=122,HELLBRICK=123,HELLFORGE=124,STARBLOCK=125,REDTORCH=126,GREENTORCH=127,PURPLETORCH=128,REDBRICK=129,GREENBRICK=130,WINDOW=131,RAINBOWBRICK=132,BARREL=133,FIREFLYJAR=134,BUTTERFLYJAR=135,HEARTSTATUE=136,STARSTATUE=137,CRITTERSTATUE=138,TIMER1=139,TIMER5=140,ALTAR=141,SELLBOX=142,SUNDIAL=143,MOONDIAL=144;
+  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106,SHARPENING=107,AMMOBOX=108,CRYSTALBALL=109,BEWITCH=110,FOUNTAIN=111,PIANO=112,DRESSER=113,ASTRALITE=114,CRIMGRASS=115,CRIMSTONE=116,CRIMTANE=117,CRIMHEART=118,FLESHBLOCK=119,CORAL=120,CORALBLOCK=121,TELEPORTER=122,HELLBRICK=123,HELLFORGE=124,STARBLOCK=125,REDTORCH=126,GREENTORCH=127,PURPLETORCH=128,REDBRICK=129,GREENBRICK=130,WINDOW=131,RAINBOWBRICK=132,BARREL=133,FIREFLYJAR=134,BUTTERFLYJAR=135,HEARTSTATUE=136,STARSTATUE=137,CRITTERSTATUE=138,TIMER1=139,TIMER5=140,ALTAR=141,SELLBOX=142,SUNDIAL=143,MOONDIAL=144,SAFE=145;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -211,6 +211,7 @@ const TILE={
   [SELLBOX]:{name:"Comptoir marchand",solid:true,hard:1.0,drop:SELLBOX,col:"#b0863a"},
   [SUNDIAL]:{name:"Cadran solaire enchanté",solid:false,hard:1.0,drop:SUNDIAL,col:"#e8c34a",light:0.35},
   [MOONDIAL]:{name:"Cadran lunaire enchanté",solid:false,hard:1.0,drop:MOONDIAL,col:"#9aa8d0",light:0.25},
+  [SAFE]:{name:"Coffre-fort personnel",solid:false,hard:1.4,drop:SAFE,col:"#6a5a4a"},
   [MGRASS]:{name:"Herbe lumineuse",solid:true,hard:0.5,drop:MUD,col:"#3ad0c0",light:0.35},
   [GMUSH]:{name:"Champignon géant",solid:false,hard:0.4,drop:-1,col:"#7fe0ff",light:0.5},
   [MUSHBLOCK]:{name:"Bloc de champignon",solid:true,hard:0.6,drop:MUSHBLOCK,col:"#5ac0d0",light:0.2},
@@ -571,6 +572,7 @@ const RECIPES=[
   R({kind:"tile",id:SELLBOX},[ti(PLANK,8),ma("gold_bar",1)],"table"),
   R({kind:"tile",id:SUNDIAL},[ma("gold_bar",8),ti(DIAMOND,2)],"table"),
   R({kind:"tile",id:MOONDIAL},[ma("silver_bar",8),ti(SAPPHIRE,3)],"table"),
+  R({kind:"tile",id:SAFE},[ma("iron_bar",5),ma("gold_bar",3)],"anvil"),
   R({kind:"tile",id:TIMER1},[ma("iron_bar",1),ti(STONE,3)],"anvil"),
   R({kind:"tile",id:TIMER5},[ma("iron_bar",1),ti(STONE,3)],"anvil"),
   // phase 18 (ruche)
@@ -1177,6 +1179,7 @@ function makeTex(id){
   else if(id===SELLBOX){g.fillStyle="#6a4a1e";g.fillRect(0,0,T,T);g.fillStyle="#b0863a";g.fillRect(2,2,T-4,T-4);g.fillStyle="#8a662a";g.fillRect(2,T/2-1,T-4,3);g.fillRect(T/2-1,2,3,T-4);g.fillStyle="#ffd24a";g.font="10px sans-serif";g.fillText("$",T/2-3,T/2+4);g.strokeStyle="#5a3e18";g.strokeRect(1,1,T-2,T-2);}
   else if(id===SUNDIAL){g.clearRect(0,0,T,T);g.fillStyle="#7a5a2a";g.fillRect(2,T-5,T-4,4);g.fillStyle="#e8c34a";g.beginPath();g.arc(T/2,T-5,9,Math.PI,0);g.fill();g.strokeStyle="#8a6a1a";g.lineWidth=1;for(let i=1;i<8;i++){g.beginPath();g.moveTo(T/2,T-5);const a=Math.PI+i*(Math.PI/8);g.lineTo(T/2+Math.cos(a)*8,T-5+Math.sin(a)*8);g.stroke();}g.strokeStyle="#5a3e10";g.lineWidth=2;g.beginPath();g.moveTo(T/2,T-5);g.lineTo(T/2-3,T-13);g.stroke();g.lineWidth=1;g.fillStyle="#fff2b0";g.beginPath();g.arc(T-6,5,3,0,7);g.fill();g.fillStyle="rgba(255,230,140,.5)";g.beginPath();g.arc(T-6,5,5,0,7);g.fill();}
   else if(id===MOONDIAL){g.clearRect(0,0,T,T);g.fillStyle="#3a3a4a";g.fillRect(2,T-5,T-4,4);g.fillStyle="#9aa8d0";g.beginPath();g.arc(T/2,T-5,9,Math.PI,0);g.fill();g.strokeStyle="#6a6a86";g.lineWidth=2;g.beginPath();g.moveTo(T/2,T-5);g.lineTo(T/2+3,T-13);g.stroke();g.lineWidth=1;g.fillStyle="#e6ecff";g.beginPath();g.arc(6,5,4,0,7);g.fill();g.fillStyle="#3a3a4a";g.beginPath();g.arc(8,4,4,0,7);g.fill();g.fillStyle="#cfd6ee";g.fillRect(T-7,4,1,1);g.fillRect(T-10,8,1,1);g.fillRect(T-5,10,1,1);}
+  else if(id===SAFE){g.fillStyle="#4a4038";g.fillRect(1,1,T-2,T-2);g.fillStyle="#6a5a4a";g.fillRect(2,2,T-4,T-4);g.strokeStyle="#3a322a";g.strokeRect(3,3,T-6,T-6);g.fillStyle="#c9a24a";g.beginPath();g.arc(T/2,T/2,4,0,7);g.fill();g.fillStyle="#3a322a";g.beginPath();g.arc(T/2,T/2,2,0,7);g.fill();g.strokeStyle="#c9a24a";g.lineWidth=1;g.beginPath();g.arc(T/2,T/2,4,0,7);for(let k=0;k<8;k++){const a=k*Math.PI/4;g.moveTo(T/2+Math.cos(a)*5,T/2+Math.sin(a)*5);g.lineTo(T/2+Math.cos(a)*7,T/2+Math.sin(a)*7);}g.stroke();g.fillStyle="#8a7a5a";g.fillRect(T-6,T/2-1,2,3);}
   else if(id===ALTAR){g.fillStyle="#3a1a2a";g.fillRect(0,0,T,T);g.fillStyle="#6a2a4a";g.fillRect(3,T-8,T-6,7);g.fillStyle="#5a244a";g.fillRect(5,6,T-10,T-12);g.strokeStyle="#a03a6a";g.lineWidth=1;g.strokeRect(5,6,T-10,T-12);g.fillStyle="#ff5a8a";g.beginPath();g.arc(T/2,T/2,3,0,7);g.fill();g.fillStyle="#ffd0e0";g.fillRect(T/2-1,T/2-1,2,2);g.strokeStyle="#c04a7a";for(let k=-1;k<=1;k+=2){g.beginPath();g.moveTo(T/2+k*4,8);g.lineTo(T/2+k*6,T-8);g.stroke();}}
   else if(id===MGRASS){speckle("#5a4332",30,30);g.fillStyle="#3ad0c0";g.fillRect(0,0,T,5);for(let i=0;i<10;i++){const px=Math.floor(rnd()*T);g.fillStyle=rnd()<0.5?"#3ad0c0":"#7fe0ff";g.fillRect(px,3,1,2+Math.floor(rnd()*3));}}
   else if(id===GMUSH){g.clearRect(0,0,T,T);g.fillStyle="#cfe8f0";g.fillRect(T/2-2,T-12,4,11);g.fillStyle="#5ac0d8";g.beginPath();g.ellipse(T/2,T-11,9,6,0,Math.PI,0);g.fill();g.fillStyle="#bff0ff";for(let i=0;i<4;i++)g.fillRect(T/2-6+i*4,T-14,2,2);}
@@ -1385,6 +1388,7 @@ addEventListener("keydown",e=>{ const fresh=!keys[e.code]; keys[e.code]=true;
   if(e.code==="KeyP")ascend();
   if(e.code==="KeyO")toggleAudio();
   if(e.code==="KeyB")showBestiary=!showBestiary;
+  if(e.code==="KeyG")togglePersonalBank();
   if(e.code==="KeyK")showStats=!showStats;
   if(fresh&&e.code==="KeyF")useSetAbility();
   if(e.code==="Escape"&&invOpen)toggleInv();
@@ -1528,6 +1532,7 @@ function handleActions(dt){
     else if(tt===SELLBOX){ if(player.placeCd<=0){ sellSelected(); player.placeCd=0.3; } mouse.right=false; }
     else if(tt===SUNDIAL){ if(player.placeCd<=0){ useTimeDial(0.28,"🌅 Le cadran solaire fait lever le jour"); player.placeCd=0.3; } mouse.right=false; }
     else if(tt===MOONDIAL){ if(player.placeCd<=0){ useTimeDial(0.70,"🌙 Le cadran lunaire fait tomber la nuit"); player.placeCd=0.3; } mouse.right=false; }
+    else if(tt===SAFE){ openPersonalBank(); mouse.right=false; }
     else if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="bucket"&&player.placeCd<=0){ if(useBucket(mouse.tx,mouse.ty,sel))player.placeCd=0.2; }
     else if(sel&&sel.kind==="wall"&&player.placeCd<=0){ if(placeWall(mouse.tx,mouse.ty,sel))player.placeCd=0.10; }
     else if(sel&&sel.kind==="tile"&&player.placeCd<=0){ if(placeTile(mouse.tx,mouse.ty,sel))player.placeCd=0.12; }
@@ -2887,6 +2892,10 @@ function toggleInv(){ invOpen=!invOpen; if(!invOpen){chestOpen=false;shopOpen=fa
   panels(); if(!invOpen&&cursor){ if(addItem(cursor.kind,cursor.id,cursor.n))cursor=null; } dirtyUI=true; }
 function openChest(x,y){ const key=x+","+y; if(!chestData.has(key))chestData.set(key,new Array(20).fill(null));
   curChestKey=key; chestOpen=true; shopOpen=false; invOpen=true; mouse.left=mouse.right=false; mining.x=-1; $overlay.classList.add("show"); panels(); dirtyUI=true; }
+// coffre-fort personnel : rangement global accessible partout (touche G) ou via le meuble
+function openPersonalBank(){ if(!chestData.has("personal"))chestData.set("personal",new Array(20).fill(null));
+  chestNames.set("personal","Coffre-fort personnel"); curChestKey="personal"; chestOpen=true; shopOpen=false; invOpen=true; mouse.left=mouse.right=false; mining.x=-1; $overlay.classList.add("show"); panels(); dirtyUI=true; }
+function togglePersonalBank(){ if(chestOpen&&curChestKey==="personal")toggleInv(); else openPersonalBank(); }
 function openShop(stock){ curShop=stock||SHOP; shopOpen=true; chestOpen=false; invOpen=true; mouse.left=mouse.right=false; mining.x=-1; housedCount=countHouses(); $overlay.classList.add("show"); panels(); dirtyUI=true; }
 // économie : valeur de revente des objets + cours du marché variant chaque jour
 const SELL_VALUE={ iron_bar:8,gold_bar:20,silver_bar:12,copper_bar:4,crystal_bar:30,hellstone_bar:25,astralite_bar:40,cobalt_bar:22,titanium_bar:28,mythril_bar:18,adamantite_bar:24,meteor_bar:14,crimtane_bar:16,stardust:15,soul_fire:12,mech_soul:18,nightmare_shard:14,gel:2,silk:3,herb:5,coral:6,pearl:12,doubloon:10,martian_plating:14,stone_tablet:6,spider_fang:6,tissue:5,ice_shard:4,bone:3,feather:3,honey:3,glowmush:4,mushroom:2,fish:4,salmon:5,tuna:8,swordfish:12,icefish:14,junglefish:14,voidfish:16,prismfish:16,sandfish:14,bloodfish:14,frog:3,butterfly:3,firefly:3,lens:5 };
