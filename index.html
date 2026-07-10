@@ -372,8 +372,8 @@ const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{nam
   regen_potion:{name:"Potion de régénération",col:"#5ad65a"}, nightowl_potion:{name:"Potion de vision nocturne",col:"#9a7ad0"}, honey_potion:{name:"Potion de miel",col:"#e8a82a"},
   frost_core:{name:"Noyau de gel",col:"#aae0ff"}, frost_potion:{name:"Potion de givre",col:"#8ad0e8"},
   recall_potion:{name:"Potion de rappel",col:"#c9b0ff"}, wormhole_potion:{name:"Potion trou de ver",col:"#7a5ad0"}, combat_pet:{name:"Esprit combattant",col:"#9ad6ff"},
-  pirate_map:{name:"Carte au trésor",col:"#caa86a"}, martian_beacon:{name:"Balise martienne",col:"#6ac0d0"} };
-const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"}, shine:{name:"Lumière",col:"#ffe27a"}, fishing:{name:"Pêche chanceuse",col:"#3a9ad6"}, wrath:{name:"Furie",col:"#ff5a3a"}, endurance:{name:"Endurance",col:"#c8a05a"}, summoning:{name:"Invocation",col:"#9a6ae0"} };
+  pirate_map:{name:"Carte au trésor",col:"#caa86a"}, martian_beacon:{name:"Balise martienne",col:"#6ac0d0"}, hearty_stew:{name:"Ragoût copieux",col:"#b5651d"} };
+const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"}, shine:{name:"Lumière",col:"#ffe27a"}, fishing:{name:"Pêche chanceuse",col:"#3a9ad6"}, wrath:{name:"Furie",col:"#ff5a3a"}, endurance:{name:"Endurance",col:"#c8a05a"}, summoning:{name:"Invocation",col:"#9a6ae0"}, wellfed:{name:"Rassasié",col:"#e0a860"} };
 
 // ---- recettes ----
 const R=(out,ins,station)=>({out,ins,station});
@@ -448,6 +448,7 @@ const RECIPES=[
   R({kind:"tool",id:"rod2"},[ma("gold_bar",8),ma("silk",4)],"anvil"),
   R({kind:"use",id:"dye_kit"},[ma("silk",3),ma("gel",2)],"table"),
   R({kind:"use",id:"mushroom_soup",n:1},[ma("mushroom",3)],"table"),
+  R({kind:"use",id:"hearty_stew",n:1},[ma("fish",2),ma("mushroom",2),ma("herb",1)],"furnace"),
   R({kind:"use",id:"swift_potion",n:1},[ma("mushroom",1),ti(EMERALD,1)],"table"),
   R({kind:"use",id:"ironskin_potion",n:1},[ma("iron_bar",1),ma("mushroom",1)],"table"),
   R({kind:"tool",id:"spear"},[ma("iron_bar",4),ti(PLANK,2)],"anvil"),
@@ -1334,7 +1335,7 @@ function gemBoost(sel,base){ if(!sel||!sel.gem)return base; if(sel.gem==="ruby")
 function stationMult(cat){ let m=1;
   if(cat==="melee"&&nearTile(SHARPENING,8))m*=1.15; if(cat==="ranged"&&nearTile(AMMOBOX,8))m*=1.15; if(cat==="magic"&&nearTile(CRYSTALBALL,8))m*=1.15;
   if(armorClass()===cat)m*=1.25; return m; }
-function atkDmg(sel,base,cat){ return Math.round(gemBoost(sel,base)*stationMult(cat)*prefixDmg(sel)*(player.buffs.wrath>0?1.15:1)*hunterMult()*prestigeMult()); }
+function atkDmg(sel,base,cat){ return Math.round(gemBoost(sel,base)*stationMult(cat)*prefixDmg(sel)*(player.buffs.wrath>0?1.15:1)*(player.buffs.wellfed>0?1.08:1)*hunterMult()*prestigeMult()); }
 function manaCost(sel){ const m=TOOLS[sel.id].mana||0; return sel&&sel.gem==="sapphire"?Math.max(1,Math.round(m*0.6)):m; }
 function drillArea(cx,cy,maxHard){ maxHard=maxHard||4; for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){ if(!dx&&!dy)continue; const x=cx+dx,y=cy+dy; if(x<1||x>=WORLD_W-1||y<1||isBedrock(y))continue; const id=getT(x,y); if(id===AIR||isLiquid(id)||id===CHEST)continue; if(TILE[id].hard<=maxHard)breakTile(x,y,id); } }
 // bonus de set : porter les 3 pièces d'une même famille d'armure
@@ -1347,7 +1348,7 @@ function armorClass(){ if(armorSet()!=="astral")return null; const h=player.armo
 function accIds(ac){ return ac?[ac.id,...(ac.combo||[])]:[]; }
 function accEffs(ac){ return accIds(ac).map(id=>ACC[id]&&ACC[id].eff).filter(Boolean); }
 function accDef(ac){ let d=0; for(const id of accIds(ac))if(ACC[id]&&ACC[id].def)d+=ACC[id].def; return d+prefixDef(ac); }
-function totalDef(){ let d=0; for(const a of player.armorArr)if(a)d+=ARMOR[a.id].def; for(const ac of [player.acc,player.acc2])if(ac)d+=accDef(ac); if(player.buffs.iron>0)d+=4; const s=armorSet(); if(s)d+=SET_BONUS[s]||0; return d; }
+function totalDef(){ let d=0; for(const a of player.armorArr)if(a)d+=ARMOR[a.id].def; for(const ac of [player.acc,player.acc2])if(ac)d+=accDef(ac); if(player.buffs.iron>0)d+=4; if(player.buffs.wellfed>0)d+=2; const s=armorSet(); if(s)d+=SET_BONUS[s]||0; return d; }
 function hasAcc(eff){ return accEffs(player.acc).includes(eff)||accEffs(player.acc2).includes(eff); }
 // combine les deux accessoires équipés en un seul (libère un emplacement), chez le bricoleur
 const COMBINE_COST=150;
@@ -1400,7 +1401,7 @@ function update(dt){
   const upHeld=keys.KeyW||keys.ArrowUp, downHeld=keys.KeyS||keys.ArrowDown;
   player.drop=!!downHeld&&!onRope;
   const ms=player.mount==="drake"?4.6:player.mount==="unicorn"?4.2:player.mount==="ufo"?3.6:player.mount==="bird"?2.0:player.mount==="slime"?2.6:0;
-  const maxSpd=MOVE_MAX+(hasAcc("speed")?1.8:0)+(player.buffs.swift>0?1.6:0)+ms;
+  const maxSpd=MOVE_MAX+(hasAcc("speed")?1.8:0)+(player.buffs.swift>0?1.6:0)+(player.buffs.wellfed>0?0.5:0)+ms;
   let mv=0; if(keys.KeyA||keys.ArrowLeft)mv-=1; if(keys.KeyD||keys.ArrowRight)mv+=1;
   if(mv!==0){player.vx+=mv*MOVE_ACC*step;player.face=mv;} else player.vx*=Math.pow(FRICTION,step);
   if(player.dashTime>0){ player.dashTime-=dt; } else player.vx=clamp(player.vx,-maxSpd,maxSpd);
@@ -1434,7 +1435,7 @@ function update(dt){
   if(player.abilityCd>0)player.abilityCd-=dt;
   if(player.tapWin>0)player.tapWin-=dt;
   for(const k in player.buffs){ player.buffs[k]-=dt; if(player.buffs[k]<=0)delete player.buffs[k]; }
-  const regenRate=2+(player.buffs.regen>0?6:0)+(hasAcc("regen")?2:0)+(nearTile(CAMPFIRE,8)?3:0)+(nearTile(HEARTLANTERN,8)?2:0)+(nearTile(FOUNTAIN,8)?2:0)+(armorSet()==="crim"?3:0);
+  const regenRate=2+(player.buffs.regen>0?6:0)+(player.buffs.wellfed>0?2:0)+(hasAcc("regen")?2:0)+(nearTile(CAMPFIRE,8)?3:0)+(nearTile(HEARTLANTERN,8)?2:0)+(nearTile(FOUNTAIN,8)?2:0)+(armorSet()==="crim"?3:0);
   if(player.invuln<=0&&player.hp<player.maxHp)player.hp=Math.min(player.maxHp,player.hp+dt*regenRate);
   player.mana=Math.min(player.maxMana,player.mana+dt*(4+(hasAcc("manaregen")?4:0)+(nearTile(CRYSTALBALL,8)?4:0)));
   updateFishing(dt); updateCritters(dt,step); updateMinions(dt,step); updateCombatPet(dt,step); updateFireflies(dt,step); updateTraps(dt); updateTimers(dt); updateArmy(dt); updatePumpkinMoon(dt); updateFrostMoon(dt); updateSlimeRain(dt); updatePirateInvasion(dt); updateMartianInvasion(dt); checkAchievements(); checkCodex();
@@ -1603,8 +1604,8 @@ function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("
   else if(sel.id==="manacrystal"){ if(player.maxMana>=200){flash("Mana au maximum");return;} player.maxMana+=20; player.mana=player.maxMana; removeItem("use","manacrystal",1); flash("Mana max +20 !"); }
   else if(sel.id==="hp_potion"){ if(player.potionCd>0){flash("Potion en récupération");return;} if(player.hp>=player.maxHp){flash("Vie déjà pleine");return;} player.hp=Math.min(player.maxHp,player.hp+60); player.potionCd=8; removeItem("use","hp_potion",1); flash("+60 PV"); }
   else if(sel.id==="mp_potion"){ if(player.potionCd>0){flash("Potion en récupération");return;} if(player.mana>=player.maxMana){flash("Mana déjà plein");return;} player.mana=Math.min(player.maxMana,player.mana+40); player.potionCd=8; removeItem("use","mp_potion",1); flash("+40 mana"); }
-  else if(sel.id==="cooked_fish"){ player.buffs.regen=60; player.hp=Math.min(player.maxHp,player.hp+30); removeItem("use","cooked_fish",1); flash("🍴 Régénération (60s)"); }
-  else if(sel.id==="mushroom_soup"){ player.buffs.regen=Math.max(player.buffs.regen||0,90); removeItem("use","mushroom_soup",1); flash("🍲 Régénération (90s)"); }
+  else if(sel.id==="cooked_fish"){ player.buffs.regen=60; player.buffs.wellfed=Math.max(player.buffs.wellfed||0,240); player.hp=Math.min(player.maxHp,player.hp+30); removeItem("use","cooked_fish",1); flash("🍴 Rassasié (240s)"); }
+  else if(sel.id==="mushroom_soup"){ player.buffs.regen=Math.max(player.buffs.regen||0,90); player.buffs.wellfed=Math.max(player.buffs.wellfed||0,300); removeItem("use","mushroom_soup",1); flash("🍲 Rassasié (300s)"); }
   else if(sel.id==="swift_potion"){ player.buffs.swift=45; removeItem("use","swift_potion",1); flash("💨 Hâte (45s)"); }
   else if(sel.id==="wrath_potion"){ player.buffs.wrath=Math.max(player.buffs.wrath||0,120); removeItem("use","wrath_potion",1); flash("🔥 Furie : +15% de dégâts (120s)"); }
   else if(sel.id==="endurance_potion"){ player.buffs.endurance=Math.max(player.buffs.endurance||0,120); removeItem("use","endurance_potion",1); flash("🛡 Endurance : -15% de dégâts subis (120s)"); }
@@ -1618,15 +1619,16 @@ function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("
   else if(sel.id==="pet_dragon"){ player.pet=(player.pet==="drakeling")?null:"drakeling"; flash(player.pet?"🐲 Un dragonneau te suit !":"Familier rangé"); }
   else if(sel.id==="shine_potion"){ player.buffs.shine=120; removeItem("use","shine_potion",1); flash("✨ Lumière (120s)"); }
   else if(sel.id==="fishing_potion"){ player.buffs.fishing=120; removeItem("use","fishing_potion",1); flash("🎣 Pêche chanceuse (120s)"); }
-  else if(sel.id==="glow_soup"){ player.buffs.regen=Math.max(player.buffs.regen||0,80); player.buffs.shine=Math.max(player.buffs.shine||0,80); removeItem("use","glow_soup",1); flash("🍲 Régén + lumière (80s)"); }
+  else if(sel.id==="glow_soup"){ player.buffs.regen=Math.max(player.buffs.regen||0,80); player.buffs.shine=Math.max(player.buffs.shine||0,80); player.buffs.wellfed=Math.max(player.buffs.wellfed||0,300); removeItem("use","glow_soup",1); flash("🍲 Rassasié + lumière (300s)"); }
   else if(sel.id==="army_horn"){ removeItem("use","army_horn",1); startArmy(); }
   else if(sel.id==="pirate_map"){ removeItem("use","pirate_map",1); startPirateInvasion(); }
   else if(sel.id==="martian_beacon"){ removeItem("use","martian_beacon",1); startMartianInvasion(); }
   else if(sel.id==="pumpkin_medallion"){ if(!isNight()){flash("À utiliser la nuit");return;} removeItem("use","pumpkin_medallion",1); startPumpkinMoon(); }
-  else if(sel.id==="pumpkin_pie"){ player.buffs.regen=Math.max(player.buffs.regen||0,120); player.hp=Math.min(player.maxHp,player.hp+40); removeItem("use","pumpkin_pie",1); flash("🥧 Régénération (120s)"); }
+  else if(sel.id==="pumpkin_pie"){ player.buffs.regen=Math.max(player.buffs.regen||0,120); player.buffs.wellfed=Math.max(player.buffs.wellfed||0,420); player.hp=Math.min(player.maxHp,player.hp+40); removeItem("use","pumpkin_pie",1); flash("🥧 Rassasié (420s)"); }
   else if(sel.id==="regen_potion"){ player.buffs.regen=Math.max(player.buffs.regen||0,90); removeItem("use","regen_potion",1); flash("💚 Régénération (90s)"); }
   else if(sel.id==="nightowl_potion"){ player.buffs.shine=Math.max(player.buffs.shine||0,240); removeItem("use","nightowl_potion",1); flash("🦉 Vision nocturne (240s)"); }
   else if(sel.id==="honey_potion"){ player.buffs.regen=Math.max(player.buffs.regen||0,75); player.hp=Math.min(player.maxHp,player.hp+25); removeItem("use","honey_potion",1); flash("🍯 Miel régénérant (75s)"); }
+  else if(sel.id==="hearty_stew"){ player.buffs.wellfed=Math.max(player.buffs.wellfed||0,480); player.buffs.regen=Math.max(player.buffs.regen||0,120); player.hp=Math.min(player.maxHp,player.hp+50); removeItem("use","hearty_stew",1); flash("🥘 Ragoût copieux : Rassasié (480s)"); }
   else if(sel.id==="frost_core"){ if(!isNight()){flash("À utiliser la nuit");return;} removeItem("use","frost_core",1); startFrostMoon(); }
   else if(sel.id==="frost_potion"){ player.buffs.iron=Math.max(player.buffs.iron||0,90); removeItem("use","frost_potion",1); flash("❄️ Armure de givre (90s)"); }
   else if(sel.id==="crate"){ openCrate(); }
