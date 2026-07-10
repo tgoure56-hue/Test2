@@ -132,7 +132,7 @@ const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAM
   PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39,MYTHRIL=40,
   BED=41,CAMPFIRE=42,HEARTLANTERN=43,SPIKE=44,ADAMANTITE=45,CGRASS=46,EBONSTONE=47,HGRASS=48,PEARLSTONE=49,CRYSTAL=50,LAMP=51,CHAIR=52,VASE=53,BANNER=54,COBALT=55,TITANIUM=56,DART_TRAP=57,PLATE=58,STATUE=59,
   MGRASS=60,GMUSH=61,MUSHBLOCK=62,MARBLE=63,GRANITE=64,SANDSTONE=65,STONEBRICK=66,CLOUDB=67,COBWEB=68,CACTUS=69,BOOKCASE=70,CANDLE=71,CHANDELIER=72,SAWMILL=73,
-  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106,SHARPENING=107,AMMOBOX=108,CRYSTALBALL=109,BEWITCH=110,FOUNTAIN=111,PIANO=112,DRESSER=113,ASTRALITE=114,CRIMGRASS=115,CRIMSTONE=116,CRIMTANE=117,CRIMHEART=118,FLESHBLOCK=119,CORAL=120,CORALBLOCK=121,TELEPORTER=122,HELLBRICK=123,HELLFORGE=124,STARBLOCK=125,REDTORCH=126,GREENTORCH=127,PURPLETORCH=128,REDBRICK=129,GREENBRICK=130,WINDOW=131,RAINBOWBRICK=132,BARREL=133,FIREFLYJAR=134,BUTTERFLYJAR=135,HEARTSTATUE=136,STARSTATUE=137,CRITTERSTATUE=138,TIMER1=139,TIMER5=140,ALTAR=141,SELLBOX=142,SUNDIAL=143,MOONDIAL=144,SAFE=145,SKELSTATUE=146,BOLTSTATUE=147;
+  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106,SHARPENING=107,AMMOBOX=108,CRYSTALBALL=109,BEWITCH=110,FOUNTAIN=111,PIANO=112,DRESSER=113,ASTRALITE=114,CRIMGRASS=115,CRIMSTONE=116,CRIMTANE=117,CRIMHEART=118,FLESHBLOCK=119,CORAL=120,CORALBLOCK=121,TELEPORTER=122,HELLBRICK=123,HELLFORGE=124,STARBLOCK=125,REDTORCH=126,GREENTORCH=127,PURPLETORCH=128,REDBRICK=129,GREENBRICK=130,WINDOW=131,RAINBOWBRICK=132,BARREL=133,FIREFLYJAR=134,BUTTERFLYJAR=135,HEARTSTATUE=136,STARSTATUE=137,CRITTERSTATUE=138,TIMER1=139,TIMER5=140,ALTAR=141,SELLBOX=142,SUNDIAL=143,MOONDIAL=144,SAFE=145,SKELSTATUE=146,BOLTSTATUE=147,POWERTOTEM=148,WARDTOTEM=149;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -185,6 +185,8 @@ const TILE={
   [MYTHRIL]:{name:"Mythril",solid:true,hard:4.0,drop:MYTHRIL,col:"#5fc9b0"},
   [BED]:{name:"Lit",solid:false,hard:0.6,drop:BED,col:"#b0567a"},
   [CAMPFIRE]:{name:"Feu de camp",solid:false,hard:0.4,drop:CAMPFIRE,col:"#ff8a3a",light:0.85},
+  [POWERTOTEM]:{name:"Totem de puissance",solid:false,hard:0.6,drop:POWERTOTEM,col:"#e0503a",light:0.4},
+  [WARDTOTEM]:{name:"Totem de garde",solid:false,hard:0.6,drop:WARDTOTEM,col:"#4a90c0",light:0.4},
   [HEARTLANTERN]:{name:"Lanterne-cœur",solid:false,hard:0.4,drop:HEARTLANTERN,col:"#e23a4a",light:0.6},
   [SPIKE]:{name:"Pics",solid:false,hard:0.6,drop:SPIKE,col:"#9aa0aa",spike:true},
   [ADAMANTITE]:{name:"Adamantite",solid:true,hard:5.0,drop:ADAMANTITE,col:"#d0506a"},
@@ -473,6 +475,8 @@ const RECIPES=[
   // phase 7
   R({kind:"tile",id:BED},[ti(PLANK,10)],"table"),
   R({kind:"tile",id:CAMPFIRE},[ti(LOG,8)],"table"),
+  R({kind:"tile",id:POWERTOTEM},[ti(PLANK,6),ti(RUBY,2)],"table"),
+  R({kind:"tile",id:WARDTOTEM},[ti(PLANK,6),ti(SAPPHIRE,2)],"table"),
   R({kind:"tile",id:HEARTLANTERN},[ti(TORCH,3),ma("iron_bar",2)],"table"),
   R({kind:"tile",id:SPIKE,n:4},[ma("iron_bar",1)],"anvil"),
   R({kind:"mat",id:"adamantite_bar"},[ti(ADAMANTITE,4)],"furnace"),
@@ -1175,6 +1179,8 @@ function makeTex(id){
   else if(id===ROPE){g.clearRect(0,0,T,T);g.strokeStyle="#b9914a";g.lineWidth=3;g.beginPath();g.moveTo(T/2,0);g.lineTo(T/2,T);g.stroke();g.strokeStyle="#8a6a30";g.lineWidth=1;for(let y=0;y<T;y+=4){g.beginPath();g.moveTo(T/2-3,y);g.lineTo(T/2+3,y+2);g.stroke();}}
   else if(id===BED){g.clearRect(0,0,T,T);g.fillStyle="#7a4a6a";g.fillRect(1,T-12,T-2,8);g.fillStyle="#b0567a";g.fillRect(1,T-16,T-2,5);g.fillStyle="#e8e0e8";g.fillRect(2,T-15,7,4);g.fillStyle="#5a3450";g.fillRect(1,T-8,2,6);g.fillRect(T-3,T-8,2,6);}
   else if(id===CAMPFIRE){g.clearRect(0,0,T,T);g.fillStyle="#6e4520";g.fillRect(3,T-7,T-6,4);g.fillRect(5,T-5,T-10,3);g.fillStyle="#ff8a2a";g.beginPath();g.moveTo(T/2,T-8);g.lineTo(T/2-5,T-16);g.lineTo(T/2,T-12);g.lineTo(T/2+5,T-18);g.closePath();g.fill();g.fillStyle="#ffe27a";g.fillRect(T/2-2,T-13,4,5);}
+  else if(id===POWERTOTEM){g.clearRect(0,0,T,T);g.fillStyle="#7a3a2a";g.fillRect(T/2-5,2,10,T-2);g.fillStyle="#e0503a";g.fillRect(T/2-4,4,8,7);g.fillStyle="#3a1010";g.fillRect(T/2-3,6,2,2);g.fillRect(T/2+1,6,2,2);g.beginPath();g.moveTo(T/2-3,10);g.lineTo(T/2,9);g.lineTo(T/2+3,10);g.stroke();g.fillStyle="#ffb04a";g.fillRect(T/2-4,13,8,3);g.fillStyle="#e0503a";g.fillRect(T/2-4,18,8,5);g.fillStyle="#ffe27a";g.fillRect(T/2-1,14,2,2);}
+  else if(id===WARDTOTEM){g.clearRect(0,0,T,T);g.fillStyle="#2a4a5a";g.fillRect(T/2-5,2,10,T-2);g.fillStyle="#4a90c0";g.fillRect(T/2-4,4,8,7);g.fillStyle="#0a1a2a";g.fillRect(T/2-3,6,2,2);g.fillRect(T/2+1,6,2,2);g.fillStyle="#aad0e8";g.beginPath();g.moveTo(T/2,12);g.lineTo(T/2-4,14);g.lineTo(T/2-4,18);g.lineTo(T/2,22);g.lineTo(T/2+4,18);g.lineTo(T/2+4,14);g.closePath();g.fill();g.fillStyle="#4a90c0";g.fillRect(T/2-1,15,2,5);}
   else if(id===HEARTLANTERN){g.clearRect(0,0,T,T);g.strokeStyle="#888";g.lineWidth=1;g.beginPath();g.moveTo(T/2,0);g.lineTo(T/2,4);g.stroke();g.fillStyle="#caa23a";g.fillRect(T/2-6,4,12,14);g.fillStyle="#e23a4a";g.beginPath();g.arc(T/2-2,10,2,0,7);g.arc(T/2+2,10,2,0,7);g.fill();g.fillRect(T/2-3,10,6,4);}
   else if(id===SPIKE){g.clearRect(0,0,T,T);g.fillStyle="#9aa0aa";for(let k=0;k<3;k++){g.beginPath();g.moveTo(2+k*8,T);g.lineTo(6+k*8,2);g.lineTo(10+k*8,T);g.closePath();g.fill();}g.fillStyle="#6a707a";g.fillRect(0,T-3,T,3);}
   else if(id===DART_TRAP){speckle("#5a6a7a",16,20);g.fillStyle="#2a323a";g.fillRect(T/2-3,T/2-3,6,6);g.fillStyle="#11161a";g.fillRect(T/2-2,T/2-2,4,4);g.strokeStyle="#39434d";g.lineWidth=1;g.strokeRect(1,1,T-2,T-2);}
@@ -1366,7 +1372,7 @@ function socketGem(it,gemId){ const g=gemName(gemId); if(!g||!socketable(it))ret
 function stationMult(cat){ let m=1;
   if(cat==="melee"&&nearTile(SHARPENING,8))m*=1.15; if(cat==="ranged"&&nearTile(AMMOBOX,8))m*=1.15; if(cat==="magic"&&nearTile(CRYSTALBALL,8))m*=1.15;
   if(armorClass()===cat)m*=1.25; return m; }
-function atkDmg(sel,base,cat){ return Math.round(gemBoost(sel,base)*stationMult(cat)*prefixDmg(sel)*(player.buffs.wrath>0?1.15:1)*(player.buffs.wellfed>0?1.08:1)*hunterMult()*prestigeMult()); }
+function atkDmg(sel,base,cat){ return Math.round(gemBoost(sel,base)*stationMult(cat)*prefixDmg(sel)*(player.buffs.wrath>0?1.15:1)*(player.buffs.wellfed>0?1.08:1)*(nearTile(POWERTOTEM,8)?1.12:1)*hunterMult()*prestigeMult()); }
 function manaCost(sel){ const m=TOOLS[sel.id].mana||0; return sel&&sel.gem==="sapphire"?Math.max(1,Math.round(m*0.6)):m; }
 function drillArea(cx,cy,maxHard){ maxHard=maxHard||4; for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){ if(!dx&&!dy)continue; const x=cx+dx,y=cy+dy; if(x<1||x>=WORLD_W-1||y<1||isBedrock(y))continue; const id=getT(x,y); if(id===AIR||isLiquid(id)||id===CHEST)continue; if(TILE[id].hard<=maxHard)breakTile(x,y,id); } }
 // bonus de set : porter les 3 pièces d'une même famille d'armure
@@ -1379,7 +1385,7 @@ function armorClass(){ if(armorSet()!=="astral")return null; const h=player.armo
 function accIds(ac){ return ac?[ac.id,...(ac.combo||[])]:[]; }
 function accEffs(ac){ return accIds(ac).map(id=>ACC[id]&&ACC[id].eff).filter(Boolean); }
 function accDef(ac){ let d=0; for(const id of accIds(ac))if(ACC[id]&&ACC[id].def)d+=ACC[id].def; return d+prefixDef(ac); }
-function totalDef(){ let d=0; for(const a of player.armorArr)if(a)d+=ARMOR[a.id].def; for(const ac of [player.acc,player.acc2])if(ac)d+=accDef(ac); if(player.buffs.iron>0)d+=4; if(player.buffs.wellfed>0)d+=2; const s=armorSet(); if(s)d+=SET_BONUS[s]||0; return d; }
+function totalDef(){ let d=0; for(const a of player.armorArr)if(a)d+=ARMOR[a.id].def; for(const ac of [player.acc,player.acc2])if(ac)d+=accDef(ac); if(player.buffs.iron>0)d+=4; if(player.buffs.wellfed>0)d+=2; if(nearTile(WARDTOTEM,8))d+=5; const s=armorSet(); if(s)d+=SET_BONUS[s]||0; return d; }
 function hasAcc(eff){ return accEffs(player.acc).includes(eff)||accEffs(player.acc2).includes(eff); }
 // combine les deux accessoires équipés en un seul (libère un emplacement), chez le bricoleur
 const COMBINE_COST=150;
