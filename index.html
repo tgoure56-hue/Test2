@@ -372,11 +372,11 @@ const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{nam
   fishing_potion:{name:"Potion de pêche",col:"#3a9ad6"}, crate:{name:"Caisse en bois",col:"#a87a48"}, gold_crate:{name:"Caisse dorée",col:"#e8c33a"}, dye_kit:{name:"Kit de teinture",col:"#e85a8a"},
   army_horn:{name:"Cor de guerre",col:"#b08a3a"}, glow_soup:{name:"Soupe lumineuse",col:"#7fe0ff"},
   pumpkin_medallion:{name:"Médaillon citrouille",col:"#ff8a2a"}, pumpkin_pie:{name:"Tarte à la citrouille",col:"#d2691e"},
-  regen_potion:{name:"Potion de régénération",col:"#5ad65a"}, nightowl_potion:{name:"Potion de vision nocturne",col:"#9a7ad0"}, honey_potion:{name:"Potion de miel",col:"#e8a82a"},
+  regen_potion:{name:"Potion de régénération",col:"#5ad65a"}, nightowl_potion:{name:"Potion de vision nocturne",col:"#9a7ad0"}, honey_potion:{name:"Potion de miel",col:"#e8a82a"}, mining_potion:{name:"Potion de mineur",col:"#b0864a"},
   frost_core:{name:"Noyau de gel",col:"#aae0ff"}, frost_potion:{name:"Potion de givre",col:"#8ad0e8"},
   recall_potion:{name:"Potion de rappel",col:"#c9b0ff"}, wormhole_potion:{name:"Potion trou de ver",col:"#7a5ad0"}, combat_pet:{name:"Esprit combattant",col:"#9ad6ff"},
   pirate_map:{name:"Carte au trésor",col:"#caa86a"}, martian_beacon:{name:"Balise martienne",col:"#6ac0d0"}, hearty_stew:{name:"Ragoût copieux",col:"#b5651d"} };
-const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"}, shine:{name:"Lumière",col:"#ffe27a"}, fishing:{name:"Pêche chanceuse",col:"#3a9ad6"}, wrath:{name:"Furie",col:"#ff5a3a"}, endurance:{name:"Endurance",col:"#c8a05a"}, summoning:{name:"Invocation",col:"#9a6ae0"}, wellfed:{name:"Rassasié",col:"#e0a860"} };
+const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"}, shine:{name:"Lumière",col:"#ffe27a"}, fishing:{name:"Pêche chanceuse",col:"#3a9ad6"}, wrath:{name:"Furie",col:"#ff5a3a"}, endurance:{name:"Endurance",col:"#c8a05a"}, summoning:{name:"Invocation",col:"#9a6ae0"}, wellfed:{name:"Rassasié",col:"#e0a860"}, mining:{name:"Mineur",col:"#b0864a"} };
 
 // ---- recettes ----
 const R=(out,ins,station)=>({out,ins,station});
@@ -557,6 +557,7 @@ const RECIPES=[
   R({kind:"use",id:"pumpkin_pie"},[ti(PUMPKIN,2)],"alchemy"),
   R({kind:"use",id:"pumpkin_medallion"},[ti(PUMPKIN,6),ma("gold_bar",2)],"table"),
   R({kind:"use",id:"regen_potion"},[ma("mushroom",1),ma("glowmush",1)],"alchemy"),
+  R({kind:"use",id:"mining_potion"},[ma("herb",1),ma("copper_bar",1)],"alchemy"),
   R({kind:"use",id:"nightowl_potion"},[ma("glowmush",2)],"alchemy"),
   R({kind:"use",id:"swift_potion"},[ma("mushroom",1),ma("feather",1)],"alchemy"),
   R({kind:"use",id:"ironskin_potion"},[ma("mushroom",1),ma("iron_bar",1)],"alchemy"),
@@ -1578,7 +1579,7 @@ function handleActions(dt){
     if(id!==AIR&&!isLiquid(id)&&!isBedrock(mouse.ty)){
       if(id===CHEST&&!chestEmpty(mouse.tx,mouse.ty)){ flash("Videz le coffre d'abord"); mining.x=-1; return; }
       if(mining.x!==mouse.tx||mining.y!==mouse.ty){mining.x=mouse.tx;mining.y=mouse.ty;mining.prog=0;}
-      mining.prog+=bestPick()*(hasAcc("mining")?1.3:1)*dt;
+      mining.prog+=bestPick()*(hasAcc("mining")?1.3:1)*(player.buffs.mining>0?1.25:1)*dt;
       if(mining.prog>=TILE[id].hard){breakTile(mouse.tx,mouse.ty,id); if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="drill")drillArea(mouse.tx,mouse.ty,TOOLS[sel.id].area); mining.x=-1;mining.prog=0;}
     } else if(id===AIR&&wallAt(mouse.tx,mouse.ty)){
       if(mining.x!==mouse.tx||mining.y!==mouse.ty){mining.x=mouse.tx;mining.y=mouse.ty;mining.prog=0;}
@@ -1636,6 +1637,7 @@ function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("
   else if(sel.id==="pumpkin_medallion"){ if(!isNight()){flash("À utiliser la nuit");return;} removeItem("use","pumpkin_medallion",1); startPumpkinMoon(); }
   else if(sel.id==="pumpkin_pie"){ player.buffs.regen=Math.max(player.buffs.regen||0,120); player.buffs.wellfed=Math.max(player.buffs.wellfed||0,420); player.hp=Math.min(player.maxHp,player.hp+40); removeItem("use","pumpkin_pie",1); flash("🥧 Rassasié (420s)"); }
   else if(sel.id==="regen_potion"){ player.buffs.regen=Math.max(player.buffs.regen||0,90); removeItem("use","regen_potion",1); flash("💚 Régénération (90s)"); }
+  else if(sel.id==="mining_potion"){ player.buffs.mining=Math.max(player.buffs.mining||0,300); removeItem("use","mining_potion",1); flash("⛏️ Minage accéléré (300s)"); }
   else if(sel.id==="nightowl_potion"){ player.buffs.shine=Math.max(player.buffs.shine||0,240); removeItem("use","nightowl_potion",1); flash("🦉 Vision nocturne (240s)"); }
   else if(sel.id==="honey_potion"){ player.buffs.regen=Math.max(player.buffs.regen||0,75); player.hp=Math.min(player.maxHp,player.hp+25); removeItem("use","honey_potion",1); flash("🍯 Miel régénérant (75s)"); }
   else if(sel.id==="hearty_stew"){ player.buffs.wellfed=Math.max(player.buffs.wellfed||0,480); player.buffs.regen=Math.max(player.buffs.regen||0,120); player.hp=Math.min(player.maxHp,player.hp+50); removeItem("use","hearty_stew",1); flash("🥘 Ragoût copieux : Rassasié (480s)"); }
