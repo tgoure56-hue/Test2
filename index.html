@@ -377,7 +377,7 @@ const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{nam
   pumpkin_medallion:{name:"Médaillon citrouille",col:"#ff8a2a"}, pumpkin_pie:{name:"Tarte à la citrouille",col:"#d2691e"},
   regen_potion:{name:"Potion de régénération",col:"#5ad65a"}, nightowl_potion:{name:"Potion de vision nocturne",col:"#9a7ad0"}, honey_potion:{name:"Potion de miel",col:"#e8a82a"}, mining_potion:{name:"Potion de mineur",col:"#b0864a"},
   frost_core:{name:"Noyau de gel",col:"#aae0ff"}, frost_potion:{name:"Potion de givre",col:"#8ad0e8"},
-  recall_potion:{name:"Potion de rappel",col:"#c9b0ff"}, wormhole_potion:{name:"Potion trou de ver",col:"#7a5ad0"}, combat_pet:{name:"Esprit combattant",col:"#9ad6ff"}, spore_sprite:{name:"Sprite des spores",col:"#7fe0ff"},
+  recall_potion:{name:"Potion de rappel",col:"#c9b0ff"}, wormhole_potion:{name:"Potion trou de ver",col:"#7a5ad0"}, combat_pet:{name:"Esprit combattant",col:"#9ad6ff"}, spore_sprite:{name:"Sprite des spores",col:"#7fe0ff"}, treasure_bag:{name:"Sac au trésor",col:"#e8b84a"},
   pirate_map:{name:"Carte au trésor",col:"#caa86a"}, martian_beacon:{name:"Balise martienne",col:"#6ac0d0"}, hearty_stew:{name:"Ragoût copieux",col:"#b5651d"}, purification_powder:{name:"Poudre de purification",col:"#e0d6f0"} };
 const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"}, shine:{name:"Lumière",col:"#ffe27a"}, fishing:{name:"Pêche chanceuse",col:"#3a9ad6"}, wrath:{name:"Furie",col:"#ff5a3a"}, endurance:{name:"Endurance",col:"#c8a05a"}, summoning:{name:"Invocation",col:"#9a6ae0"}, wellfed:{name:"Rassasié",col:"#e0a860"}, mining:{name:"Mineur",col:"#b0864a"} };
 
@@ -1670,7 +1670,14 @@ function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("
   else if(sel.id==="recall_potion"){ mirrorHome(); removeItem("use","recall_potion",1); }
   else if(sel.id==="wormhole_potion"){ wormholeTeleport(); removeItem("use","wormhole_potion",1); }
   else if(sel.id==="combat_pet"){ if(player.combatPet){ player.combatPet=null; flash("Esprit combattant rangé"); } else { player.combatPet={lvl:1,xp:0,x:player.x,y:player.y-30,t:0,cd:0,kind:"spirit"}; flash("⚔️ Un esprit combattant t'accompagne !"); } }
-  else if(sel.id==="spore_sprite"){ if(player.combatPet){ player.combatPet=null; flash("Sprite des spores rangé"); } else { player.combatPet={lvl:1,xp:0,x:player.x,y:player.y-30,t:0,cd:0,kind:"spore"}; flash("🍄 Un sprite des spores voltige à tes côtés !"); } } }
+  else if(sel.id==="spore_sprite"){ if(player.combatPet){ player.combatPet=null; flash("Sprite des spores rangé"); } else { player.combatPet={lvl:1,xp:0,x:player.x,y:player.y-30,t:0,cd:0,kind:"spore"}; flash("🍄 Un sprite des spores voltige à tes côtés !"); } }
+  else if(sel.id==="treasure_bag"){ removeItem("use","treasure_bag",1); openTreasureBag(); } }
+// sac au trésor de boss : butin bonus aléatoire, d'autant meilleur qu'on a vaincu de boss
+function openTreasureBag(){ coins+=120+bossKills*30; addItem("use","hp_potion",3);
+  const gems=[RUBY,EMERALD,SAPPHIRE,DIAMOND]; if(Math.random()<0.6)addItem("tile",gems[Math.floor(Math.random()*gems.length)],2+Math.floor(Math.random()*3));
+  const accs=["band","boots","talisman","tackle"]; if(Math.random()<0.35)addItem("acc",accs[Math.floor(Math.random()*accs.length)],1);
+  if(Math.random()<0.4)addItem("mat","fallen_star",4);
+  spawnParticles(player.x+PW/2,player.y+PH/2,"#ffd24a",18); flash("🎁 Sac au trésor ouvert !"); }
 function meleeAttack(dmg){ const dir=player.face,ax=player.x+PW/2+dir*12,ay=player.y+PH/2;
   const list=boss&&!boss.mech?enemies.concat([boss]):enemies;
   for(const e of list){ const ex=e.x+e.w/2,ey=e.y+e.h/2; if(Math.hypot(ex-ax,ey-ay)<48){e.hp-=dmg;e.vx=dir*6;e.vy=-4;spawnParticles(ex,ey,"#ff5555",6);} }
@@ -2159,7 +2166,7 @@ function updateBoss(dt,step){ const e=boss; e.t+=dt; if(e.yoyoCd>0)e.yoyoCd-=dt;
     e.sporeCd-=dt; if(e.sporeCd<=0&&d<560){ const a0=Math.atan2(dy,dx),n=e.enraged?5:3; for(let k=-(n>>1);k<=(n>>1);k++){ const a=a0+k*0.28; projectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,vx:Math.cos(a)*5,vy:Math.sin(a)*5,type:"venom",dmg:Math.round(e.dmg*0.7),life:3,friendly:false}); } e.sporeCd=e.enraged?1.2:2.2; } }
   if(player.invuln<=0&&rectHit(e.x,e.y,e.w,e.h,player.x,player.y,PW,PH))hurtPlayer(e.dmg,Math.sign(player.x-e.x)||1);
   }
-  if(e.hp<=0){ spawnParticles(e.x+e.w/2,e.y+e.h/2,e.col,40); bossKills++; lastBossTier=e.tier; addItem("tile",TROPHY,1);
+  if(e.hp<=0){ spawnParticles(e.x+e.w/2,e.y+e.h/2,e.col,40); bossKills++; lastBossTier=e.tier; addItem("tile",TROPHY,1); addItem("use","treasure_bag",1);
     if(e.tier===2){ addItem("mat","hellstone_bar",20); addItem("tool","sword6",1); coins+=300; player.maxHp+=40; player.hp=player.maxHp; flash("🏆 Gardien des Enfers vaincu ! +40 PV max, Lame des abysses obtenue !"); }
     else if(e.tier===3){ addItem("mat","gold_bar",12); addItem("tile",EMERALD,6); addItem("acc","cloud",1); coins+=250; player.maxHp+=30; player.hp=player.maxHp; flash("🏆 Reine des abeilles vaincue ! +30 PV max, 250 pièces !"); }
     else if(e.tier===4){ addItem("mat","adamantite_bar",24); addItem("tool","sword8",1); coins+=400; player.maxHp+=50; player.hp=player.maxHp; flash("🏆 Golem vaincu ! +50 PV max, Épée d'adamantite !"); activateHardmode(); }
