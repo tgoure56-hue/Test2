@@ -367,7 +367,7 @@ const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Bar
   silver_bar:{name:"Barre argent",col:"#dfe3ea"}, gold_bar:{name:"Barre or",col:"#e8c33a"}, lens:{name:"Lentille",col:"#7fd6e0"},
   mushroom:{name:"Champignon",col:"#d83a3a"}, hellstone_bar:{name:"Barre d'enfer",col:"#e8632a"},
   fish:{name:"Poisson",col:"#7fb0c8"}, tuna:{name:"Thon",col:"#4a7a9a"}, salmon:{name:"Saumon",col:"#e08a6a"}, swordfish:{name:"Espadon",col:"#9ab0c0"},
-  icefish:{name:"Poisson des glaces",col:"#aee4ff"}, junglefish:{name:"Barbeau de jungle",col:"#5ac04a"}, voidfish:{name:"Poisson du néant",col:"#8a4ad0"}, prismfish:{name:"Poisson prismatique",col:"#e08ad0"}, sandfish:{name:"Poisson des sables",col:"#e0c87a"}, bloodfish:{name:"Poisson sanglant",col:"#c0392b"},
+  icefish:{name:"Poisson des glaces",col:"#aee4ff"}, junglefish:{name:"Barbeau de jungle",col:"#5ac04a"}, voidfish:{name:"Poisson du néant",col:"#8a4ad0"}, prismfish:{name:"Poisson prismatique",col:"#e08ad0"}, sandfish:{name:"Poisson des sables",col:"#e0c87a"}, bloodfish:{name:"Poisson sanglant",col:"#c0392b"}, legend_fish:{name:"Poisson légendaire",col:"#ffd24a"}, rainbow_fish:{name:"Poisson arc-en-ciel",col:"#e0a0e0"},
   mythril_bar:{name:"Barre de mythril",col:"#5fc9b0"}, adamantite_bar:{name:"Barre d'adamantite",col:"#d0506a"}, crystal_bar:{name:"Barre de cristal",col:"#7fe0ff"}, astralite_bar:{name:"Barre d'astralite",col:"#8a7aff"},
   cobalt_bar:{name:"Barre de cobalt",col:"#2a6ad0"}, titanium_bar:{name:"Barre de titane",col:"#c0c4cc"}, mech_soul:{name:"Âme mécanique",col:"#9fe0ff"},
   glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"}, meteor_bar:{name:"Barre de météore",col:"#c8763a"}, herb:{name:"Herbe médicinale",col:"#3ac06a"}, nightmare_shard:{name:"Éclat de cauchemar",col:"#a03ad0"}, spider_fang:{name:"Croc d'araignée",col:"#c8b0d0"}, gel:{name:"Gel",col:"#6ab0e0"}, crimtane_bar:{name:"Barre de crimtane",col:"#c0392b"}, tissue:{name:"Échantillon de tissu",col:"#e0304a"}, coral:{name:"Corail",col:"#ff7a9a"}, pearl:{name:"Perle",col:"#f0e8f4"}, soul_fire:{name:"Âme de feu",col:"#ff8a3a"}, stardust:{name:"Poussière d'étoile",col:"#ffe27a"}, doubloon:{name:"Doublon",col:"#e8c33a"}, frog:{name:"Grenouille",col:"#5aa04a"}, butterfly:{name:"Papillon",col:"#e0a0e0"}, firefly:{name:"Luciole",col:"#fff7a0"}, martian_plating:{name:"Plaque martienne",col:"#8ab0c0"}, stone_tablet:{name:"Tablette de pierre",col:"#8a94a0"}, fallen_star:{name:"Étoile filante",col:"#fff2a0"} };
@@ -383,7 +383,7 @@ const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{nam
   regen_potion:{name:"Potion de régénération",col:"#5ad65a"}, nightowl_potion:{name:"Potion de vision nocturne",col:"#9a7ad0"}, honey_potion:{name:"Potion de miel",col:"#e8a82a"}, mining_potion:{name:"Potion de mineur",col:"#b0864a"},
   frost_core:{name:"Noyau de gel",col:"#aae0ff"}, frost_potion:{name:"Potion de givre",col:"#8ad0e8"},
   recall_potion:{name:"Potion de rappel",col:"#c9b0ff"}, wormhole_potion:{name:"Potion trou de ver",col:"#7a5ad0"}, combat_pet:{name:"Esprit combattant",col:"#9ad6ff"}, spore_sprite:{name:"Sprite des spores",col:"#7fe0ff"}, treasure_bag:{name:"Sac au trésor",col:"#e8b84a"}, arena_totem:{name:"Totem d'arène",col:"#c05a3a"},
-  pirate_map:{name:"Carte au trésor",col:"#caa86a"}, martian_beacon:{name:"Balise martienne",col:"#6ac0d0"}, hearty_stew:{name:"Ragoût copieux",col:"#b5651d"}, purification_powder:{name:"Poudre de purification",col:"#e0d6f0"} };
+  pirate_map:{name:"Carte au trésor",col:"#caa86a"}, martian_beacon:{name:"Balise martienne",col:"#6ac0d0"}, hearty_stew:{name:"Ragoût copieux",col:"#b5651d"}, purification_powder:{name:"Poudre de purification",col:"#e0d6f0"}, royal_feast:{name:"Festin royal",col:"#ffd24a"} };
 const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"}, shine:{name:"Lumière",col:"#ffe27a"}, fishing:{name:"Pêche chanceuse",col:"#3a9ad6"}, wrath:{name:"Furie",col:"#ff5a3a"}, endurance:{name:"Endurance",col:"#c8a05a"}, summoning:{name:"Invocation",col:"#9a6ae0"}, wellfed:{name:"Rassasié",col:"#e0a860"}, mining:{name:"Mineur",col:"#b0864a"} };
 
 // ---- recettes ----
@@ -462,6 +462,8 @@ const RECIPES=[
   R({kind:"use",id:"cooked_fish",n:2},[ma("junglefish",1)],"furnace"),
   R({kind:"use",id:"cooked_fish",n:2},[ma("voidfish",1)],"furnace"),
   R({kind:"use",id:"cooked_fish",n:2},[ma("prismfish",1)],"furnace"),
+  R({kind:"use",id:"cooked_fish",n:2},[ma("rainbow_fish",1)],"furnace"),
+  R({kind:"use",id:"royal_feast",n:1},[ma("legend_fish",1)],"furnace"),
   R({kind:"use",id:"fishing_potion",n:1},[ma("fish",2),ma("mushroom",1)],"furnace"),
   R({kind:"tool",id:"rod2"},[ma("gold_bar",8),ma("silk",4)],"anvil"),
   R({kind:"use",id:"dye_kit"},[ma("silk",3),ma("gel",2)],"table"),
@@ -1689,6 +1691,7 @@ function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("
   else if(sel.id==="honey_potion"){ player.buffs.regen=Math.max(player.buffs.regen||0,75); player.hp=Math.min(player.maxHp,player.hp+25); removeItem("use","honey_potion",1); flash("🍯 Miel régénérant (75s)"); }
   else if(sel.id==="purification_powder"){ const n=purifyArea(mouse.tx,mouse.ty,4); if(n>0){ removeItem("use","purification_powder",1); flash("✨ "+n+" blocs purifiés"); } else flash("Rien à purifier ici"); }
   else if(sel.id==="hearty_stew"){ player.buffs.wellfed=Math.max(player.buffs.wellfed||0,480); player.buffs.regen=Math.max(player.buffs.regen||0,120); player.hp=Math.min(player.maxHp,player.hp+50); removeItem("use","hearty_stew",1); flash("🥘 Ragoût copieux : Rassasié (480s)"); }
+  else if(sel.id==="royal_feast"){ player.buffs.wellfed=Math.max(player.buffs.wellfed||0,600); player.buffs.regen=Math.max(player.buffs.regen||0,150); player.hp=Math.min(player.maxHp,player.hp+80); removeItem("use","royal_feast",1); flash("👑 Festin royal : Rassasié (600s) !"); }
   else if(sel.id==="frost_core"){ if(!isNight()){flash("À utiliser la nuit");return;} removeItem("use","frost_core",1); startFrostMoon(); }
   else if(sel.id==="frost_potion"){ player.buffs.iron=Math.max(player.buffs.iron||0,90); removeItem("use","frost_potion",1); flash("❄️ Armure de givre (90s)"); }
   else if(sel.id==="crate"){ openCrate(); }
@@ -1810,7 +1813,8 @@ function updateFishing(dt){ const f=player.fishing; if(!f)return; if(getT(f.tx,f
 function catchFish(tx,rod,reflex){ fishCaught++; dirtyUI=true; rod=rod||1;
   const ocean=biomeAt(tx)===6, lucky=(player.buffs.fishing>0?1:0)+(hasAcc("angler")?1:0)+(rod>=2?1:0)+(reflex?1:0), r=Math.random()+lucky*0.12;
   // prise rare selon le biome (neige, désert, jungle, corruption, sanctuaire, carmin)
-  const bf=({1:"icefish",2:"sandfish",3:"junglefish",4:"voidfish",5:"prismfish",7:"bloodfish"})[biomeAt(tx)];
+  if(Math.random()<0.006+lucky*0.01){ addItem("mat","legend_fish",1); flash("🌟 PRISE LÉGENDAIRE : Poisson légendaire !"); return; }
+  const bf=({0:"rainbow_fish",1:"icefish",2:"sandfish",3:"junglefish",4:"voidfish",5:"prismfish",7:"bloodfish"})[biomeAt(tx)];
   if(bf&&Math.random()<0.22+lucky*0.06){ addItem("mat",bf,1); flash("Prise rare : "+MATS[bf].name+" ! ✨🐟"); return; }
   const crateRoll=(g)=>{ if(Math.random()<g){addItem("use","gold_crate",1);flash("Caisse dorée remontée ! 🎁");} else {addItem("use","crate",1);flash("Caisse remontée ! 📦");} };
   if(ocean){
@@ -1851,7 +1855,7 @@ function openCrate(gold){ const snap=JSON.stringify(inv); removeItem("use",gold?
   if(!ok){ inv=JSON.parse(snap); dirtyUI=true; return; }
   flash(msg); dirtyUI=true; }
 const QUEST_FISH=["fish","salmon","tuna","swordfish"];
-const RARE_QUEST_FISH=["icefish","junglefish","voidfish","prismfish","sandfish","bloodfish"];
+const RARE_QUEST_FISH=["icefish","junglefish","voidfish","prismfish","sandfish","bloodfish","rainbow_fish"];
 function newAnglerQuest(){ if(Math.random()<0.3){ const f=RARE_QUEST_FISH[Math.floor(Math.random()*RARE_QUEST_FISH.length)]; anglerQuest={fish:f,qty:1+Math.floor(Math.random()*2),rare:true}; }
   else { const f=QUEST_FISH[Math.floor(Math.random()*QUEST_FISH.length)]; anglerQuest={fish:f,qty:2+Math.floor(Math.random()*3)}; } }
 function anglerInteract(){ if(!anglerQuest)newAnglerQuest();
@@ -3027,7 +3031,7 @@ function openPersonalBank(){ if(!chestData.has("personal"))chestData.set("person
 function togglePersonalBank(){ if(chestOpen&&curChestKey==="personal")toggleInv(); else openPersonalBank(); }
 function openShop(stock){ curShop=stock||SHOP; shopOpen=true; chestOpen=false; invOpen=true; mouse.left=mouse.right=false; mining.x=-1; housedCount=countHouses(); $overlay.classList.add("show"); panels(); dirtyUI=true; }
 // économie : valeur de revente des objets + cours du marché variant chaque jour
-const SELL_VALUE={ iron_bar:8,gold_bar:20,silver_bar:12,copper_bar:4,crystal_bar:30,hellstone_bar:25,astralite_bar:40,cobalt_bar:22,titanium_bar:28,mythril_bar:18,adamantite_bar:24,meteor_bar:14,crimtane_bar:16,stardust:15,soul_fire:12,mech_soul:18,nightmare_shard:14,gel:2,silk:3,herb:5,coral:6,pearl:12,doubloon:10,martian_plating:14,stone_tablet:6,spider_fang:6,tissue:5,ice_shard:4,bone:3,feather:3,honey:3,glowmush:4,mushroom:2,fish:4,salmon:5,tuna:8,swordfish:12,icefish:14,junglefish:14,voidfish:16,prismfish:16,sandfish:14,bloodfish:14,frog:3,butterfly:3,firefly:3,lens:5 };
+const SELL_VALUE={ iron_bar:8,gold_bar:20,silver_bar:12,copper_bar:4,crystal_bar:30,hellstone_bar:25,astralite_bar:40,cobalt_bar:22,titanium_bar:28,mythril_bar:18,adamantite_bar:24,meteor_bar:14,crimtane_bar:16,stardust:15,soul_fire:12,mech_soul:18,nightmare_shard:14,gel:2,silk:3,herb:5,coral:6,pearl:12,doubloon:10,martian_plating:14,stone_tablet:6,spider_fang:6,tissue:5,ice_shard:4,bone:3,feather:3,honey:3,glowmush:4,mushroom:2,fish:4,salmon:5,tuna:8,swordfish:12,icefish:14,junglefish:14,voidfish:16,prismfish:16,sandfish:14,bloodfish:14,frog:3,butterfly:3,firefly:3,lens:5,legend_fish:60,rainbow_fish:14 };
 function itemValue(it){ if(!it)return 0; if(it.kind==="mat")return SELL_VALUE[it.id]||3; if(it.kind==="tile")return 1; if(it.kind==="use")return 2; return 0; }
 // cours du marché : 0.8 à 1.2, déterministe par jour de jeu
 function marketMult(){ const day=Math.floor(timePlayed/DAY_SEC), h=Math.sin(day*12.9898)*43758.5453; return 0.8+0.4*(h-Math.floor(h)); }
