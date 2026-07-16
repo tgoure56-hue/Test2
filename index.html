@@ -327,7 +327,7 @@ const TOOLS={
   star_cannon:{name:"Canon stellaire",type:"staff",dmg:64,mana:7,proj:"spark",shots:3,spread:0.3},
   star_blade:{name:"Lame stellaire",type:"sword",dmg:210}, cutlass:{name:"Coutelas",type:"sword",dmg:62}, cannon:{name:"Canon de poche",type:"gun",dmg:52},
   hook:{name:"Grappin",type:"hook"}, flail:{name:"Fléau",type:"flail",dmg:48}, bugnet:{name:"Filet à papillons",type:"net"},
-  spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30}, anchor:{name:"Ancre",type:"boomerang",dmg:58}, bone_rang:{name:"Boomerang d'os",type:"boomerang",dmg:40},
+  spear:{name:"Lance",type:"spear",dmg:35}, boomerang:{name:"Boomerang",type:"boomerang",dmg:30}, anchor:{name:"Ancre",type:"boomerang",dmg:58}, bone_rang:{name:"Boomerang d'os",type:"boomerang",dmg:40}, frost_spear:{name:"Lance de givre",type:"spear",dmg:46},
   bucket:{name:"Seau vide",type:"bucket"}, bucket_water:{name:"Seau d'eau",type:"bucket"}, bucket_lava:{name:"Seau de lave",type:"bucket"},
   mirror:{name:"Miroir magique",type:"mirror"}, rod:{name:"Canne à pêche",type:"rod"}, rod2:{name:"Canne dorée",type:"rod",power:2}, wrench:{name:"Clé à molette",type:"wrench"}, gun1:{name:"Mousquet",type:"gun",dmg:34}, laser_rifle:{name:"Fusil laser",type:"gun",dmg:58}, bone_sword:{name:"Épée en os",type:"sword",dmg:44}, soulscythe:{name:"Faux des âmes",type:"sword",dmg:96}, brush:{name:"Pinceau",type:"brush"},
   drill:{name:"Foreuse",type:"drill",power:8.5,area:4}, drill2:{name:"Foreuse lunaire",type:"drill",power:12.0,area:5},
@@ -360,6 +360,7 @@ const ARMOR={
   solar_h:{name:"Casque solaire",slot:"head",def:12}, solar_c:{name:"Plastron solaire",slot:"chest",def:18}, solar_l:{name:"Jambières solaires",slot:"legs",def:13},
   shroom_h:{name:"Chapeau de champignon",slot:"head",def:5}, shroom_c:{name:"Plastron myconide",slot:"chest",def:7}, shroom_l:{name:"Jambières sporifères",slot:"legs",def:5},
   fossil_h:{name:"Casque fossile",slot:"head",def:5}, fossil_c:{name:"Plastron fossile",slot:"chest",def:8}, fossil_l:{name:"Jambières fossiles",slot:"legs",def:6},
+  frost_h:{name:"Casque de givre",slot:"head",def:6}, frost_c:{name:"Plastron de givre",slot:"chest",def:9}, frost_l:{name:"Jambières de givre",slot:"legs",def:6},
 };
 const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Barre fer",col:"#c9c9d4"},
   silver_bar:{name:"Barre argent",col:"#dfe3ea"}, gold_bar:{name:"Barre or",col:"#e8c33a"}, lens:{name:"Lentille",col:"#7fd6e0"},
@@ -417,6 +418,8 @@ const RECIPES=[
   R({kind:"armor",id:"gold_h"},[ma("gold_bar",6)],"anvil"), R({kind:"armor",id:"gold_c"},[ma("gold_bar",9)],"anvil"), R({kind:"armor",id:"gold_l"},[ma("gold_bar",7)],"anvil"),
   R({kind:"armor",id:"shroom_h"},[ma("glowmush",8),ti(MUSHBLOCK,6)],"table"), R({kind:"armor",id:"shroom_c"},[ma("glowmush",12),ti(MUSHBLOCK,10)],"table"), R({kind:"armor",id:"shroom_l"},[ma("glowmush",10),ti(MUSHBLOCK,8)],"table"),
   R({kind:"armor",id:"fossil_h"},[ti(FOSSIL,6),ti(SANDSTONE,8)],"anvil"), R({kind:"armor",id:"fossil_c"},[ti(FOSSIL,10),ti(SANDSTONE,12)],"anvil"), R({kind:"armor",id:"fossil_l"},[ti(FOSSIL,8),ti(SANDSTONE,10)],"anvil"),
+  R({kind:"armor",id:"frost_h"},[ma("ice_shard",8),ti(SNOWBRICK,8)],"anvil"), R({kind:"armor",id:"frost_c"},[ma("ice_shard",12),ti(SNOWBRICK,12)],"anvil"), R({kind:"armor",id:"frost_l"},[ma("ice_shard",10),ti(SNOWBRICK,10)],"anvil"),
+  R({kind:"tool",id:"frost_spear"},[ma("ice_shard",10),ti(ICE,6)],"anvil"),
   R({kind:"tool",id:"bone_rang"},[ti(FOSSIL,4),ma("bone",8)],"anvil"),
   // boss
   R({kind:"summon",id:"eye"},[ma("lens",6)],"table"),
@@ -1385,7 +1388,7 @@ function atkDmg(sel,base,cat){ return Math.round(gemBoost(sel,base)*stationMult(
 function manaCost(sel){ const m=TOOLS[sel.id].mana||0; return sel&&sel.gem==="sapphire"?Math.max(1,Math.round(m*0.6)):m; }
 function drillArea(cx,cy,maxHard){ maxHard=maxHard||4; for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){ if(!dx&&!dy)continue; const x=cx+dx,y=cy+dy; if(x<1||x>=WORLD_W-1||y<1||isBedrock(y))continue; const id=getT(x,y); if(id===AIR||isLiquid(id)||id===CHEST)continue; if(TILE[id].hard<=maxHard)breakTile(x,y,id); } }
 // bonus de set : porter les 3 pièces d'une même famille d'armure
-const SET_BONUS={wood:1,iron:2,silver:3,gold:4,hell:5,myth:6,ada:7,crystal:8,cobalt:9,titanium:10,bone:4,meteor:6,astral:14,crim:6,solar:12,shroom:7,fossil:8};
+const SET_BONUS={wood:1,iron:2,silver:3,gold:4,hell:5,myth:6,ada:7,crystal:8,cobalt:9,titanium:10,bone:4,meteor:6,astral:14,crim:6,solar:12,shroom:7,fossil:8,frost:9};
 function armorSet(){ const a=player.armorArr; if(!a[0]||!a[1]||!a[2])return null; const p=a[0].id.split("_")[0];
   return (a[1].id.split("_")[0]===p&&a[2].id.split("_")[0]===p)?p:null; }
 function armorClass(){ if(armorSet()!=="astral")return null; const h=player.armorArr[0]; if(!h)return null;
@@ -1482,7 +1485,7 @@ function update(dt){
   if(player.abilityCd>0)player.abilityCd-=dt;
   if(player.tapWin>0)player.tapWin-=dt;
   for(const k in player.buffs){ player.buffs[k]-=dt; if(player.buffs[k]<=0)delete player.buffs[k]; }
-  const regenRate=2+(player.buffs.regen>0?6:0)+(player.buffs.wellfed>0?2:0)+(hasAcc("regen")?2:0)+(nearTile(CAMPFIRE,8)?3:0)+(nearTile(HEARTLANTERN,8)?2:0)+(nearTile(FOUNTAIN,8)?2:0)+(armorSet()==="crim"?3:0);
+  const regenRate=2+(player.buffs.regen>0?6:0)+(player.buffs.wellfed>0?2:0)+(hasAcc("regen")?2:0)+(nearTile(CAMPFIRE,8)?3:0)+(nearTile(HEARTLANTERN,8)?2:0)+(nearTile(FOUNTAIN,8)?2:0)+(armorSet()==="crim"?3:0)+(armorSet()==="frost"?2:0);
   if(player.invuln<=0&&player.hp<player.maxHp)player.hp=Math.min(player.maxHp,player.hp+dt*regenRate);
   player.mana=Math.min(player.maxMana,player.mana+dt*(4+(hasAcc("manaregen")?4:0)+(nearTile(CRYSTALBALL,8)?4:0)+(armorSet()==="shroom"?4:0)));
   updateFishing(dt); updateCritters(dt,step); updateMinions(dt,step); updateCombatPet(dt,step); updateFireflies(dt,step); updateStars(dt,step); updateTraps(dt); updateTimers(dt); updateArmy(dt); updateArena(dt); updatePumpkinMoon(dt); updateFrostMoon(dt); updateSlimeRain(dt); updateSandstorm(dt); updatePirateInvasion(dt); updateMartianInvasion(dt); checkAchievements(); checkCodex();
@@ -2215,7 +2218,7 @@ function updateBoss(dt,step){ const e=boss; e.t+=dt; if(e.yoyoCd>0)e.yoyoCd-=dt;
     else if(e.tier===12){ addItem("tool","thorn_whip",1); addItem("acc","nature_charm",1); addItem("mat","honey",12); addItem("mat","herb",10); coins+=700; player.maxHp+=70; player.hp=player.maxHp; unlock("botaniste"); flash("🏆 La Fleur carnivore est vaincue ! Fouet d'épines + Charme de la nature + 70 PV max !"); }
     else if(e.tier===13){ addItem("mat","glowmush",22+Math.floor(Math.random()*10)); addItem("tile",MUSHBLOCK,30); addItem("tool","staff_spore",1); addItem("acc","talisman",1); coins+=200; player.maxHp+=25; player.hp=player.maxHp; flash("🏆 La Reine des spores est vaincue ! Sceptre sporifère + Talisman + 25 PV max !"); }
     else if(e.tier===14){ addItem("tile",FOSSIL,15+Math.floor(Math.random()*10)); addItem("tile",SANDSTONE,25); addItem("tool","bone_rang",1); addItem("acc","flying_carpet",1); coins+=220; player.maxHp+=25; player.hp=player.maxHp; flash("🏆 La Reine fourmilion est vaincue ! Boomerang d'os + Tapis volant + 25 PV max !"); }
-    else if(e.tier===15){ addItem("mat","ice_shard",15+Math.floor(Math.random()*10)); addItem("tile",SNOWBRICK,25); addItem("use","frost_core",1); addItem("acc","band",1); coins+=240; player.maxHp+=28; player.hp=player.maxHp; flash("🏆 La Reine des glaces est vaincue ! +28 PV max, 240 pièces !"); }
+    else if(e.tier===15){ addItem("mat","ice_shard",15+Math.floor(Math.random()*10)); addItem("tile",SNOWBRICK,25); addItem("use","frost_core",1); addItem("tool","frost_spear",1); addItem("acc","band",1); coins+=240; player.maxHp+=28; player.hp=player.maxHp; flash("🏆 La Reine des glaces est vaincue ! Lance de givre + 28 PV max !"); }
     else { addItem("mat","gold_bar",12); addItem("tool","bow2",1); coins+=120; player.maxHp+=20; player.hp=player.maxHp; flash("🏆 Boss vaincu ! +20 PV max, 120 pièces, butin reçu"); }
     boss=null; dirtyUI=true; }
   else if(e.tier===1&&!isNight()){ flash("L'Œil maléfique fuit le jour..."); boss=null; }
