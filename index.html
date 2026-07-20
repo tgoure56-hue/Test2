@@ -132,7 +132,7 @@ const AIR=0,DIRT=1,GRASS=2,STONE=3,LOG=4,LEAF=5,SAND=6,COAL=7,IRON=8,GOLD=9,DIAM
   PLATFORM=32,DOOR_C=33,DOOR_O=34,MUD=35,JGRASS=36,ASH=37,HELLSTONE=38,ROPE=39,MYTHRIL=40,
   BED=41,CAMPFIRE=42,HEARTLANTERN=43,SPIKE=44,ADAMANTITE=45,CGRASS=46,EBONSTONE=47,HGRASS=48,PEARLSTONE=49,CRYSTAL=50,LAMP=51,CHAIR=52,VASE=53,BANNER=54,COBALT=55,TITANIUM=56,DART_TRAP=57,PLATE=58,STATUE=59,
   MGRASS=60,GMUSH=61,MUSHBLOCK=62,MARBLE=63,GRANITE=64,SANDSTONE=65,STONEBRICK=66,CLOUDB=67,COBWEB=68,CACTUS=69,BOOKCASE=70,CANDLE=71,CHANDELIER=72,SAWMILL=73,
-  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106,SHARPENING=107,AMMOBOX=108,CRYSTALBALL=109,BEWITCH=110,FOUNTAIN=111,PIANO=112,DRESSER=113,ASTRALITE=114,CRIMGRASS=115,CRIMSTONE=116,CRIMTANE=117,CRIMHEART=118,FLESHBLOCK=119,CORAL=120,CORALBLOCK=121,TELEPORTER=122,HELLBRICK=123,HELLFORGE=124,STARBLOCK=125,REDTORCH=126,GREENTORCH=127,PURPLETORCH=128,REDBRICK=129,GREENBRICK=130,WINDOW=131,RAINBOWBRICK=132,BARREL=133,FIREFLYJAR=134,BUTTERFLYJAR=135,HEARTSTATUE=136,STARSTATUE=137,CRITTERSTATUE=138,TIMER1=139,TIMER5=140,ALTAR=141,SELLBOX=142,SUNDIAL=143,MOONDIAL=144,SAFE=145,SKELSTATUE=146,BOLTSTATUE=147,POWERTOTEM=148,WARDTOTEM=149,MUSEUM=150;
+  PUMPKIN=74,JACKOLANTERN=75,HAY=76,GOLDBRICK=77,BLUEBRICK=78,ALCHEMY=79,CLOCK=80,SOFA=81,SIGN=82,PAINTING=83,GLOWSTONE=84,LEVER=85,HIVE=86,HONEYBLOCK=87,LARVA=88,ICEBRICK=89,SNOWBRICK=90,BLUETORCH=91,HARDSAND=92,FOSSIL=93,SANDSTONEBRICK=94,TEMPLEBRICK=95,OBSIDIAN=96,OBSIDIANBRICK=97,QUESTBOARD=98,TROPHY=99,METEORITE=100,SAPLING=101,HERBSPROUT=102,HERBGROWN=103,BONEBRICK=104,SPIDERNEST=105,SLIMEBLOCK=106,SHARPENING=107,AMMOBOX=108,CRYSTALBALL=109,BEWITCH=110,FOUNTAIN=111,PIANO=112,DRESSER=113,ASTRALITE=114,CRIMGRASS=115,CRIMSTONE=116,CRIMTANE=117,CRIMHEART=118,FLESHBLOCK=119,CORAL=120,CORALBLOCK=121,TELEPORTER=122,HELLBRICK=123,HELLFORGE=124,STARBLOCK=125,REDTORCH=126,GREENTORCH=127,PURPLETORCH=128,REDBRICK=129,GREENBRICK=130,WINDOW=131,RAINBOWBRICK=132,BARREL=133,FIREFLYJAR=134,BUTTERFLYJAR=135,HEARTSTATUE=136,STARSTATUE=137,CRITTERSTATUE=138,TIMER1=139,TIMER5=140,ALTAR=141,SELLBOX=142,SUNDIAL=143,MOONDIAL=144,SAFE=145,SKELSTATUE=146,BOLTSTATUE=147,POWERTOTEM=148,WARDTOTEM=149,MUSEUM=150,PYLON=151;
 // murs d'arrière-plan (couche séparée)
 const WDIRT=1,WSTONE=2,WWOOD=3,WBRICK=4;
 const WALLS={ [WDIRT]:{name:"Mur de terre",col:"#3a2a1e"}, [WSTONE]:{name:"Mur de pierre",col:"#363640"},
@@ -280,6 +280,7 @@ const TILE={
   [CORAL]:{name:"Corail",solid:false,hard:0.3,drop:-1,col:"#ff7a9a"},
   [CORALBLOCK]:{name:"Bloc de corail",solid:true,hard:0.8,drop:CORALBLOCK,col:"#e06a8a"},
   [TELEPORTER]:{name:"Téléporteur",solid:false,hard:1.2,drop:TELEPORTER,col:"#7affe0",light:0.4},
+  [PYLON]:{name:"Pylône",solid:false,hard:1.0,drop:PYLON,col:"#9affe0",light:0.55},
   [HELLBRICK]:{name:"Brique infernale",solid:true,hard:3.0,drop:HELLBRICK,col:"#5a1a1a"},
   [HELLFORGE]:{name:"Forge infernale",solid:false,hard:1.5,drop:HELLFORGE,col:"#e8632a",light:0.5,station:"hellforge"},
   [STARBLOCK]:{name:"Bloc d'étoile",solid:true,hard:0.5,drop:STARBLOCK,col:"#ffe27a",light:0.5},
@@ -722,6 +723,7 @@ const RECIPES=[
   R({kind:"tile",id:CORALBLOCK,n:4},[ma("coral",2),ti(STONE,2)],"table"),
   // phase 43 (réseau de téléporteurs)
   R({kind:"tile",id:TELEPORTER},[ma("crystal_bar",3),ma("gold_bar",3),ma("iron_bar",4)],"anvil"),
+  R({kind:"tile",id:PYLON},[ma("crystal_bar",2),ma("gold_bar",2)],"anvil"),
   // phase 44 (forteresse infernale)
   R({kind:"tile",id:HELLFORGE},[ma("hellstone_bar",8),ti(STONE,10)],"anvil"),
   R({kind:"tile",id:HELLBRICK,n:4},[ma("hellstone_bar",1),ti(STONE,2)],"furnace"),
@@ -1181,6 +1183,7 @@ function makeTex(id){
   else if(id===HELLBRICK){g.fillStyle="#5a1a1a";g.fillRect(0,0,T,T);g.strokeStyle="#340e0e";g.lineWidth=2;g.strokeRect(0,0,T,T/2);g.strokeRect(0,T/2,T,T/2);g.beginPath();g.moveTo(T/2,0);g.lineTo(T/2,T/2);g.moveTo(0,T/2);g.lineTo(0,T);g.moveTo(T,T/2);g.lineTo(T,T);g.stroke();g.fillStyle="#e8632a";g.fillRect(T/2-1,T/2-1,2,2);}
   else if(id===HELLFORGE){g.clearRect(0,0,T,T);g.fillStyle="#3a1010";g.fillRect(2,7,T-4,T-9);g.fillStyle="#1a0808";g.fillRect(4,9,T-8,7);g.fillStyle="#ffb03a";g.fillRect(5,11,T-10,4);g.fillStyle="#ff5a1a";g.fillRect(6,10,T-12,3);g.fillStyle="#5a1a1a";g.fillRect(2,4,T-4,3);g.fillStyle="#ffe27a";for(let i=0;i<3;i++)g.fillRect(6+i*4,8,1,1);}
   else if(id===TELEPORTER){g.clearRect(0,0,T,T);g.fillStyle="#2a2a3a";g.fillRect(1,T-5,T-2,4);g.fillStyle="#3a3a4e";g.fillRect(3,T-7,T-6,3);g.strokeStyle="#7affe0";g.lineWidth=2;g.beginPath();g.ellipse(T/2,T-7,T*0.36,4,0,0,7);g.stroke();g.strokeStyle="rgba(122,255,224,0.5)";g.beginPath();g.ellipse(T/2,T-9,T*0.28,3,0,0,7);g.stroke();g.fillStyle="#bfffe8";g.fillRect(T/2-1,4,2,T-12);g.fillStyle="#7affe0";g.fillRect(T/2-3,3,6,2);}
+  else if(id===PYLON){g.clearRect(0,0,T,T);g.fillStyle="#2a3a3e";g.fillRect(T/2-3,T-4,6,3);g.fillStyle="rgba(154,255,224,0.35)";g.beginPath();g.moveTo(T/2,2);g.lineTo(T/2-6,T-4);g.lineTo(T/2+6,T-4);g.closePath();g.fill();g.fillStyle="#9affe0";g.beginPath();g.moveTo(T/2,4);g.lineTo(T/2-4,T-5);g.lineTo(T/2+4,T-5);g.closePath();g.fill();g.fillStyle="#eafffb";g.beginPath();g.moveTo(T/2,6);g.lineTo(T/2-2,T-7);g.lineTo(T/2+2,T-7);g.closePath();g.fill();g.fillStyle="#fff";g.fillRect(T/2-1,T/2-1,2,2);}
   else if(id===CORAL){g.clearRect(0,0,T,T);g.strokeStyle="#ff7a9a";g.lineWidth=2;g.beginPath();g.moveTo(T/2,T);g.lineTo(T/2,T*0.5);g.moveTo(T/2,T*0.62);g.lineTo(T*0.28,T*0.42);g.moveTo(T/2,T*0.62);g.lineTo(T*0.72,T*0.42);g.moveTo(T/2,T*0.5);g.lineTo(T*0.4,T*0.3);g.moveTo(T/2,T*0.5);g.lineTo(T*0.6,T*0.3);g.stroke();g.fillStyle="#ffb0c8";g.beginPath();g.arc(T*0.28,T*0.42,2,0,7);g.arc(T*0.72,T*0.42,2,0,7);g.arc(T/2,T*0.3,2,0,7);g.fill();}
   else if(id===CORALBLOCK){speckle("#e06a8a",18,20);g.fillStyle="#ffb0c8";for(let i=0;i<5;i++)g.fillRect(3+Math.floor(rnd()*(T-6)),3+Math.floor(rnd()*(T-6)),2,2);g.fillStyle="#c04a6a";for(let i=0;i<4;i++)g.fillRect(Math.floor(rnd()*T),Math.floor(rnd()*T),1,1);}
   else if(id===CRIMGRASS){speckle(TILE[DIRT].col,40,40);g.fillStyle="#a02a3a";g.fillRect(0,0,T,5);for(let i=0;i<10;i++){const px=Math.floor(rnd()*T);g.fillRect(px,4,1,2+Math.floor(rnd()*3));}}
@@ -1596,6 +1599,7 @@ function handleActions(dt){
     else if(tt===MOONDIAL){ if(player.placeCd<=0){ useTimeDial(0.70,"🌙 Le cadran lunaire fait tomber la nuit"); player.placeCd=0.3; } mouse.right=false; }
     else if(tt===SAFE){ openPersonalBank(); mouse.right=false; }
     else if(tt===MUSEUM){ if(player.placeCd<=0){ donateItem(inv[selected]); player.placeCd=0.3; } mouse.right=false; }
+    else if(tt===PYLON){ if(player.placeCd<=0){ pylonNetwork(mouse.tx,mouse.ty); player.placeCd=0.4; } mouse.right=false; }
     else if(sel&&sel.kind==="tool"&&TOOLS[sel.id].type==="bucket"&&player.placeCd<=0){ if(useBucket(mouse.tx,mouse.ty,sel))player.placeCd=0.2; }
     else if(sel&&sel.kind==="wall"&&player.placeCd<=0){ if(placeWall(mouse.tx,mouse.ty,sel))player.placeCd=0.10; }
     else if(sel&&sel.kind==="tile"&&player.placeCd<=0){ if(placeTile(mouse.tx,mouse.ty,sel))player.placeCd=0.12; }
@@ -1803,6 +1807,11 @@ function mirrorHome(){ player.x=player.spawnX; player.y=player.spawnY; player.vx
 function wormholeTeleport(){ for(let tries=0;tries<80;tries++){ const tx=2+Math.floor(Math.random()*(WORLD_W-4)), sy=surfaceAt(tx);
     if(sy>3&&sy<WORLD_H-4&&getT(tx,sy)===AIR&&getT(tx,sy-1)===AIR&&getT(tx,sy-2)===AIR){ spawnParticles(player.x+PW/2,player.y+PH/2,"#7a5ad0",14); player.x=tx*T; player.y=(sy-2)*T; player.vx=player.vy=0; player.invuln=1.5; spawnParticles(player.x+PW/2,player.y+PH/2,"#7a5ad0",22); flash("🌀 Trou de ver : téléportation aléatoire !"); return; } }
   mirrorHome(); }
+// réseau de pylônes : voyage rapide en cycle entre tous les pylônes posés (clic droit)
+function pylonNetwork(fx,fy){ const ps=[]; for(let x=0;x<WORLD_W;x++)for(let y=0;y<WORLD_H;y++)if(world[idx(x,y)]===PYLON)ps.push([x,y]);
+  if(ps.length<2){ flash("Posez au moins deux pylônes pour voyager"); return false; }
+  ps.sort((a,b)=>a[0]-b[0]||a[1]-b[1]); const cur=ps.findIndex(t=>t[0]===fx&&t[1]===fy), dest=ps[(Math.max(0,cur)+1)%ps.length];
+  spawnParticles(player.x+PW/2,player.y+PH/2,"#9affe0",16); player.x=dest[0]*T+(T-PW)/2; player.y=(dest[1]+1)*T-PH; player.vx=player.vy=0; player.invuln=Math.max(player.invuln,0.6); spawnParticles(player.x+PW/2,player.y+PH/2,"#9affe0",16); flash("✨ Voyage par pylône !"); return true; }
 function teleportNetwork(fx,fy){ const tps=[]; for(let x=0;x<WORLD_W;x++)for(let y=0;y<WORLD_H;y++)if(world[idx(x,y)]===TELEPORTER)tps.push([x,y]);
   if(tps.length<2){ flash("Aucun autre téléporteur relié"); return false; }
   // vise le téléporteur le plus proche du curseur (à défaut, le suivant dans l'ordre)
