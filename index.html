@@ -1848,7 +1848,7 @@ function updateFishing(dt){ const f=player.fishing; if(!f)return; if(getT(f.tx,f
 function catchFish(tx,rod,reflex){ fishCaught++; dirtyUI=true; rod=rod||1;
   const ocean=biomeAt(tx)===6, lucky=(player.buffs.fishing>0?1:0)+(hasAcc("angler")?1:0)+(rod>=2?1:0)+(reflex?1:0), r=Math.random()+lucky*0.12;
   // prise rare selon le biome (neige, désert, jungle, corruption, sanctuaire, carmin)
-  if(Math.random()<0.006+lucky*0.01){ addItem("mat","legend_fish",1); flash("🌟 PRISE LÉGENDAIRE : Poisson légendaire !"); return; }
+  if(Math.random()<0.006+lucky*0.01){ addItem("mat","legend_fish",1); unlock("pecheur_legende"); flash("🌟 PRISE LÉGENDAIRE : Poisson légendaire !"); return; }
   const bf=({0:"rainbow_fish",1:"icefish",2:"sandfish",3:"junglefish",4:"voidfish",5:"prismfish",7:"bloodfish"})[biomeAt(tx)];
   if(bf&&Math.random()<0.22+lucky*0.06){ addItem("mat",bf,1); flash("Prise rare : "+MATS[bf].name+" ! ✨🐟"); return; }
   const crateRoll=(g)=>{ if(Math.random()<g){addItem("use","gold_crate",1);flash("Caisse dorée remontée ! 🎁");} else {addItem("use","crate",1);flash("Caisse remontée ! 📦");} };
@@ -2354,7 +2354,8 @@ const ACHIEVEMENTS={ premier_boss:"Premier boss vaincu", chasseur:"5 boss vaincu
   pecheur:"10 poissons pêchés", riche:"1000 pièces amassées", batisseur:"100 blocs placés",
   enfer:"Descendre en enfer", cieux:"Toucher les cieux", chaos:"Survivre au mode difficile", questeur:"3 quêtes accomplies",
   martien:"Repousser l'invasion martienne", corsaire:"Repousser l'invasion pirate", gorgone:"Croiser le regard d'une Gorgone",
-  reforgeur:"Reforger un équipement", assembleur:"Combiner deux accessoires", botaniste:"Vaincre la Fleur carnivore" };
+  reforgeur:"Reforger un équipement", assembleur:"Combiner deux accessoires", botaniste:"Vaincre la Fleur carnivore",
+  explorateur_boss:"Vaincre un mini-boss de biome", gladiateur:"Vaincre 5 vagues d'arène", collectionneur:"Débuter une collection", transcende:"Atteindre le prestige", forgeron:"Améliorer une arme", pecheur_legende:"Pêcher un poisson légendaire" };
 function unlock(id){ if(achievements[id])return; achievements[id]=true; flash("🏆 Succès débloqué : "+ACHIEVEMENTS[id]); spawnParticles(player.x+PW/2,player.y+PH/2,"#ffd24a",14); dirtyUI=true; }
 function checkAchievements(){
   if(bossKills>=1)unlock("premier_boss"); if(bossKills>=5)unlock("chasseur"); if(bossKills>=9)unlock("legende");
@@ -2363,7 +2364,8 @@ function checkAchievements(){
   if(hardmode)unlock("chaos"); if(questsDone>=3)unlock("questeur");
   if(bestiary["martian_saucer"])unlock("martien"); if(bestiary["pirate_captain"])unlock("corsaire"); if(bestiary["medusa"])unlock("gorgone");
   if(inv.some(s=>s&&s.prefix)||(player.acc&&player.acc.prefix)||(player.acc2&&player.acc2.prefix))unlock("reforgeur");
-  if((player.acc&&player.acc.combo)||(player.acc2&&player.acc2.combo))unlock("assembleur"); }
+  if((player.acc&&player.acc.combo)||(player.acc2&&player.acc2.combo))unlock("assembleur");
+  if(lastBossTier>=13)unlock("explorateur_boss"); if(arenaRecord>=5)unlock("gladiateur"); if(collectionTier>=1)unlock("collectionneur"); if(prestige>=1)unlock("transcende"); if(inv.some(s=>s&&s.upgrade))unlock("forgeron"); }
 function questBoardInteract(){ if(!quest){ assignQuest(); flash("📜 Nouvelle quête : "+quest.desc); return; }
   if(quest.type==="kill"){ if(quest.have>=quest.need)questReward(); else flash("📜 "+quest.desc+" ("+quest.have+"/"+quest.need+")"); }
   else { const have=countItem(quest.kind,quest.id); if(have>=quest.need){ removeItem(quest.kind,quest.id,quest.need); questReward(); } else flash("📜 "+quest.desc+" ("+have+"/"+quest.need+")"); } }
