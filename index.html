@@ -383,7 +383,7 @@ const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{nam
   pumpkin_medallion:{name:"Médaillon citrouille",col:"#ff8a2a"}, pumpkin_pie:{name:"Tarte à la citrouille",col:"#d2691e"},
   regen_potion:{name:"Potion de régénération",col:"#5ad65a"}, nightowl_potion:{name:"Potion de vision nocturne",col:"#9a7ad0"}, honey_potion:{name:"Potion de miel",col:"#e8a82a"}, mining_potion:{name:"Potion de mineur",col:"#b0864a"},
   frost_core:{name:"Noyau de gel",col:"#aae0ff"}, frost_potion:{name:"Potion de givre",col:"#8ad0e8"},
-  recall_potion:{name:"Potion de rappel",col:"#c9b0ff"}, wormhole_potion:{name:"Potion trou de ver",col:"#7a5ad0"}, combat_pet:{name:"Esprit combattant",col:"#9ad6ff"}, spore_sprite:{name:"Sprite des spores",col:"#7fe0ff"}, treasure_bag:{name:"Sac au trésor",col:"#e8b84a"}, arena_totem:{name:"Totem d'arène",col:"#c05a3a"},
+  recall_potion:{name:"Potion de rappel",col:"#c9b0ff"}, wormhole_potion:{name:"Potion trou de ver",col:"#7a5ad0"}, combat_pet:{name:"Esprit combattant",col:"#9ad6ff"}, spore_sprite:{name:"Sprite des spores",col:"#7fe0ff"}, treasure_bag:{name:"Sac au trésor",col:"#e8b84a"}, arena_totem:{name:"Totem d'arène",col:"#c05a3a"}, buried_map:{name:"Carte au trésor enfoui",col:"#caa86a"},
   pirate_map:{name:"Carte au trésor",col:"#caa86a"}, martian_beacon:{name:"Balise martienne",col:"#6ac0d0"}, hearty_stew:{name:"Ragoût copieux",col:"#b5651d"}, purification_powder:{name:"Poudre de purification",col:"#e0d6f0"}, royal_feast:{name:"Festin royal",col:"#ffd24a"} };
 const BUFFS={ regen:{name:"Régén",col:"#5ad65a"}, swift:{name:"Hâte",col:"#5ad6e0"}, iron:{name:"Peau de fer",col:"#c9c9d4"}, shine:{name:"Lumière",col:"#ffe27a"}, fishing:{name:"Pêche chanceuse",col:"#3a9ad6"}, wrath:{name:"Furie",col:"#ff5a3a"}, endurance:{name:"Endurance",col:"#c8a05a"}, summoning:{name:"Invocation",col:"#9a6ae0"}, wellfed:{name:"Rassasié",col:"#e0a860"}, mining:{name:"Mineur",col:"#b0864a"} };
 
@@ -664,6 +664,7 @@ const RECIPES=[
   R({kind:"use",id:"wormhole_potion"},[ma("crystal_bar",1),ma("herb",2)],"alchemy"),
   R({kind:"use",id:"combat_pet"},[ma("crystal_bar",3),ma("gold_bar",2),ma("bone",5)],"anvil"),
   R({kind:"use",id:"arena_totem"},[ti(STONE,12),ma("bone",6),ma("soul_fire",1)],"anvil"),
+  R({kind:"use",id:"buried_map"},[ma("gold_bar",1),ma("silk",2)],"table"),
   R({kind:"use",id:"spore_sprite"},[ma("glowmush",10),ma("iron_bar",4),ti(MUSHBLOCK,4)],"anvil"),
   // phase 36 (grottes d'araignées)
   R({kind:"tile",id:SPIDERNEST,n:4},[ma("silk",2),ti(STONE,2)],"table"),
@@ -1724,7 +1725,19 @@ function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("
   else if(sel.id==="combat_pet"){ if(player.combatPet){ player.combatPet=null; flash("Esprit combattant rangé"); } else { player.combatPet={lvl:1,xp:0,x:player.x,y:player.y-30,t:0,cd:0,kind:"spirit"}; flash("⚔️ Un esprit combattant t'accompagne !"); } }
   else if(sel.id==="spore_sprite"){ if(player.combatPet){ player.combatPet=null; flash("Sprite des spores rangé"); } else { player.combatPet={lvl:1,xp:0,x:player.x,y:player.y-30,t:0,cd:0,kind:"spore"}; flash("🍄 Un sprite des spores voltige à tes côtés !"); } }
   else if(sel.id==="treasure_bag"){ removeItem("use","treasure_bag",1); openTreasureBag(); }
-  else if(sel.id==="arena_totem"){ if(arena){flash("Une arène est déjà en cours !");return;} removeItem("use","arena_totem",1); startArena(); } }
+  else if(sel.id==="arena_totem"){ if(arena){flash("Une arène est déjà en cours !");return;} removeItem("use","arena_totem",1); startArena(); }
+  else if(sel.id==="buried_map"){ const p=buryTreasure(); if(p){ removeItem("use","buried_map",1); flash("🗺️ Trésor enfoui en ("+p[0]+", "+p[1]+") — creuse pour le trouver !"); } else flash("Impossible d'enfouir un trésor ici"); } }
+// chasse au trésor enfoui : la carte enterre un coffre garni en profondeur
+function treasureLoot(){ const a=new Array(20).fill(null); let i=0; const put=(it)=>{ if(i<20)a[i++]=it; };
+  put({kind:"mat",id:"gold_bar",n:5+Math.floor(Math.random()*8)});
+  if(Math.random()<0.6)put({kind:"tile",id:DIAMOND,n:2+Math.floor(Math.random()*3)});
+  if(Math.random()<0.6)put({kind:"tile",id:RUBY,n:2+Math.floor(Math.random()*3)});
+  put({kind:"use",id:"hp_potion",n:3});
+  if(Math.random()<0.45)put({kind:"acc",id:["band","boots","talisman","tackle"][Math.floor(Math.random()*4)],n:1});
+  if(Math.random()<0.35)put({kind:"mat",id:"fallen_star",n:4});
+  return a; }
+function buryTreasure(){ for(let tries=0;tries<200;tries++){ const tx=10+Math.floor(Math.random()*(WORLD_W-20)), sy=surfaceAt(tx)+10+Math.floor(Math.random()*40);
+  if(sy<WORLD_H-6&&solidAt(tx,sy)&&getT(tx,sy)!==CHEST){ setT(tx,sy,CHEST); chestData.set(tx+","+sy,treasureLoot()); return [tx,sy]; } } return null; }
 // sac au trésor de boss : butin bonus aléatoire, d'autant meilleur qu'on a vaincu de boss
 function openTreasureBag(){ coins+=120+bossKills*30; addItem("use","hp_potion",3);
   const gems=[RUBY,EMERALD,SAPPHIRE,DIAMOND]; if(Math.random()<0.6)addItem("tile",gems[Math.floor(Math.random()*gems.length)],2+Math.floor(Math.random()*3));
