@@ -377,7 +377,7 @@ const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenb
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
   hp_potion:{name:"Potion de soin",col:"#e23a4a"}, mp_potion:{name:"Potion de mana",col:"#3a6ae2"},
   cooked_fish:{name:"Poisson grillé",col:"#d8a25a"}, mushroom_soup:{name:"Soupe de champignons",col:"#c87a3a"},
-  swift_potion:{name:"Potion de hâte",col:"#5ad6e0"}, ironskin_potion:{name:"Potion de fer",col:"#c9c9d4"}, wrath_potion:{name:"Potion de furie",col:"#ff5a3a"}, endurance_potion:{name:"Potion d'endurance",col:"#c8a05a"}, summoning_potion:{name:"Potion d'invocation",col:"#9a6ae0"}, pet_egg:{name:"Œuf de familier",col:"#8ad6a0"}, pet_cat:{name:"Panier à chat",col:"#e0a04a"}, pet_fairy:{name:"Bocal à fée",col:"#ff9ad0"}, pet_dog:{name:"Niche à chien",col:"#b0824a"}, pet_bunny:{name:"Cage à lapin",col:"#e8e0d0"}, pet_dragon:{name:"Œuf de dragonneau",col:"#4a9a5a"}, shine_potion:{name:"Potion de lumière",col:"#ffe27a"},
+  swift_potion:{name:"Potion de hâte",col:"#5ad6e0"}, ironskin_potion:{name:"Potion de fer",col:"#c9c9d4"}, wrath_potion:{name:"Potion de furie",col:"#ff5a3a"}, endurance_potion:{name:"Potion d'endurance",col:"#c8a05a"}, summoning_potion:{name:"Potion d'invocation",col:"#9a6ae0"}, pet_egg:{name:"Œuf de familier",col:"#8ad6a0"}, pet_cat:{name:"Panier à chat",col:"#e0a04a"}, pet_fairy:{name:"Bocal à fée",col:"#ff9ad0"}, pet_dog:{name:"Niche à chien",col:"#b0824a"}, pet_bunny:{name:"Cage à lapin",col:"#e8e0d0"}, pet_dragon:{name:"Œuf de dragonneau",col:"#4a9a5a"}, pet_penguin:{name:"Ami manchot",col:"#2a2a3a"}, pet_slime:{name:"Slime apprivoisé",col:"#6ab0e0"}, pet_ghost:{name:"Lanterne fantôme",col:"#dce4ff"}, shine_potion:{name:"Potion de lumière",col:"#ffe27a"},
   fishing_potion:{name:"Potion de pêche",col:"#3a9ad6"}, crate:{name:"Caisse en bois",col:"#a87a48"}, gold_crate:{name:"Caisse dorée",col:"#e8c33a"}, dye_kit:{name:"Kit de teinture",col:"#e85a8a"},
   army_horn:{name:"Cor de guerre",col:"#b08a3a"}, glow_soup:{name:"Soupe lumineuse",col:"#7fe0ff"},
   pumpkin_medallion:{name:"Médaillon citrouille",col:"#ff8a2a"}, pumpkin_pie:{name:"Tarte à la citrouille",col:"#d2691e"},
@@ -641,6 +641,9 @@ const RECIPES=[
   R({kind:"use",id:"pet_dog"},[ma("silk",4),ma("iron_bar",1)],"table"),
   R({kind:"use",id:"pet_bunny"},[ma("silk",3),ma("frog",1)],"table"),
   R({kind:"use",id:"pet_dragon"},[ma("stardust",3),ma("soul_fire",1)],"table"),
+  R({kind:"use",id:"pet_penguin"},[ma("ice_shard",5)],"table"),
+  R({kind:"use",id:"pet_slime"},[ma("gel",10)],"table"),
+  R({kind:"use",id:"pet_ghost"},[ma("bone",5),ma("nightmare_shard",1)],"table"),
   // phase 33 (jardinage)
   R({kind:"tile",id:SAPLING,n:2},[ti(LOG,1)],null),
   R({kind:"use",id:"hp_potion"},[ma("herb",2)],"alchemy"),
@@ -1691,6 +1694,9 @@ function useItem(sel){ if(sel.id==="lifecrystal"){ if(player.maxHp>=400){flash("
   else if(sel.id==="pet_dog"){ player.pet=(player.pet==="dog")?null:"dog"; flash(player.pet?"🐕 Un chien te suit !":"Familier rangé"); }
   else if(sel.id==="pet_bunny"){ player.pet=(player.pet==="bunny")?null:"bunny"; flash(player.pet?"🐰 Un lapin te suit !":"Familier rangé"); }
   else if(sel.id==="pet_dragon"){ player.pet=(player.pet==="drakeling")?null:"drakeling"; flash(player.pet?"🐲 Un dragonneau te suit !":"Familier rangé"); }
+  else if(sel.id==="pet_penguin"){ player.pet=(player.pet==="penguin")?null:"penguin"; flash(player.pet?"🐧 Un manchot te suit !":"Familier rangé"); }
+  else if(sel.id==="pet_slime"){ player.pet=(player.pet==="slimepet")?null:"slimepet"; flash(player.pet?"🟦 Un slime apprivoisé te suit !":"Familier rangé"); }
+  else if(sel.id==="pet_ghost"){ player.pet=(player.pet==="ghost")?null:"ghost"; flash(player.pet?"👻 Un fantôme lumineux te suit !":"Familier rangé"); }
   else if(sel.id==="shine_potion"){ player.buffs.shine=120; removeItem("use","shine_potion",1); flash("✨ Lumière (120s)"); }
   else if(sel.id==="fishing_potion"){ player.buffs.fishing=120; removeItem("use","fishing_potion",1); flash("🎣 Pêche chanceuse (120s)"); }
   else if(sel.id==="glow_soup"){ player.buffs.regen=Math.max(player.buffs.regen||0,80); player.buffs.shine=Math.max(player.buffs.shine||0,80); player.buffs.wellfed=Math.max(player.buffs.wellfed||0,300); removeItem("use","glow_soup",1); flash("🍲 Rassasié + lumière (300s)"); }
@@ -2586,7 +2592,7 @@ function computeLight(x0,y0,x1,y1){ const rw=x1-x0+1,rh=y1-y0+1;
   const sky=dayLight()*(raining?0.8:1)*(eclipse?0.5:1),at=(x,y)=>(x-x0)*rh+(y-y0);
   for(let x=x0;x<=x1;x++){ let sh=0; while(sh<WORLD_H&&!blocksLight(x,sh))sh++; for(let y=y0;y<=Math.min(y1,sh);y++)if(y>=0)L[at(x,y)]=Math.max(L[at(x,y)],sky); }
   for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){ const t=getT(x,y); if(TILE[t]&&TILE[t].light)L[at(x,y)]=Math.max(L[at(x,y)],TILE[t].light); }
-  if(player.buffs.shine>0||hasAcc("glow")||player.pet==="fairy"||player.combatPet||armorSet()==="crystal"||armorSet()==="shroom"){ const lx=Math.floor((player.x+PW/2)/T),ly=Math.floor((player.y+PH/2)/T); if(lx>=x0&&lx<=x1&&ly>=y0&&ly<=y1)L[at(lx,ly)]=Math.max(L[at(lx,ly)],(player.buffs.shine>0||hasAcc("glow"))?0.95:0.6); }
+  if(player.buffs.shine>0||hasAcc("glow")||player.pet==="fairy"||player.pet==="ghost"||player.combatPet||armorSet()==="crystal"||armorSet()==="shroom"){ const lx=Math.floor((player.x+PW/2)/T),ly=Math.floor((player.y+PH/2)/T); if(lx>=x0&&lx<=x1&&ly>=y0&&ly<=y1)L[at(lx,ly)]=Math.max(L[at(lx,ly)],(player.buffs.shine>0||hasAcc("glow"))?0.95:0.6); }
   for(const f of fireflies){ const fx=Math.floor(f.x/T),fy=Math.floor(f.y/T); if(fx>=x0&&fx<=x1&&fy>=y0&&fy<=y1)L[at(fx,fy)]=Math.max(L[at(fx,fy)],0.45); }
   for(const s of stars){ const sx=Math.floor(s.x/T),sy=Math.floor(s.y/T); if(sx>=x0&&sx<=x1&&sy>=y0&&sy<=y1)L[at(sx,sy)]=Math.max(L[at(sx,sy)],0.7); }
   for(const g of glows){ const gx=Math.floor(g.x/T),gy=Math.floor(g.y/T); if(gx>=x0&&gx<=x1&&gy>=y0&&gy<=y1)L[at(gx,gy)]=Math.max(L[at(gx,gy)],0.85); }
@@ -2651,6 +2657,9 @@ function render(){
     else if(player.pet==="dog"){ ctx.fillStyle="#a8763a"; roundRect(pxp,pyp+2,13,8,3); ctx.fill(); ctx.fillStyle="#8a5e2a"; ctx.fillRect(pxp+(player.face>0?11:0),pyp,4,6); ctx.fillRect(pxp+(player.face>0?9:2),pyp-2,3,4); ctx.fillStyle="#2a2a2a"; ctx.fillRect(pxp+(player.face>0?12:1),pyp+2,2,2); ctx.fillStyle="#c8964a"; ctx.fillRect(pxp+(player.face>0?-2:13),pyp+3,3,2); }
     else if(player.pet==="bunny"){ ctx.fillStyle="#e8e0d0"; roundRect(pxp+2,pyp+3,10,7,3); ctx.fill(); ctx.beginPath();ctx.arc(pxp+(player.face>0?11:3),pyp+3,3,0,7);ctx.fill(); ctx.fillStyle="#e0d4c4"; ctx.fillRect(pxp+(player.face>0?9:3),pyp-3,2,5); ctx.fillRect(pxp+(player.face>0?12:0),pyp-3,2,5); ctx.fillStyle="#d23a5a"; ctx.fillRect(pxp+(player.face>0?11:4),pyp+3,1,1); }
     else if(player.pet==="drakeling"){ const wf=Math.sin(frameCount*0.4)*3; ctx.fillStyle="#4a9a5a"; roundRect(pxp+2,pyp+3,10,7,3); ctx.fill(); ctx.fillStyle="#3a7a4a"; ctx.beginPath();ctx.moveTo(pxp+6,pyp+4);ctx.lineTo(pxp+2,pyp-1-wf);ctx.lineTo(pxp+6,pyp+2);ctx.fill();ctx.beginPath();ctx.moveTo(pxp+8,pyp+4);ctx.lineTo(pxp+12,pyp-1-wf);ctx.lineTo(pxp+8,pyp+2);ctx.fill(); ctx.fillStyle="#5aaa6a";ctx.beginPath();ctx.arc(pxp+(player.face>0?11:3),pyp+4,3,0,7);ctx.fill(); ctx.fillStyle="#ffd24a"; ctx.fillRect(pxp+(player.face>0?11:3),pyp+3,1,1); }
+    else if(player.pet==="penguin"){ ctx.fillStyle="#2a2a3a"; roundRect(pxp+2,pyp,9,11,4); ctx.fill(); ctx.fillStyle="#e8e8f0"; roundRect(pxp+4,pyp+3,5,7,2); ctx.fill(); ctx.fillStyle="#ffa030"; ctx.fillRect(pxp+(player.face>0?10:1),pyp+3,2,2); ctx.fillStyle="#fff"; ctx.fillRect(pxp+(player.face>0?7:4),pyp+2,1,1); ctx.fillStyle="#2a2a3a"; ctx.fillRect(pxp+(player.face>0?7:4),pyp+2,1,1); }
+    else if(player.pet==="slimepet"){ ctx.fillStyle="rgba(106,176,224,.65)"; roundRect(pxp+1,pyp+2,11,9,4); ctx.fill(); ctx.fillStyle="rgba(150,205,240,.55)"; roundRect(pxp+3,pyp+3,4,3,2); ctx.fill(); ctx.fillStyle="#2a3a4a"; ctx.fillRect(pxp+(player.face>0?4:7),pyp+5,2,2); ctx.fillRect(pxp+(player.face>0?7:4),pyp+5,2,2); }
+    else if(player.pet==="ghost"){ const gw=Math.sin(frameCount*0.3)*2; ctx.fillStyle="rgba(220,230,255,.3)"; ctx.beginPath();ctx.arc(pxp+6,pyp+5+gw,8,0,7);ctx.fill(); ctx.fillStyle="#e8ecff"; ctx.beginPath();ctx.arc(pxp+6,pyp+4+gw,5,Math.PI,0);ctx.fill(); ctx.fillRect(pxp+1,pyp+4+gw,10,6); ctx.fillStyle="#3a3a5a"; ctx.fillRect(pxp+(player.face>0?4:6),pyp+3+gw,2,2); ctx.fillRect(pxp+(player.face>0?8:2),pyp+3+gw,2,2); }
     else { ctx.fillStyle="#8ad6a0"; roundRect(pxp,pyp,12,10,4); ctx.fill(); ctx.fillStyle="#fff"; ctx.fillRect(pxp+(player.face>0?2:7),pyp+3,2,2); } }
   if(player.combatPet){ const cp=player.combatPet, wx=cp.x-cam.x, wy=cp.y-cam.y, gl=(cp.kind==="spore"?["#7fe0ff","#5ad0c0","#bff0ff","#3ac06a","#7affc0"]:["#9ad6ff","#7affc0","#ffd24a","#ff9ad0","#ff5a5a"])[cp.lvl-1]||(cp.kind==="spore"?"#7fe0ff":"#9ad6ff");
     ctx.fillStyle=cp.kind==="spore"?"rgba(127,224,255,.35)":"rgba(154,214,255,.35)"; ctx.beginPath(); ctx.arc(wx,wy,9,0,7); ctx.fill();
