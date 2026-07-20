@@ -373,7 +373,7 @@ const MATS={ copper_bar:{name:"Barre cuivre",col:"#c87f4a"}, iron_bar:{name:"Bar
   cobalt_bar:{name:"Barre de cobalt",col:"#2a6ad0"}, titanium_bar:{name:"Barre de titane",col:"#c0c4cc"}, mech_soul:{name:"Âme mécanique",col:"#9fe0ff"},
   glowmush:{name:"Champignon lumineux",col:"#7fe0ff"}, silk:{name:"Soie",col:"#e8e3d0"}, candy:{name:"Bonbon",col:"#e85a8a"}, feather:{name:"Plume",col:"#e8d8a8"}, honey:{name:"Miel",col:"#e8a82a"}, ice_shard:{name:"Éclat de glace",col:"#aae0ff"}, bone:{name:"Os",col:"#e8e0c8"}, meteor_bar:{name:"Barre de météore",col:"#c8763a"}, herb:{name:"Herbe médicinale",col:"#3ac06a"}, nightmare_shard:{name:"Éclat de cauchemar",col:"#a03ad0"}, spider_fang:{name:"Croc d'araignée",col:"#c8b0d0"}, gel:{name:"Gel",col:"#6ab0e0"}, crimtane_bar:{name:"Barre de crimtane",col:"#c0392b"}, tissue:{name:"Échantillon de tissu",col:"#e0304a"}, coral:{name:"Corail",col:"#ff7a9a"}, pearl:{name:"Perle",col:"#f0e8f4"}, soul_fire:{name:"Âme de feu",col:"#ff8a3a"}, stardust:{name:"Poussière d'étoile",col:"#ffe27a"}, doubloon:{name:"Doublon",col:"#e8c33a"}, frog:{name:"Grenouille",col:"#5aa04a"}, butterfly:{name:"Papillon",col:"#e0a0e0"}, firefly:{name:"Luciole",col:"#fff7a0"}, martian_plating:{name:"Plaque martienne",col:"#8ab0c0"}, stone_tablet:{name:"Tablette de pierre",col:"#8a94a0"}, fallen_star:{name:"Étoile filante",col:"#fff2a0"} };
 const AMMO={ arrow:{name:"Flèche",col:"#caa15a",dmg:5} };
-const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenbee:{name:"Larve royale"}, golem:{name:"Noyau de golem"}, worm:{name:"Nourriture maudite"}, moon:{name:"Tablette céleste"}, mechworm:{name:"Engrenage maudit"}, titan:{name:"Relique céleste"}, broodmother:{name:"Cocon royal"}, slime_crown:{name:"Couronne gluante"}, celestial_sigil:{name:"Sceau céleste"}, bulb:{name:"Bulbe carnivore"}, spore_pod:{name:"Bulbe de spores"}, sand_relic:{name:"Relique de sable"}, ice_relic:{name:"Relique de givre"}, crimson_relic:{name:"Relique carmin"} };
+const SUMMONS={ eye:{name:"Œil suspect"}, helleye:{name:"Cœur maudit"}, queenbee:{name:"Larve royale"}, golem:{name:"Noyau de golem"}, worm:{name:"Nourriture maudite"}, moon:{name:"Tablette céleste"}, mechworm:{name:"Engrenage maudit"}, titan:{name:"Relique céleste"}, broodmother:{name:"Cocon royal"}, slime_crown:{name:"Couronne gluante"}, celestial_sigil:{name:"Sceau céleste"}, bulb:{name:"Bulbe carnivore"}, spore_pod:{name:"Bulbe de spores"}, sand_relic:{name:"Relique de sable"}, ice_relic:{name:"Relique de givre"}, crimson_relic:{name:"Relique carmin"}, hallow_relic:{name:"Relique sacrée"} };
 const USES={ lifecrystal:{name:"Cristal de vie",col:"#ff3a6a"}, manacrystal:{name:"Étoile de mana",col:"#5a6aff"},
   hp_potion:{name:"Potion de soin",col:"#e23a4a"}, mp_potion:{name:"Potion de mana",col:"#3a6ae2"},
   cooked_fish:{name:"Poisson grillé",col:"#d8a25a"}, mushroom_soup:{name:"Soupe de champignons",col:"#c87a3a"},
@@ -677,6 +677,7 @@ const RECIPES=[
   R({kind:"summon",id:"sand_relic"},[ti(FOSSIL,4),ti(SANDSTONE,6)],"table"),
   R({kind:"summon",id:"ice_relic"},[ti(ICE,6),ma("ice_shard",4)],"table"),
   R({kind:"summon",id:"crimson_relic"},[ti(CRIMSTONE,6),ma("tissue",4)],"table"),
+  R({kind:"summon",id:"hallow_relic"},[ti(PEARLSTONE,6),ma("crystal_bar",2)],"table"),
   R({kind:"tile",id:TORCH,n:4},[ma("gel",1),ti(LOG,1)],null),
   // phase 38 (stations de confort & de combat + mobilier)
   R({kind:"tile",id:SHARPENING},[ma("iron_bar",4),ti(STONE,6)],"table"),
@@ -1344,7 +1345,7 @@ let slimeRain=false, slimeRainT=0, slimeKills=0;
 let pirateInvasion=false, pirateT=0, pirateKills=0, pirateBossUp=false;
 let martianInvasion=false, martianT=0, martianKills=0, martianBossUp=false;
 let lastBossTier=0; // dernier boss vaincu (pour l'autel de sommation)
-const TIER_SUMMON={1:"eye",2:"helleye",3:"queenbee",4:"golem",5:"worm",6:"moon",7:"mechworm",8:"titan",9:"broodmother",10:"slime_crown",11:"celestial_sigil",12:"bulb",13:"spore_pod",14:"sand_relic",15:"ice_relic",16:"crimson_relic"};
+const TIER_SUMMON={1:"eye",2:"helleye",3:"queenbee",4:"golem",5:"worm",6:"moon",7:"mechworm",8:"titan",9:"broodmother",10:"slime_crown",11:"celestial_sigil",12:"bulb",13:"spore_pod",14:"sand_relic",15:"ice_relic",16:"crimson_relic",17:"hallow_relic"};
 function altarSummon(){ if(boss){ flash("Un boss est déjà là"); return false; }
   if(!lastBossTier||!TIER_SUMMON[lastBossTier]){ flash("⚜️ Vainquez d'abord un boss pour le réinvoquer ici"); return false; }
   summonBoss({kind:"summon",id:TIER_SUMMON[lastBossTier]}); return !!boss; }
@@ -2184,7 +2185,10 @@ function summonBoss(sel){ if(boss){flash("Le boss est déjà là");return;}
     flash("❄️ La Reine des glaces s'éveille dans un blizzard !"); }
   else if(sel.id==="crimson_relic"){ removeItem("summon","crimson_relic",1);
     boss={type:"boss",tier:16,x:player.x+250,y:player.y-160,vx:0,vy:0,w:72,h:64,hp:2100,maxHp:2100,dmg:32,col:"#c0392b",charge:0,t:0,spawnCd:2.4,bloodCd:1.8,enraged:false};
-    flash("🩸 Le Cœur du carmin palpite et se déchaîne !"); } }
+    flash("🩸 Le Cœur du carmin palpite et se déchaîne !"); }
+  else if(sel.id==="hallow_relic"){ removeItem("summon","hallow_relic",1);
+    boss={type:"boss",tier:17,x:player.x+260,y:player.y-170,vx:0,vy:0,w:70,h:60,hp:2300,maxHp:2300,dmg:34,col:"#e08ad0",charge:0,t:0,spawnCd:2.4,prismCd:1.7,enraged:false};
+    flash("🌈 La Reine des fées descend dans un éclat prismatique !"); } }
 function updateMechWorm(dt,step){ const e=boss;
   const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1;
   e.vx+=dx/d*0.35*step; e.vy+=dy/d*0.35*step; const sp=Math.hypot(e.vx,e.vy),mx=7.5;
@@ -2235,6 +2239,9 @@ function updateBoss(dt,step){ const e=boss; e.t+=dt; if(e.yoyoCd>0)e.yoyoCd-=dt;
   if(e.tier===16){ if(!e.enraged&&e.hp<e.maxHp*0.45){ e.enraged=true; flash("🩸 Le Cœur du carmin entre en frénésie !"); }
     e.spawnCd-=dt; if(e.spawnCd<=0&&enemies.length<14){ spawnEnemy(Math.random()<0.5?"crimera":"facemonster",e.x+e.w/2,e.y+e.h/2); e.spawnCd=e.enraged?1.7:2.6; }
     e.bloodCd-=dt; if(e.bloodCd<=0&&d<560){ const a0=Math.atan2(dy,dx),n=e.enraged?6:4; for(let k=0;k<n;k++){ const a=a0+(k-(n-1)/2)*0.22; projectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,vx:Math.cos(a)*6,vy:Math.sin(a)*6,type:"venom",dmg:Math.round(e.dmg*0.7),life:3,friendly:false}); } e.bloodCd=e.enraged?1.0:1.8; } }
+  if(e.tier===17){ if(!e.enraged&&e.hp<e.maxHp*0.45){ e.enraged=true; flash("🌈 La Reine des fées libère un torrent de lumière !"); }
+    e.spawnCd-=dt; if(e.spawnCd<=0&&enemies.length<14){ spawnEnemy("pixie",e.x+e.w/2,e.y+e.h/2); e.spawnCd=e.enraged?1.7:2.6; }
+    e.prismCd-=dt; if(e.prismCd<=0&&d<600){ const a0=Math.atan2(dy,dx),n=e.enraged?7:5; for(let k=0;k<n;k++){ const a=a0+(k-(n-1)/2)*0.2; projectiles.push({x:e.x+e.w/2,y:e.y+e.h/2,vx:Math.cos(a)*6.5,vy:Math.sin(a)*6.5,type:"spark",dmg:Math.round(e.dmg*0.7),life:3,friendly:false}); } e.prismCd=e.enraged?1.0:1.8; } }
   if(player.invuln<=0&&rectHit(e.x,e.y,e.w,e.h,player.x,player.y,PW,PH))hurtPlayer(e.dmg,Math.sign(player.x-e.x)||1);
   }
   if(e.hp<=0){ spawnParticles(e.x+e.w/2,e.y+e.h/2,e.col,40); bossKills++; lastBossTier=e.tier; addItem("tile",TROPHY,1); addItem("use","treasure_bag",1);
@@ -2254,6 +2261,7 @@ function updateBoss(dt,step){ const e=boss; e.t+=dt; if(e.yoyoCd>0)e.yoyoCd-=dt;
     else if(e.tier===14){ addItem("tile",FOSSIL,15+Math.floor(Math.random()*10)); addItem("tile",SANDSTONE,25); addItem("tool","bone_rang",1); addItem("acc","flying_carpet",1); coins+=220; player.maxHp+=25; player.hp=player.maxHp; flash("🏆 La Reine fourmilion est vaincue ! Boomerang d'os + Tapis volant + 25 PV max !"); }
     else if(e.tier===15){ addItem("mat","ice_shard",15+Math.floor(Math.random()*10)); addItem("tile",SNOWBRICK,25); addItem("use","frost_core",1); addItem("tool","frost_spear",1); addItem("acc","band",1); coins+=240; player.maxHp+=28; player.hp=player.maxHp; flash("🏆 La Reine des glaces est vaincue ! Lance de givre + 28 PV max !"); }
     else if(e.tier===16){ addItem("mat","crimtane_bar",10+Math.floor(Math.random()*6)); addItem("mat","tissue",12); addItem("tile",CRIMTANE,10); addItem("acc","mech_heart",1); coins+=260; player.maxHp+=30; player.hp=player.maxHp; flash("🏆 Le Cœur du carmin est vaincu ! Cœur mécanique + 30 PV max !"); }
+    else if(e.tier===17){ addItem("mat","crystal_bar",12+Math.floor(Math.random()*6)); addItem("tile",PEARLSTONE,20); addItem("acc","celestial_emblem",1); coins+=300; player.maxHp+=32; player.hp=player.maxHp; flash("🏆 La Reine des fées est vaincue ! Emblème céleste + 32 PV max !"); }
     else { addItem("mat","gold_bar",12); addItem("tool","bow2",1); coins+=120; player.maxHp+=20; player.hp=player.maxHp; flash("🏆 Boss vaincu ! +20 PV max, 120 pièces, butin reçu"); }
     boss=null; dirtyUI=true; }
   else if(e.tier===1&&!isNight()){ flash("L'Œil maléfique fuit le jour..."); boss=null; }
@@ -2963,6 +2971,13 @@ function drawBoss(e){ const sx=e.x-cam.x,sy=e.y-cam.y,t2=e.tier===2;
     ctx.fillStyle="#ffe27a";ctx.beginPath();ctx.arc(cx2,cy2,e.w*0.12,0,7);ctx.fill();
     ctx.fillStyle="#fff";const ox12=clamp((player.x-e.x)/30,-5,5);for(let r=0;r<6;r++){const a=r*Math.PI/3;ctx.beginPath();ctx.arc(cx2+Math.cos(a)*5+ox12,cy2+Math.sin(a)*5,1.6,0,7);ctx.fill();}
     ctx.strokeStyle=e.enraged?"#ff5a7a":"#8ac04a";ctx.lineWidth=2;for(let k=0;k<6;k++){const a=k*Math.PI/3+e.t;ctx.beginPath();ctx.moveTo(cx2+Math.cos(a)*e.w*0.24,cy2+Math.sin(a)*e.w*0.24);ctx.lineTo(cx2+Math.cos(a)*e.w*0.34,cy2+Math.sin(a)*e.w*0.34);ctx.stroke();} return; }
+  if(e.tier===17){ const cx2=sx+e.w/2,cy2=sy+e.h/2, wing=Math.sin((e.t||0)*4)*6, cols=["#ff9ad0","#ffd24a","#7affc0","#9ad6ff","#c9a0ff"];
+    ctx.fillStyle=e.enraged?"rgba(255,180,240,.4)":"rgba(224,138,208,.28)";ctx.beginPath();ctx.arc(cx2,cy2,e.w*0.62,0,7);ctx.fill();
+    for(let s=-1;s<=1;s+=2){ ctx.fillStyle=cols[(Math.floor((e.t||0)*3))%cols.length]; ctx.beginPath();ctx.moveTo(cx2,cy2);ctx.lineTo(cx2+s*e.w*0.5,cy2-e.h*0.4-wing);ctx.lineTo(cx2+s*e.w*0.44,cy2+e.h*0.3);ctx.closePath();ctx.fill(); }
+    ctx.fillStyle=e.enraged?"#ffc0e8":"#e08ad0";ctx.beginPath();ctx.ellipse(cx2,cy2,e.w*0.2,e.h*0.42,0,0,7);ctx.fill();
+    ctx.fillStyle="#fff6ff";ctx.beginPath();ctx.arc(cx2,cy2-e.h*0.28,e.w*0.15,0,7);ctx.fill();
+    const oxs=clamp((player.x-e.x)/30,-4,4);ctx.fillStyle="#7a3a6a";ctx.fillRect(cx2-4+oxs,cy2-e.h*0.3,2,3);ctx.fillRect(cx2+2+oxs,cy2-e.h*0.3,2,3);
+    ctx.fillStyle="#ffe27a";for(let k=0;k<5;k++){const a=k*1.257;ctx.beginPath();ctx.arc(cx2+Math.cos(a)*e.w*0.5,cy2+Math.sin(a)*e.h*0.4,1.6,0,7);ctx.fill();} return; }
   if(e.tier===16){ const cx2=sx+e.w/2,cy2=sy+e.h/2, body=e.enraged?"#e04a4a":"#c0392b", pulse=1+Math.sin((e.t||0)*6)*0.06;
     ctx.fillStyle=e.enraged?"rgba(224,60,60,.45)":"rgba(192,57,43,.3)";ctx.beginPath();ctx.arc(cx2,cy2,e.w*0.6*pulse,0,7);ctx.fill();
     ctx.fillStyle=body;ctx.beginPath();ctx.moveTo(cx2,cy2-e.h*0.42*pulse);ctx.bezierCurveTo(cx2+e.w*0.5,cy2-e.h*0.5,cx2+e.w*0.42,cy2+e.h*0.3,cx2,cy2+e.h*0.46);ctx.bezierCurveTo(cx2-e.w*0.42,cy2+e.h*0.3,cx2-e.w*0.5,cy2-e.h*0.5,cx2,cy2-e.h*0.42*pulse);ctx.fill();
